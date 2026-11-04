@@ -1,0 +1,14 @@
+{
+  "name": "Clickbait Capital",
+  "short_name": "Clickbait",
+  "description": "Jij bent het algoritme. Kies elke beurt welke post in de feed komt en laat je platform groeien van studentenapp tot beursgenoteerde techreus.",
+  "lang": "nl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0a17",
+  "theme_color": "#0d0a17",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
