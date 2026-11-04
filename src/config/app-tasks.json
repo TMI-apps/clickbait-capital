@@ -2,12 +2,12 @@
   {
     "title": "Game rules engine and content schema",
     "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 1 (parallel). Area: src/features/game-engine/ (new). Pure TypeScript services, no UI: game state, the three meters 0-100 (start 50), the 3-card draft (one Viraal, one Advertentie, one Nieuws), applying a played card, hidden Toxicity, passive costs and reputation decay, the three game overs, phases 1-4 with milestone goals and the IPO win, event triggers (milestone and Toxicity threshold) and the combo/penalty rules (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte). Owns the content schema types (card, event, phase, balance values) and a small seed deck as test fixture; real content is a later lap. Seeded RNG so games are reproducible. TDD per testing rule. Size M.",
-    "status": "to-do"
+    "status": "in-progress"
   },
   {
     "title": "Card frame, game tokens and GameCard kit component",
     "description": "Wave 1 (parallel). Area: src/shared/theme/tokens/ and src/components/common/GameCard/ (new). Add design tokens for the card frame (radius, border, image aspect), card-type colours for Viraal / Advertentie / Nieuws and event cards with an icon and label per type so colour is never the only signal, meter colours, and motion tokens (durations/easings, reduced-motion overrides). One reusable GameCard kit component: image (object-fit, focal point, fallback when missing, alt text), title, key stats (meter effects shown as +/- with icons), flavor text, type and rarity states, selected/disabled/focus states, 44px+ touch target, keyboard operable. Presentation only, no game logic. Must look right with portrait, landscape and missing images. WCAG AA. Size M.",
-    "status": "to-do"
+    "status": "in-progress"
   },
   {
     "title": "Game content: cards, events and UI copy",
