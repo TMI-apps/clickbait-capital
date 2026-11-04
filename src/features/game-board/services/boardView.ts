@@ -16,7 +16,6 @@ import {
   isJournalismDroughtActive,
   scaleForPhase,
 } from "@/features/game-engine/api";
-import { END_REPORT_TEMPLATE, GAME_OVER_TEXTS, UI_COPY } from "@/features/game-content/api";
 import type {
   CardEffectView,
   DraftCardView,
@@ -32,14 +31,6 @@ export const METER_ORDER: MeterKey[] = ["revenue", "users", "reputation"];
 
 /** Draft order: one card per type, left to right. */
 const DRAFT_ORDER: CardType[] = ["viral", "ad", "news"];
-
-/** Win text until the game-flow lap adds the IPO end report. */
-const WIN_TEXT = {
-  title: UI_COPY.results.wonKicker,
-  headline: END_REPORT_TEMPLATE.title,
-  message: "Je platform staat op de beurs. Maar tegen welke prijs?",
-  lesson: "",
-};
 
 const countFormat = new Intl.NumberFormat("nl-NL");
 const euroFormat = new Intl.NumberFormat("nl-NL", {
@@ -173,16 +164,26 @@ export function toEventView(state: GameState, content: GameContent): EventView |
   };
 }
 
-/** Win or game over text, or null while the run goes on. */
-export function toGameEnd(state: GameState): GameEndView | null {
-  if (state.status === "won") {
-    return { outcome: "won", reason: null, ...WIN_TEXT };
+/** The run summary for the end screens, or null while the run goes on. */
+export function toGameEnd(state: GameState, content: GameContent): GameEndView | null {
+  const ended = state.status === "won" || (state.status === "lost" && state.gameOver !== null);
+  if (!ended) {
+    return null;
   }
-  if (state.status === "lost" && state.gameOver) {
-    const { title, headline, body, lesson } = GAME_OVER_TEXTS[state.gameOver];
-    return { outcome: "lost", reason: state.gameOver, title, headline, message: body, lesson };
-  }
-  return null;
+  return {
+    outcome: state.status === "won" ? "won" : "lost",
+    reason: state.status === "won" ? null : state.gameOver,
+    turn: state.turn,
+    phaseId: state.phase,
+    phaseName: currentPhase(state, content).name,
+    stats: { ...state.stats },
+    statTexts: {
+      users: formatStat("users", state.stats.users),
+      revenue: formatStat("revenue", state.stats.revenue),
+    },
+    playedTypes: [...state.playedTypes],
+    firedEventIds: [...state.firedEventIds],
+  };
 }
 
 /** Feed post for a played card. `turn` keeps keys unique when a card is drawn again. */
