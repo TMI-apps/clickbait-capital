@@ -19,6 +19,9 @@ const LoginPage = lazy(() => import("@/pages/LoginPage").then((m) => ({ default:
 const ResetPasswordPage = lazy(() =>
   import("@/pages/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage }))
 );
+const CreditsPage = lazy(() =>
+  import("@/pages/CreditsPage").then((m) => ({ default: m.CreditsPage }))
+);
 const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
@@ -38,6 +41,7 @@ function AppContent() {
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/credits" element={<CreditsPage />} />
               </Route>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />

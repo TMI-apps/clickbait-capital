@@ -125,6 +125,10 @@ export const UI_COPY = {
     disclaimer:
       "Alle bedrijven, merken, personen en gebeurtenissen in dit spel zijn verzonnen. Elke gelijkenis met echte platforms is helaas geen toeval.",
     madeBy: "Gemaakt door TMI",
+    imagesHeading: "Beelden",
+    imagesIntro:
+      "Alle foto's staan onder een open licentie (CC0 of CC BY). Met dank aan de makers:",
+    audioHeading: "Geluid",
     closeButton: "Sluiten",
   },
   errors: {
