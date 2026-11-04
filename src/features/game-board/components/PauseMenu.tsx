@@ -9,7 +9,13 @@ export interface PauseMenuProps {
 
 /** Pause menu: resume or quit to the start screen. Escape and the close button also resume. */
 export const PauseMenu = ({ open, onResume, onQuit }: PauseMenuProps) => (
-  <Modal open={open} onClose={onResume} title="Pauze" description="Het spel staat stil.">
+  <Modal
+    closeLabel="Sluiten"
+    open={open}
+    onClose={onResume}
+    title="Pauze"
+    description="Het spel staat stil."
+  >
     <div className="flex flex-col gap-2">
       <Button className="min-h-11" onClick={onResume}>
         Verder spelen

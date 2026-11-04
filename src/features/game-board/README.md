@@ -27,7 +27,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Tap plays (D2):** one tap or Enter / Space plays the card; details sit behind the info button on the artwork (accessible, unlike long-press).
 - **Drag (D3):** `@dnd-kit/core` with a mouse distance (8px) and touch delay (150ms) sensor, so tap and drag coexist; dropping on the feed plays the card. No keyboard drag sensor: the keyboard path is arrows + Enter.
 - **Fullscreen (D4):** `/spel` hides the Topbar (`FULLSCREEN_ROUTES` in `src/App.tsx`); quitting goes through the pause menu.
-- **Answer-only dialogs (D5):** events and the end screen use `Modal` with `dismissible={false}` (no close button, Escape and overlay ignored).
+- **Answer-only dialogs (D5):** events and the end screen use `Modal` with `dismissible={false}` (no close button, Escape and overlay ignored); the pause and detail dialogs pass `closeLabel="Sluiten"` (the kit default stays "Close").
 - **Droogte (D6):** during Journalistieke Droogte the viral card gets a destructive ring and warning icon, and a text line above the draft explains it (colour is never the only signal).
 - **Compact cards (D7, D8):** the three cards stay in one row at 390px using `GameCard size="compact"` at every width; the flavor text and full labels are in the detail dialog.
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.

@@ -17,6 +17,8 @@ export interface ModalProps {
    * Escape or an overlay click do nothing. Default true.
    */
   dismissible?: boolean;
+  /** Accessible name of the close button. Default "Close"; Dutch screens pass "Sluiten". */
+  closeLabel?: string;
 }
 
 /**
@@ -32,6 +34,7 @@ export const Modal = ({
   children,
   className,
   dismissible = true,
+  closeLabel = "Close",
 }: ModalProps) => {
   const blockDismiss = (event: Event): void => {
     if (!dismissible) event.preventDefault();
@@ -66,7 +69,7 @@ export const Modal = ({
           {actions && <div className="flex justify-end gap-2">{actions}</div>}
           {dismissible && (
             <DialogPrimitive.Close
-              aria-label="Sluiten"
+              aria-label={closeLabel}
               className="absolute top-2 right-2 inline-flex size-11 items-center justify-center rounded-sm opacity-70 transition-opacity outline-none hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring"
             >
               <X aria-hidden="true" className="size-4" />

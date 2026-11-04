@@ -12,6 +12,7 @@ export interface CardDetailDialogProps {
 /** Full card view (large card, whole text) with a play action. */
 export const CardDetailDialog = ({ card, onClose, onPlay }: CardDetailDialogProps) => (
   <Modal
+    closeLabel="Sluiten"
     open={card !== null}
     onClose={onClose}
     title={card?.title}
