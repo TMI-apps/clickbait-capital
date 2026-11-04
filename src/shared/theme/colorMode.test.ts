@@ -29,8 +29,8 @@ describe("stored color mode", () => {
     vi.restoreAllMocks();
   });
 
-  it("should default to system when nothing is stored", () => {
-    expect(readStoredColorMode()).toBe("system");
+  it("should default to dark when nothing is stored", () => {
+    expect(readStoredColorMode()).toBe("dark");
   });
 
   it("should read back a stored mode", () => {
@@ -38,16 +38,16 @@ describe("stored color mode", () => {
     expect(readStoredColorMode()).toBe("dark");
   });
 
-  it("should fall back to system when the stored value is invalid", () => {
+  it("should fall back to dark when the stored value is invalid", () => {
     window.localStorage.setItem(COLOR_MODE_STORAGE_KEY, "sepia");
-    expect(readStoredColorMode()).toBe("system");
+    expect(readStoredColorMode()).toBe("dark");
   });
 
-  it("should fall back to system when storage throws", () => {
+  it("should fall back to dark when storage throws", () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new Error("blocked");
     });
-    expect(readStoredColorMode()).toBe("system");
+    expect(readStoredColorMode()).toBe("dark");
   });
 
   it("should not throw when storage cannot be written", () => {

@@ -8,7 +8,7 @@ export const COLOR_MODES = ["light", "dark", "system"] as const;
 export type ColorMode = (typeof COLOR_MODES)[number];
 export type ResolvedColorMode = Exclude<ColorMode, "system">;
 
-export const DEFAULT_COLOR_MODE: ColorMode = "system";
+export const DEFAULT_COLOR_MODE: ColorMode = "dark";
 export const COLOR_MODE_STORAGE_KEY = "color-mode";
 export const DARK_MODE_CLASS = "dark";
 export const PREFERS_DARK_QUERY = "(prefers-color-scheme: dark)";
