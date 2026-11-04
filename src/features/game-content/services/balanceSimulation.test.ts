@@ -112,6 +112,64 @@ const mixed = lookahead(ALL_SEEING);
  */
 const humanLike = lookahead(BOARD_ONLY);
 
+/** The card type that raises each meter, and the event option kind that does. */
+const METER_CARD = { revenue: "ad", users: "viral", reputation: "news" } as const;
+const METER_OPTION = { revenue: "a", users: "b", reputation: "c" } as const;
+type Meter = keyof typeof METER_CARD;
+
+function weakestMeter(state: GameState): [Meter, number] {
+  return (Object.entries(state.meters) as [Meter, number][]).sort((a, b) => a[1] - b[1])[0]!;
+}
+
+/** Ad-Fatigue is shown on the board once it hits; a player who saw it avoids a third ad in four. */
+function adIsFresh(state: GameState): boolean {
+  return state.playedTypes.slice(-3).filter((type) => type === "ad").length < 2;
+}
+
+/** IPO: Inkomsten above 80 and Reputatie above 60 with a margin, users kept alive. */
+function ipoCard(state: GameState): CardType {
+  const { revenue, reputation, users } = state.meters;
+  if (revenue <= 90 && adIsFresh(state)) {
+    return "ad";
+  }
+  if (reputation <= 75) {
+    return "news";
+  }
+  return users < 50 ? "viral" : "news";
+}
+
+/** Phases 1–3: grow users, top up money when it runs low, never three virals in a row. */
+function growthCard(state: GameState): CardType {
+  const { revenue } = state.meters;
+  const moneyFloor = state.phase === 2 ? 60 : state.phase === 3 ? 45 : 0;
+  if (revenue < moneyFloor) {
+    return adIsFresh(state) ? "ad" : "news";
+  }
+  if (state.viralStreak < 2) {
+    return "viral";
+  }
+  return revenue < 70 && adIsFresh(state) ? "ad" : "news";
+}
+
+/**
+ * Rule-of-thumb player: no lookahead, only the board. Rescue a meter under 35, news after
+ * three turns without it, then play toward the phase goal. Events fix the weakest meter.
+ * The browser play-test script uses the same rules.
+ */
+const ruleOfThumb: Strategy = (state) => {
+  const [meter, value] = weakestMeter(state);
+  if (state.status === "event") {
+    return { kind: "event", optionId: METER_OPTION[meter] };
+  }
+  if (value < 35) {
+    return { kind: "card", type: METER_CARD[meter] };
+  }
+  if (state.turnsWithoutNews >= 3) {
+    return { kind: "card", type: "news" };
+  }
+  return { kind: "card", type: state.phase === 4 ? ipoCard(state) : growthCard(state) };
+};
+
 /** The orchestrator's play-test rotation: Viraal, Advertentie, Nieuws, Nieuws, Advertentie. */
 const rotateFive: Strategy = (state) => {
   if (state.status === "event") {
@@ -218,6 +276,7 @@ describe("balance simulation", () => {
     rotate: summarize(rotate),
     rotateFive: summarize(rotateFive),
     humanLike: summarize(humanLike),
+    ruleOfThumb: summarize(ruleOfThumb),
   };
   process.stdout.write(`${JSON.stringify(results)}\n`);
 
@@ -256,6 +315,10 @@ describe("balance simulation", () => {
 
   it("should let a human-like player win the IPO in most games when they react to visible warnings", () => {
     expect(results.humanLike.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
+  });
+
+  it("should let a rule-of-thumb player win the IPO in most games when they follow the board", () => {
+    expect(results.ruleOfThumb.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
   });
 
   it("should let a careful player win the IPO when they react to every meter", () => {
