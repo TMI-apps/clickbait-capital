@@ -27,7 +27,12 @@ export interface PhaseProgressView {
   progress: number;
   /** Turns-in-a-row requirement, only for goals that need more than one turn. */
   streak: { current: number; required: number } | null;
-  /** Absolute stats, formatted in Dutch ("1.000 gebruikers", "€ 25.000 omzet"). */
+  /**
+   * Progress on the goal's absolute stats ("Bereik: 85.000 / 100.000"). Only stats the goal
+   * reads, so the board never shows a stat next to a meter with a different number.
+   */
+  goalStats: string[];
+  /** Absolute stats for the end screen ("Bereik: 85.000", "Omzet: € 25.000"). */
   usersText: string;
   revenueText: string;
   turn: number;

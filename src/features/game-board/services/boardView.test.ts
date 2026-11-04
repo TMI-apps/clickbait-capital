@@ -41,13 +41,16 @@ describe("boardView", () => {
     expect(progress.phaseName).toBe("De Scale-Up");
     expect(progress.progress).toBeCloseTo(0.5);
     expect(progress.streak).toBeNull();
-    expect(progress.usersText).toBe("2.500.000 gebruikers");
-    expect(progress.revenueText).toMatch(/€\s?400\.000 omzet/);
+    expect(progress.goalStats[0]).toBe("Bereik: 2.500.000 / 5.000.000");
+    expect(progress.goalStats[1]).toMatch(/^Omzet: €\s?400\.000 \/ €\s?500\.000$/);
   });
 
   it("should show the turn streak when the goal needs turns in a row", () => {
     const state: GameState = { ...fresh(), phase: 4, goalStreak: 3 };
-    expect(toPhaseProgress(state, SEED_CONTENT).streak).toEqual({ current: 3, required: 10 });
+    const progress = toPhaseProgress(state, SEED_CONTENT);
+    expect(progress.streak).toEqual({ current: 3, required: 10 });
+    // Phase 4's goal reads meters only, so no absolute stats are shown.
+    expect(progress.goalStats).toEqual([]);
   });
 
   it("should give one card per type in viral, ad, news order when a draft is open", () => {

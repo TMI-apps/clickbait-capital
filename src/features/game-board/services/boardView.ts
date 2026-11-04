@@ -8,6 +8,7 @@ import type {
   GoalCondition,
   MeterKey,
   PhaseDefinition,
+  StatKey,
 } from "@/features/game-engine/api";
 import {
   getHandCards,
@@ -15,12 +16,7 @@ import {
   isJournalismDroughtActive,
   scaleForPhase,
 } from "@/features/game-engine/api";
-import {
-  END_REPORT_TEMPLATE,
-  GAME_OVER_TEXTS,
-  UI_COPY,
-  fillTemplate,
-} from "@/features/game-content/api";
+import { END_REPORT_TEMPLATE, GAME_OVER_TEXTS, UI_COPY } from "@/features/game-content/api";
 import type {
   CardEffectView,
   DraftCardView,
@@ -92,6 +88,23 @@ function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView
   return toCardEffects(scaleForPhase(effects, phase));
 }
 
+/** Labels for the absolute stats; "Bereik" keeps reach apart from the Gebruikers meter. */
+const STAT_LABEL: Record<StatKey, string> = { users: "Bereik", revenue: "Omzet" };
+
+function formatStat(stat: StatKey, value: number): string {
+  return stat === "revenue" ? euroFormat.format(value) : countFormat.format(value);
+}
+
+function goalStatTexts(conditions: GoalCondition[], state: GameState): string[] {
+  return conditions.flatMap((condition) =>
+    condition.kind === "stat"
+      ? [
+          `${STAT_LABEL[condition.stat]}: ${formatStat(condition.stat, state.stats[condition.stat])} / ${formatStat(condition.stat, condition.atLeast)}`,
+        ]
+      : []
+  );
+}
+
 /** Phase name, goal text and progress. Progress is the weakest goal condition, capped at 1. */
 export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
   const phase = currentPhase(state, content);
@@ -105,12 +118,9 @@ export function toPhaseProgress(state: GameState, content: GameContent): PhasePr
     goalDescription: description,
     progress,
     streak: consecutiveTurns > 1 ? { current: state.goalStreak, required: consecutiveTurns } : null,
-    usersText: fillTemplate(UI_COPY.board.usersStatLabel, {
-      users: countFormat.format(state.stats.users),
-    }),
-    revenueText: fillTemplate(UI_COPY.board.revenueStatLabel, {
-      revenue: euroFormat.format(state.stats.revenue),
-    }),
+    goalStats: goalStatTexts(conditions, state),
+    usersText: `${STAT_LABEL.users}: ${formatStat("users", state.stats.users)}`,
+    revenueText: `${STAT_LABEL.revenue}: ${formatStat("revenue", state.stats.revenue)}`,
     turn: state.turn,
   };
 }

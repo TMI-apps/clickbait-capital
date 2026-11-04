@@ -32,6 +32,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Droogte (D6):** during Journalistieke Droogte the viral card gets a destructive ring and warning icon, and a text line above the draft explains it (colour is never the only signal).
 - **Compact cards (D7, D8):** the three cards stay in one row at 390px using `GameCard size="compact"` at every width; the flavor text and full labels are in the detail dialog.
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
+- **Stats only as goal progress (D11):** the absolute stats (engine D1) show only for the goal conditions that read them, as "Bereik: x / doel" and "Omzet: x / doel"; "Bereik" keeps reach apart from the Gebruikers meter, whose number differs. Phase 4 (meter goal) shows none. The end screen labels them the same way.
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
 - **Minimal endings:** win and the three game overs show the content's title, headline, body and lesson, the phase and stats, and "Opnieuw spelen" / "Naar het begin". The full endings with the end report belong to the game-flow lap.
 

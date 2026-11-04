@@ -35,8 +35,9 @@ export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
         />
       </div>
       <p className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-muted-foreground tabular-nums">
-        <span>{phase.usersText}</span>
-        <span>{phase.revenueText}</span>
+        {phase.goalStats.map((text) => (
+          <span key={text}>{text}</span>
+        ))}
         {phase.streak && (
           <span>
             {fillTemplate(UI_COPY.board.goalStreakLabel, {
