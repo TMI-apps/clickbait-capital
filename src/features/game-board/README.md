@@ -40,9 +40,11 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Sounds at session level (D12):** `useGameSession` computes the sounds of each action with the pure `soundsForAction` (card type or `event-choice`, then one follow-up: `ipo-win` / `game-over` / `phase-up` / `event-appear`, else at most one `meter-loss` / `meter-gain` when a meter moves ≥ 8) and `useBoardSounds` plays them. Dialog components stay sound-free; main buttons (pause, resume, restart, quit, the phase intro's continue) give `ui-tap` via `GameBoard`. The compact `MuteToggle` sits next to pause. Audio, mute and the gesture unlock live in `@/features/game-audio/api`.
 - **Game-flow screens (game-flow D1, D2):** events open the game-flow `EventModal` over the board (the board keeps the last event while it animates closed); phase intros and the endings replace the board (`PhaseTransitionScreen`, `GameEndFlow`). The board's `toGameEnd` gives the run summary (engine numbers plus board-formatted stat texts, game-flow D4); restart also resets the phase intros.
 
+- **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, because the run lives in memory on `/spel`.
+
 ## Not here yet
 
-Juice effects (game-juice lap), settings in the pause menu (game-settings lap).
+Juice effects (game-juice lap).
 
 ## Testing
 
@@ -54,4 +56,5 @@ Colocated Vitest: `services/boardView.test.ts` (mappers), `services/boardSounds.
 - `@/features/game-content/api` (`UI_COPY`, `fillTemplate`); the page passes `GAME_CONTENT`.
 - `@/features/game-flow/api` (`EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro`).
 - `@/features/game-audio/api` (`useSoundEffects`, `MuteToggle`, `SoundEffectId`).
+- `@/features/game-settings/api` (`SettingsPanel` inside the pause menu).
 - Kit: `GameCard`, `Modal`, `Button`. Package: `@dnd-kit/core` (already used by the tasks feature).

@@ -4,8 +4,15 @@ import { Button } from "@/components/common/Button";
 import { useAuthContext } from "@/shared/context/AuthContext";
 import { useAuthCallbackHandler } from "@/features/auth/hooks/useAuthCallbackHandler";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
+import { UI_COPY } from "@/features/game-content/api";
 import { appScrollContentClassName, formContentWidthClassName } from "@/shared/theme/appViewLayout";
 import { cn } from "@/shared/utils/cn";
+
+const START_LINKS = [
+  { to: "/hoe-speel-je", label: UI_COPY.start.howToPlayButton },
+  { to: "/instellingen", label: UI_COPY.start.settingsButton },
+  { to: "/credits", label: UI_COPY.start.creditsButton },
+];
 
 /**
  * Start screen of the game. Sign-in lives on the unlinked `/login` page until accounts are
@@ -42,8 +49,15 @@ export const HomePage = () => {
           groeien van studentenapp tot beursgenoteerde techreus.
         </p>
         <Button size="lg" asChild>
-          <Link to="/spel">Start spel</Link>
+          <Link to="/spel">{UI_COPY.start.startButton}</Link>
         </Button>
+        <nav aria-label="Menu" className="flex flex-wrap justify-center gap-2">
+          {START_LINKS.map((link) => (
+            <Button key={link.to} variant="ghost" className="min-h-11" asChild>
+              <Link to={link.to}>{link.label}</Link>
+            </Button>
+          ))}
+        </nav>
       </div>
     </div>
   );
