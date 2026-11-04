@@ -19,20 +19,24 @@ const LoginPage = lazy(() => import("@/pages/LoginPage").then((m) => ({ default:
 const ResetPasswordPage = lazy(() =>
   import("@/pages/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage }))
 );
+const GamePage = lazy(() => import("@/pages/GamePage").then((m) => ({ default: m.GamePage })));
 const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
+
+/** Routes that fill the screen without the Topbar (the game has its own pause menu). */
+const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel"]);
 
 const reportRenderError = (error: Error): void => reportError(error, "react");
 
 function AppContent() {
   const location = useLocation();
-  const isTasksRoute = location.pathname === "/tasks";
+  const isFullscreen = FULLSCREEN_ROUTES.has(location.pathname);
 
   return (
     <>
-      {!isTasksRoute && <Topbar />}
-      <div className={isTasksRoute ? undefined : "pt-toolbar"}>
+      {!isFullscreen && <Topbar />}
+      <div className={isFullscreen ? undefined : "pt-toolbar"}>
         <QueryErrorBoundary onError={reportRenderError}>
           <Suspense fallback={<PageLoadingState />}>
             <Routes>
@@ -43,6 +47,7 @@ function AppContent() {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/tasks" element={<TasksPage />} />
+              <Route path="/spel" element={<GamePage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>

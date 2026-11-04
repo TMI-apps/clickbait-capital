@@ -12,6 +12,13 @@ export type GameCardMeter = "revenue" | "users" | "reputation";
 /** Rarity tier; `common` shows no badge. */
 export type GameCardRarity = "common" | "rare" | "legendary";
 
+/**
+ * Card size. `compact` fits three cards in a row on a 390px phone: tighter padding, short
+ * type label, effect rows as meter icon + number (meter name stays for screen readers),
+ * no flavor text (show it in a detail view instead).
+ */
+export type GameCardSize = "default" | "compact";
+
 /** Entrance or exit animation (motion tokens; near-instant under reduced motion). */
 export type GameCardAnimation = "draw" | "play";
 

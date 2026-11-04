@@ -18,7 +18,7 @@ describe("HomePage", () => {
     renderWithProviders(<HomePage />);
 
     expect(screen.getByRole("heading", { name: "Clickbait Capital" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Start spel" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start spel" })).toHaveAttribute("href", "/spel");
     expect(screen.queryByText(/inloggen|sign in/i)).not.toBeInTheDocument();
   });
 

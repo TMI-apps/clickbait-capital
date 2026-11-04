@@ -6,6 +6,7 @@ import type {
   GameCardEffect,
   GameCardImage,
   GameCardRarity,
+  GameCardSize,
   GameCardType,
 } from "./gameCard.types";
 import { GameCardArtwork } from "./GameCardArtwork";
@@ -19,6 +20,8 @@ export interface GameCardProps {
   effects?: GameCardEffect[];
   flavor?: string;
   rarity?: GameCardRarity;
+  /** `compact` for three-in-a-row on phones; default is the full card. */
+  size?: GameCardSize;
   /** Overrides the default Dutch type label (e.g. "Breaking"). The type icon stays. */
   typeLabel?: string;
   selected?: boolean;
@@ -29,18 +32,34 @@ export interface GameCardProps {
   className?: string;
 }
 
-const TypeChip = ({ type, label, id }: { type: GameCardType; label: string; id: string }) => {
+interface TypeChipProps {
+  type: GameCardType;
+  label: string;
+  /** Shown instead of `label` on compact cards; `label` stays the accessible name. */
+  shortLabel?: string;
+  id: string;
+}
+
+const TypeChip = ({ type, label, shortLabel, id }: TypeChipProps) => {
   const { icon: Icon, chip } = GAME_CARD_TYPES[type];
   return (
     <span
       id={id}
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold tracking-wide uppercase",
+        "inline-flex items-center gap-1 rounded-full py-0.5 text-xs font-bold tracking-wide uppercase",
+        shortLabel ? "px-1.5" : "px-2",
         chip
       )}
     >
       <Icon aria-hidden="true" className="size-3.5" />
-      {label}
+      {shortLabel ? (
+        <>
+          <span aria-hidden="true">{shortLabel}</span>
+          <span className="sr-only">{label}</span>
+        </>
+      ) : (
+        label
+      )}
     </span>
   );
 };
@@ -67,33 +86,52 @@ interface CardBodyProps extends GameCardProps {
   ids: { title: string; type: string; details: string };
 }
 
-const CardBody = ({ ids, ...card }: CardBodyProps): ReactNode => (
-  <>
-    <span className="relative block">
-      <GameCardArtwork type={card.type} image={card.image} />
-      <span className="absolute inset-x-2 top-2 flex flex-wrap items-start gap-1">
-        <TypeChip
-          type={card.type}
-          label={card.typeLabel ?? GAME_CARD_TYPES[card.type].label}
-          id={ids.type}
-        />
-        <RarityBadge rarity={card.rarity ?? "common"} />
-      </span>
-      {card.selected && <SelectedBadge />}
+/** Lower half: title, effects and (not on compact cards) the flavor text. */
+const CardText = ({ ids, compact, ...card }: CardBodyProps & { compact: boolean }) => (
+  <span className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-2" : "gap-2 p-3")}>
+    <span
+      id={ids.title}
+      className={cn(
+        "line-clamp-2 font-heading leading-tight font-bold",
+        compact ? "text-sm hyphens-auto break-words" : "text-base"
+      )}
+    >
+      {card.title}
     </span>
-    <span className="flex flex-1 flex-col gap-2 p-3">
-      <span id={ids.title} className="line-clamp-2 font-heading text-base leading-tight font-bold">
-        {card.title}
-      </span>
-      <span id={ids.details} className="flex flex-col gap-2">
-        {card.effects && card.effects.length > 0 && <GameCardEffects effects={card.effects} />}
-        {card.flavor && (
-          <span className="line-clamp-3 text-xs text-muted-foreground italic">{card.flavor}</span>
-        )}
-      </span>
+    <span id={ids.details} className="flex flex-col gap-2">
+      {card.effects && card.effects.length > 0 && (
+        <GameCardEffects effects={card.effects} compact={compact} />
+      )}
+      {card.flavor && !compact && (
+        <span className="line-clamp-3 text-xs text-muted-foreground italic">{card.flavor}</span>
+      )}
     </span>
-  </>
+  </span>
 );
+
+const CardBody = (props: CardBodyProps): ReactNode => {
+  const { ids, ...card } = props;
+  const compact = card.size === "compact";
+  const { label, shortLabel } = GAME_CARD_TYPES[card.type];
+  return (
+    <>
+      <span className="relative block">
+        <GameCardArtwork type={card.type} image={card.image} />
+        <span className="absolute inset-x-2 top-2 flex flex-wrap items-start gap-1">
+          <TypeChip
+            type={card.type}
+            label={card.typeLabel ?? label}
+            shortLabel={compact && !card.typeLabel ? shortLabel : undefined}
+            id={ids.type}
+          />
+          <RarityBadge rarity={card.rarity ?? "common"} />
+        </span>
+        {card.selected && <SelectedBadge />}
+      </span>
+      <CardText {...props} compact={compact} />
+    </>
+  );
+};
 
 /**
  * Generic playing card for the game board (kit component: presentation only). Type and
@@ -108,6 +146,7 @@ export const GameCard = (props: GameCardProps) => {
     gameCardVariants({
       type: props.type,
       rarity: props.rarity,
+      size: props.size ?? "default",
       interactive,
       selected: props.selected ?? false,
       disabled: props.disabled ?? false,

@@ -13,7 +13,7 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 
 | Layer | Path | Purpose |
 |-------|------|---------|
-| API | `api/index.ts` | Public barrel: engine functions, `SEED_CONTENT`, all types |
+| API | `api/index.ts` | Public barrel: engine functions, `scaleForPhase` (so a UI shows the numbers the engine will apply), `SEED_CONTENT`, all types |
 | Services | `services/gameEngine.ts` | `createGame`, `playCard`, `resolveEvent`, `drawHand`, read helpers |
 | Services | `services/turnEffects.ts` | Card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte), phase scaling, passive costs, reputation decay, clamping |
 | Services | `services/progression.ts` | Absolute stats, phase goals, game overs, event triggers |

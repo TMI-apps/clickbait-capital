@@ -85,6 +85,13 @@ export const GameCardGallery = () => {
         <GameCard {...viral} typeLabel="Breaking" onSelect={() => undefined} />
         <GameCard {...event} animation="draw" />
       </Section>
+      <Section title="Compact (drie op een rij op een telefoon)">
+        <div className="col-span-full grid max-w-[358px] grid-cols-3 gap-2">
+          {SAMPLE_CARDS.slice(0, 3).map((card) => (
+            <GameCard key={card.title} {...card} size="compact" onSelect={() => undefined} />
+          ))}
+        </div>
+      </Section>
       <Section title="Afbeeldingen">
         {IMAGE_VARIANTS.map(({ label, card }) => (
           <GameCard key={label} {...card} />
