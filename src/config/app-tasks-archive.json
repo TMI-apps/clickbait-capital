@@ -1,5 +1,10 @@
 [
   {
+    "title": "Installable app and offline play",
+    "description": "Owner-approved (Stop 1, 2026-11-04). Wave 3. Area: public/ (manifest exists) plus a service worker. Install to the home screen and offline play after the first visit (cache app shell, content and card images; update flow when a new version deploys). Verify install prompt on Android Chrome and add-to-home-screen on iOS Safari. Size S. Result: merged in PR #12 (vite-plugin-pwa 2.0.0 + its required peer workbox-window 7.4.1, owner-approved; precache app shell + audio, cache-first /cards/*; update prompt in src/features/app-update; start_url /spel). Orchestrator verified offline reload of /spel on the preview. Real Android/iOS install not yet tested.",
+    "status": "done"
+  },
+  {
     "title": "Audio with mute toggle",
     "description": "Owner-approved (Stop 1, 2026-11-04). Wave 3, after the game board; pairs with the game-feel lap. Area: src/features/game-audio/ (new) and public/audio/. Sound effects and music for the asymmetric juice (viral: rising synth, applause, bass-boosted pings; ad: ka-ching and coins; news: dull wooden click), a mute toggle on the board and in settings, muted until the first user gesture, respects the settings. Sources: free-licensed audio with the same license manifest as images (source, author, license, credit), and/or generated sounds via the owner's ElevenLabs access through Composio (owner offered it; generation happens at build time by an agent with that access, never with a key in the app; record the provenance in the manifest). Size M. Result: merged in PR #8 (service, 11 ElevenLabs sounds in one style, mute toggle) and PR #10 (board wiring, levelled loudness). Background music: not done (follow-up if wanted).",
     "status": "done"

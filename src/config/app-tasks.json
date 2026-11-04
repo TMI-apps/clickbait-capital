@@ -20,11 +20,6 @@
     "status": "to-do"
   },
   {
-    "title": "Installable app and offline play",
-    "description": "Owner-approved (Stop 1, 2026-11-04). Wave 3. Area: public/ (manifest exists) plus a service worker. Install to the home screen and offline play after the first visit (cache app shell, content and card images; update flow when a new version deploys). Verify install prompt on Android Chrome and add-to-home-screen on iOS Safari. Size S.",
-    "status": "to-do"
-  },
-  {
     "title": "Balance pass from play-tests",
     "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 4, after events and endings. A subagent plays many full games (scripted strategies: viral-spam, ad-spam, news-heavy, mixed) with the engine and in the browser; tune balance values in the content data so each strategy fails for the intended reason and the IPO is hard but reachable. Turn findings (balance, UX friction, missing content) into new backlog items. Size S, recurring after launch. Known from the content lap: good play takes ~63 turns, phase 3's 30-turn hold is half the run; the human player doesn't see hidden Toxicity, so the lookahead win rate is an upper bound. Found by the orchestrator's play-test of /spel (2026-11-04): a V/A/N/N/A rotation sat 39 turns in phase 1 at 59k/100k users with Inkomsten and Reputatie pinned at 100: gains above the cap are wasted and phase 1 is too slow for balanced play. Also stats.users can drop to 0 while the Gebruikers meter is mid-range (engine D1 stat model).",
     "status": "to-do"
