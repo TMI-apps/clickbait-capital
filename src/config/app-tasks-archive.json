@@ -1,5 +1,10 @@
 [
   {
+    "title": "Events, phase transitions and endings",
+    "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 3, after the game board. Area: src/features/game-flow/ (new): event modal with three options, phase transition screens (Zolderkamer, Scale-Up, Wereldmacht, Beursgang), the three game-over screens and the IPO victory, results screen with the end report (damage, misinformation, mental health), play again and home. Size M. The end report is derived from engine state (playedTypes, stats); see the engine README 'Not modelled yet'. Result: merged in PR #14 (src/features/game-flow: event modal with scaled effects, phase intro/transition screens, game-over and IPO screens, end report). Share button not built (proposed task).",
+    "status": "done"
+  },
+  {
     "title": "Installable app and offline play",
     "description": "Owner-approved (Stop 1, 2026-11-04). Wave 3. Area: public/ (manifest exists) plus a service worker. Install to the home screen and offline play after the first visit (cache app shell, content and card images; update flow when a new version deploys). Verify install prompt on Android Chrome and add-to-home-screen on iOS Safari. Size S. Result: merged in PR #12 (vite-plugin-pwa 2.0.0 + its required peer workbox-window 7.4.1, owner-approved; precache app shell + audio, cache-first /cards/*; update prompt in src/features/app-update; start_url /spel). Orchestrator verified offline reload of /spel on the preview. Real Android/iOS install not yet tested.",
     "status": "done"
