@@ -494,6 +494,16 @@ module.exports = {
           name: "documentation",
           children: [{ name: "*.md" }],
         },
+        // Game sound effects (game-audio feature manifest)
+        {
+          name: "audio",
+          children: [{ name: "*.mp3" }],
+        },
+        // Card imagery (game imagery lap)
+        {
+          name: "cards",
+          children: [{ name: "*.avif" }, { name: "*.webp" }, { name: "*.jpg" }],
+        },
       ],
     },
     // Tests
