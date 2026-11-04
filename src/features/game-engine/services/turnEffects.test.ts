@@ -68,7 +68,7 @@ describe("computeCardTurn", () => {
     const result = computeCardTurn({
       ...base,
       card: ad,
-      playedTypes: ["ad", "ad", "news", "viral", "news"],
+      playedTypes: ["ad", "ad", "ad", "news", "viral"],
     });
     expect(result.modifiers.adFatigue).toBe(false);
   });
@@ -96,6 +96,18 @@ describe("computeCardTurn", () => {
     const result = computeCardTurn({ ...base, card: viral, turnsWithoutNews: 5 });
     expect(result.modifiers.journalismDrought).toBe(true);
     expect(result.cardEffects.toxicity).toBe(8 + 2);
+  });
+
+  it("should not flag drought when only 4 turns passed without news", () => {
+    const result = computeCardTurn({ ...base, card: viral, turnsWithoutNews: 4 });
+    expect(result.modifiers.journalismDrought).toBe(false);
+    expect(result.cardEffects.toxicity).toBe(4 + 2);
+  });
+
+  it("should scale reputation decay by the phase loss multiplier", () => {
+    const phase = { ...NEUTRAL_PHASE, reputationLossMultiplier: 3 };
+    const result = computeCardTurn({ ...base, card: ad, turnsWithoutNews: 2, phase });
+    expect(result.totalEffects.reputation).toBe(-9);
   });
 
   it("should take 3 reputation per turn when the decay threshold of turns without news is reached", () => {
@@ -131,6 +143,16 @@ describe("scaleForPhase", () => {
       users: 2,
       toxicity: 0,
     });
+  });
+
+  it("should round scaled losses and gains alike when the product ends in .5", () => {
+    const phase = { ...NEUTRAL_PHASE, reputationLossMultiplier: 0.5, revenueGainMultiplier: 0.5 };
+    expect(scaleForPhase({ revenue: 5, reputation: -5 }, phase)).toMatchObject({
+      revenue: 3,
+      reputation: -3,
+    });
+    const tiny = scaleForPhase({ reputation: -1 }, { ...phase, reputationLossMultiplier: 0.4 });
+    expect(Object.is(tiny.reputation, -0)).toBe(false);
   });
 
   it("should leave reputation gain and revenue loss unscaled", () => {

@@ -3,6 +3,7 @@ import type {
   CardDefinition,
   CardType,
   Effects,
+  FullEffects,
   MeterKey,
   PhaseDefinition,
 } from "@/features/game-engine/types/gameContent.types";
@@ -13,11 +14,10 @@ import type { TurnModifiers } from "@/features/game-engine/types/gameState.types
  * phase scaling, passive costs, reputation decay and clamping. Pure; no game-state shape.
  */
 
-export type FullEffects = Required<Effects>;
-
 const METER_MIN = 0;
 const METER_MAX = 100;
 
+/** What one card turn needs to know about the game so far. */
 export interface CardTurnInput {
   card: CardDefinition;
   /** Card types played before this turn, oldest first. */
@@ -28,6 +28,7 @@ export interface CardTurnInput {
   balance: BalanceConfig;
 }
 
+/** The outcome of one card turn, plus the updated streak counters. */
 export interface CardTurnResult {
   /** The card's own effect after modifiers and phase scaling (feeds the absolute stats). */
   cardEffects: FullEffects;
@@ -58,12 +59,17 @@ function addEffects(a: FullEffects, b: Effects): FullEffects {
   };
 }
 
+/** Rounds half away from zero so scaled gains and losses round alike (and never to -0). */
+function roundSymmetric(value: number): number {
+  return Math.sign(value) * Math.round(Math.abs(value)) || 0;
+}
+
 function scaleGain(value: number, multiplier: number): number {
-  return value > 0 ? Math.round(value * multiplier) : value;
+  return value > 0 ? roundSymmetric(value * multiplier) : value;
 }
 
 function scaleLoss(value: number, multiplier: number): number {
-  return value < 0 ? Math.round(value * multiplier) : value;
+  return value < 0 ? roundSymmetric(value * multiplier) : value;
 }
 
 /** Scales reputation loss and revenue gain by the phase (design § 6). Used for cards and events. */
@@ -152,7 +158,9 @@ export function computeCardTurn(input: CardTurnInput): CardTurnResult {
   const reputationDecay = turnsWithoutNews >= balance.reputationDecay.afterTurnsWithoutNews;
   const withCosts = addEffects(cardEffects, phase.passiveCosts);
   const totalEffects = reputationDecay
-    ? addEffects(withCosts, { reputation: -balance.reputationDecay.amount })
+    ? addEffects(withCosts, {
+        reputation: scaleLoss(-balance.reputationDecay.amount, phase.reputationLossMultiplier),
+      })
     : withCosts;
 
   return {

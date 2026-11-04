@@ -107,9 +107,12 @@ describe("findTriggeredEvent", () => {
     ).toBeNull();
   });
 
-  it("should fire a toxicity event without phase filter in any phase", () => {
+  it("should fire the EU fine from phase 2 but not in phase 1 when toxicity is above 75", () => {
     expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 1, toxicity: 76, firedEventIds: none })?.id
+      findTriggeredEvent(SEED_CONTENT, { phase: 1, toxicity: 76, firedEventIds: none })
+    ).toBeNull();
+    expect(
+      findTriggeredEvent(SEED_CONTENT, { phase: 4, toxicity: 76, firedEventIds: none })?.id
     ).toBe("event-eu-boete");
   });
 });

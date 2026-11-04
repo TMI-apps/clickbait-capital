@@ -29,6 +29,7 @@ import {
 const CARD_TYPES: readonly CardType[] = ["viral", "ad", "news"];
 const LAST_PHASE: PhaseId = 4;
 
+/** Input for a new game. */
 export interface CreateGameOptions {
   content: GameContent;
   /** Integer seed; the same seed and choices replay the same game. */

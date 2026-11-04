@@ -1,6 +1,6 @@
 import type {
   CardType,
-  Effects,
+  FullEffects,
   MeterKey,
   PhaseId,
   StatKey,
@@ -26,7 +26,7 @@ export interface TurnModifiers {
 /** What the last card or event option did, after all modifiers, before clamping. */
 export interface TurnReport {
   source: { kind: "card"; cardId: string } | { kind: "event"; eventId: string; optionId: string };
-  effects: Required<Effects>;
+  effects: FullEffects;
   modifiers: TurnModifiers;
 }
 

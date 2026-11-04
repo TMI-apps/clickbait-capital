@@ -22,6 +22,10 @@ export interface Effects {
   toxicity?: number;
 }
 
+/** Effects with every key present, as the engine computes and reports them. */
+export type FullEffects = Required<Effects>;
+
+/** One regular card of the draft. */
 export interface CardDefinition {
   id: string;
   type: CardType;
@@ -37,6 +41,7 @@ export interface CardDefinition {
 /** Policy direction of an event option (design § 4 Type 2). */
 export type EventOptionKind = "commercial" | "engagement" | "journalism";
 
+/** One of the three policy choices of an event. */
 export interface EventOption {
   id: string;
   kind: EventOptionKind;
@@ -54,6 +59,7 @@ export type EventTrigger =
   | { kind: "milestone"; phase: PhaseId }
   | { kind: "toxicity"; threshold: number; phases?: PhaseId[] };
 
+/** An event card that interrupts the draft until the player picks an option. */
 export interface EventDefinition {
   id: string;
   title: string;
@@ -82,6 +88,7 @@ export interface PhaseGoal {
   consecutiveTurns: number;
 }
 
+/** One of the four phases: goal, costs and how hard reputation loss hits. */
 export interface PhaseDefinition {
   id: PhaseId;
   /** Dutch phase name. */
@@ -93,7 +100,7 @@ export interface PhaseDefinition {
   usersPerPoint: number;
   /** Euros of gross revenue per point of positive revenue-meter change from cards and events. */
   revenuePerPoint: number;
-  /** Multiplies negative reputation effects of cards and events (reputation loss scales per phase). */
+  /** Multiplies negative reputation effects of cards, events and decay (reputation loss scales per phase). */
   reputationLossMultiplier: number;
   /** Multiplies positive revenue effects of cards and events (ads pay little in phase 1). */
   revenueGainMultiplier: number;

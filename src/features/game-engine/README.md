@@ -25,9 +25,9 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 ### Turn order (one card)
 
 1. Card effects with modifiers: Ad-Fatigue (≥ 3 ads in the previous 4 plays: 50% revenue, 2× user loss), Echo-Chamber (viral streak ≥ 3: +50% users; +25 Toxicity once when the streak reaches 3), Droogte (≥ 5 turns without news before this play: viral Toxicity 2×).
-2. Phase scaling: negative reputation × `reputationLossMultiplier`, positive revenue × `revenueGainMultiplier`.
+2. Phase scaling: negative reputation × `reputationLossMultiplier`, positive revenue × `revenueGainMultiplier` (rounded half away from zero).
 3. Every non-news card adds `newsIgnoredToxicity`.
-4. Passive costs of the phase; reputation decay (−3) once `afterTurnsWithoutNews` turns passed without news.
+4. Passive costs of the phase; reputation decay (−3 × `reputationLossMultiplier`) once `afterTurnsWithoutNews` turns passed without news.
 5. Clamp meters and Toxicity to 0–100; update absolute stats; game over check.
 6. Phase goal streak; next phase (phase 4: IPO win).
 7. Event check (milestone events on entering their phase, then Toxicity events); otherwise a new draft.
@@ -38,12 +38,17 @@ Event options get phase scaling and stats, but no passive costs, decay or goal c
 
 - **Absolute users and revenue (game-engine D1):** the design's 100k / 5M / 20M users and EUR 500k are separate stats next to the 0–100 meters. Each card or event adds `meterDelta × phase.usersPerPoint` to `stats.users` (can fall, floor 0) and `positiveRevenueDelta × phase.revenuePerPoint` to `stats.revenue` (gross omzet, never falls; passive costs don't count). Goals read the stats; game overs read the meters. The meters are the platform's health this turn, the stats its accumulated size.
 - **Goals (D2):** one shape, `conditions` held for `consecutiveTurns` in a row. Phases 1–2 reach once; phase 3 is users ≥ 20M for 30 turns; the IPO is reputation > 60 and revenue meter > 80 for 10 turns.
-- **Droogte (D3):** "scandal risk doubles" = viral cards add 2× Toxicity, since Toxicity drives the scandal events; `isJournalismDroughtActive` tells the board to draw the red border.
+- **Droogte (D3):** "scandal risk doubles" = a viral card's own Toxicity counts 2× (the news-ignored +2 and the Echo-Chamber +25 are not doubled), since Toxicity drives the scandal events; `isJournalismDroughtActive` tells the board to draw the red border.
 - **Echo-Chamber (D4):** the +25 Toxicity fires once per streak, the +50% user bonus on every viral while the streak lasts.
 - **Ad-Fatigue (D5):** checked against the previous 4 plays.
 - **Events (D6):** each event fires at most once per game; milestones before Toxicity events; content order breaks ties.
 - **Game-over priority (D7):** Bankroet, then Verlaten Platform, then Verbod & Regulering.
+- **Decay scales per phase (D9):** reputation decay is multiplied by the phase's `reputationLossMultiplier` like other reputation loss (design § 6).
 - **Identifiers (D8):** code ids are English (`revenue`, `users`, `reputation`, `viral` / `ad` / `news`, `bankrupt` / `abandoned` / `banned`); all player text is Dutch and lives in content.
+
+## Not modelled yet
+
+Design lines the engine does not implement as separate rules (content events or a later lap can add them): phase 2 competitors taking users when engagement drops and complaints about ad pressure; phase 3 fines that follow directly from ignoring news (today only via Toxicity events and phase-scaled decay); the end report of damage done (the board lap can derive it from `playedTypes` and stats).
 
 ## Testing
 

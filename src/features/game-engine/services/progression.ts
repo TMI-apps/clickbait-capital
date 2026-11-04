@@ -1,5 +1,6 @@
 import type {
   EventDefinition,
+  FullEffects,
   GameContent,
   GoalCondition,
   MeterKey,
@@ -9,7 +10,6 @@ import type {
   StatKey,
 } from "@/features/game-engine/types/gameContent.types";
 import type { GameOverReason } from "@/features/game-engine/types/gameState.types";
-import type { FullEffects } from "@/features/game-engine/services/turnEffects";
 
 /**
  * Progression rules: absolute stats next to the meters, phase goals, game overs and

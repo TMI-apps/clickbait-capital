@@ -180,7 +180,7 @@ export const SEED_CONTENT: GameContent = {
       id: "event-eu-boete",
       title: "EU-boete",
       body: "Brussel onderzoekt de schade die je feed aanricht.",
-      trigger: { kind: "toxicity", threshold: 75 },
+      trigger: { kind: "toxicity", threshold: 75, phases: [2, 3, 4] },
       options: [
         {
           id: "a",

@@ -44,6 +44,27 @@ function withPhases(
   return { ...content, phases: content.phases.map(patch) };
 }
 
+/** Phases 1–3 pass instantly and phase 4 keeps the design IPO goal, so a run reaches the IPO. */
+function ipoContent(): GameContent {
+  return {
+    ...withPhases(SEED_CONTENT, (phase) =>
+      phase.id === 4
+        ? { ...phase, passiveCosts: {}, reputationLossMultiplier: 1 }
+        : {
+            ...phase,
+            passiveCosts: {},
+            goal: { description: "", conditions: [], consecutiveTurns: 1 },
+          }
+    ),
+    events: [],
+    cards: [
+      { id: "v", type: "viral", title: "", body: "", effects: { users: 10, revenue: -30 } },
+      { id: "a", type: "ad", title: "", body: "", effects: { revenue: 20 } },
+      { id: "n", type: "news", title: "", body: "", effects: { reputation: 10, toxicity: -10 } },
+    ],
+  };
+}
+
 describe("createGame", () => {
   it("should start in phase 1 with meters at 50, toxicity 0 and one card per type", () => {
     const state = createGame({ content: SEED_CONTENT, seed: 1 });
@@ -93,15 +114,43 @@ describe("playCard", () => {
     expect(getPendingEvent(state, SEED_CONTENT)?.id).toBe("event-investeerders");
   });
 
-  it("should flag journalism drought after 5 turns without news", () => {
-    const state = runGame(SEED_CONTENT, {
-      seed: 3,
-      policy: (_s, step) => (step % 2 ? "ad" : "viral"),
-      maxSteps: 6,
-      eventOption: "a",
-    });
-    expect(state.turnsWithoutNews).toBeGreaterThanOrEqual(5);
-    expect(isJournalismDroughtActive(state, SEED_CONTENT)).toBe(true);
+  it("should open a toxicity event from playCard when toxicity passes the threshold", () => {
+    const content: GameContent = {
+      ...SEED_CONTENT,
+      cards: SEED_CONTENT.cards.map((card) =>
+        card.type === "viral" ? { ...card, effects: { users: 1, toxicity: 40 } } : card
+      ),
+      events: SEED_CONTENT.events.map((event) =>
+        event.id === "event-eu-boete"
+          ? { ...event, trigger: { kind: "toxicity", threshold: 75 } }
+          : event
+      ),
+    };
+    const state = runGame(content, { seed: 4, policy: () => "viral", maxSteps: 2 });
+    expect(state.toxicity).toBeGreaterThan(75);
+    expect(state.status).toBe("event");
+    expect(state.pendingEventId).toBe("event-eu-boete");
+  });
+
+  it("should mark the viral card with drought after 5 turns without news", () => {
+    const adsThenViral: Policy = (_s, step) => (step < 5 ? "ad" : "viral");
+    const afterFour = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 4 });
+    expect(isJournalismDroughtActive(afterFour, SEED_CONTENT)).toBe(false);
+    const afterFive = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 5 });
+    expect(isJournalismDroughtActive(afterFive, SEED_CONTENT)).toBe(true);
+    const viralTurn = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 6 });
+    expect(viralTurn.lastTurn?.modifiers.journalismDrought).toBe(true);
+  });
+
+  it("should reset the IPO streak when a condition breaks in phase 4", () => {
+    const content = ipoContent();
+    const policy: Policy = (_s, step) => (step === 8 ? "viral" : step % 2 ? "news" : "ad");
+    const before = runGame(content, { seed: 9, policy, maxSteps: 8 });
+    expect(before.phase).toBe(4);
+    expect(before.goalStreak).toBeGreaterThan(0);
+    const broken = playCard(before, content, before.hand!.viral);
+    expect(broken.meters.revenue).toBeLessThanOrEqual(80);
+    expect(broken.goalStreak).toBe(0);
   });
 });
 
@@ -166,23 +215,7 @@ describe("game engine acceptance", () => {
   });
 
   it("should win the IPO after 10 consecutive turns with reputation > 60 and revenue > 80", () => {
-    const content: GameContent = {
-      ...withPhases(SEED_CONTENT, (phase) =>
-        phase.id === 4
-          ? { ...phase, passiveCosts: {}, reputationLossMultiplier: 1 }
-          : {
-              ...phase,
-              passiveCosts: {},
-              goal: { description: "", conditions: [], consecutiveTurns: 1 },
-            }
-      ),
-      events: [],
-      cards: [
-        { id: "v", type: "viral", title: "", body: "", effects: { users: 10 } },
-        { id: "a", type: "ad", title: "", body: "", effects: { revenue: 20 } },
-        { id: "n", type: "news", title: "", body: "", effects: { reputation: 10, toxicity: -10 } },
-      ],
-    };
+    const content = ipoContent();
     const state = runGame(content, { seed: 9, policy: (_s, step) => (step % 2 ? "news" : "ad") });
     expect(state.status).toBe("won");
     expect(state.phase).toBe(4);
