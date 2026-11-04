@@ -21,6 +21,12 @@ Asymmetric action feedback (DOC_GAME_DESIGN § 5) in `src/features/game-juice/`,
 | D7  | End-screen entrance home   | closed | `EndJuice` in game-juice wraps `GameEndFlow` in the board; game-flow unchanged                                                                                                                               | loop-plan   | keeps game-flow out of the lap's edges                             |
 | D8  | News feedback              | closed | Only the shield: no gain/loss flash, numbers snap without count-up; viral, ad and events flash and count                                                                                                     | loop-check  | design § 5 "geen animatie", "intentioneel saai"; review finding    |
 
+## orchestrator-artifact-check — chore/orchestrate-artifact-check
+
+| # | Decision | State | Choice | By | Why |
+|---|----------|-------|--------|----|-----|
+| D1 | Check loop artifacts before merging a thread PR | closed | `loop-orchestrate` step 4 checks brief, size-matched plan, check summary and decision-log entries before Stop 2; missing ones go back to the thread | owner (chat, 2026-11-04) | In the Clickbait Capital run, threads skipped plan and check stages and the orchestrator merged on results alone |
+
 ## game-engine — feat/game-engine
 
 Pure TypeScript rules engine and content schema in `src/features/game-engine/` (no UI); the game-board and content laps build on its `api/` barrel.
