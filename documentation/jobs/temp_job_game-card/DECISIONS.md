@@ -9,4 +9,4 @@
 | D5 | States gallery is a test-only fixture + Playwright screenshots; no route | Dev route in `src/pages` | `src/pages` is out of scope for this thread (asked orchestrator) |
 | D6 | Focus = foreground outline (offset 4px); selected = primary ring + lift + "Gekozen" badge | Same ring for both | Keyboard users must tell focus from selection; seen in browser at 390px |
 | D7 | Frame border via `game-card-frame` utility, not `border-game-card` | `border-*` name | Tailwind resolved `border-game-card` as a colour utility (width stayed 0, found in browser) |
-| D8 | No orchestrator answer on a preview route yet → option B (screenshots only); a route can follow in the game-board lap | Wait | Keep the lap moving; `GameCardGallery` is ready to mount |
+| D8 | Option B: no preview route; owner sees screenshots (artifact) — confirmed by orchestrator | A2 unlisted `/dev/kaarten` route | Orchestrator: owner delegated review; the game-board lap mounts the cards. `GameCardGallery` is ready to mount |
