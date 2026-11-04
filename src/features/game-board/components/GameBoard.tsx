@@ -11,12 +11,17 @@ import { Pause } from "lucide-react";
 import type { GameContent } from "@/features/game-engine/api";
 import { Button } from "@/components/common/Button";
 import { useGameSession } from "@/features/game-board/hooks/useGameSession";
+import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import {
+  EventModal,
+  GameEndFlow,
+  PhaseTransitionScreen,
+  usePhaseIntro,
+} from "@/features/game-flow/api";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
 import { CardDraft } from "./CardDraft";
-import { EventDialog } from "./EventDialog";
-import { GameEndDialog } from "./GameEndDialog";
 import { MeterPanel } from "./MeterPanel";
 import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
@@ -33,10 +38,14 @@ export interface GameBoardProps {
 
 /**
  * The playable board: meters, phase progress, the phone feed and the 3-card draft, plus the
- * event, end, card detail and pause dialogs. All game state comes from `useGameSession`.
+ * card detail and pause dialogs. The game-flow screens take over between turns: the event
+ * modal over the board, and full-screen phase transitions and endings instead of it
+ * (game-flow D1, D2). All game state comes from `useGameSession`.
  */
 export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
   const { view, play, chooseOption, restart } = useGameSession({ content, seed });
+  const phaseIntro = usePhaseIntro(view.phase.phaseId);
+  const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -55,7 +64,17 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
     play(cardId);
   };
 
-  const latest = view.feed[0];
+  const restartRun = (): void => {
+    phaseIntro.reset();
+    restart();
+  };
+
+  if (view.end) {
+    return <GameEndFlow summary={view.end} onRestart={restartRun} onQuit={onQuit} />;
+  }
+  if (phaseIntro.pendingPhase !== null) {
+    return <PhaseTransitionScreen phase={view.phase} onContinue={phaseIntro.dismiss} />;
+  }
 
   return (
     <DndContext
@@ -86,15 +105,14 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
         </div>
       </div>
       <p aria-live="polite" className="sr-only">
-        {latest ? `Geplaatst: ${latest.title}` : ""}
+        {view.feed[0] ? `Geplaatst: ${view.feed[0].title}` : ""}
       </p>
       <CardDetailDialog
         card={detailCard}
         onClose={() => setDetailCard(null)}
         onPlay={playFromDetails}
       />
-      <EventDialog event={view.event} onChoose={chooseOption} />
-      <GameEndDialog end={view.end} phase={view.phase} onRestart={restart} onQuit={onQuit} />
+      <EventModal open={view.event !== null} event={shownEvent} onChoose={chooseOption} />
       <PauseMenu open={paused} onResume={() => setPaused(false)} onQuit={onQuit} />
     </DndContext>
   );

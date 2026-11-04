@@ -98,7 +98,7 @@ export function useGameSession({ content, seed }: UseGameSessionOptions): GameSe
       draft: toDraft(game, content),
       feed,
       event: toEventView(game, content),
-      end: toGameEnd(game),
+      end: toGameEnd(game, content),
     };
   }, [session, content]);
 

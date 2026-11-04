@@ -1,0 +1,52 @@
+import { describe, expect, it, vi } from "vitest";
+import { screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { EventModal } from "@/features/game-flow/components/EventModal";
+import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
+import { renderWithProviders } from "tests/test-utils";
+
+const EVENT: FlowEvent = {
+  id: "event-test",
+  title: "Verkiezingen & Desinformatie",
+  body: "Het stormt in je feed.",
+  options: [
+    {
+      id: "a",
+      kind: "commercial",
+      label: "Laat de ads toe.",
+      effects: [{ meter: "revenue", delta: 8 }],
+    },
+    {
+      id: "b",
+      kind: "engagement",
+      label: "Laat het woeden.",
+      effects: [{ meter: "users", delta: 6 }],
+    },
+    {
+      id: "c",
+      kind: "journalism",
+      label: "Schakel factcheckers in.",
+      effects: [{ meter: "reputation", delta: -16 }],
+    },
+  ],
+};
+
+describe("EventModal", () => {
+  it("should offer three labelled policy options and stay open on Escape when an event fires", async () => {
+    const onChoose = vi.fn();
+    renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
+    const user = userEvent.setup();
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
+
+    const options = within(dialog).getAllByRole("button");
+    expect(options).toHaveLength(3);
+    expect(options[0]).toHaveTextContent("A · Commercieel");
+    expect(within(dialog).getByText("Kies je beleid")).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
+    expect(onChoose).toHaveBeenCalledWith("c");
+  });
+});
