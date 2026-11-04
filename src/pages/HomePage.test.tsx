@@ -8,34 +8,27 @@ vi.mock("@/shared/context/AuthContext");
 vi.mock("@/features/auth/hooks/useAuthCallbackHandler", () => ({
   useAuthCallbackHandler: () => ({ isProcessing: false }),
 }));
-vi.mock("@/features/auth/components/SignInPanel", () => ({
-  SignInPanel: () => <div>sign-in panel</div>,
-}));
 
 describe("HomePage", () => {
   beforeEach(() => {
     vi.mocked(useAuthContext).mockReturnValue(createDefaultAuthContextValue());
   });
 
-  it("should show the harness overview card when the visitor is signed out", () => {
+  it("should show the start screen without sign-in when the visitor is signed out", () => {
     renderWithProviders(<HomePage />);
 
-    expect(screen.getByRole("link", { name: /how the harness works/i })).toBeInTheDocument();
-    expect(screen.getByText("sign-in panel")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Clickbait Capital" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start spel" })).toBeInTheDocument();
+    expect(screen.queryByText(/inloggen|sign in/i)).not.toBeInTheDocument();
   });
 
-  it("should show the harness overview card when the visitor is signed in", () => {
+  it("should show the auth error when a sign-in return failed", () => {
     vi.mocked(useAuthContext).mockReturnValue(
-      createDefaultAuthContextValue({
-        user: { id: "u1", email: "a@b.co" } as ReturnType<
-          typeof createDefaultAuthContextValue
-        >["user"],
-      })
+      createDefaultAuthContextValue({ error: "Sign-in failed" })
     );
 
     renderWithProviders(<HomePage />);
 
-    expect(screen.getByRole("link", { name: /how the harness works/i })).toBeInTheDocument();
-    expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+    expect(screen.getByText("Sign-in failed")).toBeInTheDocument();
   });
 });
