@@ -6,6 +6,12 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## orchestrator-artifact-check — chore/orchestrate-artifact-check
+
+| # | Decision | State | Choice | By | Why |
+|---|----------|-------|--------|----|-----|
+| D1 | Check loop artifacts before merging a thread PR | closed | `loop-orchestrate` step 4 checks brief, size-matched plan, check summary and decision-log entries before Stop 2; missing ones go back to the thread | owner (chat, 2026-11-04) | In the Clickbait Capital run, threads skipped plan and check stages and the orchestrator merged on results alone |
+
 ## game-engine — feat/game-engine
 
 Pure TypeScript rules engine and content schema in `src/features/game-engine/` (no UI); the game-board and content laps build on its `api/` barrel.
