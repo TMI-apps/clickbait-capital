@@ -19,7 +19,7 @@ export const UI_COPY = {
   },
   tutorial: [
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
-    "Sleep één kaart naar de feed, of tik erop en bevestig.",
+    "Sleep één kaart naar de feed, of tik erop om hem te plaatsen.",
     "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws brengt vertrouwen.",
     "Houd Inkomsten, Gebruikers en Reputatie boven nul. Raakt er één de nul, dan is het voorbij.",
     "Let op: niet alles wat je doet zie je meteen terug. Sommige keuzes komen later hard terug.",
