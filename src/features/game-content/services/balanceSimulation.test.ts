@@ -36,8 +36,29 @@ const newsHeavy: Strategy = (state) => {
   return { kind: "card", type: state.meters.users < 35 ? "viral" : "news" };
 };
 
-/** Higher is better: progress first, then the weakest meter, then low Toxicity. */
-function scoreState(state: GameState): number {
+/** Turns without news after which a human reacts: reputation decay shows from 3, the drought border at 5. */
+const HUMAN_NEWS_REFLEX = 4;
+
+/** How a lookahead player weighs a position; the two players differ only in what they can see. */
+interface ScoreWeights {
+  goalStreak: number;
+  /** Penalty per point of hidden Toxicity (0 = the player cannot see it). */
+  toxicity: number;
+  /** Penalty once `HUMAN_NEWS_REFLEX` turns passed without news (the visible stand-in for Toxicity). */
+  newsDue: number;
+}
+
+/** Sees hidden Toxicity: an upper bound for any human. */
+const ALL_SEEING: ScoreWeights = { goalStreak: 20, toxicity: 0.4, newsDue: 0 };
+
+/** Sees only the board: meters, stats, phase, goal streak, card and event effects. */
+const BOARD_ONLY: ScoreWeights = { goalStreak: 60, toxicity: 0, newsDue: 15 };
+
+/**
+ * Higher is better: progress first, then the weakest meter. A pending event has not changed
+ * the meters yet, so scoring a card never peeks at the event it triggers.
+ */
+function scoreState(state: GameState, weights: ScoreWeights): number {
   if (state.status === "lost") {
     return -100_000;
   }
@@ -47,35 +68,117 @@ function scoreState(state: GameState): number {
   const { revenue, users, reputation } = state.meters;
   const weakest = Math.min(revenue, users, reputation);
   const ipoPush = state.phase === 4 ? Math.min(revenue, 90) + Math.min(reputation, 70) : 0;
+  const newsDue = state.turnsWithoutNews >= HUMAN_NEWS_REFLEX ? weights.newsDue : 0;
   return (
     state.phase * 1_000 +
-    state.goalStreak * 20 +
+    state.goalStreak * weights.goalStreak +
     Math.log10(state.stats.users + 1) * 40 +
     weakest * 3 +
     (revenue + users + reputation) * 0.5 +
     ipoPush -
-    state.toxicity * 0.4
+    state.toxicity * weights.toxicity -
+    newsDue
   );
 }
 
-/** One-step lookahead over the open choices: a "balanced" player. */
-const mixed: Strategy = (state, content) => {
-  if (state.status === "event") {
-    const event = getPendingEvent(state, content);
-    const options = event?.options ?? [];
-    const best = options
-      .map((option) => ({
-        id: option.id,
-        score: scoreState(resolveEvent(state, content, option.id)),
-      }))
-      .sort((a, b) => b.score - a.score)[0];
-    return { kind: "event", optionId: best?.id ?? "c" };
+/** One-step lookahead over the open choices, scored with the given weights. */
+function lookahead(weights: ScoreWeights): Strategy {
+  return (state, content) => {
+    if (state.status === "event") {
+      const options = getPendingEvent(state, content)?.options ?? [];
+      const best = options
+        .map((option) => ({
+          id: option.id,
+          score: scoreState(resolveEvent(state, content, option.id), weights),
+        }))
+        .sort((a, b) => b.score - a.score)[0];
+      return { kind: "event", optionId: best?.id ?? "c" };
+    }
+    const hand = state.hand!;
+    const best = (["viral", "ad", "news"] as const)
+      .map((type) => ({ type, score: scoreState(playCard(state, content, hand[type]), weights) }))
+      .sort((a, b) => b.score - a.score)[0]!;
+    return { kind: "card", type: best.type };
+  };
+}
+
+/** A "balanced" player that reads hidden Toxicity. */
+const mixed = lookahead(ALL_SEEING);
+
+/**
+ * Human-like player: the same lookahead on board-visible information only. Instead of
+ * reading Toxicity it follows the visible warnings: news once reputation starts to decay,
+ * before the drought border.
+ */
+const humanLike = lookahead(BOARD_ONLY);
+
+/** The card type that raises each meter, and the event option kind that does. */
+const METER_CARD = { revenue: "ad", users: "viral", reputation: "news" } as const;
+const METER_OPTION = { revenue: "a", users: "b", reputation: "c" } as const;
+type Meter = keyof typeof METER_CARD;
+
+function weakestMeter(state: GameState): [Meter, number] {
+  return (Object.entries(state.meters) as [Meter, number][]).sort((a, b) => a[1] - b[1])[0]!;
+}
+
+/** Ad-Fatigue is shown on the board once it hits; a player who saw it avoids a third ad in four. */
+function adIsFresh(state: GameState): boolean {
+  return state.playedTypes.slice(-3).filter((type) => type === "ad").length < 2;
+}
+
+/** IPO: Inkomsten above 80 and Reputatie above 60 with a margin, users kept alive. */
+function ipoCard(state: GameState): CardType {
+  const { revenue, reputation, users } = state.meters;
+  if (revenue <= 90 && adIsFresh(state)) {
+    return "ad";
   }
-  const hand = state.hand!;
-  const best = (["viral", "ad", "news"] as const)
-    .map((type) => ({ type, score: scoreState(playCard(state, content, hand[type])) }))
-    .sort((a, b) => b.score - a.score)[0]!;
-  return { kind: "card", type: best.type };
+  if (reputation <= 75) {
+    return "news";
+  }
+  return users < 50 ? "viral" : "news";
+}
+
+/** Phases 1–3: grow users, top up money when it runs low, never three virals in a row. */
+function growthCard(state: GameState): CardType {
+  const { revenue } = state.meters;
+  const moneyFloor = state.phase === 2 ? 60 : state.phase === 3 ? 45 : 0;
+  if (revenue < moneyFloor) {
+    return adIsFresh(state) ? "ad" : "news";
+  }
+  if (state.viralStreak < 2) {
+    return "viral";
+  }
+  return revenue < 70 && adIsFresh(state) ? "ad" : "news";
+}
+
+/**
+ * Rule-of-thumb player: no lookahead, only the board. Rescue a meter under 35, news after
+ * three turns without it, then play toward the phase goal. Events fix the weakest meter.
+ * The browser play-test script uses the same rules.
+ */
+const ruleOfThumb: Strategy = (state) => {
+  const [meter, value] = weakestMeter(state);
+  if (state.status === "event") {
+    return { kind: "event", optionId: METER_OPTION[meter] };
+  }
+  if (value < 35) {
+    return { kind: "card", type: METER_CARD[meter] };
+  }
+  if (state.turnsWithoutNews >= 3) {
+    return { kind: "card", type: "news" };
+  }
+  return { kind: "card", type: state.phase === 4 ? ipoCard(state) : growthCard(state) };
+};
+
+/** The orchestrator's play-test rotation: Viraal, Advertentie, Nieuws, Nieuws, Advertentie. */
+const rotateFive: Strategy = (state) => {
+  if (state.status === "event") {
+    return { kind: "event", optionId: "c" };
+  }
+  return {
+    kind: "card",
+    type: (["viral", "ad", "news", "news", "ad"] as const)[state.turn % 5]!,
+  };
 };
 
 /** Naive balance: Viraal, Advertentie, Nieuws in turn; events take the journalism option. */
@@ -111,15 +214,21 @@ function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
   return { final: state, phaseTurns };
 }
 
-function median(values: number[]): number {
+function percentile(values: number[], fraction: number): number {
   const sorted = [...values].sort((a, b) => a - b);
-  return sorted[Math.floor(sorted.length / 2)] ?? 0;
+  return sorted[Math.floor((sorted.length - 1) * fraction)] ?? 0;
+}
+
+function median(values: number[]): number {
+  return percentile(values, 0.5);
 }
 
 interface Summary {
   endings: Record<string, number>;
   maxPhase: Record<number, number>;
   medianTurns: number;
+  /** 10th and 90th percentile of total turns: the spread a player can expect. */
+  turnsP10P90: [number, number];
   /** Median card turns spent in each phase, over the games that played in it. */
   medianPhaseTurns: Record<number, number>;
   /** In how many games each event fired. */
@@ -140,6 +249,7 @@ function summarize(strategy: Strategy): Summary {
     countInto(maxPhase, final.phase);
     final.firedEventIds.forEach((id) => countInto(eventFires, id));
   }
+  const turns = runs.map((run) => run.final.turn);
   const medianPhaseTurns: Record<number, number> = {};
   for (const phase of [1, 2, 3, 4]) {
     const turns = runs.map((run) => run.phaseTurns[phase]).filter((value) => value !== undefined);
@@ -150,7 +260,8 @@ function summarize(strategy: Strategy): Summary {
   return {
     endings,
     maxPhase,
-    medianTurns: median(runs.map((run) => run.final.turn)),
+    medianTurns: median(turns),
+    turnsP10P90: [percentile(turns, 0.1), percentile(turns, 0.9)],
     medianPhaseTurns,
     eventFires,
   };
@@ -163,6 +274,9 @@ describe("balance simulation", () => {
     newsHeavy: summarize(newsHeavy),
     mixed: summarize(mixed),
     rotate: summarize(rotate),
+    rotateFive: summarize(rotateFive),
+    humanLike: summarize(humanLike),
+    ruleOfThumb: summarize(ruleOfThumb),
   };
   process.stdout.write(`${JSON.stringify(results)}\n`);
 
@@ -192,6 +306,19 @@ describe("balance simulation", () => {
     expect(
       GAME_CONTENT.events.filter((event) => !fired.has(event.id)).map((event) => event.id)
     ).toEqual([]);
+  });
+
+  it("should finish a typical run in 25 to 45 turns when a human-like player sees only the board", () => {
+    expect(results.humanLike.medianTurns).toBeGreaterThanOrEqual(25);
+    expect(results.humanLike.medianTurns).toBeLessThanOrEqual(45);
+  });
+
+  it("should let a human-like player win the IPO in most games when they react to visible warnings", () => {
+    expect(results.humanLike.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
+  });
+
+  it("should let a rule-of-thumb player win the IPO in most games when they follow the board", () => {
+    expect(results.ruleOfThumb.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
   });
 
   it("should let a careful player win the IPO when they react to every meter", () => {

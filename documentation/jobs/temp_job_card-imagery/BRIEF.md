@@ -31,6 +31,4 @@ Every one of the 67 content ids (54 cards + 13 events) resolves through `getCard
 M — new feature, 67 sourced assets, one page + route.
 
 ## Decisions
-- D1 New feature `card-imagery` instead of growing `game-content` (game-content stays pure copy/rules data; imagery owns license provenance and the credits list).
-- D2 Alt text per image lives in the manifest (describes the real photo); the content `imageAlt` described an imagined illustration.
-- D3 WebP only (one format, universal support, ~30–60 KB at 640×480); AVIF skipped to keep one file per id.
+DECISIONS.md rows D1–D8 (copied to `documentation/DOC_DECISION_LOG.md` § card-imagery).

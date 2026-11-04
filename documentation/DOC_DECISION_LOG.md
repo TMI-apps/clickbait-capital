@@ -6,6 +6,27 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## card-imagery — feat/card-imagery
+
+One open-licensed photo per card and event in `public/cards/`, a license manifest and lookup in `src/features/card-imagery/`, and a `/credits` page.
+
+| id | topic | status | choice | source | notes |
+|----|-------|--------|--------|--------|-------|
+| D1 | Where the manifest lives | closed | New feature `src/features/card-imagery/` (manifest, lookup, credit list), not `game-content` | loop-refine | clear-winner: license provenance and credits are their own concept; game-content stays rules plus copy |
+| D2 | Alt text | closed | Dutch alt per real photo in the manifest; game-content `imageAlt` stays a sourcing hint | loop-refine | clear-winner: `imageAlt` describes an imagined illustration, not the photo |
+| D3 | Formats and sizes | closed | One 640×480 WebP per id (quality 68), no AVIF, no srcset | loop-plan | clear-winner: covers the card width at 2× DPR; 2.1 MB for 67; AVIF would double the files for a few KB each |
+| D4 | Source | closed | Openverse only (CC0 / CC BY, photographs, anonymous, no key); Unsplash/Pexels not needed | loop-build | owner's order: Openverse/Commons first; it covered all 67 ids |
+| D5 | Rejection rules | closed | Reject people (faces, minors), recognizable venues, brands or logos, copyrighted artworks or game art, unclear licenses; visual check on contact sheets | owner sourcing rules + orchestrator review | the review replaced three images (a child with a test, a recognizable stadium, an unrelated chart) |
+| D6 | Credits | closed | `/credits` page lists every photo in TASL format (title links to the source, author, license links to the deed); CC0 credited too; audio credit from game-audio | loop-refine | clear-winner: CC BY requires attribution; one list for every photo is simpler than two |
+| D7 | Board wiring | closed | Not in this lap; the board passes `getCardImage(card.id) ?? undefined` to GameCard in a follow-up | orchestrator | the game-board thread owned `src/features/game-board/` during this lap |
+| D8 | Photos vs illustrations | closed | Free photos of an object that stands for the card, matching the content's illustration themes loosely | loop-build | generating an illustration set needs the owner's call on cost and style; noted for a later task |
+
+## orchestrator-artifact-check — chore/orchestrate-artifact-check
+
+| # | Decision | State | Choice | By | Why |
+|---|----------|-------|--------|----|-----|
+| D1 | Check loop artifacts before merging a thread PR | closed | `loop-orchestrate` step 4 checks brief, size-matched plan, check summary and decision-log entries before Stop 2; missing ones go back to the thread | owner (chat, 2026-11-04) | In the Clickbait Capital run, threads skipped plan and check stages and the orchestrator merged on results alone |
+
 ## game-engine — feat/game-engine
 
 Pure TypeScript rules engine and content schema in `src/features/game-engine/` (no UI); the game-board and content laps build on its `api/` barrel.

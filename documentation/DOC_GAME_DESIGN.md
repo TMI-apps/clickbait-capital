@@ -186,7 +186,8 @@ Het spel verloopt over vier fases. Elke fase verhoogt de operationele kosten en 
 
 ### **Fase 3: Wereldwijd Platform (De Publieke Schandpaal)**
 
-* **Doel:** Overleef 30 beurten met minimaal 20.000.000 gebruikers.  
+* **Doel:** Overleef 12 beurten met minimaal 20.000.000 gebruikers.  
+* *Wijziging (balance-pass, 2026-11-04):* de orchestrator verlaagde de houdtijd van 30 naar 12 beurten voor de runlengte; met 30 beurten was fase 3 de helft van een run (~63 beurten), nu duurt een run ~45 beurten.  
 * **Context:** Overheden en traditionele media kijken mee. De Boemerang-mechaniek wordt meedogenloos: het negeren van nieuws leidt direct tot boetes en advertentieboycots.  
 * **Systeemeigenschap:** Hoge Toxicity triggert zware parlementaire onderzoeken.
 
