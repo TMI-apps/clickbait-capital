@@ -34,7 +34,7 @@ export const UI_COPY = {
   },
   cardTypes: {
     viral: { label: "Viraal", shortLabel: "Viraal" },
-    ad: { label: "Advertentie", shortLabel: "Ad" },
+    ad: { label: "Advertentie", shortLabel: "Reclame" },
     news: { label: "Nieuws", shortLabel: "Nieuws" },
   },
   board: {
@@ -81,11 +81,11 @@ export const UI_COPY = {
     continueButton: "Aan de slag",
   },
   events: {
-    kicker: "Breaking",
+    kicker: "Spoed",
     prompt: "Kies je beleid",
     optionKinds: {
       commercial: "Commercieel",
-      engagement: "Engagement",
+      engagement: "Ophef",
       journalism: "Journalistiek",
     },
     confirmButton: "Kies dit",

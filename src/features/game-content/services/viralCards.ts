@@ -160,7 +160,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     id: "viral-ai-babykittens",
     type: "viral",
     title: "AI-plaatjes van huilende kittens",
-    body: "Duizenden nepplaatjes van kittens in de regen met 'Waarom like niemand mij?'. Gemaakt door bots, geliket door bots.",
+    body: "Duizenden nepplaatjes van kittens in de regen met 'Waarom liket niemand mij?'. Gemaakt door bots, geliket door bots.",
     flavor: "Je engagement is nu 40% robot.",
     effects: { users: 12, toxicity: 8 },
     imageTheme: "uncanny AI-generated crying kitten in rain with six toes, like counter spinning",
@@ -170,7 +170,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
   {
     id: "viral-ceo-nachtpost",
     type: "viral",
-    title: "Je oprichter post om 3 uur 's nachts",
+    title: "Oprichter post om 3 uur 's nachts",
     body: "Je eigen oprichter scheldt online een toezichthouder uit. De engagement is fenomenaal.",
     flavor: "Communicatieafdeling: 'We onderzoeken of hij gehackt is.'",
     effects: { users: 14, reputation: -4, toxicity: 12 },

@@ -26,7 +26,7 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
       consecutiveTurns: 1,
     },
     passiveCosts: { revenue: -1 },
-    usersPerPoint: 5_000,
+    usersPerPoint: 2_000,
     revenuePerPoint: 5_000,
     reputationLossMultiplier: 0.5,
     revenueGainMultiplier: 0.5,

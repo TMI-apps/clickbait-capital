@@ -86,38 +86,74 @@ const rotate: Strategy = (state) => {
   return { kind: "card", type: (["viral", "ad", "news"] as const)[state.turn % 3]! };
 };
 
-function runGame(content: GameContent, strategy: Strategy, seed: number): GameState {
+interface Run {
+  final: GameState;
+  /** Card turns played in each phase. */
+  phaseTurns: Record<number, number>;
+}
+
+function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
   let state = createGame({ content, seed });
+  const phaseTurns: Record<number, number> = {};
   for (let step = 0; step < MAX_STEPS; step++) {
     if (state.status !== "playing" && state.status !== "event") {
       break;
     }
     const choice = strategy(state, content);
+    if (choice.kind === "card") {
+      phaseTurns[state.phase] = (phaseTurns[state.phase] ?? 0) + 1;
+    }
     state =
       choice.kind === "event"
         ? resolveEvent(state, content, choice.optionId)
         : playCard(state, content, state.hand![choice.type]);
   }
-  return state;
+  return { final: state, phaseTurns };
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.floor(sorted.length / 2)] ?? 0;
 }
 
 interface Summary {
   endings: Record<string, number>;
   maxPhase: Record<number, number>;
   medianTurns: number;
+  /** Median card turns spent in each phase, over the games that played in it. */
+  medianPhaseTurns: Record<number, number>;
+  /** In how many games each event fired. */
+  eventFires: Record<string, number>;
+}
+
+function countInto(counts: Record<string, number>, key: string | number): void {
+  counts[key] = (counts[key] ?? 0) + 1;
 }
 
 function summarize(strategy: Strategy): Summary {
-  const games = SEEDS.map((seed) => runGame(GAME_CONTENT, strategy, seed));
+  const runs = SEEDS.map((seed) => runGame(GAME_CONTENT, strategy, seed));
   const endings: Record<string, number> = {};
   const maxPhase: Record<number, number> = {};
-  for (const game of games) {
-    const ending = game.status === "won" ? "won" : (game.gameOver ?? "unfinished");
-    endings[ending] = (endings[ending] ?? 0) + 1;
-    maxPhase[game.phase] = (maxPhase[game.phase] ?? 0) + 1;
+  const eventFires: Record<string, number> = {};
+  for (const { final } of runs) {
+    countInto(endings, final.status === "won" ? "won" : (final.gameOver ?? "unfinished"));
+    countInto(maxPhase, final.phase);
+    final.firedEventIds.forEach((id) => countInto(eventFires, id));
   }
-  const turns = games.map((game) => game.turn).sort((a, b) => a - b);
-  return { endings, maxPhase, medianTurns: turns[Math.floor(turns.length / 2)]! };
+  const medianPhaseTurns: Record<number, number> = {};
+  for (const phase of [1, 2, 3, 4]) {
+    const turns = runs.map((run) => run.phaseTurns[phase]).filter((value) => value !== undefined);
+    if (turns.length > 0) {
+      medianPhaseTurns[phase] = median(turns);
+    }
+  }
+  return {
+    endings,
+    maxPhase,
+    medianTurns: median(runs.map((run) => run.final.turn)),
+    medianPhaseTurns,
+    eventFires,
+  };
 }
 
 describe("balance simulation", () => {
@@ -147,6 +183,15 @@ describe("balance simulation", () => {
       const late = (summary.maxPhase[3] ?? 0) + (summary.maxPhase[4] ?? 0);
       expect(late).toBeGreaterThanOrEqual(SEEDS.length * 0.8);
     }
+  });
+
+  it("should fire every event in some simulated game when strategies vary", () => {
+    const fired = new Set(
+      Object.values(results).flatMap((summary) => Object.keys(summary.eventFires))
+    );
+    expect(
+      GAME_CONTENT.events.filter((event) => !fired.has(event.id)).map((event) => event.id)
+    ).toEqual([]);
   });
 
   it("should let a careful player win the IPO when they react to every meter", () => {

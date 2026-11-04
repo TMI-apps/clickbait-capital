@@ -13,8 +13,8 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-eerste-shitstorm",
     title: "Je eerste shitstorm",
-    body: "Een bericht op je app ontspoort. De campus praat nergens anders over. Je ouders bellen.",
-    trigger: { kind: "toxicity", threshold: 35, phases: [1] },
+    body: "Een bericht op je app ontspoort. De campus praat nergens anders over. Je huisbaas ook.",
+    trigger: { kind: "toxicity", threshold: 25, phases: [1] },
     options: [
       {
         id: "a",
@@ -60,7 +60,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "c",
         kind: "journalism",
         label: "Investeer eerst in moderatie en betrouwbaarheid.",
-        effects: { revenue: 4, reputation: 10, toxicity: -10 },
+        effects: { revenue: -6, reputation: 10, toxicity: -10 },
       },
     ],
     imageTheme:
@@ -134,7 +134,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Besteed moderatie uit aan het goedkoopste bureau.",
-        effects: { revenue: 5, reputation: -6, toxicity: 6 },
+        effects: { revenue: 10, reputation: -6, toxicity: 6 },
       },
       {
         id: "b",
@@ -184,19 +184,19 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-toezichthouder-boete",
     title: "Boete van de toezichthouder",
-    body: "Een Europese toezichthouder stelt vast dat je feed schade aanricht. De boete heeft veel nullen.",
+    body: "De toezichthouder stelt vast dat je feed schade aanricht. De boete heeft veel nullen.",
     trigger: { kind: "toxicity", threshold: 45, phases: [3] },
     options: [
       {
         id: "a",
         kind: "commercial",
         label: "Betaal de boete en ga gewoon door.",
-        effects: { revenue: -18, toxicity: -5 },
+        effects: { revenue: -10 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Maak er een rel van: 'Brussel wil je feed afpakken!'",
+        label: "Maak er een rel van: 'Ze willen je feed afpakken!'",
         effects: { users: 8, reputation: -8, toxicity: 10 },
       },
       {
@@ -207,7 +207,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
       },
     ],
     imageTheme:
-      "oversized fine letter with many zeros landing on a tech office desk, EU-blue tones",
+      "oversized fine letter with many zeros landing on a tech office desk, official blue tones",
     imageAlt: "Een enorme boetebrief met veel nullen op een bureau.",
   },
   {
@@ -219,7 +219,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
       {
         id: "a",
         kind: "commercial",
-        label: "Laat de politieke micro-targeting advertenties toe.",
+        label: "Laat de politieke microtargeting-advertenties toe.",
         effects: { revenue: 20, reputation: -5, toxicity: 12 },
       },
       {
@@ -248,12 +248,12 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Stuur je advocaten. Zeg niets, verdien door.",
-        effects: { revenue: -6, reputation: -6 },
+        effects: { revenue: -4, reputation: -2, toxicity: -5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Knip je beste oneliners en zet ze viral.",
+        label: "Knip je beste oneliners en laat ze viraal gaan.",
         effects: { users: 10, reputation: -8, toxicity: 8 },
       },
       {
@@ -333,7 +333,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Koop eigen aandelen in om de koers te redden.",
-        effects: { revenue: -12, reputation: 4 },
+        effects: { revenue: -6, reputation: 6 },
       },
       {
         id: "b",
@@ -345,7 +345,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "c",
         kind: "journalism",
         label: "Laat een onafhankelijke accountant de cijfers controleren.",
-        effects: { revenue: -6, reputation: 6, toxicity: -15 },
+        effects: { revenue: -12, users: -3, reputation: 4, toxicity: -15 },
       },
     ],
     imageTheme: "red downward stock chart over a thick critical report, bear silhouette",
@@ -361,7 +361,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Laat een pr-bureau het verhaal draaien.",
-        effects: { revenue: -8, reputation: -4 },
+        effects: { revenue: -4, reputation: -3, toxicity: -5 },
       },
       {
         id: "b",
