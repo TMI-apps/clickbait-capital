@@ -3,11 +3,11 @@ import { extendTailwindMerge } from "tailwind-merge";
 
 /**
  * tailwind-merge taught the theme's custom utilities (src/index.css) so conflicts
- * resolve like the built-ins: `rounded-{button,card,input}` and `elevation-*`.
+ * resolve like the built-ins: `rounded-{button,card,input,game-card}` and `elevation-*`.
  */
 const twMerge = extendTailwindMerge({
   extend: {
-    theme: { radius: ["button", "card", "input"] },
+    theme: { radius: ["button", "card", "input", "game-card"] },
     classGroups: { shadow: [{ elevation: ["sm", "md", "lg", "xl"] }] },
   },
 });

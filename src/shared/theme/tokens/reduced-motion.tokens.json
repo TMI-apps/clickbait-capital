@@ -19,6 +19,18 @@
         "value": 0.01,
         "unit": "ms"
       }
+    },
+    "duration-card-draw": {
+      "$value": {
+        "value": 0.01,
+        "unit": "ms"
+      }
+    },
+    "duration-card-play": {
+      "$value": {
+        "value": 0.01,
+        "unit": "ms"
+      }
     }
   }
 }

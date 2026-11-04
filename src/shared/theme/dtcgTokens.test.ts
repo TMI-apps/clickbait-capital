@@ -20,7 +20,13 @@ const generatedCss = readFileSync(join(tokensDir, "tokens.generated.css"), "utf8
 /** Tokens `applyTheme` accepts that the DTCG files leave out on purpose (derived in index.css). */
 const OPTIONAL_TOKENS = ["card-radius", "input-radius"];
 const BRAND_ELEVATIONS = ["elevation-brand", "elevation-brand-active"];
-const MOTION_DURATIONS = ["duration-fast", "duration-normal", "duration-slow"];
+const MOTION_DURATIONS = [
+  "duration-fast",
+  "duration-normal",
+  "duration-slow",
+  "duration-card-draw",
+  "duration-card-play",
+];
 
 type ColorValue = { colorSpace: string; components: number[]; hex?: string };
 
@@ -130,4 +136,54 @@ describe("generated token CSS", () => {
 
     expect([...reduced].sort()).toEqual([...MOTION_DURATIONS].sort());
   });
+});
+
+describe("game colour contrast (WCAG AA)", () => {
+  const relativeLuminance = (hex: string): number => {
+    const [r, g, b] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const contrast = (a: string, b: string): number => {
+    const [hi, lo] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const colorsOf = (mode: "light" | "dark"): Record<string, string> => {
+    const doc = JSON.parse(readFileSync(join(tokensDir, `${mode}.tokens.json`), "utf8")) as Record<
+      string,
+      Record<string, { $value?: ColorValue }>
+    >;
+    const out: Record<string, string> = {};
+    for (const group of Object.values(doc)) {
+      for (const [name, token] of Object.entries(group)) {
+        if (token?.$value?.hex) out[name] = token.$value.hex;
+      }
+    }
+    return out;
+  };
+  const CARD_TYPES = ["type-viral", "type-ad", "type-news", "type-event"];
+  const METERS = ["meter-revenue", "meter-users", "meter-reputation"];
+
+  it.each(["light", "dark"] as const)(
+    "should keep type chip text at 4.5:1 and type frames at 3:1 when mode is %s",
+    (mode) => {
+      const c = colorsOf(mode);
+      for (const type of CARD_TYPES) {
+        expect(contrast(c[type], c[`${type}-foreground`]), type).toBeGreaterThanOrEqual(4.5);
+        expect(contrast(c[type], c.card), `${type} frame`).toBeGreaterThanOrEqual(3);
+      }
+    }
+  );
+
+  it.each(["light", "dark"] as const)(
+    "should keep meter and delta colours at 4.5:1 on the card surface when mode is %s",
+    (mode) => {
+      const c = colorsOf(mode);
+      for (const name of [...METERS, "success", "destructive"]) {
+        expect(contrast(c[name], c.card), name).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  );
 });
