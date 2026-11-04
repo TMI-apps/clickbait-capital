@@ -107,8 +107,9 @@ const NO_PARTICLES: JuicePlan["particles"] = { kind: "emoji", count: 0, target: 
 /**
  * The board's per-action feedback (design § 5): plans it from the last action, shakes the
  * board, measures particle paths and exposes accents and flashes. Nothing fires for the state
- * present at mount (e.g. returning from a phase intro). Reduced motion keeps accents and
- * flashes (the state change) but drops shake and particles.
+ * present at mount (e.g. returning from a phase intro). Reduced motion drops shake and
+ * particles; flashes run at the near-zero reduced durations (invisible), while accents, delta
+ * chips and MAX marks still show the state change.
  */
 export function useActionJuice({ action, meters, key }: UseActionJuiceOptions): ActionJuice {
   const { reduced } = useMotionPreference();

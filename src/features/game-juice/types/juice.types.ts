@@ -35,8 +35,10 @@ export interface JuicePlan {
   particles: { kind: ParticleKind; count: number; target: JuiceMeter | null };
   /** Accent per meter (only meters that earn one). */
   accents: Partial<Record<JuiceMeter, MeterAccent>>;
-  /** Gain / loss flash per meter that moved. */
+  /** Gain / loss flash per meter that moved (none for news: intentionally dull). */
   flashes: Partial<Record<JuiceMeter, MeterFlash>>;
+  /** Meter numbers count up / down; false snaps them (news, design § 5 "geen animatie"). */
+  countUp: boolean;
 }
 
 /** One particle's path, relative to its origin, in px; delays and spin for variety. */

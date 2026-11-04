@@ -47,12 +47,20 @@ export function toCardEffects(effects: Effects): CardEffectView[] {
   });
 }
 
+/**
+ * Meters cap at 100; gains past it are wasted. Second copy: the engine clamps with
+ * `METER_MAX` in `src/features/game-engine/services/turnEffects.ts` (not exported); export it
+ * from the engine api and use it here when a third consumer appears (code-style § Naming F2).
+ */
+const METER_CAP = 100;
+
 /** The three meters with their change against the meters before the last action. */
 export function toMeters(state: GameState, previous: Record<MeterKey, number> | null): MeterView[] {
   return METER_ORDER.map((key) => ({
     key,
     value: state.meters[key],
     delta: previous ? state.meters[key] - previous[key] : 0,
+    full: state.meters[key] >= METER_CAP,
   }));
 }
 
@@ -70,9 +78,6 @@ function currentPhase(state: GameState, content: GameContent): PhaseDefinition {
   }
   return phase;
 }
-
-/** Meters cap at 100 (engine clamp); gains past it are wasted. */
-const METER_CAP = 100;
 
 /**
  * Splits gains at the meter cap (game-juice D5): `delta` keeps the part that still counts and

@@ -96,6 +96,7 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
           version={view.feed.length}
           accents={juice.plan?.accents}
           flashes={juice.plan?.flashes}
+          countUp={juice.plan?.countUp ?? true}
         />
         <div className="grid min-h-0 flex-1 grid-rows-[minmax(6rem,1fr)_auto] gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-rows-1 lg:items-stretch">
           <PhoneFeed entries={view.feed} dragging={dragging} />

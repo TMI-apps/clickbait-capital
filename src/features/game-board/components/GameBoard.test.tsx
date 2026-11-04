@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
@@ -181,13 +181,15 @@ describe("GameBoard juice", () => {
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
   });
 
-  it("should fly coins when an ad card is played and throw nothing for news", async () => {
+  it("should fly coins with a gold accent for an ad and only show a shield for news", async () => {
     const { user } = await renderBoard();
     await user.click(draftCards()[1]);
     expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
+    expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
 
     await user.click(draftCards()[2]);
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+    expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
 
   it("should show the state change without particles when the player prefers reduced motion", async () => {
@@ -199,6 +201,9 @@ describe("GameBoard juice", () => {
         addEventListener: () => undefined,
         removeEventListener: () => undefined,
       }) as MediaQueryList;
+    onTestFinished(() => {
+      window.matchMedia = original;
+    });
     const { user } = await renderBoard();
     await user.click(draftCards()[0]);
 

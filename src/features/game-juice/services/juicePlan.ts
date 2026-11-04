@@ -55,11 +55,13 @@ function flashesFor(meters: JuiceMeterInput[]): Partial<Record<JuiceMeter, Meter
 /**
  * The feedback one action earns (design § 5 feedback matrix): viral shakes the screen and
  * throws emoji with flames at Gebruikers, an ad throws coins to Inkomsten with a gold glow,
- * news only shows a small shield at Reputatie. Every meter that moved flashes gain / loss.
+ * news only shows a small shield at Reputatie — no flash, no count-up (game-juice D8). For
+ * the other actions every meter that moved flashes gain / loss and counts to its new value.
  * Pure: motion preference is applied by the caller.
  */
 export function planJuice(action: JuiceAction, meters: JuiceMeterInput[]): JuicePlan {
   const accent = ACTION_ACCENT[action];
+  const dull = action === "news";
   return {
     action,
     shake: action === "viral",
@@ -69,6 +71,7 @@ export function planJuice(action: JuiceAction, meters: JuiceMeterInput[]): Juice
       target: PARTICLE_TARGET[action],
     },
     accents: accent ? { [accent.meter]: accent.accent } : {},
-    flashes: flashesFor(meters),
+    flashes: dull ? {} : flashesFor(meters),
+    countUp: !dull,
   };
 }

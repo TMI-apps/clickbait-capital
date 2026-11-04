@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { PARTICLE_COUNTS, planJuice } from "@/features/game-juice/services/juicePlan";
+import {
+  PARTICLE_COUNTS,
+  WIN_PARTICLE_COUNT,
+  planJuice,
+} from "@/features/game-juice/services/juicePlan";
 import type { JuiceMeterInput } from "@/features/game-juice/types/juice.types";
 
 const meters = (revenue: number, users: number, reputation: number): JuiceMeterInput[] => [
@@ -24,11 +28,13 @@ describe("planJuice", () => {
     expect(plan.accents).toEqual({ revenue: "gold" });
   });
 
-  it("should throw no particles and only show a shield at Reputatie when a news card is played", () => {
+  it("should only show a shield at Reputatie with no particles, flash or count-up when a news card is played", () => {
     const plan = planJuice("news", meters(-4, -2, 8));
     expect(plan.shake).toBe(false);
     expect(plan.particles.count).toBe(0);
     expect(plan.accents).toEqual({ reputation: "shield" });
+    expect(plan.flashes).toEqual({});
+    expect(plan.countUp).toBe(false);
   });
 
   it("should only flash the meters that moved when an event is answered", () => {
@@ -38,7 +44,8 @@ describe("planJuice", () => {
     expect(plan.flashes).toEqual({ users: "loss" });
   });
 
-  it("should keep every particle budget at 12 or less when any action is planned", () => {
+  it("should keep the per-action budgets at 12 and the win at 14 when particles are capped", () => {
     expect(Math.max(...Object.values(PARTICLE_COUNTS))).toBeLessThanOrEqual(12);
+    expect(WIN_PARTICLE_COUNT).toBe(14);
   });
 });

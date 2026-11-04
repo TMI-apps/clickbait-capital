@@ -1,14 +1,7 @@
 import { cn } from "@/shared/utils/cn";
+import { CapBadge } from "./CapBadge";
 import type { GameCardEffect } from "./gameCard.types";
 import { GAME_CARD_METERS, deltaDirection } from "./gameCardVariants";
-
-/** Greyed "MAX" mark: the rest of this gain is wasted at the meter's cap. */
-const CapMark = ({ overflow }: { overflow: number }) => (
-  <span className="ml-0.5 rounded-sm bg-muted px-1 font-sans text-[0.625rem] leading-4 font-bold tracking-wide text-muted-foreground">
-    <span aria-hidden="true">MAX</span>
-    <span className="sr-only">, {overflow} verspild boven het maximum</span>
-  </span>
-);
 
 export interface GameCardEffectsProps {
   effects: GameCardEffect[];
@@ -54,7 +47,9 @@ export const GameCardEffects = ({ effects, id, compact = false }: GameCardEffect
             <span className="sr-only">
               {d.spoken} {Math.abs(delta)}
             </span>
-            {overflow > 0 && <CapMark overflow={overflow} />}
+            {overflow > 0 && (
+              <CapBadge className="ml-0.5" srText={`, ${overflow} verspild boven het maximum`} />
+            )}
           </span>
         </span>
       );

@@ -20,11 +20,17 @@ const AccentBadge = ({ accent }: { accent: MeterAccent }) => {
   if (accent === "shield") {
     // News: small, neutral, no animation beyond a dry fade (design § 5).
     return (
-      <ShieldCheck className="absolute -top-2 -right-1 size-5 animate-juice-slide rounded-full bg-card p-0.5 text-success" />
+      <ShieldCheck
+        data-juice-accent="shield"
+        className="absolute -top-2 -right-1 size-5 animate-juice-slide rounded-full bg-card p-0.5 text-success"
+      />
     );
   }
   return (
-    <span className="absolute -top-3 -right-1 animate-juice-pop text-lg leading-none">
+    <span
+      data-juice-accent={accent}
+      className="absolute -top-3 -right-1 animate-juice-pop text-lg leading-none"
+    >
       {accent === "flames" ? "🔥" : "💰"}
     </span>
   );

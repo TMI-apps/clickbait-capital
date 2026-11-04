@@ -4,7 +4,7 @@ import { cn } from "@/shared/utils/cn";
 
 export interface JuiceLayerProps {
   burst: ParticleBurst | null;
-  /** Full-screen colour flash behind the particles (win / loss). */
+  /** Full-screen colour flash behind the particles (win / loss); plays once per mount. */
   flash?: "win" | "loss";
 }
 
@@ -53,16 +53,31 @@ const Burst = ({ burst, onParticleEnd }: { burst: ParticleBurst; onParticleEnd: 
   );
 };
 
+/** Full-screen colour flash (win / loss) that unmounts once it has played. */
+const ScreenFlash = ({ flash }: { flash: "win" | "loss" }) => {
+  const [done, setDone] = useState(false);
+  if (done) return null;
+  return (
+    <div
+      aria-hidden="true"
+      onAnimationEnd={() => setDone(true)}
+      className={cn(
+        "pointer-events-none fixed inset-0 z-[60] animate-juice-flash",
+        flash === "win" ? "bg-type-ad/25" : "bg-destructive/25"
+      )}
+    />
+  );
+};
+
 /**
  * Full-screen, click-through overlay for one particle burst: glyphs fly on transform/opacity
- * only and the layer empties itself when the last one lands. Decorative (aria-hidden): the
- * meters and the feed carry the state change.
+ * only and the layer unmounts when the last one lands; the optional flash unmounts after it
+ * plays. Decorative (aria-hidden): the meters and the feed carry the state change.
  */
 export const JuiceLayer = ({ burst, flash }: JuiceLayerProps) => {
   const [landed, setLanded] = useState({ key: -1, count: 0 });
   const done = burst !== null && landed.key === burst.key && landed.count >= burst.paths.length;
   const live = burst !== null && !done ? burst : null;
-  if (!live && !flash) return null;
 
   const onParticleEnd = (): void => {
     if (!live) return;
@@ -73,16 +88,16 @@ export const JuiceLayer = ({ burst, flash }: JuiceLayerProps) => {
   };
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
-      {flash && (
+    <>
+      {flash && <ScreenFlash flash={flash} />}
+      {live && (
         <div
-          className={cn(
-            "absolute inset-0 animate-juice-flash",
-            flash === "win" ? "bg-type-ad/25" : "bg-destructive/25"
-          )}
-        />
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-[60] overflow-hidden"
+        >
+          <Burst key={live.key} burst={live} onParticleEnd={onParticleEnd} />
+        </div>
       )}
-      {live && <Burst key={live.key} burst={live} onParticleEnd={onParticleEnd} />}
-    </div>
+    </>
   );
 };

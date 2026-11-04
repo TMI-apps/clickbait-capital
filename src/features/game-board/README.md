@@ -39,7 +39,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
 - **Sounds at session level (D12):** `useGameSession` computes the sounds of each action with the pure `soundsForAction` (card type or `event-choice`, then one follow-up: `ipo-win` / `game-over` / `phase-up` / `event-appear`, else at most one `meter-loss` / `meter-gain` when a meter moves ≥ 8) and `useBoardSounds` plays them. Dialog components stay sound-free; main buttons (pause, resume, restart, quit, the phase intro's continue) give `ui-tap` via `GameBoard`. The compact `MuteToggle` sits next to pause. Audio, mute and the gesture unlock live in `@/features/game-audio/api`.
 - **Juice (game-juice D1–D7):** `PlayingBoard` runs `useActionJuice` from the view (newest feed type, meter deltas, feed length) and marks the played card's slot (`draftCardElement`) so particles start there. The board container shakes on viral, `JuiceLayer` throws the particles, `MeterPanel` counts values and shows `MeterJuice` accents and flashes, `PhoneFeed` uses `FEED_ENTRANCE` per type, the draft staggers its draw by `duration-fast`, and `GameBoard` wraps the end in `EndJuice`.
-- **Wasted gains (game-juice D5):** `capEffects` in `boardView` caps draft and event-option gains at the meter's room to 100 (`overflow` → GameCard's "MAX" mark). A meter at 100 glows and says "MAX".
+- **Wasted gains (game-juice D5):** `capEffects` in `boardView` caps draft and event-option gains at the meter's room to 100 (`overflow` → GameCard's "MAX" mark). `MeterView.full` marks a meter at 100: it glows and shows the kit `CapBadge` ("MAX") in its label row.
 - **Game-flow screens (game-flow D1, D2):** events open the game-flow `EventModal` over the board (the board keeps the last event while it animates closed); phase intros and the endings replace the board (`PhaseTransitionScreen`, `GameEndFlow`). The board's `toGameEnd` gives the run summary (engine numbers plus board-formatted stat texts, game-flow D4); restart also resets the phase intros.
 
 ## Not here yet
@@ -48,7 +48,7 @@ Settings in the pause menu (game-settings lap).
 
 ## Testing
 
-Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects`), `services/boardSounds.test.ts` (sound order per action), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type and under reduced motion). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
+Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. event options), `components/MeterPanel.test.tsx` (MAX and danger text), `services/boardSounds.test.ts` (sound order per action), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type and under reduced motion). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
 
 ## Dependencies
 

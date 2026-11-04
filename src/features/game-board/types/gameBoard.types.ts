@@ -15,6 +15,8 @@ export interface MeterView {
   value: number;
   /** Change caused by the last card or event option (incl. passive costs), or 0. */
   delta: number;
+  /** At the cap (100): further gains are wasted, so the board shows "MAX". */
+  full: boolean;
 }
 
 /** Current phase and how far its goal is. */

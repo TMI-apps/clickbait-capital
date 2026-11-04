@@ -159,4 +159,19 @@ describe("capEffects", () => {
     expect(gains.length).toBeGreaterThan(0);
     expect(gains.every((effect) => effect.delta === 0)).toBe(true);
   });
+
+  it("should cap event option gains when the meter is near full", () => {
+    const state: GameState = {
+      ...createGame({ content: SEED_CONTENT, seed: 1 }),
+      status: "event",
+      pendingEventId: "event-investeerders",
+      meters: { revenue: 97, users: 50, reputation: 50 },
+    };
+    // Commercial option: revenue +8 after phase 1 scaling; only 3 fit under 100.
+    expect(toEventView(state, SEED_CONTENT)?.options[0].effects).toContainEqual({
+      meter: "revenue",
+      delta: 3,
+      overflow: 5,
+    });
+  });
 });

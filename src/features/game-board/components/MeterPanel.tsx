@@ -1,5 +1,6 @@
 import { AlertTriangle, ArrowDown, ArrowUp, Coins, ShieldCheck, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { CapBadge } from "@/components/common/GameCard";
 import type { MeterKey } from "@/features/game-engine/api";
 import { CountUpNumber, JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
 import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
@@ -41,15 +42,6 @@ const METERS: Record<
 
 /** At or below this a meter is in danger (game over at 0). */
 const DANGER_AT = 20;
-/** Meters cap here; further gains are wasted (game-juice D5). */
-const METER_CAP = 100;
-
-const CapLabel = () => (
-  <span className="ml-auto rounded-sm bg-muted px-1 text-[0.625rem] leading-4 font-bold tracking-wide text-muted-foreground">
-    MAX
-  </span>
-);
-
 function valueText(value: number, danger: boolean, full: boolean): string {
   if (danger) return `${value} van 100, gevaarlijk laag`;
   return full ? `${value} van 100, maximum bereikt` : `${value} van 100`;
@@ -80,18 +72,25 @@ export interface MeterPanelProps {
   /** Juice of the last action per meter (game-juice): accent mark and gain / loss flash. */
   accents?: Partial<Record<MeterKey, MeterAccent>>;
   flashes?: Partial<Record<MeterKey, MeterFlash>>;
+  /** Count the numbers to their new value; false snaps them (news stays dull). */
+  countUp?: boolean;
 }
 
 /**
  * The three platform meters: icon, name, a counting value 0–100, change and an animated bar.
  * A full meter glows and says "MAX" so wasted gains are visible.
  */
-export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: MeterPanelProps) => (
+export const MeterPanel = ({
+  meters,
+  version,
+  accents = {},
+  flashes = {},
+  countUp = true,
+}: MeterPanelProps) => (
   <ul aria-label="Meters" className="grid grid-cols-3 gap-2">
-    {meters.map(({ key, value, delta }) => {
+    {meters.map(({ key, value, delta, full }) => {
       const meter = METERS[key];
       const danger = value <= DANGER_AT;
-      const full = value >= METER_CAP;
       return (
         <li
           key={key}
@@ -105,10 +104,12 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
           <div className={cn("flex min-w-0 items-center gap-1 text-xs font-semibold", meter.text)}>
             <meter.icon aria-hidden="true" className="size-4 shrink-0" />
             <span className="truncate">{meter.label}</span>
+            {full && <CapBadge className="ml-auto" />}
           </div>
           <div className="flex items-baseline gap-1.5">
             <CountUpNumber
               value={value}
+              instant={!countUp}
               className={cn(
                 "font-mono text-xl font-bold tabular-nums sm:text-2xl",
                 danger && "text-destructive"
@@ -118,7 +119,6 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
             {danger && (
               <AlertTriangle aria-label="Gevaar" className="ml-auto size-4 text-destructive" />
             )}
-            {full && <CapLabel />}
           </div>
           <div
             role="meter"
