@@ -10,6 +10,8 @@ import {
   toMeters,
   toPhaseProgress,
 } from "@/features/game-board/services/boardView";
+import { soundsForAction } from "@/features/game-board/services/boardSounds";
+import type { BoardSounds } from "@/features/game-board/services/boardSounds";
 import type { BoardView, FeedEntry } from "@/features/game-board/types/gameBoard.types";
 
 export interface UseGameSessionOptions {
@@ -27,12 +29,15 @@ export interface GameSession {
   chooseOption: (optionId: string) => void;
   /** Starts a fresh run with a new seed (or the fixed one). */
   restart: () => void;
+  /** Sounds earned by the last action; `key` changes once per action (`useBoardSounds`). */
+  sounds: BoardSounds;
 }
 
 interface SessionState {
   game: GameState;
   feed: FeedEntry[];
   previousMeters: Record<MeterKey, number> | null;
+  sounds: BoardSounds;
 }
 
 const randomSeed = (): number => Math.floor(Math.random() * 2 ** 31);
@@ -41,6 +46,7 @@ const startSession = (content: GameContent, seed: number | undefined): SessionSt
   game: createGame({ content, seed: seed ?? randomSeed() }),
   feed: [],
   previousMeters: null,
+  sounds: { ids: [], key: 0 },
 });
 
 /**
@@ -60,10 +66,15 @@ export function useGameSession({ content, seed }: UseGameSessionOptions): GameSe
         if (game.status !== "playing" || !card || !inHand) {
           return current;
         }
+        const next = playCard(game, content, cardId);
         return {
-          game: playCard(game, content, cardId),
+          game: next,
           feed: [feedEntryForCard(card, game.turn), ...current.feed],
           previousMeters: game.meters,
+          sounds: {
+            ids: soundsForAction({ cardType: card.type, before: game, after: next }),
+            key: current.sounds.key + 1,
+          },
         };
       });
     },
@@ -78,10 +89,15 @@ export function useGameSession({ content, seed }: UseGameSessionOptions): GameSe
         if (!event || !event.options.some((option) => option.id === optionId)) {
           return current;
         }
+        const next = resolveEvent(game, content, optionId);
         return {
-          game: resolveEvent(game, content, optionId),
+          game: next,
           feed: [feedEntryForEvent(event, optionId, game.turn), ...current.feed],
           previousMeters: game.meters,
+          sounds: {
+            ids: soundsForAction({ cardType: null, before: game, after: next }),
+            key: current.sounds.key + 1,
+          },
         };
       });
     },
@@ -102,5 +118,12 @@ export function useGameSession({ content, seed }: UseGameSessionOptions): GameSe
     };
   }, [session, content]);
 
-  return { view, status: session.game.status, play, chooseOption, restart };
+  return {
+    view,
+    status: session.game.status,
+    play,
+    chooseOption,
+    restart,
+    sounds: session.sounds,
+  };
 }
