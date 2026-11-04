@@ -18,6 +18,8 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 | Components | `components/EventDialog.tsx`, `GameEndDialog.tsx`, `CardDetailDialog.tsx`, `PauseMenu.tsx` | Dialogs on the `Modal` kit                                                      |
 | Hooks      | `hooks/useGameSession.ts`                                                                  | One run: engine state, feed, `play`, `chooseOption`, `restart`, the `BoardView` |
 | Hooks      | `hooks/useRovingFocus.ts`                                                                  | Arrow keys move focus within a group of buttons                                 |
+| Hooks      | `hooks/useBoardSounds.ts`                                                                  | Plays the last action's sounds once, follow-up 250 ms after the action          |
+| Services   | `services/boardSounds.ts`                                                                  | `soundsForAction`: engine state change → ordered sound ids (pure)               |
 | Services   | `services/boardView.ts`                                                                    | Pure engine state → view mappers; Dutch end texts; number formatting            |
 | Types      | `types/gameBoard.types.ts`                                                                 | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)         |
 
@@ -34,18 +36,20 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
 - **Stats only as goal progress (D11):** the absolute stats (engine D1) show only for the goal conditions that read them, as "Bereik: x / doel" and "Omzet: x / doel"; "Bereik" keeps reach apart from the Gebruikers meter, whose number differs. Phase 4 (meter goal) shows none. The end screen labels them the same way.
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
+- **Sounds at session level (D12):** `useGameSession` computes the sounds of each action with the pure `soundsForAction` (card type or `event-choice`, then one follow-up: `ipo-win` / `game-over` / `phase-up` / `event-appear`, else at most one `meter-loss` / `meter-gain` when a meter moves ≥ 8) and `useBoardSounds` plays them. Dialog components stay sound-free; main buttons (pause, resume, restart, quit) give `ui-tap` via `GameBoard`. The compact `MuteToggle` sits next to pause. Audio, mute and the gesture unlock live in `@/features/game-audio/api`.
 - **Minimal endings:** win and the three game overs show the content's title, headline, body and lesson, the phase and stats, and "Opnieuw spelen" / "Naar het begin". The full endings with the end report belong to the game-flow lap.
 
 ## Not here yet
 
-Juice effects (game-juice lap), phase transition screens and the end report (game-flow lap), settings in the pause menu (game-settings lap), audio.
+Juice effects (game-juice lap), phase transition screens and the end report (game-flow lap), settings in the pause menu (game-settings lap).
 
 ## Testing
 
-Colocated Vitest: `services/boardView.test.ts` (mappers), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (tap, arrows + Enter, details, event dialog, end dialog, pause). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
+Colocated Vitest: `services/boardView.test.ts` (mappers), `services/boardSounds.test.ts` (sound order per action), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (tap, arrows + Enter, details, event dialog, end dialog, pause). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
 
 ## Dependencies
 
 - `@/features/game-engine/api` (engine functions, `scaleForPhase`, content and state types).
 - `@/features/game-content/api` (`UI_COPY`, `GAME_OVER_TEXTS`, `END_REPORT_TEMPLATE`, `fillTemplate`); the page passes `GAME_CONTENT`.
+- `@/features/game-audio/api` (`useSoundEffects`, `MuteToggle`, `SoundEffectId`).
 - Kit: `GameCard`, `Modal`, `Button`. Package: `@dnd-kit/core` (already used by the tasks feature).

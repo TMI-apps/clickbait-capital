@@ -10,6 +10,8 @@ import {
 import { Pause } from "lucide-react";
 import type { GameContent } from "@/features/game-engine/api";
 import { Button } from "@/components/common/Button";
+import { MuteToggle, useSoundEffects } from "@/features/game-audio/api";
+import { useBoardSounds } from "@/features/game-board/hooks/useBoardSounds";
 import { useGameSession } from "@/features/game-board/hooks/useGameSession";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -36,7 +38,9 @@ export interface GameBoardProps {
  * event, end, card detail and pause dialogs. All game state comes from `useGameSession`.
  */
 export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
-  const { view, play, chooseOption, restart } = useGameSession({ content, seed });
+  const { view, play, chooseOption, restart, sounds } = useGameSession({ content, seed });
+  const { play: playSound } = useSoundEffects();
+  useBoardSounds(sounds);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
@@ -55,6 +59,12 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
     play(cardId);
   };
 
+  /** Main buttons give a soft tap; card plays and event answers have their own sounds. */
+  const withTap = (action: () => void) => (): void => {
+    playSound("ui-tap");
+    action();
+  };
+
   const latest = view.feed[0];
 
   return (
@@ -67,12 +77,13 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
       <div className="mx-auto flex h-dvh w-full max-w-6xl flex-col gap-2 overflow-x-hidden overflow-y-auto px-3 py-2 sm:gap-3 sm:px-6 sm:py-4">
         <header className="flex shrink-0 items-start gap-2">
           <PhaseProgress phase={view.phase} />
+          <MuteToggle compact className="size-11 shrink-0" />
           <Button
             variant="outline"
             size="icon"
             className="size-11 shrink-0"
             aria-label={UI_COPY.board.menuButton}
-            onClick={() => setPaused(true)}
+            onClick={withTap(() => setPaused(true))}
           >
             <Pause aria-hidden="true" />
           </Button>
@@ -94,8 +105,17 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
         onPlay={playFromDetails}
       />
       <EventDialog event={view.event} onChoose={chooseOption} />
-      <GameEndDialog end={view.end} phase={view.phase} onRestart={restart} onQuit={onQuit} />
-      <PauseMenu open={paused} onResume={() => setPaused(false)} onQuit={onQuit} />
+      <GameEndDialog
+        end={view.end}
+        phase={view.phase}
+        onRestart={withTap(restart)}
+        onQuit={withTap(onQuit)}
+      />
+      <PauseMenu
+        open={paused}
+        onResume={withTap(() => setPaused(false))}
+        onQuit={withTap(onQuit)}
+      />
     </DndContext>
   );
 };
