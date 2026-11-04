@@ -8,3 +8,4 @@
 | D4 | "Voortgang wissen" clears every `localStorage` key with prefix `clickbait-capital:`; colour mode (`color-mode`) is kept | Clear everything | Colour mode is a display preference shared with the harness, not game data. |
 | D5 | Error/offline states live in a new `app-status` feature | Put them in game-settings or app-update | Different reason to change than settings; app-update owns only the service worker. |
 | D6 | Offline is a non-blocking banner (the game works offline); the full Offline screen shows only when a load fails while offline | Full-screen offline | The app is installable/offline-capable; blocking play would be wrong. |
+| D7 | app-status imports `UI_COPY` from a copy-only entry `@/features/game-content/api/copy` | `/* @__PURE__ */` on the deck Maps (tried: no effect); accept +18 kB gzip | Rolldown places a module in the chunk that statically reaches it; the barrel import pulled the whole deck into the main chunk. Orchestrator-approved. |

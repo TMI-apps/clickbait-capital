@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CloudOff } from "lucide-react";
-import { UI_COPY } from "@/features/game-content/api";
+import { UI_COPY } from "@/features/game-content/api/copy";
 import { useOnlineStatus } from "@/features/app-status/hooks/useOnlineStatus";
 
 /** How long the notice stays on screen; the game keeps working offline, so it must not linger. */

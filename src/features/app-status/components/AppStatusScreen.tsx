@@ -1,6 +1,6 @@
 import { CloudOff, TriangleAlert, MonitorX } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { UI_COPY } from "@/features/game-content/api";
+import { UI_COPY } from "@/features/game-content/api/copy";
 import { useAppStatusActions } from "@/features/app-status/hooks/useAppStatusActions";
 
 const COPY = UI_COPY.appStatus;

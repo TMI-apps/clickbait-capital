@@ -7,7 +7,7 @@ App-level error, offline and unsupported-browser states for Clickbait Capital, m
 - **Offline banner** (`OfflineBanner`): the app plays offline (`src/features/app-update/`), so losing the connection only shows a short, non-blocking notice at the top ("Je bent offline. Het spel werkt gewoon door.") that hides after 6 s; `role="status"`.
 - **Laden mislukt** / **Je bent offline** (`AppErrorFallback`): fallback of the app's `QueryErrorBoundary` — a failed lazy chunk or a render error. Offline at that moment → the offline screen, otherwise "Laden mislukt". Both offer **Opnieuw proberen** (reload) and **Naar het begin** (hard navigation to `/`).
 - **Browser niet ondersteund** (`BrowserSupportGate`): checked once per load (`isBrowserSupported`: ES2020 built-ins, `matchMedia`, `localStorage`, CSS grid); offers **Naar het begin** and a browser tip.
-- Copy: `UI_COPY.appStatus` in `@/features/game-content/api`.
+- Copy: `UI_COPY.appStatus` from `@/features/game-content/api/copy` (copy-only entry, so the card deck stays out of the main chunk; game-settings D7).
 
 ## Structure
 
@@ -31,4 +31,4 @@ Vitest: `services/browserSupport.test.ts`, `components/AppStatusScreen.test.tsx`
 
 ## Dependencies
 
-- `@/features/game-content/api` (`UI_COPY`), kit `Button`, `lucide-react`.
+- `@/features/game-content/api/copy` (`UI_COPY`), kit `Button`, `lucide-react`.

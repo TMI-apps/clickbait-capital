@@ -26,7 +26,7 @@ Start → Hoe speel je → back → Instellingen (Licht, Donker) → back → St
 
 Offline banner shows on disconnect and hides after 6 s. Offline + a not-yet-loaded page → "Je bent offline". Blocked chunk online → "Laden mislukt"; "Naar het begin" returns to the start screen. Missing `CSS.supports` → "Browser niet ondersteund" with home only.
 
-## Performance (Lighthouse 12.8.2, mobile, simulated 4G)
+## Performance (Lighthouse 12.8.2, mobile, simulated 4G; measured before the D7 fix, so main-chunk bytes were 14 kB gzip higher)
 
 | Route | Perf | FCP | LCP | TBT | CLS | Transfer |
 |-------|------|-----|-----|-----|-----|----------|
@@ -34,7 +34,7 @@ Offline banner shows on disconnect and hides after 6 s. Offline + a not-yet-load
 | `/spel` | 81 | 3.5 s | 3.9 s | 50 ms | 0 | 334 KiB |
 | `/instellingen` | 81 | 3.3 s | 3.5 s | 40 ms | 0 | 309 KiB |
 
-Bundle: main chunk 673 kB / 205 kB gzip (main branch: 625 / 187). This lap's +18 kB gzip is the card deck moving from the GamePage chunk into the main chunk. The cause is that app-status imports `UI_COPY` through the game-content barrel, and the top-level `new Map(...)` in `gameContent.ts` blocks tree-shaking. A two-line `/* @__PURE__ */` fix is proposed to the orchestrator. The new settings and rules pages are lazy chunks of 0.5 kB and 1.1 kB.
+Bundle: main chunk 635 kB / 191 kB gzip (main branch: 625 / 187); the +4 kB gzip is the eager app-status code and copy. A first build had 205 kB gzip because importing the game-content barrel from the main chunk pulled the whole deck in. app-status now imports the copy-only `@/features/game-content/api/copy` (D7). The new settings and rules pages are lazy chunks of 0.5 kB and 1.1 kB.
 
 ## Proposed backlog items (outside this lap)
 

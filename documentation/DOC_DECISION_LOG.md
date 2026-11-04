@@ -18,6 +18,7 @@ Settings screen, rules page, app-level error/offline states and the launch audit
 | D4 | What "Voortgang wissen" clears | closed | Every `localStorage` key with prefix `clickbait-capital:`; colour mode kept | agent (clear winner) | Colour mode is a display preference, not game data |
 | D5 | Where error states live | closed | New `app-status` feature | agent (clear winner) | Different reason to change than settings; app-update owns only the service worker |
 | D6 | Offline behaviour | closed | Non-blocking 6 s banner; full offline screen only when a page fails to load offline | agent (clear winner) | The app is precached and plays offline |
+| D7 | Copy for the main chunk | closed | `@/features/game-content/api/copy` (UI_COPY only) instead of the barrel; rejected: `@__PURE__` annotations (no effect), accepting +18 kB gzip | orchestrator (2026-11-04) | A barrel import from the main chunk moved the whole deck there |
 
 ## orchestrator-artifact-check — chore/orchestrate-artifact-check
 
