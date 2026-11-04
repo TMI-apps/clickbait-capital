@@ -29,3 +29,9 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 - `vite-plugin-pwa@2.0.0` + `workbox-window@7.4.1` (its required peer for the register module), pinned devDependencies — owner-approved via the orchestrator, 2026-11-04.
 - `start_url` and `id` `/spel`: the installed app opens straight into the game; scope `/` keeps login and home in-app.
 - Icons stay `purpose: "any"`: the artwork has transparent rounded corners, so it is not maskable-safe.
+
+## Dependencies
+
+- `virtual:pwa-register/react` (`vite-plugin-pwa`, with `workbox-window` as its peer): service-worker registration and the update-ready signal.
+- `@/components/common/Button` (kit) for the prompt's actions and `lucide-react` for its icon.
+- No other feature imports.
