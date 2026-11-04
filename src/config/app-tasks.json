@@ -1,7 +1,7 @@
 [
   {
     "title": "Make the interface yours",
-    "description": "Done (PR: start screen): app renamed to Clickbait Capital (tab title, top bar); harness overview removed; home is a Dutch start screen with a disabled 'Start spel' button until the game exists; sign-in moved to the unlinked /login page and the top bar shows the account menu only to a signed-in user (owner decision). Still to do: restyle via the design token files in src/shared/theme/tokens/ and run pnpm tokens:build (documentation/DOC_THEMING.md); then replace the template icon and add app icons, theme color and link-preview card (title, description, image) in public/ and index.html for origin https://clickbait-capital.tmi-5ba.workers.dev; the owner supplies a logo or approves a drawn one, and pastes the preview link into a chat app to check the card. Agent gate: .agents/skills/loop-backlog/references/onboarding.md § Configuration tasks gate (Interface).",
+    "description": "Done: Dutch start screen and rename (PR #2); neon feed theme, dark by default (PR #3); app icon A (cursor + gold coin on the neon gradient, owner's pick), favicon.ico, apple-touch and manifest icons, theme color and link-preview card (og/twitter tags in index.html, public/og-image.png, origin https://clickbait-capital.tmi-5ba.workers.dev) (PR #3). Remaining check: after merge, the owner pastes the production link into a chat app and confirms the card shows the name and image; then archive this task. Agent gate: .agents/skills/loop-backlog/references/onboarding.md § Configuration tasks gate (Interface).",
     "status": "in-progress"
   },
   {

@@ -6,8 +6,8 @@
       "$value": ["Inter", "sans-serif"]
     },
     "heading-font": {
-      "$value": ["Cinzel", "serif"],
-      "$description": "Engraved Roman capitals for headings."
+      "$value": ["Space Grotesk", "sans-serif"],
+      "$description": "Techy grotesk for headings (neon feed look)."
     },
     "mono-font": {
       "$value": [
@@ -25,14 +25,14 @@
     "$description": "Corner radii. card-radius / input-radius are optional overrides derived in src/index.css (@theme inline).",
     "radius": {
       "$value": {
-        "value": 0.25,
+        "value": 0.75,
         "unit": "rem"
       },
       "$description": "Base radius; Tailwind rounded-sm/md/lg/xl derive from it."
     },
     "button-radius": {
       "$value": "{shape.radius}",
-      "$description": "Plate buttons: follow the base radius."
+      "$description": "Buttons follow the base radius."
     }
   },
   "spacing": {

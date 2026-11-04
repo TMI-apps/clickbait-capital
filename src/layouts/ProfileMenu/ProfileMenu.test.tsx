@@ -192,7 +192,7 @@ describe("ProfileMenu", () => {
 
     it("should show the toggle when signed out", async () => {
       await openMenu();
-      expect(toggle()).toHaveAccessibleName("Theme: System (click for Light)");
+      expect(toggle()).toHaveAccessibleName("Theme: Dark (click for System)");
     });
 
     it("should show the toggle when signed in", async () => {
@@ -213,8 +213,11 @@ describe("ProfileMenu", () => {
       expect(items[items.length - 1]).toBe(toggle());
     });
 
-    it("should cycle Light, Dark, System and keep the menu open", async () => {
+    it("should cycle Dark, System, Light and keep the menu open", async () => {
       const user = await openMenu();
+
+      await user.click(toggle());
+      expect(toggle()).toHaveAccessibleName("Theme: System (click for Light)");
 
       await user.click(toggle());
       expect(toggle()).toHaveAccessibleName("Theme: Light (click for Dark)");
@@ -223,9 +226,6 @@ describe("ProfileMenu", () => {
       await user.click(toggle());
       expect(toggle()).toHaveAccessibleName("Theme: Dark (click for System)");
       expect(document.documentElement.classList.contains("dark")).toBe(true);
-
-      await user.click(toggle());
-      expect(toggle()).toHaveAccessibleName("Theme: System (click for Light)");
       expect(screen.getByRole("menu")).toBeInTheDocument();
     });
 
@@ -235,7 +235,7 @@ describe("ProfileMenu", () => {
       await user.hover(toggle());
 
       expect(await screen.findByRole("tooltip")).toHaveTextContent(
-        "Theme: System (click for Light)"
+        "Theme: Dark (click for System)"
       );
     });
   });

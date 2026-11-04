@@ -15,11 +15,11 @@ describe("ColorModeProvider", () => {
     vi.restoreAllMocks();
   });
 
-  it("should follow the OS by default", () => {
-    installMatchMediaMock(true);
+  it("should start in dark mode by default when the OS prefers light", () => {
+    installMatchMediaMock(false);
     const { result } = renderHook(() => useColorMode(), { wrapper });
 
-    expect(result.current.mode).toBe("system");
+    expect(result.current.mode).toBe("dark");
     expect(result.current.resolvedMode).toBe("dark");
     expect(isDarkClassSet()).toBe(true);
   });
@@ -27,6 +27,7 @@ describe("ColorModeProvider", () => {
   it("should update when the OS changes while in system mode", () => {
     const os = installMatchMediaMock(false);
     const { result } = renderHook(() => useColorMode(), { wrapper });
+    act(() => result.current.setMode("system"));
 
     act(() => os.setPrefersDark(true));
 
@@ -82,25 +83,29 @@ describe("ColorModeProvider", () => {
     });
     const { result } = renderHook(() => useColorMode(), { wrapper });
 
-    expect(result.current.mode).toBe("system");
-    act(() => result.current.setMode("dark"));
-    expect(result.current.resolvedMode).toBe("dark");
+    expect(result.current.mode).toBe("dark");
+    act(() => result.current.setMode("light"));
+    expect(result.current.resolvedMode).toBe("light");
   });
 
   it("should listen to the OS only while in system mode", () => {
     const os = installMatchMediaMock(false);
     const { result } = renderHook(() => useColorMode(), { wrapper });
+    expect(os.listenerCount()).toBe(0);
+
+    act(() => result.current.setMode("system"));
     expect(os.listenerCount()).toBe(1);
 
     act(() => result.current.setMode("dark"));
-
     expect(os.listenerCount()).toBe(0);
   });
 
   it("should remove its OS and storage listeners on unmount", () => {
     const os = installMatchMediaMock(false);
     const removeWindowListener = vi.spyOn(window, "removeEventListener");
-    const { unmount } = renderHook(() => useColorMode(), { wrapper });
+    const { result, unmount } = renderHook(() => useColorMode(), { wrapper });
+    act(() => result.current.setMode("system"));
+    expect(os.listenerCount()).toBe(1);
 
     unmount();
 
