@@ -1,59 +1,33 @@
 # App vision & goals
 
-> **Vision status:** `DRAFT` — When every section below reflects your real product (delete placeholder bullets; write real prose), change `DRAFT` to `ACTIVE` on this line so agents treat this file as the product SSOT.
+> **Vision status:** `ACTIVE`
 
-Static, **fill-in** product brief for this fork. Agents read this before ambiguous product or UX work. **SSOT** for problem, persona, and the app’s role relative to users.
+Product brief for Clickbait Capital. Agents read this before ambiguous product or UX work. **SSOT** for problem, persona, and the app's role relative to users. Game rules (meters, cards, phases, combos): `documentation/DOC_GAME_DESIGN.md`.
 
 ---
 
 ## Problem statement
 
-_(Replace this heading’s body with 2–6 sentences. What pain, risk, inefficiency, or gap exists today? What happens if nobody solves it?)_
-
-**Placeholder (delete and substitute):**
-
-- _Who feels the pain?_
-- _What triggers the need for this app?_
-- _What have they tried already?_
+Social media platforms drift toward sensation and polarization, and most people don't see why. The cause is the incentives: engagement and ad revenue pay off instantly, while ethical damage (toxicity, misinformation, loss of trust) builds up out of sight and only strikes back later, all at once. Clickbait Capital lets players feel that mechanism by running it themselves.
 
 ---
 
 ## User persona
 
-_(Replace with your primary user: role, typical context, technical comfort, constraints, and what “success” looks like for them in a day.)_
-
-**Placeholder (delete and substitute):**
-
-- **Name / label:** _e.g. “Operations lead at a 20-person org”_
-- **Goals:** _What they need to accomplish with the app_
-- **Frustrations:** _What slows them down today_
-- **Constraints:** _Time, access, devices, compliance, literacy, etc._
+- **Who:** anyone online, playing from a link, often on a phone, with no account and no teacher.
+- **Goal:** play a quick, gripping run and come away understanding why feeds look the way they do.
+- **Constraints:** short attention span and a mobile screen; they must be able to start playing instantly, without a signup.
 
 ---
 
-## App’s role
+## App's role
 
-_(One short paragraph plus optional bullets: what this application **does** in the user’s world, and what it explicitly **does not** do — boundaries, non-goals, handoffs to other tools.)_
-
-**Placeholder (delete and substitute):**
-
-- **In one sentence, this app:** _…_
-- **It is not:** _…_
-- **Integrates with / assumes:** _e.g. Supabase auth, external CRM — or “none yet”_
-
----
-
-## Optional: north-star goals
-
-_(Delete if unused.)_
-
-- **Goal 1:** _measurable or observable outcome_
-- **Goal 2:** _…_
+- **In one sentence, this app:** is a browser card game where you play the algorithm of a rising social media platform: each turn you feed one of three cards (Viral, Ad, News) into the feed and balance Revenue, Users and Reputation, across four phases from attic startup to IPO.
+- **It is not:** a news site, a real social network, or a classroom tool with accounts or teacher dashboards.
+- **Integrates with / assumes:** none yet; no accounts, so no login is needed.
 
 ---
 
 ## Optional: open questions
 
-_(Delete if unused. Use for decisions still pending.)_
-
-- _Question…_
+- Which language does the game show players: Dutch (as in the design document), English, or both?

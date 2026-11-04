@@ -1,5 +1,10 @@
 [
   {
+    "title": "Define app vision",
+    "description": "Collaborate with the coding agent to fill documentation/DOC_APP_VISION.md (problem, persona, app role). Replace placeholder bullets with real prose and change Vision status from DRAFT to ACTIVE when complete. Agent gate: .agents/skills/loop-backlog/references/onboarding.md § App vision & goals gate. Result: vision ACTIVE (free online web game for anyone, no accounts); game rules saved as documentation/DOC_GAME_DESIGN.md.",
+    "status": "done"
+  },
+  {
     "title": "Capture app errors to the database",
     "description": "Global window error and unhandledrejection handler, error boundary reporting, and the existing logError path, all writing through the deduplicating upsert from the signals backend task. Tag each error with the environment (local, staging, production). Depends on: Signals backend task. Result: merged in PR #28 (src/features/error-reporting; live on production).",
     "status": "done"
