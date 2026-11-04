@@ -77,7 +77,7 @@ Then the agent prepares the change on a branch and hands the user the exact comm
 Where PRs go: § Mode behavior table → **how work lands** (A: `develop`, always with an explicit base; B: no daily PR; C: `main`, the Claude Code default way). Procedure — `gh` steps, PR body template, preview-URL lookup, "merge blocked" diagnosis: `.agents/skills/loop-ship/references/push-safety.md` § Pull request.
 
 - **Title:** conventional `type: Subject` (all modes — under C, release-please reads it and CI enforces it via `pr-title`).
-- **Preview link (every PR):** the PR body carries a `## Preview` section with the live preview URL of the PR's branch, and the chat handoff gives it next to the PR link.
+- **Preview link (every PR):** the PR body carries a `## Preview` section with the live preview URL of the PR's branch, and every chat message that names a PR waiting on the owner gives that link next to the PR link — the handoff, status updates and wake-up turns alike.
 - **Who reads what:** the PR body is the record for agents and reviewers. The owner reads only the short chat handoff (`.agents/skills/loop-verdict/SKILL.md` § Output) and tests the preview; never require them to read the PR body to decide.
 - **No `- [ ]` task lists in a PR body:** GitHub renders them as clickable boxes that read as a to-do for the owner, and nobody has to tick anything (merge-is-pass D6).
 

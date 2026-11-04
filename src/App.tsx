@@ -12,9 +12,6 @@ import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
 import { reportError } from "@/features/error-reporting/services/errorReportService";
 
 const HomePage = lazy(() => import("@/pages/HomePage").then((m) => ({ default: m.HomePage })));
-const HarnessOverviewPage = lazy(() =>
-  import("@/pages/HarnessOverviewPage").then((m) => ({ default: m.HarnessOverviewPage }))
-);
 const TasksPage = lazy(() =>
   import("@/pages/tasks/TasksPage").then((m) => ({ default: m.TasksPage }))
 );
@@ -41,7 +38,6 @@ function AppContent() {
             <Routes>
               <Route element={<MainLayout />}>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/harness" element={<HarnessOverviewPage />} />
               </Route>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />

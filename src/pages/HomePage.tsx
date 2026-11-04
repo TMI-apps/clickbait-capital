@@ -1,34 +1,32 @@
 import { Alert } from "@/components/common/Alert";
 import { Button } from "@/components/common/Button";
 import { useAuthContext } from "@/shared/context/AuthContext";
-import { HarnessOverviewCard } from "@/features/harness-overview/components/HarnessOverviewCard";
-import { SignInPanel } from "@/features/auth/components/SignInPanel";
 import { useAuthCallbackHandler } from "@/features/auth/hooks/useAuthCallbackHandler";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { appScrollContentClassName, formContentWidthClassName } from "@/shared/theme/appViewLayout";
 import { cn } from "@/shared/utils/cn";
 
+/**
+ * Start screen of the game. Sign-in lives on the unlinked `/login` page until accounts are
+ * needed; the OAuth return still lands here, so the callback handler and auth error stay.
+ */
 export const HomePage = () => {
-  const { user, loading, error, clearAuthError } = useAuthContext();
+  const { loading, error, clearAuthError } = useAuthContext();
   const { isProcessing } = useAuthCallbackHandler();
 
   if (loading || isProcessing) {
-    return <PageLoadingState message="Signing in…" />;
+    return <PageLoadingState message="Bezig met inloggen…" />;
   }
 
-  const showInlineLogin = !user;
-
   return (
-    <div className={cn(appScrollContentClassName, "text-center")}>
-      <HarnessOverviewCard />
-
+    <div className={cn(appScrollContentClassName, "justify-center text-center")}>
       {error && (
         <Alert
           variant="destructive"
           className={cn(formContentWidthClassName, "mb-2 sm:mb-3")}
           action={
             <Button variant="ghost" size="sm" className="-my-1.5 h-8" onClick={clearAuthError}>
-              Dismiss
+              Sluiten
             </Button>
           }
         >
@@ -36,13 +34,17 @@ export const HomePage = () => {
         </Alert>
       )}
 
-      {user ? (
-        <div className="flex flex-1 items-center justify-center">
-          <p>Welcome back, {user.email}!</p>
-        </div>
-      ) : showInlineLogin ? (
-        <SignInPanel />
-      ) : null}
+      <div className={cn(formContentWidthClassName, "flex flex-col items-center gap-4")}>
+        <h1 className="font-heading text-4xl font-bold text-primary">Clickbait Capital</h1>
+        <p className="text-muted-foreground">
+          Jij bent het algoritme. Kies elke beurt welke post in de feed komt en laat je platform
+          groeien van studentenapp tot beursgenoteerde techreus.
+        </p>
+        <Button size="lg" disabled>
+          Start spel
+        </Button>
+        <p className="text-sm text-muted-foreground">Het spel wordt nog gebouwd.</p>
+      </div>
     </div>
   );
 };
