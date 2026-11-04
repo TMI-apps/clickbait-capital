@@ -1,10 +1,5 @@
 [
   {
-    "title": "Make the interface yours",
-    "description": "Done: Dutch start screen and rename (PR #2); neon feed theme, dark by default (PR #3); app icon A (cursor + gold coin on the neon gradient, owner's pick), favicon.ico, apple-touch and manifest icons, theme color and link-preview card (og/twitter tags in index.html, public/og-image.png, origin https://clickbait-capital.tmi-5ba.workers.dev) (PR #3). Remaining check: after merge, the owner pastes the production link into a chat app and confirms the card shows the name and image; then archive this task. Agent gate: .agents/skills/loop-backlog/references/onboarding.md § Configuration tasks gate (Interface).",
-    "status": "in-progress"
-  },
-  {
     "title": "Configure Supabase",
     "description": "Parked by the owner (onboarding): Supabase code stays, setup later. The game runs in the browser without accounts (vision); set this up when crash logging, player feedback or a global high-score list is wanted. Set up the backend: one Supabase project with the auth providers you use enabled, its Site URL set to the app's primary origin, and its URL and publishable key available as VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (local .env, plus the hosting build variables for main and for previews). Before the app has real users, isolate staging from production with a Supabase Branching staging branch or a second project (documentation/DOC_CLOUDFLARE_WORKERS.md § Staging backend). Your coding agent lists the exact requirements, checks the result, and tells you what only you can do. For Google sign-in, requirements are in documentation/DOC_SUPABASE_GOOGLE_OAUTH.md. If you explicitly say this app does not use Supabase, Google sign-in, anonymous sessions, or error reporting, the agent offers to delete that code. Agent gate: .agents/skills/loop-backlog/references/onboarding.md § Shipped integrations and § Configuration tasks gate (Supabase).",
     "status": "to-do"
