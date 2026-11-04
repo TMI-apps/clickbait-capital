@@ -6,6 +6,20 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## game-juice — feat/game-juice
+
+Asymmetric action feedback (DOC_GAME_DESIGN § 5) in `src/features/game-juice/`, wired into the game board, plus "MAX" marks for gains wasted at the meter cap.
+
+| id | topic | status | choice | source | notes |
+|----|-------|--------|--------|--------|-------|
+| D1 | Where juice gets its input | closed | Derived from the `BoardView` (newest feed type, meter deltas, key = feed length); no engine or session change; nothing fires for the state present at mount | loop-plan | clear-winner: visuals start on the same render as the sounds |
+| D2 | Animation technique | closed | CSS keyframes (transform/opacity) for particles, flashes, entrances; WAAPI for the shake; rAF writing text through a ref for count-up; no library | loop-plan | orchestrator constraint (no new dependency); 60 fps on a mid phone |
+| D3 | Motion preference source | closed | One hook, `useMotionPreference`; follows `prefers-reduced-motion` until the game-settings api lands, then re-exports it. Reduced: no shake, particles, flash or count-up; accents, deltas and MAX marks stay | loop-refine | orchestrator: settings owns the single source |
+| D4 | Particle budgets | closed | viral 12, ad 10, news / event 0, win 14 | loop-plan | perf cap; news stays dull |
+| D5 | Wasted gains display | closed | Card shows the applied part (`min(delta, 100 − meter)`) + greyed "MAX"; full meter glows + "MAX"; passive costs and modifiers not previewed | loop-refine | consistent with game-board D10 (shown = applied) |
+| D6 | Accent meters | closed | Flames on Gebruikers (the design's engagement counter), gold on Inkomsten, shield on Reputatie; each a distinct shape | loop-refine | colour never the only signal |
+| D7 | End-screen entrance home | closed | `EndJuice` in game-juice wraps `GameEndFlow` in the board; game-flow unchanged | loop-plan | keeps game-flow out of the lap's edges |
+
 ## game-engine — feat/game-engine
 
 Pure TypeScript rules engine and content schema in `src/features/game-engine/` (no UI); the game-board and content laps build on its `api/` barrel.
