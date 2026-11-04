@@ -32,7 +32,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 - **Formatting stays in the board (D4):** the board formats the absolute stats (`statTexts`) with its nl-NL formatters and passes the raw numbers for `buildEndReport`, so no third formatter copy exists here.
 - **Motion:** entrance fades use the motion tokens (`--duration-slow`), which drop to ~0 under prefers-reduced-motion. Bigger juice belongs to the game-juice lap.
 - **Not dismissible:** the event modal passes `dismissible={false}` (game-board D5); endings have no close, only their actions.
-- **Report button copy:** "Bekijk je rapport" is a local constant in `EndingScreen.tsx` until `UI_COPY.results` takes it (game-content is owned by its own lap).
+- **Report button copy:** `UI_COPY.results.reportButton` ("Bekijk je rapport"), added to game-content in this lap with the orchestrator's approval.
 
 ## Not here yet
 

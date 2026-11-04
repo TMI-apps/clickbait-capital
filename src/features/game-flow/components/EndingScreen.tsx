@@ -1,6 +1,7 @@
 import { Ban, Gavel, ServerOff, TrendingUp, UserX } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/common/Button";
+import { UI_COPY } from "@/features/game-content/api";
 import type { EndingView } from "@/features/game-flow/types/gameFlow.types";
 import { cn } from "@/shared/utils/cn";
 import { FlowScreen } from "./FlowScreen";
@@ -12,9 +13,6 @@ const ENDING_ICON: Record<NonNullable<EndingView["reason"]> | "won", LucideIcon>
   banned: Gavel,
   won: TrendingUp,
 };
-
-// TODO(game-flow): move to UI_COPY.results once game-content takes the string (orchestrator).
-export const REPORT_BUTTON = "Bekijk je rapport";
 
 export interface EndingScreenProps {
   ending: EndingView;
@@ -45,7 +43,7 @@ export const EndingScreen = ({ ending, onContinue }: EndingScreenProps) => {
       }
       actions={
         <Button className="min-h-11" onClick={onContinue}>
-          {REPORT_BUTTON}
+          {UI_COPY.results.reportButton}
         </Button>
       }
     >

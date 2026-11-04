@@ -7,8 +7,8 @@ Sound effects and the mute toggle for Clickbait Capital. Juice rules: `documenta
 - Plays short sound effects by id: `const { play } = useSoundEffects(); play("card-viral")`.
 - Muted until the first user gesture (browser autoplay rules): the first `pointerdown`, `keydown` or `touchend` anywhere on the page unlocks audio and loads the sounds.
 - One mute switch for the whole page, remembered in `localStorage` (`clickbait-capital:audio-muted`; a blocked storage only loses the memory).
-- `MuteToggle`: 48 px button, `aria-pressed` (true = sound on), icon plus Dutch label.
-- Not wired into the board here; the board imports `@/features/game-audio/api`.
+- `MuteToggle`: 48 px button, `aria-pressed` (true = sound on), icon plus Dutch label; `compact` gives a 44 px icon-only outline square for toolbars.
+- The board decides when to play what (`src/features/game-board/services/boardSounds.ts`); this feature only plays, mutes and unlocks.
 
 ## Structure
 
@@ -49,7 +49,7 @@ Every prompt is `STYLE + SOUND (+ TYPE TWIST)`, so the set sounds like one famil
 - **News twist:** deliberately dull and flat, one soft wooden click, no sparkle, no rise; quiet in the mix (0.4). Same STYLE words so it belongs to the family, just drained.
 - **Neutral UI and events:** STYLE plus "subtle"; meters and taps sit low in the mix (0.35–0.5).
 - **Durations:** UI 0.5 s (generator minimum), card plays 0.5–0.9 s, phase / end sounds 1.5–2.5 s requested.
-- **Loudness:** each file is peak-normalized to −1.5 dBFS and tail-trimmed; the relative mix lives in the manifest `volume`, not in the files.
+- **Loudness:** every file is levelled to the same mean (RMS) level, about −20 to −22 dB, with a limiter keeping peaks at or below −1.4 dBFS (two passes, no regeneration). RMS rather than LUFS because integrated LUFS is gated over 400 ms blocks and cannot measure the shorter clips. The relative mix lives in the manifest `volume`, not in the files.
 
 ## Provenance and license
 
@@ -63,6 +63,7 @@ Every prompt is `STYLE + SOUND (+ TYPE TWIST)`, so the set sounds like one famil
 - **Unlock on first gesture (D2):** the `AudioContext` is created inside the first gesture, so no autoplay warning and no sound before the player interacts. Sounds load right after unlock (124 KB total).
 - **Mute is a sound-on toggle (D3):** `aria-pressed` reflects "sound on" under the stable name "Geluid"; visible text says "Geluid aan" / "Geluid uit".
 - **Mix in data (D4):** files are normalized; the design's asymmetry (loud viral, quiet news) is the manifest `volume`.
+- **Level by RMS, mix by volume (D6):** a review found the first files 12 dB apart in mean level (peak normalization favours sustained sounds); the files now share one mean level and the asymmetry stays only in `volume`.
 - **No background music yet (D5):** kept out for size and credits; a loopable track can be added as another manifest entry later.
 
 ## Testing
