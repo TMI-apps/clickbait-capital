@@ -106,7 +106,9 @@
     "prettier": "^3.8.3",
     "typescript": "^6.0.3",
     "vite": "^8.0.14",
+    "vite-plugin-pwa": "2.0.0",
     "vitest": "^4.1.7",
+    "workbox-window": "7.4.1",
     "wrangler": "4.102.0"
   },
   "lint-staged": {

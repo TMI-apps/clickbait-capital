@@ -130,7 +130,7 @@ describe("useGameSession", () => {
     }
 
     expect(result.current.status).toBe("won");
-    expect(result.current.view.end).toMatchObject({ outcome: "won", title: "Beursgang geslaagd" });
+    expect(result.current.view.end).toMatchObject({ outcome: "won", reason: null, phaseId: 4 });
     expect(result.current.view.phase.phaseId).toBe(4);
   });
 
