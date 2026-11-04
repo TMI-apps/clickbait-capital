@@ -95,6 +95,7 @@ export const UI_COPY = {
     lostKicker: "Game over",
     playAgainButton: "Opnieuw spelen",
     backToStartButton: "Naar het begin",
+    reportButton: "Bekijk je rapport",
     shareButton: "Deel je resultaat",
     shareText:
       "Ik speelde Clickbait Capital en haalde fase {phase} in {turns} beurten. Kun jij het algoritme beter bespelen?",

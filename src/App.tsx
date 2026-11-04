@@ -5,6 +5,7 @@ import { AuthProvider } from "@/shared/context/AuthContext";
 import { ColorModeProvider } from "@/shared/context/ColorModeContext";
 import { Topbar } from "@/layouts/Topbar";
 import { DevTasksFab } from "@/features/tasks/components/DevTasksFab/DevTasksFab";
+import { UpdatePrompt } from "@/features/app-update/api";
 import { QueryDevtoolsGate } from "@/components/common/QueryDevtoolsGate";
 import { MainLayout } from "@/layouts/MainLayout/MainLayout";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
@@ -57,6 +58,7 @@ function AppContent() {
           </Suspense>
         </QueryErrorBoundary>
       </div>
+      <UpdatePrompt />
       <DevTasksFab />
       <QueryDevtoolsGate />
     </>

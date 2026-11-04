@@ -74,16 +74,21 @@ export interface EventView {
   options: Array<{ id: string; kind: EventOptionKind; label: string; effects: CardEffectView[] }>;
 }
 
-/** How the run ended. */
+/**
+ * How the run ended, with the numbers the end screens read (game-flow `RunSummary`; the
+ * board passes this view to `GameEndFlow`, so a drift fails type-check there).
+ */
 export interface GameEndView {
   outcome: "won" | "lost";
   reason: GameOverReason | null;
-  title: string;
-  /** Newspaper-style headline (game over) or short line (win). */
-  headline: string;
-  message: string;
-  /** What the player should take away; empty for the win until the endings lap. */
-  lesson: string;
+  turn: number;
+  phaseId: PhaseId;
+  phaseName: string;
+  stats: { users: number; revenue: number };
+  /** Stats formatted with the board's nl-NL formatters (game-flow D4). */
+  statTexts: { users: string; revenue: string };
+  playedTypes: CardType[];
+  firedEventIds: string[];
 }
 
 /** Everything the board renders for one moment of the run. */
