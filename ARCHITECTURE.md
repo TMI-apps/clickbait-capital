@@ -20,6 +20,7 @@ src/
 │   │   ├── hooks/       # React hooks for feature logic
 │   │   ├── services/    # Pure functions, API calls
 │   │   └── types/       # TypeScript types for feature
+│   ├── game-engine/     # Pure game rules + content schema; public API in api/index.ts
 │   └── tasks/           # Dev-only task backlog (/tasks)
 ├── layouts/             # App shell: wires features into page chrome
 │   ├── MainLayout/      # Main layout component

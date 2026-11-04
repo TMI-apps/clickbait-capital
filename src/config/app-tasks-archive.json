@@ -1,5 +1,10 @@
 [
   {
+    "title": "Game rules engine and content schema",
+    "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 1 (parallel). Area: src/features/game-engine/ (new). Pure TypeScript services, no UI: game state, the three meters 0-100 (start 50), the 3-card draft (one Viraal, one Advertentie, one Nieuws), applying a played card, hidden Toxicity, passive costs and reputation decay, the three game overs, phases 1-4 with milestone goals and the IPO win, event triggers (milestone and Toxicity threshold) and the combo/penalty rules (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte). Owns the content schema types (card, event, phase, balance values) and a small seed deck as test fixture; real content is a later lap. Seeded RNG so games are reproducible. TDD per testing rule. Size M. Result: merged in PR #5 (src/features/game-engine, public API @/features/game-engine/api, 47 tests, decisions D1-D9 in its README). Not modelled yet (see README): phase-2 competitors and ad-pressure complaints, phase-3 direct fines, end report.",
+    "status": "done"
+  },
+  {
     "title": "Make the interface yours",
     "description": "Result: Dutch start screen and rename (PR #2); neon feed theme, dark by default, app icon (cursor and gold coin) and link-preview card (PR #3). Owner confirmed the card in a chat app.",
     "status": "done"
