@@ -1,4 +1,5 @@
 export { GameCard, type GameCardProps } from "./GameCard";
+export { GameCardEffects, type GameCardEffectsProps } from "./GameCardEffects";
 export type {
   GameCardAnimation,
   GameCardEffect,

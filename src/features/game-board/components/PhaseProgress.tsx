@@ -1,4 +1,5 @@
 import { Flag } from "lucide-react";
+import { UI_COPY, fillTemplate } from "@/features/game-content/api";
 import type { PhaseProgressView } from "@/features/game-board/types/gameBoard.types";
 
 export interface PhaseProgressProps {
@@ -12,7 +13,7 @@ export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
     <section aria-label="Fase en mijlpaal" className="min-w-0 flex-1">
       <h1 className="flex items-baseline gap-2 font-heading text-base leading-tight font-bold sm:text-lg">
         <span className="shrink-0 text-xs font-semibold text-muted-foreground uppercase">
-          Fase {phase.phaseId}/{phase.phaseCount}
+          {fillTemplate(UI_COPY.board.phaseLabel, { phase: String(phase.phaseId) })}
         </span>
         <span className="truncate text-primary">{phase.phaseName}</span>
       </h1>
@@ -38,10 +39,13 @@ export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
         <span>{phase.revenueText}</span>
         {phase.streak && (
           <span>
-            {phase.streak.current}/{phase.streak.required} beurten op rij
+            {fillTemplate(UI_COPY.board.goalStreakLabel, {
+              streak: String(phase.streak.current),
+              needed: String(phase.streak.required),
+            })}
           </span>
         )}
-        <span>Beurt {phase.turn}</span>
+        <span>{fillTemplate(UI_COPY.board.turnLabel, { turn: String(phase.turn) })}</span>
       </p>
     </section>
   );

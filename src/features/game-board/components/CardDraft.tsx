@@ -3,6 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, Info } from "lucide-react";
 import { GameCard } from "@/components/common/GameCard";
 import { useRovingFocus } from "@/features/game-board/hooks/useRovingFocus";
+import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { cn } from "@/shared/utils/cn";
 
@@ -33,7 +34,6 @@ const DraftSlot = ({ card, onPlay, onShowDetails }: DraftSlotProps) => {
         type={card.type}
         title={card.title}
         effects={card.effects}
-        flavor={card.body}
         onSelect={() => onPlay(card.id)}
         animation="draw"
         size="compact"
@@ -83,13 +83,16 @@ export const CardDraft = ({ cards, onPlay, onShowDetails }: CardDraftProps) => {
           Kies een post voor de feed
         </h2>
         <p className="hidden text-xs text-muted-foreground sm:block">
-          Tik, sleep of gebruik de pijltjes en Enter
+          {UI_COPY.board.dragHint} of gebruik de pijltjes en Enter
         </p>
       </div>
       {drought && (
         <p className="flex items-center gap-1.5 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive">
           <AlertTriangle aria-hidden="true" className="size-4 shrink-0" />
-          Journalistieke droogte: virale posts geven nu dubbel schandaalrisico.
+          <span>
+            <span className="font-bold">{UI_COPY.board.modifiers.journalismDrought.label}:</span>{" "}
+            {UI_COPY.board.modifiers.journalismDrought.description}
+          </span>
         </p>
       )}
       <ul

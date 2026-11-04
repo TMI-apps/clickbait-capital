@@ -2,6 +2,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { Megaphone, Newspaper, Siren, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
+import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 
 /** Drop target id the draft cards are dragged onto. */
@@ -46,7 +47,7 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
   return (
     <section
       ref={setNodeRef}
-      aria-label="Feed"
+      aria-label={UI_COPY.board.feedLabel}
       className={cn(
         "mx-auto flex min-h-24 w-full max-w-sm flex-1 flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
         dragging && "border-dashed",
@@ -64,7 +65,7 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
         )}
         {entries.length === 0 ? (
           <p className="p-4 text-center text-sm text-muted-foreground">
-            Je feed is nog leeg. Kies een post om te plaatsen.
+            {UI_COPY.emptyStates.emptyFeed}
           </p>
         ) : (
           <ol className="flex flex-col gap-2">

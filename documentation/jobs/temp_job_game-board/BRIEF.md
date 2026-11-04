@@ -25,6 +25,8 @@ On `/spel` a player can play a full game with tap, drag or keyboard only: the 3-
 | `src/features/game-board/` | Not found | new feature, `api/` barrel | new |
 | `src/features/game-engine/api` | pure engine, `SEED_CONTENT` | imported read-only | ride |
 | `src/components/common/GameCard` | kit card | new `size="compact"` variant (orchestrator-approved) | ride — kit prop |
+| `src/features/game-content/api` | Dutch deck, end texts, UI copy | `GamePage` content, board copy; one tutorial string | ride — orchestrator-approved after game-content merged |
+| `src/features/game-engine/api` | public barrel | `scaleForPhase` export (one line) | ride — orchestrator-approved |
 | `src/components/common/Modal` | dismissible dialog, English close label | `dismissible` prop, Dutch label | ride — small kit prop |
 | `src/pages/` + `src/App.tsx` | Home with disabled Start spel | `GamePage`, `/spel` route, fullscreen route list | ride |
 

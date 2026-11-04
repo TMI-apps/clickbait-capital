@@ -23,7 +23,8 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 ## Decisions
 
-- **Content is input (game-board D1):** `GameBoard` takes a `GameContent`; `src/pages/GamePage.tsx` passes `SEED_CONTENT`. Swapping in the game-content set is one import line in that page.
+- **Content is input (game-board D1, D9):** `GameBoard` takes a `GameContent`; `src/pages/GamePage.tsx` passes `GAME_CONTENT` from game-content. A card's optional `flavor` field (game-content D2) shows in the detail view. Player copy comes from `UI_COPY` and end texts from `GAME_OVER_TEXTS`.
+- **Scaled numbers (D10):** draft cards and event options show effects after the engine's `scaleForPhase` (e.g. reputation loss ×2 in phase 3), so the number shown is the number applied. Turn modifiers (Ad-Fatigue, Echo-Chamber) are not previewed. Event options reuse the kit's `GameCardEffects`.
 - **Tap plays (D2):** one tap or Enter / Space plays the card; details sit behind the info button on the artwork (accessible, unlike long-press).
 - **Drag (D3):** `@dnd-kit/core` with a mouse distance (8px) and touch delay (150ms) sensor, so tap and drag coexist; dropping on the feed plays the card. No keyboard drag sensor: the keyboard path is arrows + Enter.
 - **Fullscreen (D4):** `/spel` hides the Topbar (`FULLSCREEN_ROUTES` in `src/App.tsx`); quitting goes through the pause menu.
@@ -32,7 +33,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Compact cards (D7, D8):** the three cards stay in one row at 390px using `GameCard size="compact"` at every width; the flavor text and full labels are in the detail dialog.
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
-- **Minimal endings:** win and the three game overs show a short Dutch text, the phase and stats, and "Opnieuw spelen" / "Home". The full endings with the end report belong to the game-flow lap.
+- **Minimal endings:** win and the three game overs show the content's title, headline, body and lesson, the phase and stats, and "Opnieuw spelen" / "Naar het begin". The full endings with the end report belong to the game-flow lap.
 
 ## Not here yet
 
@@ -44,5 +45,6 @@ Colocated Vitest: `services/boardView.test.ts` (mappers), `hooks/useGameSession.
 
 ## Dependencies
 
-- `@/features/game-engine/api` (engine functions, content and state types).
+- `@/features/game-engine/api` (engine functions, `scaleForPhase`, content and state types).
+- `@/features/game-content/api` (`UI_COPY`, `GAME_OVER_TEXTS`, `END_REPORT_TEMPLATE`, `fillTemplate`); the page passes `GAME_CONTENT`.
 - Kit: `GameCard`, `Modal`, `Button`. Package: `@dnd-kit/core` (already used by the tasks feature).

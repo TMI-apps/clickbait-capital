@@ -4,16 +4,23 @@ import type {
   Effects,
   EventDefinition,
   GameContent,
-  GameOverReason,
   GameState,
   GoalCondition,
   MeterKey,
+  PhaseDefinition,
 } from "@/features/game-engine/api";
 import {
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
+  scaleForPhase,
 } from "@/features/game-engine/api";
+import {
+  END_REPORT_TEMPLATE,
+  GAME_OVER_TEXTS,
+  UI_COPY,
+  fillTemplate,
+} from "@/features/game-content/api";
 import type {
   CardEffectView,
   DraftCardView,
@@ -30,29 +37,12 @@ export const METER_ORDER: MeterKey[] = ["revenue", "users", "reputation"];
 /** Draft order: one card per type, left to right. */
 const DRAFT_ORDER: CardType[] = ["viral", "ad", "news"];
 
-/**
- * Minimal Dutch end texts (design § 2 and § 6). The full endings with the end report come
- * in the game-flow lap; these only say what happened.
- */
-const GAME_OVER_TEXT: Record<GameOverReason, { title: string; message: string }> = {
-  bankrupt: {
-    title: "Bankroet",
-    message:
-      "De servers gaan offline wegens onbetaalde rekeningen. Je investeerders trekken de stekker eruit.",
-  },
-  abandoned: {
-    title: "Verlaten platform",
-    message: "Je gebruikers lopen massaal over naar concurrerende apps. De feed sterft uit.",
-  },
-  banned: {
-    title: "Verbod & regulering",
-    message: "Je platform wordt verboden wegens maatschappelijke ontwrichting.",
-  },
-};
-
+/** Win text until the game-flow lap adds the IPO end report. */
 const WIN_TEXT = {
-  title: "Beursgang geslaagd",
+  title: UI_COPY.results.wonKicker,
+  headline: END_REPORT_TEMPLATE.title,
   message: "Je platform staat op de beurs. Maar tegen welke prijs?",
+  lesson: "",
 };
 
 const countFormat = new Intl.NumberFormat("nl-NL");
@@ -86,12 +76,25 @@ function conditionRatio(condition: GoalCondition, state: GameState): number {
   return condition.above <= 0 ? 1 : state.meters[condition.meter] / condition.above;
 }
 
-/** Phase name, goal text and progress. Progress is the weakest goal condition, capped at 1. */
-export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
+function currentPhase(state: GameState, content: GameContent): PhaseDefinition {
   const phase = content.phases.find((candidate) => candidate.id === state.phase);
   if (!phase) {
     throw new Error(`game-board: phase ${state.phase} is missing from the content`);
   }
+  return phase;
+}
+
+/**
+ * Visible effects as the engine applies them in the current phase (game-content README:
+ * events show scaled numbers). Turn modifiers such as Ad-Fatigue are not previewed.
+ */
+function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView[] {
+  return toCardEffects(scaleForPhase(effects, phase));
+}
+
+/** Phase name, goal text and progress. Progress is the weakest goal condition, capped at 1. */
+export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
+  const phase = currentPhase(state, content);
   const { conditions, consecutiveTurns, description } = phase.goal;
   const ratios = conditions.map((condition) => conditionRatio(condition, state));
   const progress = Math.max(0, Math.min(1, ...ratios));
@@ -102,10 +105,20 @@ export function toPhaseProgress(state: GameState, content: GameContent): PhasePr
     goalDescription: description,
     progress,
     streak: consecutiveTurns > 1 ? { current: state.goalStreak, required: consecutiveTurns } : null,
-    usersText: `${countFormat.format(state.stats.users)} gebruikers`,
-    revenueText: `${euroFormat.format(state.stats.revenue)} omzet`,
+    usersText: fillTemplate(UI_COPY.board.usersStatLabel, {
+      users: countFormat.format(state.stats.users),
+    }),
+    revenueText: fillTemplate(UI_COPY.board.revenueStatLabel, {
+      revenue: euroFormat.format(state.stats.revenue),
+    }),
     turn: state.turn,
   };
+}
+
+/** Flavor line when the content adds one next to the engine schema (game-content D2). */
+function flavorOf(card: CardDefinition): string | undefined {
+  const flavor: unknown = (card as CardDefinition & { flavor?: unknown }).flavor;
+  return typeof flavor === "string" && flavor !== "" ? flavor : undefined;
 }
 
 /** The open draft as board cards, or an empty list while an event or the end is showing. */
@@ -115,6 +128,7 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
     return [];
   }
   const drought = isJournalismDroughtActive(state, content);
+  const phase = currentPhase(state, content);
   return DRAFT_ORDER.map((type) => {
     const card = hand[type];
     return {
@@ -122,7 +136,8 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       type,
       title: card.title,
       body: card.body,
-      effects: toCardEffects(card.effects),
+      flavor: flavorOf(card),
+      effects: scaledEffects(card.effects, phase),
       droughtWarning: drought && type === "viral",
     };
   });
@@ -134,11 +149,17 @@ export function toEventView(state: GameState, content: GameContent): EventView |
   if (!event) {
     return null;
   }
+  const phase = currentPhase(state, content);
   return {
     id: event.id,
     title: event.title,
     body: event.body,
-    options: event.options.map(({ id, kind, label }) => ({ id, kind, label })),
+    options: event.options.map(({ id, kind, label, effects }) => ({
+      id,
+      kind,
+      label,
+      effects: scaledEffects(effects, phase),
+    })),
   };
 }
 
@@ -148,7 +169,8 @@ export function toGameEnd(state: GameState): GameEndView | null {
     return { outcome: "won", reason: null, ...WIN_TEXT };
   }
   if (state.status === "lost" && state.gameOver) {
-    return { outcome: "lost", reason: state.gameOver, ...GAME_OVER_TEXT[state.gameOver] };
+    const { title, headline, body, lesson } = GAME_OVER_TEXTS[state.gameOver];
+    return { outcome: "lost", reason: state.gameOver, title, headline, message: body, lesson };
   }
   return null;
 }

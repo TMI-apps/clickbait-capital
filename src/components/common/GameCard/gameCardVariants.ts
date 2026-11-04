@@ -42,7 +42,7 @@ export const GAME_CARD_TYPES: Record<
   },
   ad: {
     label: "Advertentie",
-    shortLabel: "Ad",
+    shortLabel: "Reclame",
     icon: Megaphone,
     chip: "bg-type-ad text-type-ad-foreground",
     frame: "border-type-ad",

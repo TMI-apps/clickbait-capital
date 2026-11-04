@@ -2,6 +2,7 @@ import { AlertTriangle, ArrowDown, ArrowUp, Coins, ShieldCheck, TrendingUp } fro
 import type { LucideIcon } from "lucide-react";
 import type { MeterKey } from "@/features/game-engine/api";
 import type { MeterView } from "@/features/game-board/types/gameBoard.types";
+import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 
 /**
@@ -10,10 +11,20 @@ import { cn } from "@/shared/utils/cn";
  * module when a third consumer appears (code-style § Naming F2).
  */
 const METERS: Record<MeterKey, { label: string; icon: LucideIcon; text: string; bar: string }> = {
-  revenue: { label: "Inkomsten", icon: Coins, text: "text-meter-revenue", bar: "bg-meter-revenue" },
-  users: { label: "Gebruikers", icon: TrendingUp, text: "text-meter-users", bar: "bg-meter-users" },
+  revenue: {
+    label: UI_COPY.meters.revenue.label,
+    icon: Coins,
+    text: "text-meter-revenue",
+    bar: "bg-meter-revenue",
+  },
+  users: {
+    label: UI_COPY.meters.users.label,
+    icon: TrendingUp,
+    text: "text-meter-users",
+    bar: "bg-meter-users",
+  },
   reputation: {
-    label: "Reputatie",
+    label: UI_COPY.meters.reputation.label,
     icon: ShieldCheck,
     text: "text-meter-reputation",
     bar: "bg-meter-reputation",

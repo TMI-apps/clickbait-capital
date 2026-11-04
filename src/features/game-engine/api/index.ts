@@ -11,6 +11,7 @@ export {
   playCard,
   resolveEvent,
 } from "@/features/game-engine/services/gameEngine";
+export { scaleForPhase } from "@/features/game-engine/services/turnEffects";
 export type { CreateGameOptions } from "@/features/game-engine/services/gameEngine";
 export { SEED_CONTENT } from "@/features/game-engine/services/seedContent";
 export type * from "@/features/game-engine/types/gameContent.types";

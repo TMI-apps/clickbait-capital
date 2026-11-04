@@ -1,5 +1,6 @@
 import { Button } from "@/components/common/Button";
 import { Modal } from "@/components/common/Modal";
+import { UI_COPY } from "@/features/game-content/api";
 
 export interface PauseMenuProps {
   open: boolean;
@@ -10,18 +11,17 @@ export interface PauseMenuProps {
 /** Pause menu: resume or quit to the start screen. Escape and the close button also resume. */
 export const PauseMenu = ({ open, onResume, onQuit }: PauseMenuProps) => (
   <Modal
-    closeLabel="Sluiten"
+    closeLabel={UI_COPY.settings.closeButton}
     open={open}
     onClose={onResume}
-    title="Pauze"
-    description="Het spel staat stil."
+    title={UI_COPY.board.pauseTitle}
   >
     <div className="flex flex-col gap-2">
       <Button className="min-h-11" onClick={onResume}>
-        Verder spelen
+        {UI_COPY.board.resumeButton}
       </Button>
       <Button variant="outline" className="min-h-11" onClick={onQuit}>
-        Stoppen en naar start
+        {UI_COPY.board.quitButton}
       </Button>
     </div>
   </Modal>

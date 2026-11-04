@@ -45,6 +45,8 @@ export interface DraftCardView {
   type: CardType;
   title: string;
   body: string;
+  /** Satirical one-liner when the content provides one (game-content `flavor`). */
+  flavor?: string;
   effects: CardEffectView[];
   /** Journalistieke Droogte: viral cards get the red frame. */
   droughtWarning: boolean;
@@ -63,7 +65,8 @@ export interface EventView {
   id: string;
   title: string;
   body: string;
-  options: Array<{ id: string; kind: EventOptionKind; label: string }>;
+  /** Options with their phase-scaled meter effects (what the engine will apply). */
+  options: Array<{ id: string; kind: EventOptionKind; label: string; effects: CardEffectView[] }>;
 }
 
 /** How the run ended. */
@@ -71,7 +74,11 @@ export interface GameEndView {
   outcome: "won" | "lost";
   reason: GameOverReason | null;
   title: string;
+  /** Newspaper-style headline (game over) or short line (win). */
+  headline: string;
   message: string;
+  /** What the player should take away; empty for the win until the endings lap. */
+  lesson: string;
 }
 
 /** Everything the board renders for one moment of the run. */

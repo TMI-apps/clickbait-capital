@@ -24,7 +24,7 @@ const draftCards = (): HTMLElement[] =>
     .getAllByRole("button")
     .filter((button) => button.dataset.slot === "game-card");
 
-const feed = (): HTMLElement => screen.getByRole("region", { name: "Feed" });
+const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
 
 const renderBoard = (content: GameContent = SEED_CONTENT, onQuit = vi.fn()) => {
   renderWithProviders(<GameBoard content={content} onQuit={onQuit} seed={11} />);
@@ -72,7 +72,7 @@ describe("GameBoard", () => {
 
     await user.click(infoButton);
     const dialog = screen.getByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "Plaats in feed" }));
+    await user.click(within(dialog).getByRole("button", { name: "In de feed" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
@@ -98,7 +98,7 @@ describe("GameBoard", () => {
 
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Game over: Bankroet")).toBeInTheDocument();
-    await user.click(within(dialog).getByRole("button", { name: "Home" }));
+    await user.click(within(dialog).getByRole("button", { name: "Naar het begin" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
 
     await user.click(within(dialog).getByRole("button", { name: "Opnieuw spelen" }));
@@ -108,8 +108,8 @@ describe("GameBoard", () => {
 
   it("should quit to the start when the player stops from the pause menu", async () => {
     const { user, onQuit } = renderBoard();
-    await user.click(screen.getByRole("button", { name: "Pauze" }));
-    await user.click(screen.getByRole("button", { name: "Stoppen en naar start" }));
+    await user.click(screen.getByRole("button", { name: "Menu" }));
+    await user.click(screen.getByRole("button", { name: "Stoppen" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
   });
 });

@@ -11,6 +11,7 @@ import { Pause } from "lucide-react";
 import type { GameContent } from "@/features/game-engine/api";
 import { Button } from "@/components/common/Button";
 import { useGameSession } from "@/features/game-board/hooks/useGameSession";
+import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
 import { CardDraft } from "./CardDraft";
@@ -70,7 +71,7 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
             variant="outline"
             size="icon"
             className="size-11 shrink-0"
-            aria-label="Pauze"
+            aria-label={UI_COPY.board.menuButton}
             onClick={() => setPaused(true)}
           >
             <Pause aria-hidden="true" />

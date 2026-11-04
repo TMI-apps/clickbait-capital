@@ -62,6 +62,31 @@ describe("boardView", () => {
     expect(flagged.map((card) => card.type)).toEqual(["viral"]);
   });
 
+  it("should show phase-scaled effects on draft cards when reputation loss is multiplied", () => {
+    // viral-ruzie: reputation −2 raw; phase 3 doubles reputation loss.
+    const state: GameState = {
+      ...fresh(),
+      phase: 3,
+      hand: { viral: "viral-ruzie", ad: "ad-gokapp", news: "news-klimaat" },
+    };
+    const viral = toDraft(state, SEED_CONTENT).find((card) => card.type === "viral");
+    expect(viral?.effects).toContainEqual({ meter: "reputation", delta: -4 });
+  });
+
+  it("should show phase-scaled effects on event options when the phase halves revenue gains", () => {
+    const state: GameState = {
+      ...fresh(),
+      status: "event",
+      pendingEventId: "event-investeerders",
+    };
+    const commercial = toEventView(state, SEED_CONTENT)?.options[0];
+    // Phase 1 halves positive revenue (+15 raw); users loss is not scaled.
+    expect(commercial?.effects).toEqual([
+      { meter: "revenue", delta: 8 },
+      { meter: "users", delta: -5 },
+    ]);
+  });
+
   it("should hide the draft and show the event when an event is pending", () => {
     const state: GameState = {
       ...fresh(),
