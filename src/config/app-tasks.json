@@ -1,10 +1,5 @@
 [
   {
-    "title": "Card imagery with license manifest and credits",
-    "description": "Wave 2, after content (needs card ids). Area: public/cards/ (images), src/features/game-content/ image manifest, and a credits screen. A subagent sources one fitting image per card: Openverse or Wikimedia Commons (CC0/CC-BY) first, then Unsplash/Pexels under their API terms (credit, hotlinking and download tracking). Reject recognizable people or brands and unclear licenses. Manifest per image: card id, source URL, author, license, required credit text. Crop consistently for the card frame; responsive sizes, modern formats (AVIF/WebP), lazy loading. Credits shown in the game. Any API key is fetched server-side or at build time, never in code; ask the owner with a sign-up link and env var name. Size M.",
-    "status": "in-progress"
-  },
-  {
     "title": "Game feel: asymmetric juice and animations",
     "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 3, after the game board. Area: src/features/game-juice/ (new) plus motion tokens. The design's asymmetric feedback: viral = screen shake, neon confetti, emoji burst, pulsing counter; ad = coins fly to the Inkomsten meter, slot-machine count-up, gold glow; news = dry slide, small shield at Reputatie, no particles. Card draw/play, gains/losses, win/loss animations. Full prefers-reduced-motion support (and the settings toggle when it exists). Size M.",
     "status": "in-progress"
