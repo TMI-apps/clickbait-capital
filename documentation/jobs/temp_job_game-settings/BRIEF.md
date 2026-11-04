@@ -28,6 +28,7 @@ game-audio api (mute), game-content api (copy), shared ColorModeContext, game-bo
 
 ## Plan (S, inline)
 
+0. **Acceptance test first:** `components/SettingsPanel.test.tsx` (each setting writes its own source of truth; wipe confirm clears `clickbait-capital:*` and resets live; cancel keeps data) and `HomePage.test.tsx` start links, written red before the panel and links.
 1. Copy keys; motion store (TDD) + hooks; progress reset service (TDD).
 2. SettingsPanel + pages + routes + start links + pause entry.
 3. app-status: online hook, browser support check, status screens, boundary fallback.
