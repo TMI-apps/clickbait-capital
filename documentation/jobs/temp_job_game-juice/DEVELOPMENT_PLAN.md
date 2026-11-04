@@ -34,16 +34,17 @@
 
 ### Amendments
 
-| #   | Date       | Source                      | Change                                                                                                                           | Applied to                           |
-| --- | ---------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| 1   | 2026-11-04 | loop-check naming (Blocker) | Third copy of the meter cap removed: `MeterView.full` from `boardView` (second copy of engine `METER_MAX`, F2 marker)            | boardView, MeterPanel, types         |
-| 2   | 2026-11-04 | loop-check naming           | One `CapBadge` kit component for card rows and full meters (was two copies)                                                      | GameCard kit, MeterPanel             |
-| 3   | 2026-11-04 | loop-check UI lens          | Full-meter "MAX" moved to the label row (overflowed the value row at 360px); hidden from screen readers (aria-valuetext says it) | MeterPanel                           |
-| 4   | 2026-11-04 | loop-check design § 5       | News: no flash and no count-up (D8)                                                                                              | juicePlan, MeterPanel, CountUpNumber |
-| 5   | 2026-11-04 | loop-check perf             | End-screen flash unmounts after it plays                                                                                         | JuiceLayer                           |
-| 6   | 2026-11-04 | loop-check testing          | Tests: EndJuice win/loss, MeterPanel MAX, event-option cap, ad gold / news shield on the board, matchMedia mock restored         | tests                                |
-| 7   | 2026-11-04 | loop-check plan compliance  | ARCHITECTURE.md lists game-juice                                                                                                 | ARCHITECTURE.md                      |
-| 8   | 2026-11-04 | loop-check docs             | Comment and decision wording aligned with code                                                                                   | useActionJuice, DECISIONS            |
+| #   | Date       | Source                      | Change                                                                                                                           | Applied to                                     |
+| --- | ---------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| 1   | 2026-11-04 | loop-check naming (Blocker) | Third copy of the meter cap removed: `MeterView.full` from `boardView` (second copy of engine `METER_MAX`, F2 marker)            | boardView, MeterPanel, types                   |
+| 2   | 2026-11-04 | loop-check naming           | One `CapBadge` kit component for card rows and full meters (was two copies)                                                      | GameCard kit, MeterPanel                       |
+| 3   | 2026-11-04 | loop-check UI lens          | Full-meter "MAX" moved to the label row (overflowed the value row at 360px); hidden from screen readers (aria-valuetext says it) | MeterPanel                                     |
+| 4   | 2026-11-04 | loop-check design § 5       | News: no flash and no count-up (D8)                                                                                              | juicePlan, MeterPanel, CountUpNumber           |
+| 5   | 2026-11-04 | loop-check perf             | End-screen flash unmounts after it plays                                                                                         | JuiceLayer                                     |
+| 6   | 2026-11-04 | loop-check testing          | Tests: EndJuice win/loss, MeterPanel MAX, event-option cap, ad gold / news shield on the board, matchMedia mock restored         | tests                                          |
+| 7   | 2026-11-04 | loop-check plan compliance  | ARCHITECTURE.md lists game-juice                                                                                                 | ARCHITECTURE.md                                |
+| 8   | 2026-11-04 | loop-check docs             | Comment and decision wording aligned with code                                                                                   | useActionJuice, DECISIONS                      |
+| 9   | 2026-11-04 | orchestrator                | Card artwork from card-imagery (`getCardImage`) on draft and detail cards, after #13 landed                                      | CardDraft, CardDetailDialog, game-board README |
 
 ## Pattern & precedent
 

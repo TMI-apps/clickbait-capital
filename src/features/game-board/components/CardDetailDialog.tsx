@@ -2,6 +2,7 @@ import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
 import { Button } from "@/components/common/Button";
 import { GameCard } from "@/components/common/GameCard";
 import { Modal } from "@/components/common/Modal";
+import { getCardImage } from "@/features/card-imagery/api";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
 
@@ -41,6 +42,7 @@ export const CardDetailDialog = ({ card: current, onClose, onPlay }: CardDetailD
             title={card.title}
             effects={card.effects}
             flavor={card.flavor}
+            image={getCardImage(card.id) ?? undefined}
           />
         </div>
       )}

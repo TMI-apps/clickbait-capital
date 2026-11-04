@@ -57,4 +57,5 @@ Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. even
 - `@/features/game-flow/api` (`EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro`).
 - `@/features/game-audio/api` (`useSoundEffects`, `MuteToggle`, `SoundEffectId`).
 - `@/features/game-juice/api` (`useActionJuice`, `JuiceLayer`, `MeterJuice`, `CountUpNumber`, `EndJuice`, `FEED_ENTRANCE`, `JUICE_METER_ATTR`).
+- `@/features/card-imagery/api` (`getCardImage`: artwork for draft and detail cards; missing ids fall back to the kit's type icon).
 - Kit: `GameCard`, `Modal`, `Button`. Package: `@dnd-kit/core` (already used by the tasks feature).

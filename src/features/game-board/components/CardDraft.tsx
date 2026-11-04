@@ -2,6 +2,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, Info } from "lucide-react";
 import { GameCard } from "@/components/common/GameCard";
+import { getCardImage } from "@/features/card-imagery/api";
 import { useRovingFocus } from "@/features/game-board/hooks/useRovingFocus";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -47,6 +48,7 @@ const DraftSlot = ({ card, index, onPlay, onShowDetails }: DraftSlotProps) => {
         type={card.type}
         title={card.title}
         effects={card.effects}
+        image={getCardImage(card.id) ?? undefined}
         onSelect={() => onPlay(card.id)}
         animation="draw"
         size="compact"
