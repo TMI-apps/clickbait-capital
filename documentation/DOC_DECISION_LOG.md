@@ -23,9 +23,9 @@ Asymmetric action feedback (DOC_GAME_DESIGN § 5) in `src/features/game-juice/`,
 
 ## orchestrator-artifact-check — chore/orchestrate-artifact-check
 
-| # | Decision | State | Choice | By | Why |
-|---|----------|-------|--------|----|-----|
-| D1 | Check loop artifacts before merging a thread PR | closed | `loop-orchestrate` step 4 checks brief, size-matched plan, check summary and decision-log entries before Stop 2; missing ones go back to the thread | owner (chat, 2026-11-04) | In the Clickbait Capital run, threads skipped plan and check stages and the orchestrator merged on results alone |
+| #   | Decision                                        | State  | Choice                                                                                                                                              | By                       | Why                                                                                                              |
+| --- | ----------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| D1  | Check loop artifacts before merging a thread PR | closed | `loop-orchestrate` step 4 checks brief, size-matched plan, check summary and decision-log entries before Stop 2; missing ones go back to the thread | owner (chat, 2026-11-04) | In the Clickbait Capital run, threads skipped plan and check stages and the orchestrator merged on results alone |
 
 ## game-engine — feat/game-engine
 
