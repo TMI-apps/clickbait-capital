@@ -7,22 +7,17 @@
   {
     "title": "Game feel: asymmetric juice and animations",
     "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 3, after the game board. Area: src/features/game-juice/ (new) plus motion tokens. The design's asymmetric feedback: viral = screen shake, neon confetti, emoji burst, pulsing counter; ad = coins fly to the Inkomsten meter, slot-machine count-up, gold glow; news = dry slide, small shield at Reputatie, no particles. Card draw/play, gains/losses, win/loss animations. Full prefers-reduced-motion support (and the settings toggle when it exists). Size M.",
-    "status": "to-do"
+    "status": "in-progress"
   },
   {
     "title": "Settings, error states and launch audit",
     "description": "Wave 3. Area: src/features/game-settings/ (new) and error/empty states. Settings screen (motion, reset progress; sound once audio exists), offline/failed-to-load/unsupported states with retry and home. Launch audit: WCAG AA and keyboard play across all screens, mobile performance and bundle budget, CI green, production deploy verified. Size S.",
-    "status": "to-do"
-  },
-  {
-    "title": "Balance pass from play-tests",
-    "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 4, after events and endings. A subagent plays many full games (scripted strategies: viral-spam, ad-spam, news-heavy, mixed) with the engine and in the browser; tune balance values in the content data so each strategy fails for the intended reason and the IPO is hard but reachable. Turn findings (balance, UX friction, missing content) into new backlog items. Size S, recurring after launch. Known from the content lap: good play takes ~63 turns, phase 3's 30-turn hold is half the run; the human player doesn't see hidden Toxicity, so the lookahead win rate is an upper bound. Found by the orchestrator's play-test of /spel (2026-11-04): a V/A/N/N/A rotation sat 39 turns in phase 1 at 59k/100k users with Inkomsten and Reputatie pinned at 100: gains above the cap are wasted and phase 1 is too slow for balanced play. Also stats.users can drop to 0 while the Gebruikers meter is mid-range (engine D1 stat model).",
-    "status": "to-do"
+    "status": "in-progress"
   },
   {
     "title": "Show wasted gains at the meter cap",
     "description": "Found by the balance lap: when a meter is at 100, positive effects on that meter are wasted but the card still shows +N, so players don't learn to adapt. Show a MAX/greyed gain on card effects that would push a meter past 100 (and maybe a subtle cap glow on the meter). Area: src/features/game-board/ (+ GameCard prop if needed). Fits with the game-feel lap. Size S.",
-    "status": "to-do"
+    "status": "in-progress"
   },
   {
     "title": "Users stat derived from the meter",
@@ -117,6 +112,11 @@
   {
     "title": "Port feedback hooks to Cursor",
     "description": "Feedback-hooks follow-up: check the current Cursor hooks docs (afterFileEdit, stop) and port the Claude Code PostToolUse lint/format hook and Stop type-check hook where Cursor supports equivalent behavior; document gaps.",
+    "status": "to-do"
+  },
+  {
+    "title": "Remove landed lap folders and fill the decision log",
+    "description": "Process gap found when the owner asked how far threads followed the loop skills (2026-11-04): landed laps left documentation/jobs/temp_job_* folders on main (game-engine, game-card, game-content, game-audio, game-board, game-flow, installable-app + template leftovers feedback-hooks, orchestrator-parallel-laps), and only game-engine has a section in documentation/DOC_DECISION_LOG.md. Per loop-backlog step 3 / onboarding-first-lap D4: add a ## <slug> section per landed lap from its DECISIONS.md, then remove the folders. Size XS.",
     "status": "to-do"
   }
 ]
