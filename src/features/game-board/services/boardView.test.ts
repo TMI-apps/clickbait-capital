@@ -1,0 +1,90 @@
+import { describe, expect, it } from "vitest";
+import type { GameState } from "@/features/game-engine/api";
+import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
+import {
+  feedEntryForEvent,
+  toCardEffects,
+  toDraft,
+  toEventView,
+  toGameEnd,
+  toMeters,
+  toPhaseProgress,
+} from "@/features/game-board/services/boardView";
+
+const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
+
+describe("boardView", () => {
+  it("should list only visible non-zero meter effects in meter order when a card has toxicity", () => {
+    expect(toCardEffects({ toxicity: 8, users: 12, revenue: -3, reputation: 0 })).toEqual([
+      { meter: "revenue", delta: -3 },
+      { meter: "users", delta: 12 },
+    ]);
+  });
+
+  it("should report zero deltas when there is no previous action", () => {
+    expect(toMeters(fresh(), null).map((meter) => meter.delta)).toEqual([0, 0, 0]);
+  });
+
+  it("should report the change against the previous meters when there is one", () => {
+    const state = { ...fresh(), meters: { revenue: 40, users: 62, reputation: 50 } };
+    const deltas = toMeters(state, { revenue: 50, users: 50, reputation: 50 });
+    expect(deltas.map((meter) => meter.delta)).toEqual([-10, 12, 0]);
+  });
+
+  it("should use the weakest goal condition as progress when the phase has two conditions", () => {
+    const state: GameState = {
+      ...fresh(),
+      phase: 2,
+      stats: { users: 2_500_000, revenue: 400_000 },
+    };
+    const progress = toPhaseProgress(state, SEED_CONTENT);
+    expect(progress.phaseName).toBe("De Scale-Up");
+    expect(progress.progress).toBeCloseTo(0.5);
+    expect(progress.streak).toBeNull();
+    expect(progress.usersText).toBe("2.500.000 gebruikers");
+    expect(progress.revenueText).toMatch(/€\s?400\.000 omzet/);
+  });
+
+  it("should show the turn streak when the goal needs turns in a row", () => {
+    const state: GameState = { ...fresh(), phase: 4, goalStreak: 3 };
+    expect(toPhaseProgress(state, SEED_CONTENT).streak).toEqual({ current: 3, required: 10 });
+  });
+
+  it("should give one card per type in viral, ad, news order when a draft is open", () => {
+    const draft = toDraft(fresh(), SEED_CONTENT);
+    expect(draft.map((card) => card.type)).toEqual(["viral", "ad", "news"]);
+    expect(draft.some((card) => card.droughtWarning)).toBe(false);
+  });
+
+  it("should flag only the viral card when Journalistieke Droogte is active", () => {
+    const state: GameState = { ...fresh(), turnsWithoutNews: 5 };
+    const flagged = toDraft(state, SEED_CONTENT).filter((card) => card.droughtWarning);
+    expect(flagged.map((card) => card.type)).toEqual(["viral"]);
+  });
+
+  it("should hide the draft and show the event when an event is pending", () => {
+    const state: GameState = {
+      ...fresh(),
+      status: "event",
+      pendingEventId: "event-investeerders",
+    };
+    expect(toDraft(state, SEED_CONTENT)).toEqual([]);
+    expect(toEventView(state, SEED_CONTENT)?.options).toHaveLength(3);
+  });
+
+  it("should give the Bankroet text when the game is lost by bankruptcy", () => {
+    const state: GameState = { ...fresh(), status: "lost", gameOver: "bankrupt" };
+    expect(toGameEnd(state)).toMatchObject({ outcome: "lost", title: "Bankroet" });
+    expect(toGameEnd(fresh())).toBeNull();
+  });
+
+  it("should use the chosen option label as feed text when an event is resolved", () => {
+    const event = SEED_CONTENT.events[0];
+    const entry = feedEntryForEvent(event, event.options[2].id, 4);
+    expect(entry).toMatchObject({
+      type: "event",
+      title: event.title,
+      body: event.options[2].label,
+    });
+  });
+});

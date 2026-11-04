@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Alert } from "@/components/common/Alert";
 import { Button } from "@/components/common/Button";
 import { useAuthContext } from "@/shared/context/AuthContext";
@@ -40,10 +41,9 @@ export const HomePage = () => {
           Jij bent het algoritme. Kies elke beurt welke post in de feed komt en laat je platform
           groeien van studentenapp tot beursgenoteerde techreus.
         </p>
-        <Button size="lg" disabled>
-          Start spel
+        <Button size="lg" asChild>
+          <Link to="/spel">Start spel</Link>
         </Button>
-        <p className="text-sm text-muted-foreground">Het spel wordt nog gebouwd.</p>
       </div>
     </div>
   );
