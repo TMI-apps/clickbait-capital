@@ -22,10 +22,19 @@ import type { GameCardMeter, GameCardRarity, GameCardType } from "./gameCard.typ
  */
 export const GAME_CARD_TYPES: Record<
   GameCardType,
-  { label: string; icon: LucideIcon; chip: string; frame: string; fallback: string }
+  {
+    label: string;
+    /** Visible label on compact cards; `label` stays the accessible name. */
+    shortLabel: string;
+    icon: LucideIcon;
+    chip: string;
+    frame: string;
+    fallback: string;
+  }
 > = {
   viral: {
     label: "Viraal",
+    shortLabel: "Viraal",
     icon: Zap,
     chip: "bg-type-viral text-type-viral-foreground",
     frame: "border-type-viral",
@@ -33,6 +42,7 @@ export const GAME_CARD_TYPES: Record<
   },
   ad: {
     label: "Advertentie",
+    shortLabel: "Ad",
     icon: Megaphone,
     chip: "bg-type-ad text-type-ad-foreground",
     frame: "border-type-ad",
@@ -40,6 +50,7 @@ export const GAME_CARD_TYPES: Record<
   },
   news: {
     label: "Nieuws",
+    shortLabel: "Nieuws",
     icon: Newspaper,
     chip: "bg-type-news text-type-news-foreground",
     frame: "border-type-news",
@@ -47,6 +58,7 @@ export const GAME_CARD_TYPES: Record<
   },
   event: {
     label: "Gebeurtenis",
+    shortLabel: "Event",
     icon: Siren,
     chip: "bg-type-event text-type-event-foreground",
     frame: "border-type-event",
@@ -86,7 +98,7 @@ export const deltaDirection = (
  */
 export const gameCardVariants = cva(
   [
-    "group/game-card relative flex w-full min-h-11 min-w-44 flex-col overflow-hidden text-left",
+    "group/game-card relative flex w-full min-h-11 flex-col overflow-hidden text-left",
     "rounded-game-card game-card-frame bg-card text-card-foreground elevation-md",
     "transition-[transform,box-shadow,opacity] duration-(--duration-card-play) ease-(--ease-card)",
     "outline-none focus-visible:outline-3 focus-visible:outline-solid focus-visible:outline-offset-4 focus-visible:outline-foreground",
@@ -98,6 +110,10 @@ export const gameCardVariants = cva(
         ad: GAME_CARD_TYPES.ad.frame,
         news: GAME_CARD_TYPES.news.frame,
         event: GAME_CARD_TYPES.event.frame,
+      },
+      size: {
+        default: "min-w-44",
+        compact: "min-w-0",
       },
       rarity: {
         common: "",
@@ -138,6 +154,7 @@ export const gameCardVariants = cva(
       { interactive: true, disabled: false, type: "event", class: "hover:-translate-y-0.5" },
     ],
     defaultVariants: {
+      size: "default",
       rarity: "common",
       interactive: false,
       selected: false,

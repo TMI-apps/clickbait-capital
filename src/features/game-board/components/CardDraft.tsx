@@ -36,7 +36,8 @@ const DraftSlot = ({ card, onPlay, onShowDetails }: DraftSlotProps) => {
         flavor={card.body}
         onSelect={() => onPlay(card.id)}
         animation="draw"
-        className="h-full min-w-0"
+        size="compact"
+        className="h-full"
       />
       {/* Overlay over the artwork area (same aspect ratio) for the info button. */}
       <span className="pointer-events-none absolute inset-x-0 top-0 flex aspect-game-card-image items-end justify-between p-1">

@@ -30,6 +30,16 @@ describe("GameCard", () => {
     ]);
   });
 
+  it("should keep full type and meter names for screen readers when the card is compact", () => {
+    render(<GameCard {...ad} size="compact" />);
+    const card = screen.getByRole("article", { name: ad.title });
+
+    expect(card).toHaveTextContent("Ad");
+    expect(within(card).getByText("Advertentie")).toHaveClass("sr-only");
+    expect(within(card).getAllByText("Inkomsten")[0]).toHaveClass("sr-only");
+    if (ad.flavor) expect(card).not.toHaveTextContent(ad.flavor);
+  });
+
   it("should be a static article without a button when onSelect is missing", () => {
     render(<GameCard {...viral} />);
 

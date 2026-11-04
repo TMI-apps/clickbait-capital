@@ -13,7 +13,8 @@ Updated: 2026-11-04
 | D4 | Fullscreen board | closed | `/spel` hides the Topbar (like `/tasks`); the pause menu holds quit | loop-refine | clear-winner: vertical space on a phone, and the logo link would quit a run by accident |
 | D5 | Event and end dialogs | closed | `Modal` gets `dismissible={false}` (no X, Escape and overlay do nothing) | loop-refine | an event must be answered; kit change is a prop, not a parallel dialog |
 | D6 | Droogte marker | closed | board wraps viral cards in a destructive-colour ring plus an icon and "Droogte" label | loop-refine | colour never the only signal; no GameCard prop needed |
-| D7 | Narrow phone draft | closed | three cards in one row, `min-w-0` on the card instance (width is instance scope) | loop-refine | no horizontal scroll at 390px |
+| D7 | Narrow phone draft | closed | three cards in one row | loop-refine | no horizontal scroll at 390px |
+| D8 | Compact GameCard | closed | `GameCard` gets `size="compact"` (short type label with the full one sr-only, meter icon + number with the name sr-only, no flavor, `min-w-0`); the board uses it at every width, full text via the info button | loop-build | orchestrator chose option A over a later lap or a scroll-snap row; default look unchanged |
 
 ## Open
 
@@ -23,3 +24,4 @@ Updated: 2026-11-04
 ## Log
 
 - 2026-11-04 — D1–D7 closed via loop-refine (clear-winner)
+- 2026-11-04 — D8 closed via loop-build (asked; orchestrator for the owner)

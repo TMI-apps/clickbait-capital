@@ -29,7 +29,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Fullscreen (D4):** `/spel` hides the Topbar (`FULLSCREEN_ROUTES` in `src/App.tsx`); quitting goes through the pause menu.
 - **Answer-only dialogs (D5):** events and the end screen use `Modal` with `dismissible={false}` (no close button, Escape and overlay ignored).
 - **Droogte (D6):** during Journalistieke Droogte the viral card gets a destructive ring and warning icon, and a text line above the draft explains it (colour is never the only signal).
-- **Narrow phones (D7):** the three cards stay in one row at 390px; the card instance gets `min-w-0` (width is instance scope).
+- **Compact cards (D7, D8):** the three cards stay in one row at 390px using `GameCard size="compact"` at every width; the flavor text and full labels are in the detail dialog.
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
 - **Minimal endings:** win and the three game overs show a short Dutch text, the phase and stats, and "Opnieuw spelen" / "Home". The full endings with the end report belong to the game-flow lap.

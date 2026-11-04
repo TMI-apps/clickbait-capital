@@ -5,5 +5,6 @@ export type {
   GameCardImage,
   GameCardMeter,
   GameCardRarity,
+  GameCardSize,
   GameCardType,
 } from "./gameCard.types";
