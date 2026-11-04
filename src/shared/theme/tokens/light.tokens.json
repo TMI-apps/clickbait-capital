@@ -19,7 +19,7 @@
     "card": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 1.0, 1.0],
+        "components": [1, 1, 1],
         "hex": "#ffffff"
       }
     },
@@ -33,7 +33,7 @@
     "popover": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 1.0, 1.0],
+        "components": [1, 1, 1],
         "hex": "#ffffff"
       }
     },
@@ -54,7 +54,7 @@
     "primary-foreground": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 1.0, 1.0],
+        "components": [1, 1, 1],
         "hex": "#ffffff"
       }
     },
@@ -68,14 +68,14 @@
     "secondary": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.5412, 0.3804, 0.0],
+        "components": [0.5412, 0.3804, 0],
         "hex": "#8a6100"
       }
     },
     "secondary-foreground": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 1.0, 1.0],
+        "components": [1, 1, 1],
         "hex": "#ffffff"
       }
     },
@@ -118,7 +118,7 @@
     "destructive-foreground": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [1.0, 1.0, 1.0],
+        "components": [1, 1, 1],
         "hex": "#ffffff"
       }
     },
@@ -132,7 +132,7 @@
     "warning": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.651, 0.3451, 0.0],
+        "components": [0.651, 0.3451, 0],
         "hex": "#a65800"
       }
     },
@@ -198,7 +198,7 @@
         {
           "color": {
             "colorSpace": "srgb",
-            "components": [1.0, 0.8392, 0.9529],
+            "components": [1, 0.8392, 0.9529],
             "alpha": 0.45,
             "hex": "#ffd6f3"
           },
@@ -299,6 +299,91 @@
           "inset": true
         }
       ]
+    }
+  },
+  "card-type": {
+    "$type": "color",
+    "$description": "Game card types (light): frame accent + type chip. Always shown with an icon and a text label, never colour alone.",
+    "type-viral": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.7608, 0.0941, 0.5608],
+        "hex": "#c2188f"
+      }
+    },
+    "type-viral-foreground": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1, 1, 1],
+        "hex": "#ffffff"
+      }
+    },
+    "type-ad": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.5412, 0.3804, 0],
+        "hex": "#8a6100"
+      }
+    },
+    "type-ad-foreground": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1, 1, 1],
+        "hex": "#ffffff"
+      }
+    },
+    "type-news": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.2902, 0.3451, 0.4078],
+        "hex": "#4a5868"
+      }
+    },
+    "type-news-foreground": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1, 1, 1],
+        "hex": "#ffffff"
+      }
+    },
+    "type-event": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.7765, 0.1765, 0.0588],
+        "hex": "#c62d0f"
+      }
+    },
+    "type-event-foreground": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1, 1, 1],
+        "hex": "#ffffff"
+      }
+    }
+  },
+  "meter": {
+    "$type": "color",
+    "$description": "Game meters (light): Inkomsten, Gebruikers, Reputatie. Text-safe (AA) on the card surface; always paired with an icon and a label.",
+    "meter-revenue": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.5412, 0.3804, 0],
+        "hex": "#8a6100"
+      }
+    },
+    "meter-users": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.0392, 0.4353, 0.6196],
+        "hex": "#0a6f9e"
+      }
+    },
+    "meter-reputation": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.1216, 0.4784, 0.2706],
+        "hex": "#1f7a45"
+      }
     }
   }
 }

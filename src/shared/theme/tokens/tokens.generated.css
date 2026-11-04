@@ -15,9 +15,15 @@
   --card-foreground: #160f24;
   --destructive: #d32f2f;
   --destructive-foreground: #fff;
+  /* A card entering the hand. */
+  --duration-card-draw: 420ms;
+  /* A card being played into the feed; also the select lift. */
+  --duration-card-play: 320ms;
   --duration-fast: 150ms;
   --duration-normal: 200ms;
   --duration-slow: 600ms;
+  /* Springy overshoot for card draw/play (game juice). */
+  --ease-card: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --elevation-brand: inset 0px 1px #ffd6f373, inset 0px -1px #00000040, 0px 2px 4px #3c230a4d;
   --elevation-brand-active: inset 0px 2px 3px #0000004d;
@@ -26,10 +32,17 @@
   --elevation-sm: 0px 1px 3px #0000001a, 0px 1px 2px -1px #0000001a;
   --elevation-xl: 0px 20px 25px -5px #0000001a, 0px 8px 10px -6px #0000001a;
   --foreground: #160f24;
+  --game-card-border-width: 2px;
+  /* Image area width / height (4:3). Images crop with object-fit: cover around their focal point. */
+  --game-card-image-aspect: 1.3333;
+  --game-card-radius: 1rem;
   /* Techy grotesk for headings (neon feed look). */
   --heading-font: "Space Grotesk", sans-serif;
   --info: #0277bd;
   --input: #160f244d;
+  --meter-reputation: #1f7a45;
+  --meter-revenue: #8a6100;
+  --meter-users: #0a6f9e;
   --mono-font: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
   --muted: #ece6f5;
   --muted-foreground: #5b5070;
@@ -49,6 +62,14 @@
   /* Tailwind spacing unit (density). */
   --spacing: 0.25rem;
   --success: #2e7d32;
+  --type-ad: #8a6100;
+  --type-ad-foreground: #fff;
+  --type-event: #c62d0f;
+  --type-event-foreground: #fff;
+  --type-news: #4a5868;
+  --type-news-foreground: #fff;
+  --type-viral: #c2188f;
+  --type-viral-foreground: #fff;
   --warning: #a65800;
 }
 
@@ -66,6 +87,9 @@
   --foreground: #f1ecff;
   --info: #4fc3f7;
   --input: #f1ecff3b;
+  --meter-reputation: #6fe3a1;
+  --meter-revenue: #ffc93c;
+  --meter-users: #4fd8ff;
   --muted: #231a36;
   --muted-foreground: #b3a8cc;
   --overlay: #0009;
@@ -80,11 +104,23 @@
   --secondary: #ffc93c;
   --secondary-foreground: #1a1200;
   --success: #3ddc97;
+  --type-ad: #ffc93c;
+  --type-ad-foreground: #1a1200;
+  --type-event: #ff6b4a;
+  --type-event-foreground: #1a0500;
+  --type-news: #a7b4c2;
+  --type-news-foreground: #0d1117;
+  --type-viral: #ff4fd8;
+  --type-viral-foreground: #1a0716;
   --warning: #ffb74d;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
+    /* A card entering the hand. */
+    --duration-card-draw: 0.01ms;
+    /* A card being played into the feed; also the select lift. */
+    --duration-card-play: 0.01ms;
     --duration-fast: 0.01ms;
     --duration-normal: 0.01ms;
     --duration-slow: 0.01ms;

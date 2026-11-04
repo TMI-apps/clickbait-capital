@@ -73,6 +73,51 @@
   --color-ring: var(--ring);
   --color-overlay: var(--overlay);
   --spacing-toolbar: var(--app-toolbar-height);
+  /* Game card (GameCard kit component): type and meter colours, frame, motion. */
+  --color-type-viral: var(--type-viral);
+  --color-type-viral-foreground: var(--type-viral-foreground);
+  --color-type-ad: var(--type-ad);
+  --color-type-ad-foreground: var(--type-ad-foreground);
+  --color-type-news: var(--type-news);
+  --color-type-news-foreground: var(--type-news-foreground);
+  --color-type-event: var(--type-event);
+  --color-type-event-foreground: var(--type-event-foreground);
+  --color-meter-revenue: var(--meter-revenue);
+  --color-meter-users: var(--meter-users);
+  --color-meter-reputation: var(--meter-reputation);
+  --radius-game-card: var(--game-card-radius);
+  --aspect-game-card-image: var(--game-card-image-aspect);
+  --animate-card-draw: card-draw var(--duration-card-draw) var(--ease-card) both;
+  --animate-card-play: card-play var(--duration-card-play) var(--ease-card) both;
+
+  @keyframes card-draw {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem) rotate(-4deg) scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes card-play {
+    from {
+      transform: none;
+    }
+    40% {
+      transform: translateY(-0.75rem) scale(1.04);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-2.5rem) scale(0.85);
+    }
+  }
+}
+
+/* Game card frame border width (token: --game-card-border-width). */
+@utility game-card-frame {
+  border-width: var(--game-card-border-width);
+  border-style: solid;
 }
 
 /*
