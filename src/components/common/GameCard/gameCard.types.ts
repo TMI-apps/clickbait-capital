@@ -27,6 +27,11 @@ export interface GameCardEffect {
   meter: GameCardMeter;
   /** Signed change, e.g. 12 or -5. Zero renders as "±0". */
   delta: number;
+  /**
+   * Part of a gain lost to the meter's cap (meter would pass its maximum). Shows a greyed
+   * "MAX" mark next to `delta`, which then holds only the part that still counts.
+   */
+  overflow?: number;
 }
 
 /** Card artwork. `alt` is required: describe the picture, or pass "" only if purely decorative. */

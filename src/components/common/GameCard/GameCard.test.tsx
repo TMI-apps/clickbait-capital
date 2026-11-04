@@ -30,6 +30,15 @@ describe("GameCard", () => {
     ]);
   });
 
+  it("should show the counted part and a MAX mark when part of a gain is wasted at the cap", () => {
+    render(
+      <GameCard type="ad" title="Gok-app" effects={[{ meter: "revenue", delta: 4, overflow: 8 }]} />
+    );
+    const item = within(screen.getByRole("list", { name: "Effecten" })).getByRole("listitem");
+
+    expect(item.textContent).toBe("Inkomsten+4omhoog 4MAX, 8 verspild boven het maximum");
+  });
+
   it("should keep full type and meter names for screen readers when the card is compact", () => {
     render(<GameCard {...ad} size="compact" />);
     const card = screen.getByRole("article", { name: ad.title });

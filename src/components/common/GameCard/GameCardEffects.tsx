@@ -2,6 +2,14 @@ import { cn } from "@/shared/utils/cn";
 import type { GameCardEffect } from "./gameCard.types";
 import { GAME_CARD_METERS, deltaDirection } from "./gameCardVariants";
 
+/** Greyed "MAX" mark: the rest of this gain is wasted at the meter's cap. */
+const CapMark = ({ overflow }: { overflow: number }) => (
+  <span className="ml-0.5 rounded-sm bg-muted px-1 font-sans text-[0.625rem] leading-4 font-bold tracking-wide text-muted-foreground">
+    <span aria-hidden="true">MAX</span>
+    <span className="sr-only">, {overflow} verspild boven het maximum</span>
+  </span>
+);
+
 export interface GameCardEffectsProps {
   effects: GameCardEffect[];
   id?: string;
@@ -10,12 +18,13 @@ export interface GameCardEffectsProps {
 }
 
 /**
- * Meter effects as rows: meter icon + name, then arrow + signed number. Direction is
- * carried by the arrow, the sign and a spoken word, so colour is never the only signal.
+ * Meter effects as rows: meter icon + name, then arrow + signed number, and a "MAX" mark when
+ * part of a gain is lost at the meter's cap. Direction is carried by the arrow, the sign and a
+ * spoken word, so colour is never the only signal.
  */
 export const GameCardEffects = ({ effects, id, compact = false }: GameCardEffectsProps) => (
   <span id={id} role="list" aria-label="Effecten" className="flex flex-col gap-1">
-    {effects.map(({ meter, delta }) => {
+    {effects.map(({ meter, delta, overflow = 0 }) => {
       const m = GAME_CARD_METERS[meter];
       const d = deltaDirection(delta);
       return (
@@ -45,6 +54,7 @@ export const GameCardEffects = ({ effects, id, compact = false }: GameCardEffect
             <span className="sr-only">
               {d.spoken} {Math.abs(delta)}
             </span>
+            {overflow > 0 && <CapMark overflow={overflow} />}
           </span>
         </span>
       );

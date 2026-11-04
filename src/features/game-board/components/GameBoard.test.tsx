@@ -171,3 +171,39 @@ describe("GameBoard", () => {
     expect(onQuit).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("GameBoard juice", () => {
+  it("should throw emoji and put flames on Gebruikers when a viral card is played", async () => {
+    const { user } = await renderBoard();
+    await user.click(draftCards()[0]);
+
+    expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
+    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+  });
+
+  it("should fly coins when an ad card is played and throw nothing for news", async () => {
+    const { user } = await renderBoard();
+    await user.click(draftCards()[1]);
+    expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
+
+    await user.click(draftCards()[2]);
+    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+  });
+
+  it("should show the state change without particles when the player prefers reduced motion", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) =>
+      ({
+        ...original(query),
+        matches: query.includes("prefers-reduced-motion"),
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }) as MediaQueryList;
+    const { user } = await renderBoard();
+    await user.click(draftCards()[0]);
+
+    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+  });
+});

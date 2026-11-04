@@ -3,6 +3,7 @@ import { Megaphone, Newspaper, Siren, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
+import { FEED_ENTRANCE } from "@/features/game-juice/api";
 import { cn } from "@/shared/utils/cn";
 
 /** Drop target id the draft cards are dragged onto. */
@@ -22,7 +23,7 @@ const FeedPost = ({ entry, isNewest }: { entry: FeedEntry; isNewest: boolean }) 
       className={cn(
         "rounded-md border-l-4 bg-card p-2.5 text-card-foreground elevation-sm",
         style.frame,
-        isNewest && "animate-card-draw"
+        isNewest && FEED_ENTRANCE[entry.type]
       )}
     >
       <p className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
