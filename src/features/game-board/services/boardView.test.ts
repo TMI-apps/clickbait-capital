@@ -100,10 +100,15 @@ describe("boardView", () => {
     expect(toEventView(state, SEED_CONTENT)?.options).toHaveLength(3);
   });
 
-  it("should give the Bankroet text when the game is lost by bankruptcy", () => {
+  it("should summarise the run when the game is lost by bankruptcy", () => {
     const state: GameState = { ...fresh(), status: "lost", gameOver: "bankrupt" };
-    expect(toGameEnd(state)).toMatchObject({ outcome: "lost", title: "Bankroet" });
-    expect(toGameEnd(fresh())).toBeNull();
+    expect(toGameEnd(state, SEED_CONTENT)).toMatchObject({
+      outcome: "lost",
+      reason: "bankrupt",
+      phaseId: 1,
+      statTexts: { users: "1.000", revenue: expect.stringMatching(/^€\s0$/) },
+    });
+    expect(toGameEnd(fresh(), SEED_CONTENT)).toBeNull();
   });
 
   it("should use the chosen option label as feed text when an event is resolved", () => {

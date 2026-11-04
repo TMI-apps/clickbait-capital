@@ -62,6 +62,7 @@ For coding agents completing the **"Put your app online (Cloudflare hosting)"** 
 | Build output | Plain `vite build` → `dist/` (`assets.directory: "./dist"`) |
 | SPA routing (React Router) | `assets.not_found_handling: "single-page-application"` |
 | Preview URLs | `preview_urls: true`, `workers_dev: true` |
+| Offline / install (service worker) | `vite build` also emits `dist/sw.js` + Workbox runtime (`vite-plugin-pwa`); served as plain assets. Each preview URL is its own origin with its own SW. Details: `src/features/app-update/README.md` |
 | Node version | `.node-version` = `22` (wrangler 4 requires Node 22+) |
 | Emergency local deploy | `pnpm deploy` (`pnpm build && wrangler deploy`) |
 | Local Workers preview | `pnpm preview:worker` (`pnpm build && wrangler dev`) |
