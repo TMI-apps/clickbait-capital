@@ -1,12 +1,17 @@
 [
   {
-    "title": "Settings, error states and launch audit",
-    "description": "Wave 3. Area: src/features/game-settings/ (new) and error/empty states. Settings screen (motion, reset progress; sound once audio exists), offline/failed-to-load/unsupported states with retry and home. Launch audit: WCAG AA and keyboard play across all screens, mobile performance and bundle budget, CI green, production deploy verified. Size S.",
-    "status": "in-progress"
-  },
-  {
     "title": "Users stat derived from the meter",
     "description": "Balance lap proposal (option A): today stats.users accumulates meter deltas x usersPerPoint per phase (engine D1), so it can hit 0 while the Gebruikers meter is mid-range and one event can remove millions. Derive the users stat from the meter instead (e.g. phase floor x growth^meter) and re-tune the 100k/5M/20M goals. Touches src/features/game-engine/ (D1), game-content balance and board goal copy. Size M.",
+    "status": "to-do"
+  },
+  {
+    "title": "Faster first load: fonts and unused sign-in code",
+    "description": "From the game-settings launch audit (Lighthouse mobile perf 79-81, FCP ~3.4 s): (1) Google Fonts stylesheet is render-blocking (~0.9 s FCP): self-host Space Grotesk/Inter subsets or load non-blocking with font-display: swap; (2) supabase-js and auth code sit in the main chunk (~125 KiB unused JS): lazy-load them for /login and /auth/callback only; (3) add a main-chunk bundle-size budget to CI. Target: Lighthouse mobile performance >= 90. Size S-M.",
+    "status": "to-do"
+  },
+  {
+    "title": "Manual screen-reader pass",
+    "description": "From the launch audit: axe reports 0 WCAG violations, but no human screen-reader run yet. Play a full game with VoiceOver (iOS) and TalkBack (Android) or NVDA; fix announcements of meter changes, events and endings (aria-live). Size S.",
     "status": "to-do"
   },
   {
@@ -97,6 +102,11 @@
   {
     "title": "Port feedback hooks to Cursor",
     "description": "Feedback-hooks follow-up: check the current Cursor hooks docs (afterFileEdit, stop) and port the Claude Code PostToolUse lint/format hook and Stop type-check hook where Cursor supports equivalent behavior; document gaps.",
+    "status": "to-do"
+  },
+  {
+    "title": "Make app updates noticeable",
+    "description": "Owner did not see card images after an update (2026-11-05): the PWA served the cached older version. Make the update prompt more visible or auto-reload on navigation when a new version is waiting, without losing a running game. Size S.",
     "status": "to-do"
   }
 ]
