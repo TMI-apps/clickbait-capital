@@ -17,6 +17,10 @@ export interface MeterView {
   delta: number;
   /** At the cap (100): further gains are wasted, so the board shows "MAX". */
   full: boolean;
+  /** Low enough to end the run soon (game over at 0): the board warns. */
+  danger: boolean;
+  /** What a screen reader hears for this meter: value, last change, danger or maximum. */
+  valueText: string;
 }
 
 /** Current phase and how far its goal is. */

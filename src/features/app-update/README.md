@@ -17,7 +17,7 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 | Layer | Path | Purpose |
 |-------|------|---------|
 | API | `api/index.ts` | Public barrel: `UpdatePrompt` |
-| Components | `components/UpdatePrompt.tsx` | Slim bottom banner (kit `Button`, `role="status"`), mounted once in `App.tsx` inside the router |
+| Components | `components/UpdatePrompt.tsx` | Slim bottom banner (kit `Button`; an always-mounted `role="status"` that holds only the text), mounted once in `App.tsx` inside the router |
 | Hooks | `hooks/useAppUpdate.ts` | Registers the SW via `virtual:pwa-register/react`, starts the update checks; `updateReady`, `applyUpdate`, `dismissUpdate` |
 | Hooks | `hooks/useSafeUpdateMoment.ts` | Applies a waiting update before the first input or on a route change |
 | Services | `services/updateChecks.ts` | `watchForUpdates(registration)`: `update()` on foreground and hourly |
@@ -34,6 +34,7 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 - Icons stay `purpose: "any"`: the artwork has transparent rounded corners, so it is not maskable-safe.
 - **Update policy (app-update-flow D1):** keep prompt mode; apply a waiting update before the first input of the page load or on a route change, else show the banner. A run lives only in memory on `/spel`, so before input nothing exists to lose and a route change has already ended it. Rejected: `autoUpdate` (skipWaiting swaps the worker under a running game and can purge its lazy chunks) and reloading on return to the foreground (would wipe a game paused in the background).
 - **Update checks (app-update-flow D2):** `registration.update()` on foreground and hourly, because browsers only re-check `sw.js` on a full navigation and an installed app resumed from the background otherwise never sees a deploy.
+- **Announced (screen-reader lap):** the status region is mounted before the update arrives and receives only "Nieuwe versie klaar. Laadt na dit spel."; a region mounted with its text is often not read, and the button labels don't belong in it.
 - **Banner (app-update-flow D3):** one slim row that says what happens next ("Laadt na dit spel"), so "Later" is not a dead end and the hand cards stay readable at 390px.
 
 ## Dependencies

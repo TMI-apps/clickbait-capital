@@ -1,4 +1,5 @@
 import { Flag } from "lucide-react";
+import { BOARD_HEADING_ID } from "@/features/game-board/hooks/useBoardScreenReader";
 import { UI_COPY, fillTemplate } from "@/features/game-content/api";
 import type { PhaseProgressView } from "@/features/game-board/types/gameBoard.types";
 
@@ -11,7 +12,11 @@ export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
   const percent = Math.round(phase.progress * 100);
   return (
     <section aria-label="Fase en mijlpaal" className="min-w-0 flex-1">
-      <h1 className="flex items-baseline gap-2 font-heading text-base leading-tight font-bold sm:text-lg">
+      <h1
+        id={BOARD_HEADING_ID}
+        tabIndex={-1}
+        className="flex items-baseline gap-2 font-heading outline-none text-base leading-tight font-bold sm:text-lg"
+      >
         <span className="shrink-0 text-xs font-semibold text-muted-foreground uppercase">
           {fillTemplate(UI_COPY.board.phaseLabel, { phase: String(phase.phaseId) })}
         </span>

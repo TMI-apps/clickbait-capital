@@ -1,7 +1,12 @@
 [
   {
-    "title": "Manual screen-reader pass",
-    "description": "From the launch audit: axe reports 0 WCAG violations, but no human screen-reader run yet. Play a full game with VoiceOver (iOS) and TalkBack (Android) or NVDA; fix announcements of meter changes, events and endings (aria-live). Size S.",
+    "title": "Owner test: VoiceOver and TalkBack on a real phone",
+    "description": "Follow-up to the screen-reader lap (PR #28). Automated checks covered the accessibility tree and live-region text; nobody has heard real speech yet. Owner plays a few turns with VoiceOver (iOS) or TalkBack (Android) using the steps in PR #28 under \"Test steps (owner)\"; open question: does iOS VoiceOver speak the turn announcement after focus moves to the next card, or drop it? Findings become fix tasks. Size XS.",
+    "status": "to-do"
+  },
+  {
+    "title": "Move screen-reader announcement words into UI_COPY",
+    "description": "Advisory from the screen-reader lap: the turn-announcement phrases (Geplaatst, omhoog/omlaag, nu, droogte, gevaar) are hard-coded Dutch in game-board. Move them into game-content UI_COPY so all copy lives in one place (content as data). Also consider shortening the combined announcement when several events fire in a row. Size S.",
     "status": "to-do"
   },
   {

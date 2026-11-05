@@ -16,43 +16,49 @@ export interface GameCardEffectsProps {
  * spoken word, so colour is never the only signal.
  */
 export const GameCardEffects = ({ effects, id, compact = false }: GameCardEffectsProps) => (
-  <span id={id} role="list" aria-label="Effecten" className="flex flex-col gap-1">
-    {effects.map(({ meter, delta, overflow = 0 }) => {
-      const m = GAME_CARD_METERS[meter];
-      const d = deltaDirection(delta);
-      return (
-        <span
-          key={meter}
-          role="listitem"
-          className={cn(
-            "flex items-center justify-between",
-            compact ? "gap-1 text-xs" : "gap-2 text-sm"
-          )}
-        >
-          <span className={cn("flex min-w-0 items-center gap-1.5 font-medium", m.text)}>
-            <m.icon aria-hidden="true" className="size-4 shrink-0" />
-            <span className={compact ? "sr-only" : "truncate"}>{m.label}</span>
-          </span>
+  <span id={id} className="flex flex-col gap-1">
+    {/* Text, not an aria-label on the list: a label would replace the effects in the card's
+        computed name / description (screen-reader D4). */}
+    <span className="sr-only">Effecten: </span>
+    <span role="list" className="flex flex-col gap-1">
+      {effects.map(({ meter, delta, overflow = 0 }, index) => {
+        const m = GAME_CARD_METERS[meter];
+        const d = deltaDirection(delta);
+        return (
           <span
+            key={meter}
+            role="listitem"
             className={cn(
-              "flex shrink-0 items-center gap-0.5 font-mono font-semibold tabular-nums",
-              d.text
+              "flex items-center justify-between",
+              compact ? "gap-1 text-xs" : "gap-2 text-sm"
             )}
           >
-            <d.icon aria-hidden="true" className="size-4" />
-            <span aria-hidden="true">
-              {d.sign}
-              {Math.abs(delta)}
+            <span className={cn("flex min-w-0 items-center gap-1.5 font-medium", m.text)}>
+              <m.icon aria-hidden="true" className="size-4 shrink-0" />
+              <span className={compact ? "sr-only" : "truncate"}>{m.label}</span>
             </span>
-            <span className="sr-only">
-              {d.spoken} {Math.abs(delta)}
+            <span
+              className={cn(
+                "flex shrink-0 items-center gap-0.5 font-mono font-semibold tabular-nums",
+                d.text
+              )}
+            >
+              <d.icon aria-hidden="true" className="size-4" />
+              <span aria-hidden="true">
+                {d.sign}
+                {Math.abs(delta)}
+              </span>
+              <span className="sr-only">
+                {d.spoken} {Math.abs(delta)}
+              </span>
+              {overflow > 0 && (
+                <CapBadge className="ml-0.5" srText={`, ${overflow} verspild boven het maximum`} />
+              )}
+              {index < effects.length - 1 && <span className="sr-only">, </span>}
             </span>
-            {overflow > 0 && (
-              <CapBadge className="ml-0.5" srText={`, ${overflow} verspild boven het maximum`} />
-            )}
           </span>
-        </span>
-      );
-    })}
+        );
+      })}
+    </span>
   </span>
 );

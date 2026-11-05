@@ -23,7 +23,12 @@ const ResultList = ({ rows }: { rows: ResultRow[] }) => (
 /** The sober results after an ending: numbers, no drama. */
 export const ResultsScreen = ({ results, onRestart, onQuit }: ResultsScreenProps) => (
   <FlowScreen
-    title={results.title}
+    title={
+      <>
+        {/* The lost ending's heading reads the same title; this tells screen readers the report opened. */}
+        <span className="sr-only">Je rapport.</span> {results.title}
+      </>
+    }
     actions={
       <>
         <Button variant="outline" className="min-h-11" onClick={onQuit}>

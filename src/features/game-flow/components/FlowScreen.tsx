@@ -4,7 +4,7 @@ import { cn } from "@/shared/utils/cn";
 export interface FlowScreenProps {
   /** Heading of the screen; it receives focus when the screen opens (game-flow D1). */
   title: ReactNode;
-  /** Small label above the title. */
+  /** Small label above the title; screen readers hear it as the start of the heading. */
   kicker?: ReactNode;
   icon?: ReactNode;
   /** Bigger, louder heading for the endings; the results stay sober. */
@@ -36,7 +36,12 @@ export const FlowScreen = ({
       <div className="flex animate-in flex-col gap-4 duration-(--duration-slow) ease-(--ease-standard) fade-in-0 slide-in-from-bottom-4">
         {icon}
         {kicker && (
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          // Spoken inside the heading instead: focus lands on the heading, so a kicker before it
+          // would be skipped (screen-reader lap).
+          <p
+            aria-hidden="true"
+            className="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+          >
             {kicker}
           </p>
         )}
@@ -48,6 +53,11 @@ export const FlowScreen = ({
             tone === "dramatic" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-3xl"
           )}
         >
+          {kicker && (
+            <>
+              <span className="sr-only">{kicker}:</span>{" "}
+            </>
+          )}
           {title}
         </h1>
         {children}

@@ -40,13 +40,6 @@ const METERS: Record<
   },
 };
 
-/** At or below this a meter is in danger (game over at 0). */
-const DANGER_AT = 20;
-function valueText(value: number, danger: boolean, full: boolean): string {
-  if (danger) return `${value} van 100, gevaarlijk laag`;
-  return full ? `${value} van 100, maximum bereikt` : `${value} van 100`;
-}
-
 const MeterDelta = ({ delta }: { delta: number }) => {
   if (delta === 0) return null;
   const up = delta > 0;
@@ -78,7 +71,8 @@ export interface MeterPanelProps {
 
 /**
  * The three platform meters: icon, name, a counting value 0–100, change and an animated bar.
- * A full meter glows and says "MAX" so wasted gains are visible.
+ * A full meter glows and says "MAX" so wasted gains are visible. Screen readers hear one
+ * `role="meter"` per tile.
  */
 export const MeterPanel = ({
   meters,
@@ -88,9 +82,8 @@ export const MeterPanel = ({
   countUp = true,
 }: MeterPanelProps) => (
   <ul aria-label="Meters" className="grid grid-cols-3 gap-2">
-    {meters.map(({ key, value, delta, full }) => {
+    {meters.map(({ key, value, delta, full, danger, valueText }) => {
       const meter = METERS[key];
-      const danger = value <= DANGER_AT;
       return (
         <li
           key={key}
@@ -101,12 +94,16 @@ export const MeterPanel = ({
           )}
         >
           <MeterJuice accent={accents[key]} flash={flashes[key]} version={version} />
-          <div className={cn("flex min-w-0 items-center gap-1 text-xs font-semibold", meter.text)}>
+          {/* Visual readout; the meter below speaks label, value, change and state once (screen-reader D3). */}
+          <div
+            aria-hidden="true"
+            className={cn("flex min-w-0 items-center gap-1 text-xs font-semibold", meter.text)}
+          >
             <meter.icon aria-hidden="true" className="size-4 shrink-0" />
             <span className="truncate">{meter.label}</span>
             {full && <CapBadge className="ml-auto" />}
           </div>
-          <div className="flex items-baseline gap-1.5">
+          <div aria-hidden="true" className="flex items-baseline gap-1.5">
             <CountUpNumber
               value={value}
               instant={!countUp}
@@ -116,9 +113,7 @@ export const MeterPanel = ({
               )}
             />
             <MeterDelta key={version} delta={delta} />
-            {danger && (
-              <AlertTriangle aria-label="Gevaar" className="ml-auto size-4 text-destructive" />
-            )}
+            {danger && <AlertTriangle className="ml-auto size-4 text-destructive" />}
           </div>
           <div
             role="meter"
@@ -126,7 +121,7 @@ export const MeterPanel = ({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={value}
-            aria-valuetext={valueText(value, danger, full)}
+            aria-valuetext={valueText}
             className="mt-1 h-2 overflow-hidden rounded-full bg-muted"
           >
             <div
