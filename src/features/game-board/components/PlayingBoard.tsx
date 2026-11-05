@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  DndContext,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { Pause } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
@@ -15,6 +8,7 @@ import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
 import { EventModal } from "@/features/game-flow/api";
 import { JuiceLayer, useActionJuice } from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
+import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
 import { CardDraft, draftCardElement } from "./CardDraft";
@@ -22,6 +16,20 @@ import { MeterPanel } from "./MeterPanel";
 import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
 import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
+
+/** Pixels a pointer moves before a press becomes a drag (mobile-fit D1). */
+const DRAG_START_DISTANCE = 6;
+
+/**
+ * Board grid (mobile-fit D2). Portrait: header, meters, feed (takes the rest), draft. Split
+ * (sideways phone or large screen): header, meters and feed left, the draft right. Top and bottom
+ * padding grow into the notch and home-indicator insets; the body already pads the sides.
+ */
+const BOARD_GRID = cn(
+  "mx-auto grid h-dvh w-full max-w-6xl grid-cols-1 grid-rows-[auto_auto_minmax(6rem,1fr)_auto] gap-2 overflow-hidden overscroll-none px-3 touch-manipulation sm:gap-3 sm:px-6",
+  "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+  "board-split:grid-cols-2 board-split:grid-rows-[auto_auto_minmax(0,1fr)] board-split:gap-x-4"
+);
 
 export interface PlayingBoardProps {
   view: BoardView;
@@ -44,9 +52,9 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
+  // Mouse, touch and pen alike: a drag starts on the first move past 6px, a tap stays a click (D3).
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: DRAG_START_DISTANCE } })
   );
 
   // True from the event's arrival until its dialog has fully closed (onCloseAutoFocus).
@@ -85,10 +93,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       onDragCancel={() => setDragging(false)}
       onDragEnd={handleDragEnd}
     >
-      <div
-        ref={juice.shakeRef}
-        className="mx-auto flex h-dvh w-full max-w-6xl flex-col gap-2 overflow-x-hidden overflow-y-auto px-3 py-2 sm:gap-3 sm:px-6 sm:py-4"
-      >
+      <div ref={juice.shakeRef} data-viewport-lock className={BOARD_GRID}>
         <header className="flex shrink-0 items-start gap-2">
           <PhaseProgress phase={view.phase} />
           <MuteToggle compact className="size-11 shrink-0" />
@@ -109,11 +114,9 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           flashes={juice.plan?.flashes}
           countUp={juice.plan?.countUp ?? true}
         />
-        <div className="grid min-h-0 flex-1 grid-rows-[minmax(6rem,1fr)_auto] gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-rows-1 lg:items-stretch">
-          <PhoneFeed entries={view.feed} dragging={dragging} />
-          <div className="lg:flex lg:flex-col lg:justify-center">
-            <CardDraft cards={view.draft} onPlay={playCard} onShowDetails={setDetailCard} />
-          </div>
+        <PhoneFeed entries={view.feed} dragging={dragging} />
+        <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
+          <CardDraft cards={view.draft} onPlay={playCard} onShowDetails={setDetailCard} />
         </div>
       </div>
       <JuiceLayer burst={juice.burst} />
