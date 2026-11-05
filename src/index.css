@@ -101,8 +101,7 @@
     }
   }
   /* Game juice (src/features/game-juice): transform/opacity only, durations from tokens. */
-  --animate-juice-particle: juice-particle var(--duration-juice) cubic-bezier(0.2, 0.7, 0.3, 1)
-    both;
+  --animate-juice-particle: juice-particle var(--duration-juice) cubic-bezier(0.2, 0.7, 0.3, 1) both;
   --animate-juice-pop: juice-pop var(--duration-card-draw) var(--ease-card) both;
   --animate-juice-slide: juice-slide var(--duration-normal) linear both;
   --animate-juice-flash: juice-flash var(--duration-slow) var(--ease-standard) both;
