@@ -46,7 +46,7 @@ describe("GameCard", () => {
     expect(card).toHaveTextContent("Reclame");
     expect(within(card).getByText("Advertentie")).toHaveClass("sr-only");
     expect(within(card).getAllByText("Inkomsten")[0]).toHaveClass("sr-only");
-    if (ad.flavor) expect(card).not.toHaveTextContent(ad.flavor);
+    if (typeof ad.flavor === "string") expect(card).not.toHaveTextContent(ad.flavor);
   });
 
   it("should be a static article without a button when onSelect is missing", () => {

@@ -50,6 +50,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, so play continues where it was without a trip through the resume offer.
 
 - **Saved runs (local-save D1, D3, D5, D8):** game-session's `useGameSession` records every accepted action, writes the save after each one and replays a `savedRun` prop (a save that no longer replays starts a new run; see `src/features/game-session/README.md`). A resumed board skips the phase intro (`usePhaseIntro(phase, seenPhase)`) unless the save's last action started the phase (then the interrupted intro shows again, before that turn's milestone event), focuses the board heading and speaks `describeResume` once ("Spel hervat. Fase 2 van 4: Scale-up. Beurt 7." plus the meter values), queued like a turn text. Pause → "Stoppen" keeps the save, so the start screen offers "Verder spelen". The run itself moved to game-session (game-session-split), which ended the local-save D9 budget override.
+- **Glossary words (kids-content D3–D4):** `CardDetailDialog` renders the card body and flavor through the kit's `GlossaryText` with `GLOSSARY` (tap a marked word for its meaning; the card there is static, so no button nests in a button). Draft cards show titles only, which carry no markup. `feedEntryForCard` / `feedEntryForEvent` strip the markup, so feed posts and turn announcements are plain text.
 
 ## Not here yet
 

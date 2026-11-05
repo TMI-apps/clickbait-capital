@@ -18,7 +18,8 @@ export interface GameCardProps {
   title: string;
   image?: GameCardImage;
   effects?: GameCardEffect[];
-  flavor?: string;
+  /** Punchline under the effects (not on compact cards). Inline content such as glossary terms only on static cards (no `onSelect`). */
+  flavor?: ReactNode;
   rarity?: GameCardRarity;
   /** `compact` for three-in-a-row on phones; default is the full card. */
   size?: GameCardSize;

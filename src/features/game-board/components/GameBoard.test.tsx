@@ -146,8 +146,8 @@ describe("GameBoard", () => {
       screen.getByRole("heading", { level: 1, name: /: Gefeliciteerd met je beursgang!$/ })
     ).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Bekijk je rapport" }));
-    expect(screen.getByText("Beurswaarde op de eerste handelsdag")).toBeInTheDocument();
-    expect(screen.getByText("Keer dat desinformatie werd gedeeld")).toBeInTheDocument();
+    expect(screen.getByText("Wat je bedrijf waard is op dag één")).toBeInTheDocument();
+    expect(screen.getByText("Keer dat nepnieuws werd gedeeld")).toBeInTheDocument();
   });
 
   it("should go from the ending to the results and restart when the game is over", async () => {

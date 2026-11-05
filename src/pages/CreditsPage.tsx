@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/common/Button";
+import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { AUDIO_CREDIT_LINE } from "@/features/game-audio/api";
-import { UI_COPY } from "@/features/game-content/api";
+import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import { getCardImage, ImageCreditList, listCardImageCredits } from "@/features/card-imagery/api";
 import { appScrollContentClassName } from "@/shared/theme/appViewLayout";
 import { cn } from "@/shared/utils/cn";
@@ -21,7 +22,9 @@ export const CreditsPage = () => (
     <div className="flex w-full max-w-[640px] flex-col gap-6">
       <header className="flex flex-col gap-3">
         <h1 className="font-heading text-3xl font-bold text-primary">{copy.title}</h1>
-        <p>{copy.body}</p>
+        <p>
+          <GlossaryText text={copy.body} glossary={GLOSSARY} />
+        </p>
         <p className="text-sm text-muted-foreground">{copy.disclaimer}</p>
         <p className="text-sm text-muted-foreground">{copy.madeBy}</p>
         <Link to="/privacy" className="self-start text-sm underline underline-offset-4">

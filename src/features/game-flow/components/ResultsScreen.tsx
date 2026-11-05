@@ -1,5 +1,6 @@
 import { Button } from "@/components/common/Button";
-import { UI_COPY } from "@/features/game-content/api";
+import { GlossaryText } from "@/components/common/GlossaryTerm";
+import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import type { ResultRow, ResultsView } from "@/features/game-flow/types/gameFlow.types";
 import {
   type ShareCardContent,
@@ -55,7 +56,11 @@ export const ResultsScreen = ({
       </>
     }
   >
-    {results.intro && <p className="text-base">{results.intro}</p>}
+    {results.intro && (
+      <p className="text-base">
+        <GlossaryText text={results.intro} glossary={GLOSSARY} />
+      </p>
+    )}
     <section aria-labelledby="results-stats">
       <h2 id="results-stats" className="text-sm font-semibold">
         {UI_COPY.results.statsTitle}

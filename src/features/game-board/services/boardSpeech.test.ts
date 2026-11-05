@@ -70,7 +70,7 @@ describe("boardSpeech", () => {
 
   it("should announce the journalism drought only on the turn it starts", () => {
     const started = describeTurn(snapshot({ drought: true }), snapshot());
-    expect(started).toContain("Journalistieke droogte: Al vijf beurten geen nieuws.");
+    expect(started).toContain("Geen nieuws meer: Al vijf beurten geen nieuws.");
     expect(describeTurn(snapshot({ drought: true }), snapshot({ drought: true }))).not.toContain(
       "droogte"
     );

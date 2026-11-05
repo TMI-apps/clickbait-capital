@@ -183,5 +183,10 @@
     "title": "Mobile: fullscreen board and instant drag",
     "description": "Owner request 2026-11-05: /spel fills the phone screen (dvh, safe areas), the app does not scroll, and a touch drag starts immediately instead of after press-and-hold, while a tap still plays a card. Size S-M. Thread mobile-fit. Landed: h-dvh no-scroll board grid (portrait stack, landscape split), safe-area insets, no rubber-band/pull-to-refresh/double-tap zoom, PointerSensor with 6px distance instead of 150ms touch delay, modal max-height. PWA stays standalone. Decision log § mobile-fit D1-D8.",
     "status": "done"
+  },
+  {
+    "title": "Content for 11-year-olds with glossary tooltips",
+    "description": "Owner request 2026-11-05: rewrite all player-facing copy for pupils of about 11 (groep 7/8); hard words stay but are emphasized and open a tap tooltip with a kid-friendly meaning (glossary as content data, one kit component). Score cards/events against the audience (gaming, fatbikes, memes, YouTubers), remove the worst-fitting 30% and add twice that many new ones; no real game/brand names. Rerun the balance simulation. Size M. Thread kids-content. Landed: all copy rewritten for groep 7/8; 48 glossary terms (GlossaryTerm kit component on Radix Popover); 20 cards/events removed, 40 added (deck 71 cards + 16 events); no trademarks (tested); no balance retune needed. Decision log § kids-content.",
+    "status": "done"
   }
 ]

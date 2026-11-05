@@ -3,6 +3,7 @@ import type { GameState } from "@/features/game-engine/api";
 import { SEED_CONTENT, createGame, meterForUsers } from "@/features/game-engine/api";
 import {
   capEffects,
+  feedEntryForCard,
   feedEntryForEvent,
   toCardEffects,
   toDraft,
@@ -124,6 +125,11 @@ describe("boardView", () => {
       title: event.title,
       body: event.options[2].label,
     });
+  });
+
+  it("should show plain text in the feed when a card body marks glossary words", () => {
+    const card = { ...SEED_CONTENT.cards[0], body: "Het [[algoritme]] kiest [[bots|bot]]." };
+    expect(feedEntryForCard(card, 3).body).toBe("Het algoritme kiest bots.");
   });
 });
 
