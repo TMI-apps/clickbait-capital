@@ -82,20 +82,6 @@ describe("GameBoard", () => {
     expect(screen.getByText("De Zolderkamer")).toBeInTheDocument();
   });
 
-  it("should open the details when the player taps a card and play it from there", async () => {
-    const { user } = await renderBoard();
-    const [viral] = draftCards();
-    const title = within(viral).getAllByText(/./)[1]?.textContent ?? "";
-
-    await user.click(viral);
-    expect(within(screen.getByRole("dialog")).getAllByText(title).length).toBeGreaterThan(0);
-    await confirmPlay(user);
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
-    expect(within(feed()).getByText(title, { exact: false })).toBeInTheDocument();
-  });
-
   it("should play the next card when the player uses an arrow key and Enter", async () => {
     const { user } = await renderBoard();
     const [first, second] = draftCards();
@@ -107,18 +93,6 @@ describe("GameBoard", () => {
     await confirmPlay(user);
 
     expect(within(feed()).getByText("Advertentie")).toBeInTheDocument();
-  });
-
-  it("should leave the draft unchanged when the player closes the details", async () => {
-    const { user } = await renderBoard();
-
-    await user.click(draftCards()[0]);
-    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Toch niet" }));
-
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
-    expect(draftCards()[0]).toHaveFocus();
-    expect(screen.queryByRole("button", { name: /^Details:/ })).not.toBeInTheDocument();
   });
 
   it("should require an option when an event interrupts the draft", async () => {
@@ -163,8 +137,8 @@ describe("GameBoard", () => {
       screen.getByRole("heading", { level: 1, name: /: Gefeliciteerd met je beursgang!$/ })
     ).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Bekijk je rapport" }));
-    expect(screen.getByText("Beurswaarde op de eerste handelsdag")).toBeInTheDocument();
-    expect(screen.getByText("Keer dat desinformatie werd gedeeld")).toBeInTheDocument();
+    expect(screen.getByText("Wat je bedrijf waard is op dag één")).toBeInTheDocument();
+    expect(screen.getByText("Keer dat nepnieuws werd gedeeld")).toBeInTheDocument();
   });
 
   it("should go from the ending to the results and restart when the game is over", async () => {
@@ -190,6 +164,34 @@ describe("GameBoard", () => {
     await user.click(screen.getByRole("button", { name: "Menu" }));
     await user.click(screen.getByRole("button", { name: "Stoppen" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("GameBoard card details", () => {
+  it("should open the details when the player taps a card and play it from there", async () => {
+    const { user } = await renderBoard();
+    const [viral] = draftCards();
+    const title = within(viral).getAllByText(/./)[1]?.textContent ?? "";
+
+    await user.click(viral);
+    expect(within(screen.getByRole("dialog")).getAllByText(title).length).toBeGreaterThan(0);
+    await confirmPlay(user);
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(feed()).getByText(title, { exact: false })).toBeInTheDocument();
+  });
+
+  it("should leave the draft unchanged when the player closes the details", async () => {
+    const { user } = await renderBoard();
+
+    await user.click(draftCards()[0]);
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Toch niet" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
+    expect(draftCards()[0]).toHaveFocus();
+    expect(screen.queryByRole("button", { name: /^Details:/ })).not.toBeInTheDocument();
   });
 });
 

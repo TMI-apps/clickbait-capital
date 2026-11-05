@@ -2,8 +2,9 @@ import { Coins, Newspaper, Siren, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { GameCardEffects } from "@/components/common/GameCard";
+import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { Modal } from "@/components/common/Modal";
-import { UI_COPY } from "@/features/game-content/api";
+import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
 
 type OptionKind = FlowEvent["options"][number]["kind"];
@@ -40,7 +41,7 @@ export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventMod
     open={open}
     dismissible={false}
     title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}
-    description={event?.body}
+    description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
   >
     {event && (
       <fieldset className="flex flex-col gap-2">

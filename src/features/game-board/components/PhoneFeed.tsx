@@ -58,7 +58,7 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
       <div className="flex shrink-0 justify-center py-1.5" aria-hidden="true">
         <span className="h-1.5 w-16 rounded-full bg-border" />
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-2.5">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 pb-2.5">
         {dragging && (
           <p className="mb-2 rounded-md border border-dashed border-primary p-2 text-center text-sm font-semibold text-primary">
             Laat los om te plaatsen

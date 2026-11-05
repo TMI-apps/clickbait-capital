@@ -24,17 +24,18 @@ const LICENSE_URLS: Record<string, string> = {
 };
 
 describe("card image manifest", () => {
-  it("should give every card and event an image when the deck is loaded", () => {
-    expect(CONTENT_IDS).toHaveLength(67);
-    for (const id of CONTENT_IDS) {
-      expect(getCardImage(id), id).not.toBeNull();
-    }
-  });
-
-  it("should hold one entry per content id when built", () => {
+  it("should map every photo to a card or event in the deck when the manifest is built", () => {
     const ids = CARD_IMAGE_MANIFEST.map((entry) => entry.contentId);
     expect(new Set(ids).size).toBe(ids.length);
-    expect([...ids].sort()).toEqual([...CONTENT_IDS].sort());
+    expect(ids.filter((id) => !CONTENT_IDS.includes(id))).toEqual([]);
+  });
+
+  it("should leave only cards added without a photo when the deck is loaded", () => {
+    // kids-content: 40 new cards and events wait for the image lap; GameCard shows the
+    // type-icon placeholder for them (GameCard.test "fallback panel when no image is given").
+    const withPhoto = CONTENT_IDS.filter((id) => getCardImage(id) !== null);
+    expect(withPhoto).toHaveLength(CARD_IMAGE_MANIFEST.length);
+    expect(CONTENT_IDS.length - withPhoto.length).toBe(40);
   });
 
   it("should point at a small file in public/cards when an entry is listed", () => {

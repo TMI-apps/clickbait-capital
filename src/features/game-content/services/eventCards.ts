@@ -4,28 +4,57 @@ import type { EventPresentation } from "@/features/game-content/types/contentPre
 /**
  * Event cards (design § 4 Type 2): milestones on entering phases 2–4 and Toxicity
  * boomerangs. Options are always ordered A commercial, B engagement, C journalism.
- * The engine fires each event once and scales negative reputation per phase, so the
- * same −10 hurts three times as hard at the IPO. Events also model the engine README's
- * "Not modelled yet" lines: competitors and ad-pressure complaints (phase 2), fines and
- * hearings (phase 3).
+ * The engine fires each event once (the first open one in this order) and scales negative
+ * reputation per phase, so the same −10 hurts much harder at the IPO. Events also model the
+ * engine README's "Not modelled yet" lines: competitors and ad-pressure complaints (phase 2),
+ * fines and hearings (phase 3). Written for 11-year-olds (kids-content).
  */
 export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
+    id: "event-gemeen-filmpje",
+    title: "Gemeen filmpje over een klasgenoot",
+    body: "Op je app gaat een gemeen filmpje rond over een kind uit groep 8. Ouders bellen de school. Iedereen kijkt naar jouw app.",
+    trigger: { kind: "toxicity", threshold: 18, phases: [1] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Zet er reclame naast. Er kijken nu veel mensen.",
+        effects: { revenue: 10, reputation: -5, toxicity: 5 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Laat het filmpje bovenaan staan. Het trekt kijkers.",
+        effects: { users: 10, reputation: -6, toxicity: 8 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Haal het weg en leg uit waarom pesten niet mag.",
+        effects: { reputation: 5, users: -4, toxicity: -12 },
+      },
+    ],
+    imageTheme:
+      "youtube thumbnail style: phone with a blurred mean video, worried parents calling, school building behind",
+    imageAlt: "Een telefoon met een wazig filmpje en bezorgde ouders die de school bellen.",
+  },
+  {
     id: "event-eerste-shitstorm",
-    title: "Je eerste shitstorm",
-    body: "Een bericht op je app ontspoort. De campus praat nergens anders over. Je huisbaas ook.",
+    title: "Je eerste ophef",
+    body: "Een bericht op je app loopt uit de hand. De hele school praat erover. Je ouders ook.",
     trigger: { kind: "toxicity", threshold: 25, phases: [1] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Verkoop advertentieruimte naast de ophef.",
+        label: "Verkoop reclameplekken naast de ophef.",
         effects: { revenue: 12, reputation: -6, toxicity: 5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Zet het bovenaan. Ophef is gratis marketing.",
+        label: "Zet het bovenaan. Ophef is gratis reclame.",
         effects: { users: 12, reputation: -8, toxicity: 10 },
       },
       {
@@ -41,13 +70,13 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-investeerders",
     title: "Investeerders aan tafel",
-    body: "Je eerste investeerders zitten aan tafel. Ze hebben dure sneakers en één vraag: wanneer verdienen we geld?",
+    body: "Je eerste [[investeerders|investeerder]] komen langs. Ze dragen dure sneakers en hebben één vraag: wanneer verdienen we geld?",
     trigger: { kind: "milestone", phase: 2 },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Meer advertenties per feed, vanaf vandaag.",
+        label: "Meer reclame in elke feed, vanaf vandaag.",
         effects: { revenue: 18, users: -5 },
       },
       {
@@ -59,65 +88,63 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
       {
         id: "c",
         kind: "journalism",
-        label: "Investeer eerst in moderatie en betrouwbaarheid.",
+        label: "Geef eerst geld uit aan controle en veiligheid.",
         effects: { revenue: -6, reputation: 10, toxicity: -10 },
       },
     ],
-    imageTheme:
-      "venture capitalists in expensive sneakers around a glass table, pitch deck glowing",
+    imageTheme: "investors in expensive sneakers around a glass table with a pitch deck on screen",
     imageAlt: "Investeerders in dure sneakers rond een glazen tafel met een presentatie.",
   },
   {
     id: "event-concurrent-kloon",
-    title: "Een concurrent kopieert je app",
-    body: "Een nieuwe app lijkt verdacht veel op die van jou, maar dan sneller en harder. Je gebruikers kijken alvast rond.",
+    title: "Een andere app doet je na",
+    body: "Een nieuwe app lijkt heel erg op die van jou. Maar dan sneller en harder. Je gebruikers kijken alvast rond bij die [[concurrent]].",
     trigger: { kind: "toxicity", threshold: 15, phases: [2] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Koop de concurrent op en zet hem uit.",
+        label: "Koop die app en zet hem uit.",
         effects: { revenue: -12, users: 8 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Kopieer hun hardste functies terug.",
+        label: "Doe hun hardste trucjes na.",
         effects: { users: 12, reputation: -4, toxicity: 10 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Profileer je als de betrouwbare app.",
+        label: "Word de app die je kunt vertrouwen.",
         effects: { users: -6, reputation: 8, toxicity: -8 },
       },
     ],
-    imageTheme:
-      "two near-identical app icons facing off, one slightly louder and neon, users drifting",
+    imageTheme: "two nearly identical app icons facing off, users standing between them",
     imageAlt: "Twee bijna identieke app-iconen tegenover elkaar, met gebruikers ertussen.",
   },
   {
     id: "event-advertentieklachten",
-    title: "Klachten over reclamedruk",
-    body: "Gebruikers starten een petitie: 'Laat ons scrollen zonder reclame om de twee posts'. Adverteerders willen juist meer.",
+    title: "Klachten over te veel reclame",
+    body: "Gebruikers starten een [[petitie]]: 'Niet om de twee berichten reclame!' Maar de [[adverteerders|adverteerder]] willen juist meer.",
     trigger: { kind: "toxicity", threshold: 35, phases: [2] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Negeer de petitie. Adverteerders betalen, petities niet.",
+        label: "Negeer het. Adverteerders betalen, petities niet.",
         effects: { revenue: 12, users: -10, toxicity: 5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Verstop reclame tussen virale clips.",
+        label: "Verstop reclame tussen virale filmpjes.",
         effects: { revenue: 6, users: 4, reputation: -6, toxicity: 8 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Minder reclame en een eerlijke uitleg.",
+        label: "Minder reclame en eerlijk uitleggen waarom.",
         effects: { revenue: -10, users: 6, reputation: 6, toxicity: -8 },
       },
     ],
@@ -125,56 +152,85 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     imageAlt: "Gebruikers houden een lange petitie omhoog die is gemaakt van reclamebanners.",
   },
   {
-    id: "event-moderatoren",
-    title: "Moderatoren slaan alarm",
-    body: "Je kleine moderatieteam verdrinkt in haat en nepnieuws. Ze willen meer mensen, of ze stoppen.",
+    id: "event-gevaarlijke-challenge",
+    title: "Een challenge wordt gevaarlijk",
+    body: "Een nieuwe challenge gaat rond op je app. Kinderen raken gewond. Het nieuws praat over jouw app.",
+    trigger: { kind: "toxicity", threshold: 50, phases: [2, 3] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Verkoop reclame bij de challenge-filmpjes.",
+        effects: { revenue: 8, reputation: -5, toxicity: 5 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Laat de challenge bovenaan staan. Iedereen kijkt.",
+        effects: { users: 10, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Stop de challenge en laat een waarschuwing zien.",
+        effects: { users: -5, reputation: 6, toxicity: -15 },
+      },
+    ],
+    imageTheme:
+      "youtube thumbnail style: trending challenge hashtag with ambulance light flashing, worried news anchor",
+    imageAlt: "Een trending challenge met een zwaailicht van een ambulance erachter.",
+  },
+  {
+    id: "event-skins-oplichting",
+    title: "Oplichters beloven gratis skins",
+    body: "Op je app staan honderden reclames voor 'gratis skins'. Kinderen raken hun account kwijt aan [[oplichters|oplichter]]. Ouders zijn woedend.",
     trigger: { kind: "toxicity", threshold: 55, phases: [2, 3] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Besteed moderatie uit aan het goedkoopste bureau.",
+        label: "Laat de reclames staan. Ze betalen wel.",
         effects: { revenue: 10, reputation: -6, toxicity: 6 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Laat een AI modereren. Die klaagt niet.",
+        label: "Maak er een spel van: wie vindt de echte giveaway?",
         effects: { users: 8, reputation: -5, toxicity: 10 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Neem twintig extra moderatoren aan.",
+        label: "Haal alle nepreclames weg en waarschuw iedereen.",
         effects: { revenue: -12, reputation: 8, toxicity: -20 },
       },
     ],
     imageTheme:
-      "exhausted content moderators at screens, sticky note 'help', flood of flagged posts",
-    imageAlt: "Uitgeputte moderatoren achter schermen vol gemarkeerde berichten.",
+      "youtube thumbnail style: shiny 'FREE SKINS' banner cracking open to reveal a hooded scammer, angry parents",
+    imageAlt: "Een banner 'gratis skins' die openbreekt, met een oplichter met capuchon erachter.",
   },
   {
     id: "event-wereldwijd",
     title: "De wereld kijkt mee",
-    body: "Je app staat in honderd landen in de top tien. Overheden en kranten weten nu hoe je heet.",
+    body: "Je app staat in honderd landen in de top tien. Regeringen en kranten kennen nu je naam.",
     trigger: { kind: "milestone", phase: 3 },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Open een kantoor in een belastingparadijs.",
+        label: "Verhuis je kantoor naar een land waar je bijna geen belasting betaalt.",
         effects: { revenue: 15, reputation: -5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Lanceer overal tegelijk, zonder lokale moderatie.",
+        label: "Start overal tegelijk, zonder iemand die berichten controleert.",
         effects: { users: 10, reputation: -4, toxicity: 12 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Werk per land samen met lokale nieuwsredacties.",
+        label: "Werk in elk land samen met echte nieuwsmakers.",
         effects: { revenue: -6, reputation: 8, toxicity: -10 },
       },
     ],
@@ -182,9 +238,38 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     imageAlt: "Een wereldkaart vol app-iconen met overheidsgebouwen en camera's eromheen.",
   },
   {
+    id: "event-streamer-drama",
+    title: "Streamers maken ruzie",
+    body: "Twee grote streamers maken ruzie op je app. Hun fans schelden elkaar overal uit. Het is druk. En gemeen.",
+    trigger: { kind: "toxicity", threshold: 35, phases: [3] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Verkoop reclame tijdens de ruzie-streams.",
+        effects: { revenue: 12, reputation: -5, toxicity: 5 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Zet de ruzie bovenaan. Iedereen kijkt!",
+        effects: { users: 10, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Zet gemene reacties uit en vraag de streamers te stoppen.",
+        effects: { users: -4, reputation: 6, toxicity: -12 },
+      },
+    ],
+    imageTheme:
+      "youtube thumbnail style: two streamers glaring at each other in split screen, 'VS' text, fire and angry emoji",
+    imageAlt: "Twee streamers kijken boos naar elkaar met 'VS' ertussen.",
+  },
+  {
     id: "event-toezichthouder-boete",
-    title: "Boete van de toezichthouder",
-    body: "De toezichthouder stelt vast dat je feed schade aanricht. De boete heeft veel nullen.",
+    title: "Een boete voor je app",
+    body: "De [[toezichthouder]] zegt: jouw feed doet kinderen kwaad. De boete heeft heel veel nullen.",
     trigger: { kind: "toxicity", threshold: 45, phases: [3] },
     options: [
       {
@@ -196,42 +281,41 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
       {
         id: "b",
         kind: "engagement",
-        label: "Maak er een rel van: 'Ze willen je feed afpakken!'",
+        label: "Maak er ophef van: 'Ze willen je app afpakken!'",
         effects: { users: 8, reputation: -8, toxicity: 10 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Werk mee en pas het algoritme aan.",
+        label: "Werk mee en verander het algoritme.",
         effects: { revenue: -8, users: -4, reputation: 4, toxicity: -20 },
       },
     ],
-    imageTheme:
-      "oversized fine letter with many zeros landing on a tech office desk, official blue tones",
+    imageTheme: "giant fine letter with many zeros landing on a desk, official stamp",
     imageAlt: "Een enorme boetebrief met veel nullen op een bureau.",
   },
   {
     id: "event-verkiezingen",
-    title: "Verkiezingen & Desinformatie",
-    body: "Valse claims over de verkiezingen gaan rond op je platform. Partijen willen adverteren, trollen willen ruzie.",
+    title: "Nepnieuws over de verkiezingen",
+    body: "Er gaat [[desinformatie]] rond over de [[verkiezingen]]. Politieke partijen willen reclame maken. Trollen willen ruzie.",
     trigger: { kind: "toxicity", threshold: 60, phases: [3] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Laat de politieke microtargeting-advertenties toe.",
+        label: "Laat partijen reclame maken die alleen bepaalde mensen zien.",
         effects: { revenue: 20, reputation: -5, toxicity: 12 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Laat de discussie woeden, sensatie brengt mensen naar de app.",
+        label: "Laat de ruzie lekker doorgaan. Ophef trekt mensen.",
         effects: { users: 15, reputation: -12 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Schakel factcheckers in en label valse claims.",
+        label: "Laat feiten checken en zet een label bij nepnieuws.",
         effects: { reputation: 12, revenue: -10, users: -5, toxicity: -20 },
       },
     ],
@@ -240,83 +324,84 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   },
   {
     id: "event-hoorzitting",
-    title: "Parlementaire hoorzitting",
-    body: "Je moet komen uitleggen waarom je feed mensen boos maakt. Live op televisie.",
+    title: "Uitleggen in het parlement",
+    body: "Je moet naar een [[hoorzitting]] in het [[parlement]]. Waarom maakt je app mensen boos? Het is live op tv.",
     trigger: { kind: "toxicity", threshold: 70, phases: [3, 4] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Stuur je advocaten. Zeg niets, verdien door.",
+        label: "Stuur je advocaten. Zeg niks en verdien door.",
         effects: { revenue: -4, reputation: -2, toxicity: -5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Knip je beste oneliners en laat ze viraal gaan.",
+        label: "Knip je beste grappen eruit en laat ze viraal gaan.",
         effects: { users: 10, reputation: -8, toxicity: 8 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Geef open antwoord en beloof onafhankelijk toezicht.",
+        label: "Geef eerlijk antwoord en laat anderen je controleren.",
         effects: { revenue: -10, users: -4, reputation: 6, toxicity: -25 },
       },
     ],
-    imageTheme:
-      "tech founder at a hearing table facing a parliament panel, TV cameras, sweaty brow",
+    imageTheme: "founder at a table facing a committee of politicians, tv cameras in the room",
     imageAlt: "Een oprichter aan een tafel tegenover een commissie, met tv-camera's in de zaal.",
   },
   {
-    id: "event-adverteerdersboycot",
-    title: "Adverteerders boycotten je",
-    body: "Grote merken willen niet langer naast haatberichten staan. Ze trekken hun budget terug.",
+    id: "event-ouders-alarm",
+    title: "Ouders en scholen slaan alarm",
+    body: "Kinderen slapen slecht en zitten de hele nacht op je app. Scholen verbieden je app in de klas. Ouders willen dat je iets doet.",
     trigger: { kind: "toxicity", threshold: 80, phases: [3, 4] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Lok ze terug met korting en garanties op papier.",
+        label: "Betaal een dure reclame: 'Onze app is veilig!'",
         effects: { revenue: -12, toxicity: -5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Wie heeft merken nodig? Meer ophef, meer kleine adverteerders.",
+        label: "Zeg dat ouders overdrijven. Je fans verdedigen je wel.",
         effects: { revenue: -6, users: 8, reputation: -6, toxicity: 8 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Ruim de feed op en laat een audit doen.",
+        label: "Zet meldingen 's nachts uit en stop het eindeloze scrollen voor kinderen.",
         effects: { revenue: -15, users: -5, reputation: 6, toxicity: -25 },
       },
     ],
-    imageTheme: "brand logos walking out of a door, empty billboard spaces, frowning accountant",
-    imageAlt: "Merklogo's lopen een deur uit en laten lege reclameborden achter.",
+    imageTheme:
+      "youtube thumbnail style: tired kid with phone at 3am, school 'no phones' sign, parents with crossed arms",
+    imageAlt:
+      "Een moe kind met een telefoon om 3 uur 's nachts en een schoolbord 'geen telefoons'.",
   },
   {
     id: "event-roadshow",
-    title: "Roadshow voor de beurs",
-    body: "Bankiers willen een verhaal voor beleggers. 'Groei' is een goed woord. 'Verantwoordelijk' ook, als het niets kost.",
+    title: "Op weg naar de beurs",
+    body: "Bankiers willen een mooi verhaal voor je [[beursgang]]. 'Groei' is een goed woord. 'Eerlijk' ook, als het niks kost.",
     trigger: { kind: "milestone", phase: 4 },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Beloof elk kwartaal meer advertentie-inkomsten.",
+        label: "Beloof dat de reclame elk jaar meer geld oplevert.",
         effects: { revenue: 15, users: -4 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Toon de gebruikersgroei, laat de rest weg.",
+        label: "Laat alleen zien hoeveel gebruikers erbij kwamen.",
         effects: { users: 10, reputation: -3, toxicity: 8 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Leg eerlijk uit wat het platform kost en oplevert.",
+        label: "Vertel eerlijk wat je app kost en wat hij oplevert.",
         effects: { reputation: 8, revenue: -5, toxicity: -10 },
       },
     ],
@@ -324,60 +409,60 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     imageAlt: "Bankiers presenteren een steil stijgende grafiek aan beleggers.",
   },
   {
-    id: "event-shortseller",
-    title: "Rapport van een shortseller",
-    body: "Een belegger die op je val gokt, publiceert een rapport: je groei zou vooral uit bots en ruzie bestaan.",
+    id: "event-nepvolgers",
+    title: "De helft is nep",
+    body: "Een [[journalist]] ontdekt dat veel accounts op je app [[bots|bot]] zijn. [[Adverteerders|adverteerder]] willen hun geld terug.",
     trigger: { kind: "toxicity", threshold: 40, phases: [4] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Koop eigen aandelen in om de koers te redden.",
+        label: "Betaal adverteerders een deel terug, dan blijven ze.",
         effects: { revenue: -6, reputation: 6 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Zet je fans op hem af.",
+        label: "Zeg dat het onderzoek nep is. Laat je fans het napraten.",
         effects: { users: 8, reputation: -6, toxicity: 10 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Laat een onafhankelijke accountant de cijfers controleren.",
+        label: "Haal alle bots weg, ook al zie je dan minder gebruikers.",
         effects: { revenue: -12, users: -3, reputation: 4, toxicity: -15 },
       },
     ],
-    imageTheme: "red downward stock chart over a thick critical report, bear silhouette",
-    imageAlt: "Een dalende koersgrafiek boven een dik kritisch rapport.",
+    imageTheme:
+      "youtube thumbnail style: follower counter cracking in half, robot avatars spilling out, shocked journalist",
+    imageAlt: "Een volgersteller die in tweeën breekt, met robotjes die eruit vallen.",
   },
   {
     id: "event-gelekte-documenten",
-    title: "Gelekte documenten",
-    body: "Interne stukken lekken uit: je wist dat de feed jongeren ongelukkig maakt en deed niets.",
+    title: "Geheime papieren uitgelekt",
+    body: "Geheime stukken van je bedrijf komen naar buiten. Je wist dat je feed kinderen ongelukkig maakt. En je deed niks.",
     trigger: { kind: "toxicity", threshold: 65, phases: [4] },
     options: [
       {
         id: "a",
         kind: "commercial",
-        label: "Laat een pr-bureau het verhaal draaien.",
+        label: "Betaal een bureau om het verhaal mooier te maken.",
         effects: { revenue: -4, reputation: -3, toxicity: -5 },
       },
       {
         id: "b",
         kind: "engagement",
-        label: "Lanceer snel een nieuwe filter om de aandacht af te leiden.",
+        label: "Lanceer snel een nieuw filter om de aandacht af te leiden.",
         effects: { users: 10, reputation: -6, toxicity: 8 },
       },
       {
         id: "c",
         kind: "journalism",
-        label: "Erken het en pas de feed voor jongeren aan.",
+        label: "Geef het toe en maak de feed beter voor kinderen.",
         effects: { revenue: -10, users: -5, reputation: 6, toxicity: -25 },
       },
     ],
     imageTheme: "stack of confidential documents spilling out of a folder, red 'internal' stamps",
-    imageAlt:
-      "Een stapel vertrouwelijke documenten met rode stempels 'intern' die uit een map glijdt.",
+    imageAlt: "Een stapel geheime documenten die uit een map glijdt, met rode stempels 'intern'.",
   },
 ];

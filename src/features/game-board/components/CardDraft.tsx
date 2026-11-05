@@ -37,7 +37,7 @@ const DraftSlot = ({ card, index, onShowDetails }: DraftSlotProps) => {
       {...listeners}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "relative flex min-w-0 touch-manipulation",
+        "relative flex min-w-0 touch-none",
         isDragging && "z-50 opacity-90",
         card.droughtWarning &&
           "rounded-game-card ring-4 ring-destructive ring-offset-2 ring-offset-background"
@@ -75,14 +75,14 @@ export interface CardDraftProps {
   onShowDetails: (card: DraftCardView) => void;
 }
 
-/** The 3-card draft. Arrow keys move between cards; Enter / Space plays the focused card. */
+/** The 3-card draft. Arrow keys move between cards; Enter / Space opens the focused card's details. */
 export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
   const { onKeyDown } = useRovingFocus(CARD_SELECTOR);
   const drought = cards.some((card) => card.droughtWarning);
   return (
     <section
       aria-labelledby="draft-heading"
-      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl lg:max-w-none"
+      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl board-split:max-w-none"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
         <h2 id="draft-heading" className="text-sm font-bold">
@@ -101,10 +101,7 @@ export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
           </span>
         </p>
       )}
-      <ul
-        className="mx-auto grid w-full grid-cols-3 gap-2 sm:max-w-xl sm:gap-4 lg:max-w-none"
-        onKeyDown={onKeyDown}
-      >
+      <ul className="mx-auto grid w-full grid-cols-3 gap-2 sm:gap-4" onKeyDown={onKeyDown}>
         {cards.map((card, index) => (
           <DraftSlot key={card.id} card={card} index={index} onShowDetails={onShowDetails} />
         ))}

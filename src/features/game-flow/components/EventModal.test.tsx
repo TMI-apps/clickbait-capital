@@ -40,8 +40,8 @@ describe("EventModal", () => {
 
     const options = within(dialog).getAllByRole("button");
     expect(options).toHaveLength(3);
-    expect(options[0]).toHaveTextContent("A · Commercieel");
-    expect(within(dialog).getByText("Kies je beleid")).toBeInTheDocument();
+    expect(options[0]).toHaveTextContent("A · Geld");
+    expect(within(dialog).getByText("Wat doe je?")).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
     expect(screen.getByRole("dialog")).toBeInTheDocument();

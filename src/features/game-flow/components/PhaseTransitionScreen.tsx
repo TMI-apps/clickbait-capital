@@ -1,6 +1,7 @@
 import { Flag, Lightbulb } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
+import { GlossaryText } from "@/components/common/GlossaryTerm";
+import { GLOSSARY, PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
 import type { FlowPhase } from "@/features/game-flow/types/gameFlow.types";
 import { cn } from "@/shared/utils/cn";
 import { FlowScreen } from "./FlowScreen";
@@ -40,10 +41,14 @@ export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScre
         </Button>
       }
     >
-      <p className="text-base">{intro.body}</p>
+      <p className="text-base">
+        <GlossaryText text={intro.body} glossary={GLOSSARY} />
+      </p>
       <p className="flex gap-2 text-sm text-muted-foreground">
         <Lightbulb aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-        <span>{intro.tip}</span>
+        <span>
+          <GlossaryText text={intro.tip} glossary={GLOSSARY} />
+        </span>
       </p>
       <section className="rounded-lg border p-4" aria-labelledby="phase-goal-label">
         <h2

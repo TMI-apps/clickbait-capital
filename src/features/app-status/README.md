@@ -11,19 +11,20 @@ App-level error, offline and unsupported-browser states for Clickbait Capital, m
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| API | `api/index.ts` | `AppErrorFallback`, `AppStatusScreen`, `BrowserSupportGate`, `OfflineBanner`, `AppStatusKind` |
-| Components | `components/AppStatusScreen.tsx` | One full-screen state per `kind` (`offline`, `loadFailed`, `unsupported`), `role="alert"` |
-| Components | `components/AppErrorFallback.tsx`, `BrowserSupportGate.tsx`, `OfflineBanner.tsx` | Wiring of the screen to the boundary, the support check and the connection |
-| Hooks | `hooks/useOnlineStatus.ts` | `navigator.onLine` via `useSyncExternalStore` |
-| Hooks | `hooks/useAppStatusActions.ts` | `retry` / `goHome` actions; `useBrowserSupported` |
-| Services | `services/browserSupport.ts`, `services/appNavigation.ts` | Feature check (injectable env); reload and home |
+| Layer      | Path                                                                             | Purpose                                                                                       |
+| ---------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                                                                   | `AppErrorFallback`, `AppStatusScreen`, `BrowserSupportGate`, `OfflineBanner`, `AppStatusKind` |
+| Components | `components/AppStatusScreen.tsx`                                                 | One full-screen state per `kind` (`offline`, `loadFailed`, `unsupported`), `role="alert"`     |
+| Components | `components/AppErrorFallback.tsx`, `BrowserSupportGate.tsx`, `OfflineBanner.tsx` | Wiring of the screen to the boundary, the support check and the connection                    |
+| Hooks      | `hooks/useOnlineStatus.ts`                                                       | `navigator.onLine` via `useSyncExternalStore`                                                 |
+| Hooks      | `hooks/useAppStatusActions.ts`                                                   | `retry` / `goHome` actions; `useBrowserSupported`                                             |
+| Services   | `services/browserSupport.ts`, `services/appNavigation.ts`                        | Feature check (injectable env); reload and home                                               |
 
 ## Decisions
 
 - **Offline does not block play (D6 of the game-settings lap):** the precached app works offline; the full offline screen appears only when a page fails to load while offline.
 - **Separate feature (D5):** a different reason to change than settings; app-update owns only the service worker.
+- **Kid-level copy (kids-content):** the offline texts say "Geen internet" instead of "offline"; texts still come from `UI_COPY.appStatus`.
 
 ## Testing
 
