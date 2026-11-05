@@ -44,6 +44,11 @@ export interface GameState {
   /** Hidden from the player; drives toxicity events. */
   toxicity: number;
   stats: Record<StatKey, number>;
+  /**
+   * Highest users stat of the run so far (game-engine D1). The stat follows the meter and
+   * can fall, so end screens report this peak instead of the last value.
+   */
+  peakUsers: number;
   hand: Hand | null;
   pendingEventId: string | null;
   firedEventIds: string[];

@@ -14,6 +14,7 @@ import {
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
+  meterForUsers,
   scaleForPhase,
 } from "@/features/game-engine/api";
 import type {
@@ -108,21 +109,25 @@ function scaledEffects(
   return capEffects(toCardEffects(scaleForPhase(effects, phase)), state.meters);
 }
 
-/** Labels for the absolute stats; "Bereik" keeps reach apart from the Gebruikers meter. */
+/** Labels for the absolute stats; "Bereik" is the number behind the Gebruikers meter (engine D1). */
 const STAT_LABEL: Record<StatKey, string> = { users: "Bereik", revenue: "Omzet" };
 
 function formatStat(stat: StatKey, value: number): string {
   return stat === "revenue" ? euroFormat.format(value) : countFormat.format(value);
 }
 
-function goalStatTexts(conditions: GoalCondition[], state: GameState): string[] {
-  return conditions.flatMap((condition) =>
-    condition.kind === "stat"
-      ? [
-          `${STAT_LABEL[condition.stat]}: ${formatStat(condition.stat, state.stats[condition.stat])} / ${formatStat(condition.stat, condition.atLeast)}`,
-        ]
-      : []
-  );
+/**
+ * "Bereik: x / doel (Gebruikers ≥ N)": the users stat is read off the Gebruikers meter
+ * (game-engine D1), so the line names the meter level that reaches the goal in this phase.
+ */
+function goalStatText(
+  condition: Extract<GoalCondition, { kind: "stat" }>,
+  state: GameState,
+  phase: PhaseDefinition
+): string {
+  const { stat, atLeast } = condition;
+  const text = `${STAT_LABEL[stat]}: ${formatStat(stat, state.stats[stat])} / ${formatStat(stat, atLeast)}`;
+  return stat === "users" ? `${text} (Gebruikers ≥ ${meterForUsers(atLeast, phase)})` : text;
 }
 
 /** Phase name, goal text and progress. Progress is the weakest goal condition, capped at 1. */
@@ -138,7 +143,9 @@ export function toPhaseProgress(state: GameState, content: GameContent): PhasePr
     goalDescription: description,
     progress,
     streak: consecutiveTurns > 1 ? { current: state.goalStreak, required: consecutiveTurns } : null,
-    goalStats: goalStatTexts(conditions, state),
+    goalStats: conditions.flatMap((condition) =>
+      condition.kind === "stat" ? [goalStatText(condition, state, phase)] : []
+    ),
     usersText: `${STAT_LABEL.users}: ${formatStat("users", state.stats.users)}`,
     revenueText: `${STAT_LABEL.revenue}: ${formatStat("revenue", state.stats.revenue)}`,
     turn: state.turn,
@@ -205,9 +212,11 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
     turn: state.turn,
     phaseId: state.phase,
     phaseName: currentPhase(state, content).name,
-    stats: { ...state.stats },
+    // End screens report the run's peak reach (game-board D11): the users stat follows the
+    // meter and can end below a goal the player already held.
+    stats: { ...state.stats, users: state.peakUsers },
     statTexts: {
-      users: formatStat("users", state.stats.users),
+      users: formatStat("users", state.peakUsers),
       revenue: formatStat("revenue", state.stats.revenue),
     },
     playedTypes: [...state.playedTypes],

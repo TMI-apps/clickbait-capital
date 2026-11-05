@@ -33,18 +33,41 @@ export function getPhase(content: GameContent, id: PhaseId): PhaseDefinition {
 }
 
 /**
- * Maps a card's or event's meter change to absolute stats (game-engine D1): users move with
- * the users delta (floor 0); revenue is gross omzet and only grows with positive revenue deltas.
+ * The users stat read off the Gebruikers meter (game-engine D1): the meter's share of the
+ * phase's market. Monotone in the meter and above 0 whenever the meter is.
  */
-export function updateStats(
-  stats: Record<StatKey, number>,
+export function usersForMeter(meter: number, phase: PhaseDefinition): number {
+  return Math.round((meter * phase.usersAtFullMeter) / 100);
+}
+
+/**
+ * Lowest whole Gebruikers level whose users stat reaches `target` in this phase, so a board
+ * can name the meter level a users goal needs. Can exceed 100 when the market is too small.
+ */
+export function meterForUsers(target: number, phase: PhaseDefinition): number {
+  if (!(phase.usersAtFullMeter > 0)) {
+    throw new Error(`game-engine: phase ${phase.id} needs a positive usersAtFullMeter`);
+  }
+  let meter = Math.max(0, Math.ceil((target * 100) / phase.usersAtFullMeter));
+  while (meter > 0 && usersForMeter(meter - 1, phase) >= target) {
+    meter -= 1;
+  }
+  while (usersForMeter(meter, phase) < target) {
+    meter += 1;
+  }
+  return meter;
+}
+
+/**
+ * Gross omzet after a card or event (game-engine D1): only positive revenue deltas count, so it
+ * never falls; passive costs are not effects and do not count.
+ */
+export function addGrossRevenue(
+  revenue: number,
   effects: FullEffects,
   phase: PhaseDefinition
-): Record<StatKey, number> {
-  return {
-    users: Math.max(0, stats.users + effects.users * phase.usersPerPoint),
-    revenue: stats.revenue + Math.max(0, effects.revenue) * phase.revenuePerPoint,
-  };
+): number {
+  return revenue + Math.max(0, effects.revenue) * phase.revenuePerPoint;
 }
 
 /** Returns the game-over reason for the first meter at 0, or null. */
