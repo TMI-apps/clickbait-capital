@@ -1,4 +1,9 @@
-import { buildEndReport, GAME_OVER_TEXTS, UI_COPY } from "@/features/game-content/api";
+import {
+  buildEndReport,
+  GAME_OVER_TEXTS,
+  selectGameOverText,
+  UI_COPY,
+} from "@/features/game-content/api";
 import type {
   EndingView,
   ResultRow,
@@ -14,13 +19,13 @@ const PLAYED_ORDER = ["viral", "ad", "news"] as const;
 const countFormat = (value: number): string => value.toLocaleString("nl-NL");
 
 /**
- * The dramatic ending: the game-over text of the reason, or the report title and closing
- * question for the IPO. Texts come from
- * game-content (`GAME_OVER_TEXTS`, the report title); this only picks and labels them.
+ * The dramatic ending: the game-over text that matches the run (`selectGameOverText`), or the
+ * report title and closing question for the IPO. Texts and the choice of story come from
+ * game-content; this only labels them.
  */
 export function toEndingView(summary: RunSummary): EndingView {
   if (summary.outcome === "lost" && summary.reason) {
-    const { title, headline, body, lesson } = GAME_OVER_TEXTS[summary.reason];
+    const { title, headline, body, lesson } = selectGameOverText(summary.reason, summary);
     return {
       outcome: "lost",
       reason: summary.reason,
