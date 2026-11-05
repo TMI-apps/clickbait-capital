@@ -5,7 +5,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import path from "path";
 import { devTasksPlugin } from "./vite-plugin-dev-tasks";
 
-/** One year: hashed fonts and card images never change under the same URL. */
+/** One year: card images never change under the same URL. */
 const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
 // Offline play + install (src/features/app-update/README.md). Production builds only:
@@ -29,20 +29,6 @@ const pwaPlugin = VitePWA({
         options: {
           cacheName: "card-images",
           expiration: { maxEntries: 300, maxAgeSeconds: ONE_YEAR_SECONDS },
-        },
-      },
-      {
-        urlPattern: ({ url }) => url.origin === "https://fonts.googleapis.com",
-        handler: "StaleWhileRevalidate",
-        options: { cacheName: "google-fonts-css" },
-      },
-      {
-        urlPattern: ({ url }) => url.origin === "https://fonts.gstatic.com",
-        handler: "CacheFirst",
-        options: {
-          cacheName: "google-fonts-files",
-          cacheableResponse: { statuses: [0, 200] },
-          expiration: { maxEntries: 30, maxAgeSeconds: ONE_YEAR_SECONDS },
         },
       },
     ],

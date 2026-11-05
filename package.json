@@ -21,7 +21,7 @@
     "type-check": "tsc --noEmit --project tsconfig.app.json",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:classify": "node --test scripts/change-classify.test.cjs scripts/check-node-version.test.cjs scripts/test-staged.test.cjs scripts/harness_scan.test.cjs scripts/validate-git-workflow.test.cjs scripts/validate-version-sync.test.cjs scripts/ensure-deps-installed.test.cjs scripts/deny-git-write-on-main.test.cjs scripts/lint-edited-file.test.cjs scripts/type-check-on-stop.test.cjs scripts/project-structure-validator.test.cjs scripts/modularity-report.test.cjs scripts/validate-skills.test.cjs scripts/sync-agent-config.test.mjs",
+    "test:classify": "node --test scripts/change-classify.test.cjs scripts/check-node-version.test.cjs scripts/check-bundle-size.test.cjs scripts/test-staged.test.cjs scripts/harness_scan.test.cjs scripts/validate-git-workflow.test.cjs scripts/validate-version-sync.test.cjs scripts/ensure-deps-installed.test.cjs scripts/deny-git-write-on-main.test.cjs scripts/lint-edited-file.test.cjs scripts/type-check-on-stop.test.cjs scripts/project-structure-validator.test.cjs scripts/modularity-report.test.cjs scripts/validate-skills.test.cjs scripts/sync-agent-config.test.mjs",
     "test:plugin": "node plugins/cursor-migration/test/run-tests.mjs",
     "test:staged": "node scripts/test-staged.cjs --dry-run",
     "test:staged:live": "node scripts/test-staged.cjs",
@@ -56,6 +56,7 @@
     "validate:feature-size:json": "node scripts/validate-feature-size.js --format=json",
     "validate:feature-size:staged": "node scripts/validate-feature-size-staged.js",
     "validate:feature-size:baseline": "node scripts/generate-feature-baseline.js --write",
+    "validate:bundle-size": "node scripts/check-bundle-size.cjs",
     "arch:check:staged": "node scripts/arch-check-staged.js",
     "tokens:build": "tz build -c scripts/terrazzo.config.js",
     "tokens:check": "tz check -c scripts/terrazzo.config.js"

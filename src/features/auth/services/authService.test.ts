@@ -17,7 +17,7 @@ const mockSupabase = {
 };
 
 vi.mock("@/shared/services/supabaseService", () => ({
-  getSupabase: vi.fn(() => mockSupabase),
+  loadSupabase: vi.fn(async () => mockSupabase),
   isSupabaseConfigured: vi.fn(() => true),
 }));
 

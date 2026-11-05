@@ -5,7 +5,7 @@ import { Button } from "@/components/common/Button";
 import { FormField } from "@/components/common/FormField";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { useAuthContext } from "@/shared/context/AuthContext";
-import { getSupabase, isSupabaseConfigured } from "@/shared/services/supabaseService";
+import { isSupabaseConfigured, loadSupabase } from "@/shared/services/supabaseService";
 import { validatePasswordConfirmation } from "@/features/auth/services/authValidation";
 import {
   appScrollContentClassName,
@@ -38,7 +38,6 @@ export const ResetPasswordPage = () => {
       return;
     }
 
-    const supabase = getSupabase();
     const hashParams = new URLSearchParams(
       window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash
     );
@@ -50,13 +49,19 @@ export const ResetPasswordPage = () => {
       return;
     }
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setRecoveryReady(true);
-        setCheckingRecovery(false);
-      }
+    let unsubscribeAuth: (() => void) | undefined;
+    let cancelled = false;
+    void loadSupabase().then((supabase) => {
+      if (cancelled) return;
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "PASSWORD_RECOVERY") {
+          setRecoveryReady(true);
+          setCheckingRecovery(false);
+        }
+      });
+      unsubscribeAuth = () => subscription.unsubscribe();
     });
 
     const timeoutId = window.setTimeout(() => {
@@ -64,7 +69,8 @@ export const ResetPasswordPage = () => {
     }, 3000);
 
     return () => {
-      subscription.unsubscribe();
+      cancelled = true;
+      unsubscribeAuth?.();
       window.clearTimeout(timeoutId);
     };
   }, []);

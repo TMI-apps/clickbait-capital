@@ -33,7 +33,7 @@ Resolved in this order (`services/reportEnvironment.ts`): `VITE_APP_ENV` if it i
 
 ## Dependencies
 
-- `@/shared/services/supabaseService` (`getSupabase`, `isSupabaseConfigured`)
+- `@/shared/services/supabaseService` (`loadSupabase`, `isSupabaseConfigured`)
 - The `upsert_error_log` function and `error_logs` table from `supabase/migrations/` (apply them before relying on reports)
 - `src/components/common/QueryErrorBoundary` (its `onError` prop)
 
