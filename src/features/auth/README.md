@@ -42,7 +42,7 @@ supabase-js is not in the main chunk: `loadSupabase()` (`@/shared/services/supab
 - **At startup** the client loads only when `hasPersistedAuthSession()` sees a stored `sb-*-auth-token*` key (a signed-in returning visitor or a pending PKCE verifier), or the URL carries an OAuth code/error/token or a recovery hash.
 - **Otherwise** it loads on the first auth action (sign in, sign up, Google, reset), on `/reset-password`, or when an error report is sent. Visitors who never touch sign-in never download it.
 - **Anonymous sign-in** (`handleSessionResult`) therefore runs only when the client loads without a session, no longer on every visit. It was refused by the project anyway (`anonymous_provider_disabled`); the permission-model question stays its own backlog task.
-- The main-chunk budget (`pnpm validate:bundle-size`, `scripts/check-bundle-size.cjs`) fails the build check if a static `@supabase` import comes back.
+- The main-chunk budget (`pnpm validate:bundle-size` after `pnpm build`, `scripts/check-bundle-size.cjs`) fails if a static `@supabase` import comes back. It is a manual check until CI runs it (separate PR, owner decision on `ci.yml`).
 
 ### User feedback policy
 

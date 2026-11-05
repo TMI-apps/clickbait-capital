@@ -26,12 +26,12 @@ describe("UpdatePrompt", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("should announce the new version and reload when the player taps Herladen", async () => {
+  it("should announce the new version and reload when the player taps Nu laden", async () => {
     hookState.updateReady = true;
     render(<UpdatePrompt />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("Nieuwe versie beschikbaar");
-    await userEvent.click(screen.getByRole("button", { name: "Herladen" }));
+    expect(screen.getByRole("status")).toHaveTextContent("Nieuwe versie klaar");
+    await userEvent.click(screen.getByRole("button", { name: "Nu laden" }));
     expect(hookState.applyUpdate).toHaveBeenCalledOnce();
   });
 
