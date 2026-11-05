@@ -3,6 +3,7 @@ import { useSoundEffects } from "@/features/game-audio/api";
 import { useBoardSounds } from "@/features/game-board/hooks/useBoardSounds";
 import { useGameSession } from "@/features/game-board/hooks/useGameSession";
 import { GameEndFlow, PhaseTransitionScreen, usePhaseIntro } from "@/features/game-flow/api";
+import { EndJuice } from "@/features/game-juice/api";
 import { PlayingBoard } from "./PlayingBoard";
 
 export interface GameBoardProps {
@@ -38,7 +39,9 @@ export const GameBoard = ({ content, onQuit, seed }: GameBoardProps) => {
 
   if (view.end) {
     return (
-      <GameEndFlow summary={view.end} onRestart={withTap(restartRun)} onQuit={withTap(onQuit)} />
+      <EndJuice outcome={view.end.outcome}>
+        <GameEndFlow summary={view.end} onRestart={withTap(restartRun)} onQuit={withTap(onQuit)} />
+      </EndJuice>
     );
   }
   if (phaseIntro.pendingPhase !== null) {

@@ -26,6 +26,9 @@ const MOTION_DURATIONS = [
   "duration-slow",
   "duration-card-draw",
   "duration-card-play",
+  "duration-juice",
+  "duration-juice-shake",
+  "duration-count",
 ];
 
 type ColorValue = { colorSpace: string; components: number[]; hex?: string };

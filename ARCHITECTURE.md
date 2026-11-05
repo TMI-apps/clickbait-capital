@@ -21,6 +21,7 @@ src/
 │   │   ├── services/    # Pure functions, API calls
 │   │   └── types/       # TypeScript types for feature
 │   ├── game-engine/     # Pure game rules + content schema; public API in api/index.ts
+│   ├── game-juice/      # Action feedback (particles, shake, meter accents, count-up); public API in api/index.ts
 │   └── tasks/           # Dev-only task backlog (/tasks)
 ├── layouts/             # App shell: wires features into page chrome
 │   ├── MainLayout/      # Main layout component

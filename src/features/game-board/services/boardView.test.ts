@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
 import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
 import {
+  capEffects,
   feedEntryForEvent,
   toCardEffects,
   toDraft,
@@ -118,6 +119,59 @@ describe("boardView", () => {
       type: "event",
       title: event.title,
       body: event.options[2].label,
+    });
+  });
+});
+
+describe("capEffects", () => {
+  it("should split a gain into the part that counts and the wasted rest when it passes 100", () => {
+    const meters = { revenue: 96, users: 100, reputation: 40 };
+    expect(
+      capEffects(
+        [
+          { meter: "revenue", delta: 12 },
+          { meter: "users", delta: 5 },
+          { meter: "reputation", delta: -6 },
+        ],
+        meters
+      )
+    ).toEqual([
+      { meter: "revenue", delta: 4, overflow: 8 },
+      { meter: "users", delta: 0, overflow: 5 },
+      { meter: "reputation", delta: -6 },
+    ]);
+  });
+
+  it("should leave gains untouched when the meter has room for them", () => {
+    expect(
+      capEffects([{ meter: "users", delta: 10 }], { revenue: 50, users: 90, reputation: 50 })
+    ).toEqual([{ meter: "users", delta: 10 }]);
+  });
+
+  it("should mark the wasted part on draft cards when a meter is full", () => {
+    const state: GameState = {
+      ...fresh(),
+      meters: { revenue: 100, users: 100, reputation: 100 },
+    };
+    const gains = toDraft(state, SEED_CONTENT).flatMap((card) =>
+      card.effects.filter((effect) => (effect.overflow ?? 0) > 0)
+    );
+    expect(gains.length).toBeGreaterThan(0);
+    expect(gains.every((effect) => effect.delta === 0)).toBe(true);
+  });
+
+  it("should cap event option gains when the meter is near full", () => {
+    const state: GameState = {
+      ...createGame({ content: SEED_CONTENT, seed: 1 }),
+      status: "event",
+      pendingEventId: "event-investeerders",
+      meters: { revenue: 97, users: 50, reputation: 50 },
+    };
+    // Commercial option: revenue +8 after phase 1 scaling; only 3 fit under 100.
+    expect(toEventView(state, SEED_CONTENT)?.options[0].effects).toContainEqual({
+      meter: "revenue",
+      delta: 3,
+      overflow: 5,
     });
   });
 });
