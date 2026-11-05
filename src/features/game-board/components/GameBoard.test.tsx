@@ -3,6 +3,7 @@ import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
 import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
+import { GAME_CONTENT } from "@/features/game-content/api";
 import type { SavedRun } from "@/features/game-save/api";
 import { getMotionStore } from "@/features/game-settings/api";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
@@ -180,6 +181,33 @@ describe("GameBoard card details", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
     expect(within(feed()).getByText(title, { exact: false })).toBeInTheDocument();
+  });
+
+  it("should show the played card's photo in the newest feed post when a card is played", async () => {
+    const { user } = await renderBoard(GAME_CONTENT);
+    const withPhoto = draftCards().find((card) => within(card).queryByRole("img") !== null);
+    if (!withPhoto) throw new Error("seed 11 draws no card with a photo");
+    const alt = within(withPhoto).getByRole("img").getAttribute("alt") ?? "";
+
+    await playCard(user, withPhoto);
+
+    const [newest] = within(feed()).getAllByRole("listitem");
+    const photo = within(newest).getByRole("img", { name: alt });
+    expect(photo).toHaveAttribute("loading", "lazy");
+  });
+
+  it("should show a compact older post and keep its text when a second card is played", async () => {
+    const { user } = await renderBoard();
+    const firstTitle = within(draftCards()[0]).getAllByText(/./)[1]?.textContent ?? "";
+    await playCard(user, draftCards()[0]);
+    await playCard(user, draftCards()[1]);
+
+    const [newest, older] = within(feed()).getAllByRole("listitem");
+    expect(newest).toHaveAttribute("data-variant", "newest");
+    expect(older).toHaveAttribute("data-variant", "compact");
+    expect(within(older).getByText(firstTitle)).toBeInTheDocument();
+    // Seed ids have no photo: the type-icon placeholder, no <img>.
+    expect(within(feed()).queryAllByRole("img")).toHaveLength(0);
   });
 
   it("should leave the draft unchanged when the player closes the details", async () => {

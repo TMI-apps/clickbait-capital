@@ -237,6 +237,7 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
 export function feedEntryForCard(card: CardDefinition, turn: number): FeedEntry {
   return {
     key: `card-${turn}-${card.id}`,
+    contentId: card.id,
     type: card.type,
     title: card.title,
     body: stripGlossaryMarkup(card.body),
@@ -252,6 +253,7 @@ export function feedEntryForEvent(
   const option = event.options.find((candidate) => candidate.id === optionId);
   return {
     key: `event-${turn}-${event.id}`,
+    contentId: event.id,
     type: "event",
     title: event.title,
     body: stripGlossaryMarkup(option?.label ?? event.body),
