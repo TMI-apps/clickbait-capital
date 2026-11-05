@@ -174,7 +174,7 @@ export const UI_COPY = {
     privacyLink: "Privacy",
     closeButton: "Sluiten",
   },
-  /** Every claim must match the code: audit in documentation/jobs/temp_job_launch-basics/BRIEF.md. */
+  /** Every claim must match the code: audit in documentation/DOC_DECISION_LOG.md § launch-basics. */
   privacy: {
     title: "Privacy",
     intro: "Kort gezegd: je hebt geen account nodig en we volgen je niet.",
