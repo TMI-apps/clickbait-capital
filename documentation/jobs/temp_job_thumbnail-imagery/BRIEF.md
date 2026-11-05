@@ -27,6 +27,7 @@ Every card and event id in the final deck has a manifest entry with a free-licen
 | components/common/ThumbnailFrame | Not found | new kit component | new — generic overlay, reusable (share card, credits) |
 | card-imagery | manifest → `getCardImage` → board | manifest `thumbnail`, new files | ride |
 | game-board | tap → play; info button → details | `CardDraft` tap → details, `PlayingBoard` focus return | ride — owner D9 (info button covered the thumbnail) |
+| game-content (copy) | `/credits` intro names the allowed licences | `uiCopy.ts` credits intro | ride — names the Unsplash licence (D10) |
 | theme tokens | `base.tokens.json` | `thumbnail-*` colour tokens | ride |
 | docs | DOC_DECISION_LOG.md, card-imagery README | § thumbnail-imagery | ride |
 
