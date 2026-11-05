@@ -6,6 +6,20 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## game-settings — feat/game-settings
+
+Settings screen, rules page, app-level error/offline states and the launch audit (`src/features/game-settings/`, `src/features/app-status/`).
+
+| # | Decision | State | Choice | By | Why |
+|---|----------|-------|--------|----|-----|
+| D1 | Settings from the pause menu | closed | The pause dialog swaps to `SettingsPanel` instead of navigating to `/instellingen` | agent (clear winner) | The run lives in memory on `/spel`; navigating away would end it |
+| D2 | Motion source of truth | closed | Module-level external store (`useSyncExternalStore`), exposed as `useReducedMotion` / `useMotionPreference` | agent (clear winner) | Readable from any feature without a provider; mirrors the game-audio mute |
+| D3 | CSS for the motion choice | closed | `data-motion` on `<html>`; "Verminderd" sets `--duration-*` to 0.01ms inline; "Volledig" lifts only JS juice | agent (clear winner) | Token pipeline belongs to game-juice; an OS reduce request stays honoured in CSS |
+| D4 | What "Voortgang wissen" clears | closed | Every `localStorage` key with prefix `clickbait-capital:`; colour mode kept | agent (clear winner) | Colour mode is a display preference, not game data |
+| D5 | Where error states live | closed | New `app-status` feature | agent (clear winner) | Different reason to change than settings; app-update owns only the service worker |
+| D6 | Offline behaviour | closed | Non-blocking 6 s banner; full offline screen only when a page fails to load offline | agent (clear winner) | The app is precached and plays offline |
+| D7 | Copy for the main chunk | closed | `@/features/game-content/api/copy` (UI_COPY only) instead of the barrel; rejected: `@__PURE__` annotations (no effect), accepting +18 kB gzip | orchestrator (2026-11-04) | A barrel import from the main chunk moved the whole deck there |
+
 ## game-juice — feat/game-juice
 
 Asymmetric action feedback (DOC_GAME_DESIGN § 5) in `src/features/game-juice/`, wired into the game board, plus "MAX" marks for gains wasted at the meter cap.

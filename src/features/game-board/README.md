@@ -42,9 +42,11 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Wasted gains (game-juice D5):** `capEffects` in `boardView` caps draft and event-option gains at the meter's room to 100 (`overflow` → GameCard's "MAX" mark). `MeterView.full` marks a meter at 100: it glows and shows the kit `CapBadge` ("MAX") in its label row.
 - **Game-flow screens (game-flow D1, D2):** events open the game-flow `EventModal` over the board (the board keeps the last event while it animates closed); phase intros and the endings replace the board (`PhaseTransitionScreen`, `GameEndFlow`). The board's `toGameEnd` gives the run summary (engine numbers plus board-formatted stat texts, game-flow D4); restart also resets the phase intros.
 
+- **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, because the run lives in memory on `/spel`.
+
 ## Not here yet
 
-Settings in the pause menu (game-settings lap).
+Nothing planned is missing: juice (game-juice) and settings in the pause menu (game-settings) both landed.
 
 ## Testing
 
@@ -56,6 +58,7 @@ Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. even
 - `@/features/game-content/api` (`UI_COPY`, `fillTemplate`); the page passes `GAME_CONTENT`.
 - `@/features/game-flow/api` (`EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro`).
 - `@/features/game-audio/api` (`useSoundEffects`, `MuteToggle`, `SoundEffectId`).
+- `@/features/game-settings/api` (`SettingsPanel` inside the pause menu).
 - `@/features/game-juice/api` (`useActionJuice`, `JuiceLayer`, `MeterJuice`, `CountUpNumber`, `EndJuice`, `FEED_ENTRANCE`, `JUICE_METER_ATTR`).
 - `@/features/card-imagery/api` (`getCardImage`: artwork for draft and detail cards; missing ids fall back to the kit's type icon).
 - Kit: `GameCard`, `Modal`, `Button`. Package: `@dnd-kit/core` (already used by the tasks feature).

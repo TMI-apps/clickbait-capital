@@ -22,6 +22,20 @@ describe("HomePage", () => {
     expect(screen.queryByText(/inloggen|sign in/i)).not.toBeInTheDocument();
   });
 
+  it("should link to rules, settings and credits when the start screen shows", () => {
+    renderWithProviders(<HomePage />);
+
+    expect(screen.getByRole("link", { name: "Hoe speel je?" })).toHaveAttribute(
+      "href",
+      "/hoe-speel-je"
+    );
+    expect(screen.getByRole("link", { name: "Instellingen" })).toHaveAttribute(
+      "href",
+      "/instellingen"
+    );
+    expect(screen.getByRole("link", { name: "Credits" })).toHaveAttribute("href", "/credits");
+  });
+
   it("should show the auth error when a sign-in return failed", () => {
     vi.mocked(useAuthContext).mockReturnValue(
       createDefaultAuthContextValue({ error: "Sign-in failed" })

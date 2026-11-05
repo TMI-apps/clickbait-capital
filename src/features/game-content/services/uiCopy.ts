@@ -15,7 +15,24 @@ export const UI_COPY = {
     startButton: "Start spel",
     continueButton: "Verder spelen",
     newGameButton: "Nieuw spel",
-    howToPlayButton: "Hoe werkt het?",
+    howToPlayButton: "Hoe speel je?",
+    settingsButton: "Instellingen",
+    creditsButton: "Credits",
+  },
+  howToPlay: {
+    title: "Hoe speel je?",
+    intro:
+      "Jij bent het algoritme van een nieuw socialmediaplatform. Groei in vier fases van zolderkamer tot beursgang.",
+    phasesTitle: "Vier fases",
+    phases:
+      "Zolderkamer, Scale-up, Wereldplatform en Beursgang. Elke fase heeft een doel; haal je het, dan stijgen de kosten en kijkt de wereld scherper mee.",
+    eventsTitle: "Spoed!",
+    events:
+      "Soms onderbreekt een crisis je feed. Kies dan een van drie beleidsopties: commercieel, ophef of journalistiek.",
+    winTitle: "Winnen",
+    win: "Houd in de laatste fase je reputatie en inkomsten lang genoeg hoog en je platform gaat naar de beurs.",
+    startButton: "Start spel",
+    backButton: "Naar het begin",
   },
   tutorial: [
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
@@ -119,6 +136,17 @@ export const UI_COPY = {
     on: "Aan",
     off: "Uit",
     closeButton: "Sluiten",
+    openButton: "Instellingen",
+    backButton: "Terug",
+    motion: "Beweging",
+    motionHint: "Verminderd: geen schermtrilling, confetti of vliegende emoji.",
+    motionOptions: { system: "Systeem", reduced: "Verminderd", full: "Volledig" },
+    colorMode: "Weergave",
+    colorModeOptions: { light: "Licht", dark: "Donker", system: "Systeem" },
+    resetHint: "Wist je geluid- en bewegingskeuze en een bewaard spel op dit apparaat.",
+    resetConfirmButton: "Ja, wissen",
+    resetCancelButton: "Annuleren",
+    resetDone: "Voortgang gewist.",
   },
   credits: {
     title: "Over dit spel",
@@ -141,6 +169,20 @@ export const UI_COPY = {
     loadFailed: "Je opgeslagen spel kon niet worden geladen. Begin een nieuw spel.",
     retryButton: "Opnieuw proberen",
     restartButton: "Nieuw spel",
+  },
+  appStatus: {
+    offlineBanner: "Je bent offline. Het spel werkt gewoon door.",
+    offlineTitle: "Je bent offline",
+    offlineBody:
+      "Deze pagina is nog niet op je apparaat bewaard. Maak verbinding en probeer het opnieuw.",
+    loadFailedTitle: "Laden mislukt",
+    loadFailedBody:
+      "Het spel kon niet worden geladen. Probeer het opnieuw of ga terug naar het begin.",
+    unsupportedTitle: "Browser niet ondersteund",
+    unsupportedBody: "Deze browser mist onderdelen die het spel nodig heeft.",
+    browserTip: "Tip: speel in een recente versie van Chrome, Safari, Firefox of Edge.",
+    retryButton: "Opnieuw proberen",
+    homeButton: "Naar het begin",
   },
   emptyStates: {
     noSavedGame: "Nog geen spel bezig. Start een nieuw spel.",
