@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## launch-basics — feat/launch-basics
+
+Launch basics: Dutch privacy note at `/privacy`, `robots.txt`, plain-text sitemap and per-route canonical links.
+
+| id  | topic                   | status | choice                                                                                                                                         | source                 | notes                                                                                                   |
+| --- | ----------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- |
+| D1  | Error-report claim      | closed | Privacy note shows the error-report line only when `isSupabaseConfigured()`; production has no Supabase URL, so today it is hidden           | loop-refine (audit)    | keeps the note true if Supabase is configured later; approved by the orchestrator                       |
+| D2  | Sitemap format          | closed | Plain-text `public/sitemap.txt` (sitemaps.org text format); `robots.txt` points at it                                                          | owner via orchestrator | rejected: `sitemap.xml` (needs `*.xml` in the protected `projectStructure.config.cjs` `public` whitelist) |
+| D3  | Canonical link          | closed | Per-route `<link rel="canonical">` rendered in `App.tsx` (React 19 hoists it to `<head>`) from `src/config/site.ts`; none on hidden routes    | loop-plan              | rejected: static canonical in `index.html` (SPA: every route would canonicalize to `/`); previews point to production |
+| D4  | robots.txt              | closed | `Allow: /` + `Sitemap:`; hidden routes are left out of the sitemap, not listed as `Disallow`                                                   | loop-plan              | a `Disallow` line would advertise `/login`; nothing links to it                                         |
+| D5  | Placeholder privacy URL | closed | `PRIVACY_URL` (`src/config/legal.ts`) → `/privacy`; `TERMS_URL` stays a placeholder                                                           | loop-plan              | approved by the orchestrator                                                                            |
+
 ## first-load — perf/first-load
 
 Faster first load: self-hosted fonts, supabase-js loaded on demand, main-chunk bundle budget.

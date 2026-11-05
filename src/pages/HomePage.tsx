@@ -58,6 +58,14 @@ export const HomePage = () => {
             </Button>
           ))}
         </nav>
+        <footer>
+          <Link
+            to="/privacy"
+            className="inline-flex min-h-11 items-center text-sm text-muted-foreground underline underline-offset-4"
+          >
+            {UI_COPY.start.privacyLink}
+          </Link>
+        </footer>
       </div>
     </div>
   );

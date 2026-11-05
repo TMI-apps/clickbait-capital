@@ -13,6 +13,11 @@ describe("CreditsPage", () => {
     expect(screen.getByText(AUDIO_CREDIT_LINE)).toBeInTheDocument();
   });
 
+  it("should link to the privacy note when rendered", () => {
+    renderWithProviders(<CreditsPage />);
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+  });
+
   it("should lazy-load thumbnails with a fixed size when rendered", () => {
     const { container } = renderWithProviders(<CreditsPage />);
     const images = container.querySelectorAll("img");
