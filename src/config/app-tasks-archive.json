@@ -133,5 +133,10 @@
     "title": "Context-cost audit: slim always-on rules",
     "description": "meta-audit-harness context-cost lens (R1-R9): moved Model A/B promote and PR procedures from git-workflow.md into loop-ship references, cut Related Rules footers (DOC_RULES_INDEX is SSOT), moved Windows-only shell text to documentation/DOC_WINDOWS_SHELL.md, and trimmed testing, agent-behavior, code-style and architecture to pointers. Always-on context about 17.6k to 14.5k tokens (-18%), no information lost (ledger in the lap folder). Follow-ups R10-R12 are separate backlog tasks. From the Claude Code video-lessons review.",
     "status": "done"
+  },
+  {
+    "title": "Make app updates noticeable",
+    "description": "Owner did not see card images after an update (2026-11-05): the PWA served the cached older version. Make the update prompt more visible or auto-reload on navigation when a new version is waiting, without losing a running game. Size S. Landed: updates apply on their own at app start or on a route change; mid-game a banner (Nieuwe versie klaar. Laadt na dit spel.) with Nu laden; registration.update() on resume and hourly. Decision log § app-update-flow.",
+    "status": "done"
   }
 ]

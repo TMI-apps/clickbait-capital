@@ -103,10 +103,5 @@
     "title": "Port feedback hooks to Cursor",
     "description": "Feedback-hooks follow-up: check the current Cursor hooks docs (afterFileEdit, stop) and port the Claude Code PostToolUse lint/format hook and Stop type-check hook where Cursor supports equivalent behavior; document gaps.",
     "status": "to-do"
-  },
-  {
-    "title": "Make app updates noticeable",
-    "description": "Owner did not see card images after an update (2026-11-05): the PWA served the cached older version. Make the update prompt more visible or auto-reload on navigation when a new version is waiting, without losing a running game. Size S.",
-    "status": "to-do"
   }
 ]
