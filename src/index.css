@@ -46,6 +46,19 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
+ * Game board split layout (mobile-fit D2): a phone held sideways (short and wide) or a large screen
+ * puts the draft next to the feed instead of under it.
+ */
+@custom-variant board-split {
+  @media (orientation: landscape) and (max-height: 40rem) {
+    @slot;
+  }
+  @media (min-width: 64rem) {
+    @slot;
+  }
+}
+
+/*
  * Theme tokens. SSOT: W3C DTCG 2025.10 files in src/shared/theme/tokens/
  * (theme.resolver.json + *.tokens.json). `pnpm tokens:build` generates the
  * variables imported above: :root = light defaults, .dark = dark overrides,
@@ -306,6 +319,18 @@
     @apply bg-background text-foreground font-sans antialiased;
     margin: 0;
     min-height: 100vh;
+    /* viewport-fit=cover (index.html): keep content out of a sideways notch. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  /*
+   * A screen that owns the whole viewport (the game board, mobile-fit D4): the document never
+   * scrolls, rubber-bands or pulls to refresh behind it.
+   */
+  html:has([data-viewport-lock]),
+  html:has([data-viewport-lock]) body {
+    overflow: hidden;
+    overscroll-behavior: none;
   }
   h1,
   h2,
