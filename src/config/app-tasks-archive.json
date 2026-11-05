@@ -138,5 +138,10 @@
     "title": "Ending texts that match how the run went",
     "description": "From the production play-test: a news-only run hit Verlaten Platform with ad-blaming text. Each game over now has 2-3 Dutch stories picked by selectGameOverText(reason, run) in game-content (README D9); game-flow renders it. Decision log § ending-texts D1-D2. Size S.",
     "status": "done"
+  },
+  {
+    "title": "Make app updates noticeable",
+    "description": "Owner did not see card images after an update (2026-11-05): the PWA served the cached older version. Make the update prompt more visible or auto-reload on navigation when a new version is waiting, without losing a running game. Size S. Landed: updates apply on their own at app start or on a route change; mid-game a banner (Nieuwe versie klaar. Laadt na dit spel.) with Nu laden; registration.update() on resume and hourly. Decision log § app-update-flow.",
+    "status": "done"
   }
 ]
