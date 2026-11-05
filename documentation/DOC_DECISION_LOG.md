@@ -6,6 +6,16 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## app-update-flow — feat/app-update-flow
+
+New deploys reach players reliably without wiping a running game (`src/features/app-update/`).
+
+| # | Decision | State | Choice | By | Why |
+|---|----------|-------|--------|----|-----|
+| D1 | Update policy | closed | Keep `registerType: "prompt"`; apply a waiting update before the first pointer/key input of the page load or on any route change, else show the banner. Rejected: `autoUpdate` (skipWaiting swaps the worker under a running game; old lazy chunks can be purged), reload on return to the foreground (wipes a paused game) | agent (clear winner) | The run lives only in memory on `/spel`; before input nothing exists to lose, a route change has already ended it |
+| D2 | Update checks | closed | `registration.update()` when the app returns to the foreground and every 60 min | agent (clear winner) | Browsers only re-check `sw.js` on a full navigation; a resumed installed app otherwise never sees a deploy |
+| D3 | Banner copy and size | closed | One slim row: "Nieuwe versie klaar. Laadt na dit spel." with **Nu laden** and a close button (Later) | agent (clear winner) | Says what happens next; the two-line version covered the hand cards at 390px |
+
 ## game-settings — feat/game-settings
 
 Settings screen, rules page, app-level error/offline states and the launch audit (`src/features/game-settings/`, `src/features/app-status/`).
