@@ -102,4 +102,7 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Main-chunk bundle budget
+        run: pnpm validate:bundle-size
+
 
