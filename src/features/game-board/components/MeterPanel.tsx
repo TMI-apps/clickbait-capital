@@ -1,6 +1,9 @@
 import { AlertTriangle, ArrowDown, ArrowUp, Coins, ShieldCheck, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { CapBadge } from "@/components/common/GameCard";
 import type { MeterKey } from "@/features/game-engine/api";
+import { CountUpNumber, JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
+import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
 import type { MeterView } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
@@ -10,29 +13,39 @@ import { cn } from "@/shared/utils/cn";
  * `src/components/common/GameCard/gameCardVariants.ts` (GAME_CARD_METERS); extract to a shared
  * module when a third consumer appears (code-style § Naming F2).
  */
-const METERS: Record<MeterKey, { label: string; icon: LucideIcon; text: string; bar: string }> = {
+const METERS: Record<
+  MeterKey,
+  { label: string; icon: LucideIcon; text: string; bar: string; capGlow: string }
+> = {
   revenue: {
     label: UI_COPY.meters.revenue.label,
     icon: Coins,
     text: "text-meter-revenue",
     bar: "bg-meter-revenue",
+    capGlow: "shadow-[0_0_14px_-2px_var(--meter-revenue)]",
   },
   users: {
     label: UI_COPY.meters.users.label,
     icon: TrendingUp,
     text: "text-meter-users",
     bar: "bg-meter-users",
+    capGlow: "shadow-[0_0_14px_-2px_var(--meter-users)]",
   },
   reputation: {
     label: UI_COPY.meters.reputation.label,
     icon: ShieldCheck,
     text: "text-meter-reputation",
     bar: "bg-meter-reputation",
+    capGlow: "shadow-[0_0_14px_-2px_var(--meter-reputation)]",
   },
 };
 
 /** At or below this a meter is in danger (game over at 0). */
 const DANGER_AT = 20;
+function valueText(value: number, danger: boolean, full: boolean): string {
+  if (danger) return `${value} van 100, gevaarlijk laag`;
+  return full ? `${value} van 100, maximum bereikt` : `${value} van 100`;
+}
 
 const MeterDelta = ({ delta }: { delta: number }) => {
   if (delta === 0) return null;
@@ -54,31 +67,54 @@ const MeterDelta = ({ delta }: { delta: number }) => {
 
 export interface MeterPanelProps {
   meters: MeterView[];
-  /** Changes on every action so the delta chips animate again. */
+  /** Changes on every action so the delta chips and juice animate again. */
   version: number;
+  /** Juice of the last action per meter (game-juice): accent mark and gain / loss flash. */
+  accents?: Partial<Record<MeterKey, MeterAccent>>;
+  flashes?: Partial<Record<MeterKey, MeterFlash>>;
+  /** Count the numbers to their new value; false snaps them (news stays dull). */
+  countUp?: boolean;
 }
 
-/** The three platform meters: icon, name, value 0–100, change and an animated bar. */
-export const MeterPanel = ({ meters, version }: MeterPanelProps) => (
+/**
+ * The three platform meters: icon, name, a counting value 0–100, change and an animated bar.
+ * A full meter glows and says "MAX" so wasted gains are visible.
+ */
+export const MeterPanel = ({
+  meters,
+  version,
+  accents = {},
+  flashes = {},
+  countUp = true,
+}: MeterPanelProps) => (
   <ul aria-label="Meters" className="grid grid-cols-3 gap-2">
-    {meters.map(({ key, value, delta }) => {
+    {meters.map(({ key, value, delta, full }) => {
       const meter = METERS[key];
       const danger = value <= DANGER_AT;
       return (
-        <li key={key} className="min-w-0 rounded-lg border border-border bg-card p-2 elevation-sm">
+        <li
+          key={key}
+          {...{ [JUICE_METER_ATTR]: key }}
+          className={cn(
+            "relative min-w-0 rounded-lg border border-border bg-card p-2 elevation-sm",
+            full && meter.capGlow
+          )}
+        >
+          <MeterJuice accent={accents[key]} flash={flashes[key]} version={version} />
           <div className={cn("flex min-w-0 items-center gap-1 text-xs font-semibold", meter.text)}>
             <meter.icon aria-hidden="true" className="size-4 shrink-0" />
             <span className="truncate">{meter.label}</span>
+            {full && <CapBadge className="ml-auto" />}
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span
+            <CountUpNumber
+              value={value}
+              instant={!countUp}
               className={cn(
                 "font-mono text-xl font-bold tabular-nums sm:text-2xl",
                 danger && "text-destructive"
               )}
-            >
-              {value}
-            </span>
+            />
             <MeterDelta key={version} delta={delta} />
             {danger && (
               <AlertTriangle aria-label="Gevaar" className="ml-auto size-4 text-destructive" />
@@ -90,7 +126,7 @@ export const MeterPanel = ({ meters, version }: MeterPanelProps) => (
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={value}
-            aria-valuetext={`${value} van 100${danger ? ", gevaarlijk laag" : ""}`}
+            aria-valuetext={valueText(value, danger, full)}
             className="mt-1 h-2 overflow-hidden rounded-full bg-muted"
           >
             <div
