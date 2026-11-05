@@ -6,8 +6,8 @@ import {
   restoreSession,
   startSession,
   toSavedRun,
-} from "@/features/game-board/services/gameSession";
-import type { SessionState } from "@/features/game-board/services/gameSession";
+} from "@/features/game-session/services/gameSession";
+import type { SessionState } from "@/features/game-session/services/gameSession";
 
 /** Plays `steps` actions like a simple player: first event option, else the first hand card. */
 const playSteps = (steps: number, seed = 5): SessionState => {
@@ -38,15 +38,14 @@ const toRun = (session: SessionState): SavedRun => {
 
 describe("gameSession", () => {
   describe("acceptance", () => {
-    it("should rebuild the identical game, feed and meter deltas when a saved run is replayed", () => {
+    it("should rebuild the identical game, steps and previous state when a saved run is replayed", () => {
       const played = playSteps(4);
 
       const restored = restoreSession(SEED_CONTENT, toRun(played));
 
       expect(restored?.game).toEqual(played.game);
-      expect(restored?.feed).toEqual(played.feed);
-      expect(restored?.previousMeters).toEqual(played.previousMeters);
-      expect(restored?.actions).toEqual(played.actions);
+      expect(restored?.steps).toEqual(played.steps);
+      expect(restored?.previousGame).toEqual(played.previousGame);
     });
 
     it("should return null when a saved action is not legal on that seed", () => {
@@ -74,10 +73,22 @@ describe("gameSession", () => {
     ).toBeNull();
   });
 
-  it("should restore a silent sound state when a run is resumed", () => {
+  it("should mark every step as replayed when a run is resumed", () => {
     const restored = restoreSession(SEED_CONTENT, toRun(playSteps(3)));
 
-    expect(restored?.sounds).toEqual({ ids: [], key: 0 });
+    expect(restored?.replayedStepCount).toBe(3);
+  });
+
+  it("should record the turn before the action and the answered event when steps are taken", () => {
+    const first = startSession(SEED_CONTENT, 5);
+    const cardId = Object.values(first.game.hand ?? {})[0];
+
+    const played = applyAction(first, SEED_CONTENT, { kind: "card", cardId });
+
+    expect(played.steps).toEqual([
+      { action: { kind: "card", cardId }, turn: first.game.turn, eventId: null },
+    ]);
+    expect(played.previousGame).toBe(first.game);
   });
 
   it("should return the same session when an action is rejected", () => {

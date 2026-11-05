@@ -4,20 +4,20 @@ The run in progress, saved on this device so a refresh, an app update or a close
 
 ## Purpose
 
-- **What is stored (local-save D1):** `localStorage` key `clickbait-capital:run:v1` holds `{ version: 1, seed, actions }`, where `actions` are the card ids and event option ids in play order. The engine is pure and seeded, so game-board's `restoreSession` replays them into the identical game, feed and meter changes.
-- **Validation (D2):** `readSavedRun` parses and shape-checks; bad JSON, a wrong shape or another version is removed and reads as "no save". Whether the actions are still legal is decided by the replay (game-board); a failing replay starts a new run and the board's persistence clears the key.
-- **Lifetime (D3):** game-board writes after every action of a run in progress and clears when the run ends or has no actions (new game, restart). "Voortgang wissen" (game-settings) also removes it: the key starts with `GAME_STORAGE_PREFIX`.
+- **What is stored (local-save D1):** `localStorage` key `clickbait-capital:run:v1` holds `{ version: 1, seed, actions }`, where `actions` are the card ids and event option ids in play order. The engine is pure and seeded, so game-session's `restoreSession` replays them into the identical game, feed and meter changes.
+- **Validation (D2):** `readSavedRun` parses and shape-checks; bad JSON, a wrong shape or another version is removed and reads as "no save". Whether the actions are still legal is decided by the replay (game-session); a failing replay starts a new run and the session's persistence clears the key.
+- **Lifetime (D3):** game-session writes after every action of a run in progress and clears when the run ends or has no actions (new game, restart). "Voortgang wissen" (game-settings) also removes it: the key starts with `GAME_STORAGE_PREFIX`.
 - **Start choice (D4):** `useRunStart` decides how `/spel` opens: no save → new run; a save plus the start screen's router state (`{ run: "resume" | "new" }`) → that choice, then the state is replaced so a reload asks again; a save without state → `ask` (game-flow `ResumeScreen`).
 - **Storage errors (D7):** every read, write and clear swallows exceptions (private mode, quota); the game plays on without a save.
 
 ## Structure
 
-| Layer    | Path                         | Purpose                                                                             |
-| -------- | ---------------------------- | ----------------------------------------------------------------------------------- |
-| API      | `api/index.ts`               | `useRunStart`, `readSavedRun`, `writeSavedRun`, `clearSavedRun`, `SAVED_RUN_VERSION`, types |
-| Hooks    | `hooks/useRunStart.ts`       | How `/spel` starts: ask, resume or new; consumes the start screen's router state    |
-| Services | `services/savedRunStorage.ts` | Versioned key, shape check, read / write / clear                                   |
-| Types    | `types/savedRun.types.ts`    | `SavedRun`, `RunAction`, `RunStart`, `SAVED_RUN_VERSION`                            |
+| Layer    | Path                          | Purpose                                                                                     |
+| -------- | ----------------------------- | ------------------------------------------------------------------------------------------- |
+| API      | `api/index.ts`                | `useRunStart`, `readSavedRun`, `writeSavedRun`, `clearSavedRun`, `SAVED_RUN_VERSION`, types |
+| Hooks    | `hooks/useRunStart.ts`        | How `/spel` starts: ask, resume or new; consumes the start screen's router state            |
+| Services | `services/savedRunStorage.ts` | Versioned key, shape check, read / write / clear                                            |
+| Types    | `types/savedRun.types.ts`     | `SavedRun`, `RunAction`, `RunStart`, `SAVED_RUN_VERSION`                                    |
 
 ## Decisions
 
@@ -27,7 +27,7 @@ The run in progress, saved on this device so a refresh, an app update or a close
 
 ## Testing
 
-Colocated Vitest: `services/savedRunStorage.test.ts` (round-trip, key, corrupt JSON, wrong shapes, other version, blocked storage). Replay and persistence: game-board `services/gameSession.test.ts` and `hooks/useGameSession.test.ts`; start choice: `src/pages/GamePage.test.tsx`, `src/pages/HomePage.test.tsx`.
+Colocated Vitest: `services/savedRunStorage.test.ts` (round-trip, key, corrupt JSON, wrong shapes, other version, blocked storage). Replay and persistence: game-session `services/gameSession.test.ts` and `hooks/useGameSession.test.ts`; start choice: `src/pages/GamePage.test.tsx`, `src/pages/HomePage.test.tsx`.
 
 ## Dependencies
 
