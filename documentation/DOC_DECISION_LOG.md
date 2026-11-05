@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## first-load — perf/first-load
+
+Faster first load: self-hosted fonts, supabase-js loaded on demand, main-chunk bundle budget.
+
+| id  | topic                       | status | choice                                                                                                                                                           | source                 | notes                                                                                                                                      |
+| --- | --------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | When supabase-js loads      | closed | On demand via `loadSupabase()`; at startup only for a stored `sb-*-auth-token*` key or an OAuth/recovery URL (auth README § Lazy loading)                        | loop-plan              | rejected: load on idle (still downloads ~50 KiB gzip for every visitor); route-only loading (hides a signed-in user's profile menu on `/`) |
+| D2  | Anonymous sign-in per visit | closed | Runs only when the client loads without a session                                                                                                                | loop-plan              | refused by the project today (422), so nothing visible changes; enabling or removing it stays its own backlog task (owner decision)        |
+| D3  | Fonts                       | closed | Self-hosted latin WOFF2 of the variable fonts in `public/fonts/`, `font-display: swap`, Space Grotesk preloaded, OFL 1.1 in `public/fonts/OFL.txt` (DOC_THEMING) | loop-build (measured)  | preloading Inter scored 92–93 vs 93–95; rejected: async Google Fonts CSS (third-party round trip, no offline)                              |
+| D4  | `public/fonts` whitelist    | closed | `*.woff2`, `*.txt` under `public/fonts` in `projectStructure.config.cjs`                                                                                         | owner via orchestrator | protected-file consent                                                                                                                     |
+| D5  | Bundle budget               | closed | `pnpm validate:bundle-size` (`scripts/check-bundle-size.cjs`): initial JS <= 150 KiB gzip                                                                        | loop-plan              | 185 KiB before, 136 KiB after; manual until the orchestrator's separate `ci.yml` PR                                                        |
+
 ## app-update-flow — feat/app-update-flow
 
 New deploys reach players reliably without wiping a running game (`src/features/app-update/`).

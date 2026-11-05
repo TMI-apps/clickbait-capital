@@ -1,4 +1,4 @@
-import { getSupabase, isSupabaseConfigured } from "@/shared/services/supabaseService";
+import { isSupabaseConfigured, loadSupabase } from "@/shared/services/supabaseService";
 import type {
   ErrorReportPayload,
   ErrorReporter,
@@ -114,8 +114,8 @@ export const createErrorReporter = (options: ErrorReporterOptions): ErrorReporte
   };
 };
 
-const sendToSupabase: ErrorReportSender = (payload) =>
-  getSupabase().rpc("upsert_error_log", {
+const sendToSupabase: ErrorReportSender = async (payload) =>
+  (await loadSupabase()).rpc("upsert_error_log", {
     p_hash: payload.hash,
     p_message: payload.message,
     p_environment: payload.environment,

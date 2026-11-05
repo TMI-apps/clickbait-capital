@@ -54,7 +54,7 @@ describe("handleCodeExchange with the real Supabase client", () => {
   });
 
   it("should not exchange the code a second time when the library already signed the user in", async () => {
-    const { getSupabase } = await import("@/shared/services/supabaseService");
+    const { loadSupabase } = await import("@/shared/services/supabaseService");
     const { handleCodeExchange } = await import("./authCallbackService");
     const navigate = vi.fn();
 
@@ -66,7 +66,7 @@ describe("handleCodeExchange with the real Supabase client", () => {
     );
     expect(tokenCalls).toHaveLength(1);
     expect(navigate).toHaveBeenCalledWith("/", { replace: true });
-    const { data } = await getSupabase().auth.getSession();
+    const { data } = await (await loadSupabase()).auth.getSession();
     expect(data.session?.user.email).toBe("person@example.com");
   });
 });

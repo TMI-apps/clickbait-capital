@@ -1,4 +1,4 @@
-import { getSupabase } from "@/shared/services/supabaseService";
+import { loadSupabase } from "@/shared/services/supabaseService";
 import type { UserProfile } from "@/features/auth/types/auth.types";
 
 const USER_PROFILE_FIELDS = `
@@ -29,7 +29,7 @@ const USER_PROFILE_FIELDS = `
  * Returns null if no row (PGRST116); throws on other errors.
  */
 export const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
-  const { data, error } = await getSupabase()
+  const { data, error } = await (await loadSupabase())
     .from("users")
     .select(USER_PROFILE_FIELDS)
     .eq("id", userId)

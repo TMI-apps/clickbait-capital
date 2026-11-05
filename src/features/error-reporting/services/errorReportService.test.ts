@@ -118,11 +118,11 @@ describe("default reporter", () => {
     const rpc = vi.fn().mockResolvedValue({ error: null });
     vi.doMock("@/shared/services/supabaseService", () => ({
       isSupabaseConfigured: () => true,
-      getSupabase: () => ({ rpc }),
+      loadSupabase: async () => ({ rpc }),
     }));
     const { reportError } = await import("./errorReportService");
     reportError(new Error("wired up"), "react");
-    expect(rpc).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(rpc).toHaveBeenCalledTimes(1));
     expect(rpc.mock.calls[0][0]).toBe("upsert_error_log");
     expect(rpc.mock.calls[0][1]).toMatchObject({
       p_message: "wired up",
@@ -136,10 +136,11 @@ describe("default reporter", () => {
     const rpc = vi.fn();
     vi.doMock("@/shared/services/supabaseService", () => ({
       isSupabaseConfigured: () => false,
-      getSupabase: () => ({ rpc }),
+      loadSupabase: async () => ({ rpc }),
     }));
     const { reportError } = await import("./errorReportService");
     reportError(new Error("no backend"), "error");
+    await Promise.resolve();
     expect(rpc).not.toHaveBeenCalled();
   });
 });

@@ -76,7 +76,7 @@ Use **`@/`** path aliases only — never relative parent imports (`../`). Full m
 // ✅ Good
 import { Button } from "@/components/common/Button";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { getSupabase } from "@/shared/services/supabaseService";
+import { loadSupabase } from "@/shared/services/supabaseService";
 
 // ❌ Bad
 import { Button } from "../../../components/common/Button";
