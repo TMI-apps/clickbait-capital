@@ -6,7 +6,7 @@ User authentication and session management via Supabase.
 
 - Email/password login, sign-up, and password reset
 - Google OAuth sign-in (PKCE callback on `/`)
-- Anonymous sessions for unauthenticated visitors
+- Anonymous sessions for unauthenticated visitors, requested only when the client loads (see § Lazy loading)
 - Session persistence and auth state subscription
 - Auth redirect and callback handling
 - User profile query/mutation (TanStack Query)
@@ -32,8 +32,17 @@ Returns:
 
 - Requires Supabase configured (`isSupabaseConfigured()`). If not, `loading` becomes `false` and handlers no-op.
 - Anonymous Supabase users are treated as logged out (`user === null`).
-- Session is initialized on mount and kept in sync via `useAuthStateSubscription`.
+- Session is initialized on mount only when there is something to restore (see § Lazy loading); otherwise `loading` turns `false` at once with `user === null`. `useAuthStateSubscription` attaches whenever the client loads.
 - Context value and auth handlers are memoized so consumers re-render only when `user`, `loading`, `error`, or handler identity changes.
+
+### Lazy loading (first-load lap D1–D2)
+
+supabase-js is not in the main chunk: `loadSupabase()` (`@/shared/services/supabaseService`) imports it on first use, and every Supabase call goes through it (all calls were already async).
+
+- **At startup** the client loads only when `hasPersistedAuthSession()` sees a stored `sb-*-auth-token*` key (a signed-in returning visitor or a pending PKCE verifier), or the URL carries an OAuth code/error/token or a recovery hash.
+- **Otherwise** it loads on the first auth action (sign in, sign up, Google, reset), on `/reset-password`, or when an error report is sent. Visitors who never touch sign-in never download it.
+- **Anonymous sign-in** (`handleSessionResult`) therefore runs only when the client loads without a session, no longer on every visit. It was refused by the project anyway (`anonymous_provider_disabled`); the permission-model question stays its own backlog task.
+- The main-chunk budget (`pnpm validate:bundle-size`, `scripts/check-bundle-size.cjs`) fails the build check if a static `@supabase` import comes back.
 
 ### User feedback policy
 
@@ -50,7 +59,7 @@ Returns:
 
 ## Dependencies
 
-- `@/shared/services/supabaseService` – Supabase client, `isSupabaseConfigured`, and the `SupabaseUser` / `AuthError` types (only file allowed to import `@supabase/*`)
+- `@/shared/services/supabaseService` – `loadSupabase()` (lazy client), `onSupabaseLoaded`, `hasPersistedAuthSession`, `isSupabaseConfigured`, and the `SupabaseUser` / `AuthError` types (only file allowed to import `@supabase/*`)
 - `@/shared/utils/appOrigin` – absolute app URLs (basename-aware)
 - `@/config/legal` – placeholder Privacy/Terms URLs (`LEGAL_ORIGIN`)
 - `@/shared/hooks/useAuthBackendConfigured` – auth backend readiness for UI

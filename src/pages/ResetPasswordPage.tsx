@@ -51,18 +51,21 @@ export const ResetPasswordPage = () => {
 
     let unsubscribeAuth: (() => void) | undefined;
     let cancelled = false;
-    void loadSupabase().then((supabase) => {
-      if (cancelled) return;
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((event) => {
-        if (event === "PASSWORD_RECOVERY") {
-          setRecoveryReady(true);
-          setCheckingRecovery(false);
-        }
-      });
-      unsubscribeAuth = () => subscription.unsubscribe();
-    });
+    // A failed load (offline) leaves recoveryReady false; the timeout below ends the check.
+    void loadSupabase()
+      .then((supabase) => {
+        if (cancelled) return;
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange((event) => {
+          if (event === "PASSWORD_RECOVERY") {
+            setRecoveryReady(true);
+            setCheckingRecovery(false);
+          }
+        });
+        unsubscribeAuth = () => subscription.unsubscribe();
+      })
+      .catch(() => undefined);
 
     const timeoutId = window.setTimeout(() => {
       setCheckingRecovery(false);

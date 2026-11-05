@@ -43,7 +43,7 @@ Clickbait Capital's identity, chosen by the owner (2026-11-04) over "Clean socia
 - **Secondary:** gold, for money (`#ffc93c` dark, `#8a6100` light).
 - **Surfaces:** deep violet-black in dark mode, pale lavender in light mode.
 
-Fonts load from Google Fonts in `index.html`. When you change `font.*` tokens, update that link too.
+Fonts are self-hosted: latin WOFF2 subsets in `public/fonts/` (SIL OFL 1.1, `public/fonts/OFL.txt`), declared with `@font-face` (`font-display: swap`) in `src/index.css`; `index.html` preloads the heading font. When you change `font.*` tokens, add the new font's file and `@font-face` the same way (no Google Fonts stylesheet: it blocked first paint).
 
 ## Tokens
 
@@ -77,7 +77,7 @@ Not themeable (by design): breakpoints (fixed at build time), z-index (app struc
 
 **Density.** Change `spacing.spacing` (default `0.25rem`). Smaller = denser.
 
-**Fonts.** Change `font.body-font` / `heading-font` / `mono-font` and load the font in `index.html`.
+**Fonts.** Change `font.body-font` / `heading-font` / `mono-font` and self-host the font (`public/fonts/` + `@font-face` in `src/index.css`, as described above § Tokens).
 
 **A component that should differ by brand.** Add a component token only when a real need appears (decision runtime-theming D5): add a `<component>-<property>` token to `base.tokens.json` (an alias to a shared token, or an optional override with a `var()` fallback in `@theme inline` like `card-radius`), map it in `@theme inline`, add it to `THEME_SHARED_TOKENS`, use the utility in the kit component, and teach `cn()` (`src/shared/utils/cn.ts`) the new class if it can conflict with built-ins. Structural differences (layout, markup) stay code: edit the kit component's variants.
 
