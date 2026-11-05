@@ -1,17 +1,7 @@
 [
   {
-    "title": "Game feel: asymmetric juice and animations",
-    "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 3, after the game board. Area: src/features/game-juice/ (new) plus motion tokens. The design's asymmetric feedback: viral = screen shake, neon confetti, emoji burst, pulsing counter; ad = coins fly to the Inkomsten meter, slot-machine count-up, gold glow; news = dry slide, small shield at Reputatie, no particles. Card draw/play, gains/losses, win/loss animations. Full prefers-reduced-motion support (and the settings toggle when it exists). Size M.",
-    "status": "in-progress"
-  },
-  {
     "title": "Settings, error states and launch audit",
     "description": "Wave 3. Area: src/features/game-settings/ (new) and error/empty states. Settings screen (motion, reset progress; sound once audio exists), offline/failed-to-load/unsupported states with retry and home. Launch audit: WCAG AA and keyboard play across all screens, mobile performance and bundle budget, CI green, production deploy verified. Size S.",
-    "status": "in-progress"
-  },
-  {
-    "title": "Show wasted gains at the meter cap",
-    "description": "Found by the balance lap: when a meter is at 100, positive effects on that meter are wasted but the card still shows +N, so players don't learn to adapt. Show a MAX/greyed gain on card effects that would push a meter past 100 (and maybe a subtle cap glow on the meter). Area: src/features/game-board/ (+ GameCard prop if needed). Fits with the game-feel lap. Size S.",
     "status": "in-progress"
   },
   {

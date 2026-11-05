@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
@@ -169,5 +169,46 @@ describe("GameBoard", () => {
     await user.click(screen.getByRole("button", { name: "Menu" }));
     await user.click(screen.getByRole("button", { name: "Stoppen" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("GameBoard juice", () => {
+  it("should throw emoji and put flames on Gebruikers when a viral card is played", async () => {
+    const { user } = await renderBoard();
+    await user.click(draftCards()[0]);
+
+    expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
+    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+  });
+
+  it("should fly coins with a gold accent for an ad and only show a shield for news", async () => {
+    const { user } = await renderBoard();
+    await user.click(draftCards()[1]);
+    expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
+    expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
+
+    await user.click(draftCards()[2]);
+    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+    expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
+  });
+
+  it("should show the state change without particles when the player prefers reduced motion", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = (query: string) =>
+      ({
+        ...original(query),
+        matches: query.includes("prefers-reduced-motion"),
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }) as MediaQueryList;
+    onTestFinished(() => {
+      window.matchMedia = original;
+    });
+    const { user } = await renderBoard();
+    await user.click(draftCards()[0]);
+
+    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
   });
 });

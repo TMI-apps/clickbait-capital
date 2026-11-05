@@ -101,6 +101,30 @@
       "$type": "cubicBezier",
       "$value": [0.34, 1.56, 0.64, 1],
       "$description": "Springy overshoot for card draw/play (game juice)."
+    },
+    "duration-juice": {
+      "$type": "duration",
+      "$value": {
+        "value": 760,
+        "unit": "ms"
+      },
+      "$description": "Particles (emoji, coins, confetti) flying over the board (game juice)."
+    },
+    "duration-juice-shake": {
+      "$type": "duration",
+      "$value": {
+        "value": 360,
+        "unit": "ms"
+      },
+      "$description": "Light screen shake on a viral play (game juice)."
+    },
+    "duration-count": {
+      "$type": "duration",
+      "$value": {
+        "value": 650,
+        "unit": "ms"
+      },
+      "$description": "Meter numbers counting up / down after an action (game juice)."
     }
   },
   "elevation": {

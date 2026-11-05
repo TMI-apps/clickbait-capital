@@ -1,5 +1,15 @@
 [
   {
+    "title": "Show wasted gains at the meter cap",
+    "description": "Found by the balance lap: when a meter is at 100, positive effects on that meter are wasted but the card still shows +N, so players don't learn to adapt. Show a MAX/greyed gain on card effects that would push a meter past 100 (and maybe a subtle cap glow on the meter). Area: src/features/game-board/ (+ GameCard prop if needed). Fits with the game-feel lap. Size S. Result: merged in PR #16 (greyed MAX on capped effects, cap glow on full meters, shared CapBadge kit component).",
+    "status": "done"
+  },
+  {
+    "title": "Game feel: asymmetric juice and animations",
+    "description": "Rules SSOT: documentation/DOC_GAME_DESIGN.md. Vision: documentation/DOC_APP_VISION.md (Dutch, phone-first, no accounts). Wave 3, after the game board. Area: src/features/game-juice/ (new) plus motion tokens. The design's asymmetric feedback: viral = screen shake, neon confetti, emoji burst, pulsing counter; ad = coins fly to the Inkomsten meter, slot-machine count-up, gold glow; news = dry slide, small shield at Reputatie, no particles. Card draw/play, gains/losses, win/loss animations. Full prefers-reduced-motion support (and the settings toggle when it exists). Size M. Result: merged in PR #16 (src/features/game-juice: viral shake/burst/emoji, ad coins to Inkomsten, dry news slide + shield, meter count-up, end-screen entrance; reduced motion drops particles; card images wired into the board).",
+    "status": "done"
+  },
+  {
     "title": "Card imagery with license manifest and credits",
     "description": "Wave 2, after content (needs card ids). Area: public/cards/ (images), src/features/game-content/ image manifest, and a credits screen. A subagent sources one fitting image per card: Openverse or Wikimedia Commons (CC0/CC-BY) first, then Unsplash/Pexels under their API terms (credit, hotlinking and download tracking). Reject recognizable people or brands and unclear licenses. Manifest per image: card id, source URL, author, license, required credit text. Crop consistently for the card frame; responsive sizes, modern formats (AVIF/WebP), lazy loading. Credits shown in the game. Any API key is fetched server-side or at build time, never in code; ask the owner with a sign-up link and env var name. Size M. Result: merged in PR #13 (src/features/card-imagery: 67 WebP images, 33 CC0 / 34 CC BY 2.0, manifest + getCardImage, /credits page). Board wiring (one prop on GameCard) handed to the game-juice lap.",
     "status": "done"

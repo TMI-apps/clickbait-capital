@@ -19,7 +19,13 @@
   --duration-card-draw: 420ms;
   /* A card being played into the feed; also the select lift. */
   --duration-card-play: 320ms;
+  /* Meter numbers counting up / down after an action (game juice). */
+  --duration-count: 650ms;
   --duration-fast: 150ms;
+  /* Particles (emoji, coins, confetti) flying over the board (game juice). */
+  --duration-juice: 760ms;
+  /* Light screen shake on a viral play (game juice). */
+  --duration-juice-shake: 360ms;
   --duration-normal: 200ms;
   --duration-slow: 600ms;
   /* Springy overshoot for card draw/play (game juice). */
@@ -121,7 +127,13 @@
     --duration-card-draw: 0.01ms;
     /* A card being played into the feed; also the select lift. */
     --duration-card-play: 0.01ms;
+    /* Meter numbers counting up / down after an action (game juice). */
+    --duration-count: 0.01ms;
     --duration-fast: 0.01ms;
+    /* Particles (emoji, coins, confetti) flying over the board (game juice). */
+    --duration-juice: 0.01ms;
+    /* Light screen shake on a viral play (game juice). */
+    --duration-juice-shake: 0.01ms;
     --duration-normal: 0.01ms;
     --duration-slow: 0.01ms;
   }

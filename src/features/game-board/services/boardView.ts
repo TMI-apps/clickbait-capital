@@ -47,12 +47,20 @@ export function toCardEffects(effects: Effects): CardEffectView[] {
   });
 }
 
+/**
+ * Meters cap at 100; gains past it are wasted. Second copy: the engine clamps with
+ * `METER_MAX` in `src/features/game-engine/services/turnEffects.ts` (not exported); export it
+ * from the engine api and use it here when a third consumer appears (code-style § Naming F2).
+ */
+const METER_CAP = 100;
+
 /** The three meters with their change against the meters before the last action. */
 export function toMeters(state: GameState, previous: Record<MeterKey, number> | null): MeterView[] {
   return METER_ORDER.map((key) => ({
     key,
     value: state.meters[key],
     delta: previous ? state.meters[key] - previous[key] : 0,
+    full: state.meters[key] >= METER_CAP,
   }));
 }
 
@@ -72,11 +80,32 @@ function currentPhase(state: GameState, content: GameContent): PhaseDefinition {
 }
 
 /**
- * Visible effects as the engine applies them in the current phase (game-content README:
- * events show scaled numbers). Turn modifiers such as Ad-Fatigue are not previewed.
+ * Splits gains at the meter cap (game-juice D5): `delta` keeps the part that still counts and
+ * `overflow` the wasted rest, so the card shows "+4 MAX" instead of "+12" at a meter of 96.
+ * Card effects only: passive costs and turn modifiers are not previewed (D10).
  */
-function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView[] {
-  return toCardEffects(scaleForPhase(effects, phase));
+export function capEffects(
+  effects: CardEffectView[],
+  meters: Record<MeterKey, number>
+): CardEffectView[] {
+  return effects.map((effect) => {
+    const room = Math.max(0, METER_CAP - meters[effect.meter]);
+    if (effect.delta <= room) return effect;
+    return { ...effect, delta: room, overflow: effect.delta - room };
+  });
+}
+
+/**
+ * Visible effects as the engine applies them in the current phase (game-content README:
+ * events show scaled numbers), capped at the meters' room. Turn modifiers such as Ad-Fatigue
+ * are not previewed.
+ */
+function scaledEffects(
+  effects: Effects,
+  phase: PhaseDefinition,
+  state: GameState
+): CardEffectView[] {
+  return capEffects(toCardEffects(scaleForPhase(effects, phase)), state.meters);
 }
 
 /** Labels for the absolute stats; "Bereik" keeps reach apart from the Gebruikers meter. */
@@ -138,7 +167,7 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       title: card.title,
       body: card.body,
       flavor: flavorOf(card),
-      effects: scaledEffects(card.effects, phase),
+      effects: scaledEffects(card.effects, phase, state),
       droughtWarning: drought && type === "viral",
     };
   });
@@ -159,7 +188,7 @@ export function toEventView(state: GameState, content: GameContent): EventView |
       id,
       kind,
       label,
-      effects: scaledEffects(effects, phase),
+      effects: scaledEffects(effects, phase, state),
     })),
   };
 }

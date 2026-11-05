@@ -15,6 +15,8 @@ export interface MeterView {
   value: number;
   /** Change caused by the last card or event option (incl. passive costs), or 0. */
   delta: number;
+  /** At the cap (100): further gains are wasted, so the board shows "MAX". */
+  full: boolean;
 }
 
 /** Current phase and how far its goal is. */
@@ -41,7 +43,10 @@ export interface PhaseProgressView {
 /** One meter change of a card, as GameCard shows it. */
 export interface CardEffectView {
   meter: MeterKey;
+  /** The part that counts: a gain is capped at the meter's room to 100. */
   delta: number;
+  /** Gain wasted at the cap (shown as "MAX"); absent when nothing is wasted. */
+  overflow?: number;
 }
 
 /** One card of the open draft. */

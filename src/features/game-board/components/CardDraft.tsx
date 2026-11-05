@@ -2,6 +2,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle, Info } from "lucide-react";
 import { GameCard } from "@/components/common/GameCard";
+import { getCardImage } from "@/features/card-imagery/api";
 import { useRovingFocus } from "@/features/game-board/hooks/useRovingFocus";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -9,18 +10,31 @@ import { cn } from "@/shared/utils/cn";
 
 const CARD_SELECTOR = '[data-slot="game-card"]';
 
+/** Stagger of the three cards' draw, in steps of the fast motion token (0 under reduced motion). */
+const DRAW_DELAY = [
+  "[animation-delay:0ms]",
+  "[animation-delay:var(--duration-fast)]",
+  "[animation-delay:calc(var(--duration-fast)*2)]",
+];
+
+/** The slot element of a draft card, e.g. to start play particles where the card was. */
+export const draftCardElement = (cardId: string): Element | null =>
+  document.querySelector(`[data-draft-card="${globalThis.CSS.escape(cardId)}"]`);
+
 interface DraftSlotProps {
   card: DraftCardView;
+  index: number;
   onPlay: (cardId: string) => void;
   onShowDetails: (card: DraftCardView) => void;
 }
 
 /** One draft card: tap / Enter plays it, drag drops it on the feed, the info button opens details. */
-const DraftSlot = ({ card, onPlay, onShowDetails }: DraftSlotProps) => {
+const DraftSlot = ({ card, index, onPlay, onShowDetails }: DraftSlotProps) => {
   const { setNodeRef, listeners, transform, isDragging } = useDraggable({ id: card.id });
   return (
     <li
       ref={setNodeRef}
+      data-draft-card={card.id}
       {...listeners}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
@@ -34,13 +48,19 @@ const DraftSlot = ({ card, onPlay, onShowDetails }: DraftSlotProps) => {
         type={card.type}
         title={card.title}
         effects={card.effects}
+        image={getCardImage(card.id) ?? undefined}
         onSelect={() => onPlay(card.id)}
         animation="draw"
         size="compact"
-        className="h-full"
+        className={cn("h-full", DRAW_DELAY[index])}
       />
-      {/* Overlay over the artwork area (same aspect ratio) for the info button. */}
-      <span className="pointer-events-none absolute inset-x-0 top-0 flex aspect-game-card-image items-end justify-between p-1">
+      {/* Overlay over the artwork area (same aspect ratio) for the info button; enters with the card. */}
+      <span
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-0 flex aspect-game-card-image animate-card-draw items-end justify-between p-1",
+          DRAW_DELAY[index]
+        )}
+      >
         {card.droughtWarning ? (
           <AlertTriangle
             aria-hidden="true"
@@ -99,8 +119,14 @@ export const CardDraft = ({ cards, onPlay, onShowDetails }: CardDraftProps) => {
         className="mx-auto grid w-full grid-cols-3 gap-2 sm:max-w-xl sm:gap-4 lg:max-w-none"
         onKeyDown={onKeyDown}
       >
-        {cards.map((card) => (
-          <DraftSlot key={card.id} card={card} onPlay={onPlay} onShowDetails={onShowDetails} />
+        {cards.map((card, index) => (
+          <DraftSlot
+            key={card.id}
+            card={card}
+            index={index}
+            onPlay={onPlay}
+            onShowDetails={onShowDetails}
+          />
         ))}
       </ul>
     </section>
