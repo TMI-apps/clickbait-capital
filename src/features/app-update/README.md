@@ -8,7 +8,8 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 - **Precache** (per build, hashed): app shell (`index.html`, JS/CSS chunks incl. lazy routes), icons, `manifest.json`, `public/audio/*.mp3`. After the first online visit, `/spel` (and every SPA route) reloads offline.
 - **Runtime cache-first:** `/cards/*` (card images added later need no config change) and Google Fonts files; the Google Fonts CSS is stale-while-revalidate.
 - **Never handled:** `/__dev*` and `/api/*` navigations, Supabase and any other cross-origin request (network only).
-- **Update flow:** a new deploy installs in the background and waits (`registerType: "prompt"`). `UpdatePrompt` shows "Nieuwe versie beschikbaar" with **Herladen** (activate + reload) and **Later** (hide; the new version takes over on the next full load once all tabs are closed). A game in progress is never reloaded without the player's tap.
+- **Update flow:** a new deploy installs in the background and waits (`registerType: "prompt"`). The app applies it by itself at a safe moment (D1): before the player's first tap or key press since the page loaded (app start), or on any route change (start screen, settings, a new game). Otherwise `UpdatePrompt` shows a slim "Nieuwe versie klaar. Laadt na dit spel." with **Nu laden** (activate + reload) and a close button (Later). A game in progress is never reloaded without the player's tap.
+- **Update checks (D2):** besides the browser's own check on each full load, the app asks for a new `sw.js` when it returns to the foreground and every 60 minutes while open.
 - Manifest SSOT: `public/manifest.json` (`start_url` `/spel`), linked from `index.html`; the plugin does not generate one.
 
 ## Structure
@@ -16,22 +17,28 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 | Layer | Path | Purpose |
 |-------|------|---------|
 | API | `api/index.ts` | Public barrel: `UpdatePrompt` |
-| Components | `components/UpdatePrompt.tsx` | Bottom banner (kit `Button`, `role="status"`), mounted once in `App.tsx` |
-| Hooks | `hooks/useAppUpdate.ts` | Registers the SW via `virtual:pwa-register/react`; `updateReady`, `applyUpdate`, `dismissUpdate` |
+| Components | `components/UpdatePrompt.tsx` | Slim bottom banner (kit `Button`, `role="status"`), mounted once in `App.tsx` inside the router |
+| Hooks | `hooks/useAppUpdate.ts` | Registers the SW via `virtual:pwa-register/react`, starts the update checks; `updateReady`, `applyUpdate`, `dismissUpdate` |
+| Hooks | `hooks/useSafeUpdateMoment.ts` | Applies a waiting update before the first input or on a route change |
+| Services | `services/updateChecks.ts` | `watchForUpdates(registration)`: `update()` on foreground and hourly |
 
 ## Testing
 
-- Unit: `UpdatePrompt.test.tsx` (hook mocked; the virtual module only exists in Vite builds).
-- Manual / Playwright: build, serve `dist/` with SPA fallback, visit `/spel`, go offline, reload → board shows; build again with a change, call `registration.update()` → prompt appears, **Herladen** loads the new bundle. Chrome `Page.getInstallabilityErrors` returns none.
+- Unit: `UpdatePrompt.test.tsx` (hook mocked; the virtual module only exists in Vite builds), `useSafeUpdateMoment.test.tsx` (the D1 policy), `updateChecks.test.ts` (D2).
+- Playwright, two builds: build with `WORKERS_CI_BRANCH=build-v1` and `=build-v2` (the define changes the main chunk hash), serve one `dist/` copy with SPA fallback and swap it. (A) visit `/spel` on v1, close, swap to v2, reopen without input → v2 loads by itself. (B) on v1 start a run and play a card, swap, fire `visibilitychange` → banner shows, turn counter and v1 kept; **Menu → Stoppen** → `/` on v2. Offline: visit `/spel`, go offline, reload → board shows.
 
 ## Decisions
 
 - `vite-plugin-pwa@2.0.0` + `workbox-window@7.4.1` (its required peer for the register module), pinned devDependencies — owner-approved via the orchestrator, 2026-11-04.
 - `start_url` and `id` `/spel`: the installed app opens straight into the game; scope `/` keeps login and home in-app.
 - Icons stay `purpose: "any"`: the artwork has transparent rounded corners, so it is not maskable-safe.
+- **Update policy (app-update-flow D1):** keep prompt mode; apply a waiting update before the first input of the page load or on a route change, else show the banner. A run lives only in memory on `/spel`, so before input nothing exists to lose and a route change has already ended it. Rejected: `autoUpdate` (skipWaiting swaps the worker under a running game and can purge its lazy chunks) and reloading on return to the foreground (would wipe a game paused in the background).
+- **Update checks (app-update-flow D2):** `registration.update()` on foreground and hourly, because browsers only re-check `sw.js` on a full navigation and an installed app resumed from the background otherwise never sees a deploy.
+- **Banner (app-update-flow D3):** one slim row that says what happens next ("Laadt na dit spel"), so "Later" is not a dead end and the hand cards stay readable at 390px.
 
 ## Dependencies
 
 - `virtual:pwa-register/react` (`vite-plugin-pwa`, with `workbox-window` as its peer): service-worker registration and the update-ready signal.
+- `react-router-dom` `useLocation`: route changes are a safe update moment.
 - `@/components/common/Button` (kit) for the prompt's actions and `lucide-react` for its icon.
 - No other feature imports.
