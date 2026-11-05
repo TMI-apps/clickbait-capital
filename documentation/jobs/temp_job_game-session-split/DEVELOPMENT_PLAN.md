@@ -36,12 +36,12 @@ interface SessionState {
 
 ## Phase overview
 
-| Phase | Goal                                                                                                 | Gate                                                                  | Status  |
-| ----- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------- |
-| 1     | game-session feature: service (+ types) + test, hook + test, api, README                             | `pnpm test:run` for the two files, type-check                         | Done    |
-| 2     | game-board on the barrel: `useBoardSession` + test, `toFeed`, `soundsForLastStep`, old files removed | full tooling gate (`rule-audit.md` § Tooling pass)                    | Done    |
-| 3     | Override removed, READMEs, decision log, ARCHITECTURE                                                | `validate:feature-size`, `validate:feature-docs:strict`, `arch:check` | Done    |
-| 4     | Browser regression 390px on preview + balance sim + bundle budget                                    | Playwright script, `pnpm build` size                                  | Pending |
+| Phase | Goal                                                                                                 | Gate                                                                  | Status |
+| ----- | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------ |
+| 1     | game-session feature: service (+ types) + test, hook + test, api, README                             | `pnpm test:run` for the two files, type-check                         | Done   |
+| 2     | game-board on the barrel: `useBoardSession` + test, `toFeed`, `soundsForLastStep`, old files removed | full tooling gate (`rule-audit.md` § Tooling pass)                    | Done   |
+| 3     | Override removed, READMEs, decision log, ARCHITECTURE                                                | `validate:feature-size`, `validate:feature-docs:strict`, `arch:check` | Done   |
+| 4     | Browser regression 390px on preview + balance sim + bundle budget                                    | Playwright script, `pnpm build` size                                  | Done   |
 
 ## Conflict & compliance
 
@@ -74,6 +74,7 @@ interface SessionState {
 
 - Plan review advisory not taken: drop `replayedStepCount` and skip the mount key in `useBoardSounds` instead. Kept: "these steps were replayed" is a fact of the run, and it keeps the board hook free of mount tracking.
 - ARCHITECTURE.md lists no individual features: no change needed.
+- Phase 4 (2026-11-05): Playwright at 390px, reduced motion, on the preview and on a local `vite preview`: 8 actions, reload → Verder spelen gives identical meters (value texts), feed, draft, phase heading and turn; played on to the end → Bekijk je rapport → Deel je resultaat visible; no horizontal scroll, no page errors. Balance simulation (`balanceSimulation.test.ts`) passes in `test:run`. Bundle 137.3 KiB / 150 KiB.
 
 ## Decisions made
 
