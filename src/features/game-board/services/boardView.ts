@@ -17,6 +17,7 @@ import {
   meterForUsers,
   scaleForPhase,
 } from "@/features/game-engine/api";
+import { meterValueText } from "@/features/game-board/services/boardSpeech";
 import type {
   CardEffectView,
   DraftCardView,
@@ -55,14 +56,20 @@ export function toCardEffects(effects: Effects): CardEffectView[] {
  */
 const METER_CAP = 100;
 
+/** At or below this a meter is in danger (game over at 0); the board and the turn announcement say so. */
+const METER_DANGER_AT = 20;
+
 /** The three meters with their change against the meters before the last action. */
 export function toMeters(state: GameState, previous: Record<MeterKey, number> | null): MeterView[] {
-  return METER_ORDER.map((key) => ({
-    key,
-    value: state.meters[key],
-    delta: previous ? state.meters[key] - previous[key] : 0,
-    full: state.meters[key] >= METER_CAP,
-  }));
+  return METER_ORDER.map((key) => {
+    const meter = {
+      value: state.meters[key],
+      delta: previous ? state.meters[key] - previous[key] : 0,
+      full: state.meters[key] >= METER_CAP,
+      danger: state.meters[key] <= METER_DANGER_AT,
+    };
+    return { key, ...meter, valueText: meterValueText(meter) };
+  });
 }
 
 function conditionRatio(condition: GoalCondition, state: GameState): number {

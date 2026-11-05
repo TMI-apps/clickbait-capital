@@ -153,5 +153,15 @@
     "title": "Faster first load: fonts and unused sign-in code",
     "description": "From the game-settings launch audit (Lighthouse mobile perf 79-81, FCP ~3.4 s): (1) Google Fonts stylesheet is render-blocking (~0.9 s FCP): self-host Space Grotesk/Inter subsets or load non-blocking with font-display: swap; (2) supabase-js and auth code sit in the main chunk (~125 KiB unused JS): lazy-load them for /login and /auth/callback only; (3) add a main-chunk bundle-size budget to CI. Target: Lighthouse mobile performance >= 90. Size S-M. Landed: self-hosted WOFF2 fonts (Space Grotesk preloaded), supabase-js lazy chunk; initial JS 185 -> 136 KiB gzip; Lighthouse mobile ~80 -> 94-98. pnpm validate:bundle-size (150 KiB) is manual until the owner approves the CI step. Decision log § first-load.",
     "status": "done"
+  },
+  {
+    "title": "Manual screen-reader pass",
+    "description": "From the launch audit: axe reports 0 WCAG violations, but no human screen-reader run yet. Play a full game with VoiceOver (iOS) and TalkBack (Android) or NVDA; fix announcements of meter changes, events and endings (aria-live). Size S. Landed (code side): one polite announcement per turn with meter changes and goal line, focus stays on the card slot, cards/options name their effects, headings carry their kicker, update banner announced. Decision log § screen-reader D1-D5. Real-device speech is a separate owner test task.",
+    "status": "done"
+  },
+  {
+    "title": "Launch basics: privacy note and SEO",
+    "description": "Landed: /privacy (Dutch, honest about storage, error-report line only when Supabase is configured), robots.txt, plain-text sitemap.txt (no protected whitelist edit), per-route canonical links. Decision log § launch-basics D1-D5. Not verified: Search Console acceptance (needs owner account).",
+    "status": "done"
   }
 ]

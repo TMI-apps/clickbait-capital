@@ -136,7 +136,8 @@ const CardBody = (props: CardBodyProps): ReactNode => {
 /**
  * Generic playing card for the game board (kit component: presentation only). Type and
  * rarity set the frame; meter effects, flavor text and image come in as data. With
- * `onSelect` it is one keyboard-operable button (`aria-pressed` = selected).
+ * `onSelect` it is one keyboard-operable button; `aria-pressed` only when `selected` is given,
+ * so a card that is simply played is not announced as a toggle.
  */
 export const GameCard = (props: GameCardProps) => {
   const uid = useId();
@@ -166,7 +167,7 @@ export const GameCard = (props: GameCardProps) => {
   return (
     <button
       type="button"
-      aria-pressed={props.selected ?? false}
+      aria-pressed={props.selected}
       aria-labelledby={`${ids.title} ${ids.type}`}
       aria-describedby={ids.details}
       disabled={props.disabled}
