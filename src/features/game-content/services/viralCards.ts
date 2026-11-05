@@ -43,7 +43,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     type: "viral",
     title: "De diepvries-challenge",
     body: "Kinderen leggen hun gezicht zo lang mogelijk in de diepvries. De huisartsenpost heeft het druk.",
-    flavor: "Record: 41 seconden en één wenkbrauw minder.",
+    flavor: "Prijs voor de winnaar: één wenkbrauw minder.",
     effects: { users: 12, toxicity: 8 },
     imageTheme: "kid filming face pressed into frosty freezer, stopwatch overlay, ice crystals",
     imageAlt: "Een kind filmt zichzelf met het gezicht in een bevroren diepvrieslade.",

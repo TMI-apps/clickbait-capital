@@ -18,10 +18,12 @@ export interface GlossaryTermProps {
  */
 export const GlossaryTerm = ({ children, meaning, className }: GlossaryTermProps) => {
   const meaningId = useId();
+  const termId = useId();
   return (
     <PopoverPrimitive.Root>
       <PopoverPrimitive.Trigger asChild>
         <button
+          id={termId}
           type="button"
           data-slot="glossary-term"
           aria-describedby={meaningId}
@@ -41,6 +43,7 @@ export const GlossaryTerm = ({ children, meaning, className }: GlossaryTermProps
           side="top"
           sideOffset={6}
           collisionPadding={16}
+          aria-labelledby={termId}
           onOpenAutoFocus={(event) => event.preventDefault()}
           className="z-50 max-w-64 rounded-md border bg-popover px-3 py-2 text-sm text-popover-foreground elevation-md animate-in fade-in-0 zoom-in-95"
         >

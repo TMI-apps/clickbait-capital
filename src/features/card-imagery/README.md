@@ -27,7 +27,7 @@ Pictures for the cards and events of the deck, and the attribution their open li
 
 - Search: Openverse API (`api.openverse.org/v1/images`, anonymous, no key; `license=cc0,by`, `category=photograph`, `mature=false`), one object-focused query per id derived from the content `imageTheme`.
 - Review: candidates on contact sheets; rejected people (faces, minors), recognizable venues, brands or logos, copyrighted artworks or game art in the frame, and anything without a clear CC0 / CC BY license.
-- Result (after kids-content): 24 × CC0 1.0, 23 × CC BY 2.0; sources Flickr 30, rawpixel 9 (public-domain collection), StockSnap 7. The kids-content lap removed the 20 cards and events it dropped from the deck, with their photos. No reuse across ids. No minors or people in frame, no recognizable venues.
+- Result (after kids-content): 24 × CC0 1.0, 23 × CC BY 2.0; sources Flickr 30, rawpixel 10 (public-domain collection), StockSnap 7. The kids-content lap removed the 20 cards and events it dropped from the deck, with their photos. No reuse across ids. No minors or people in frame, no recognizable venues.
 - Processing: largest available rendition (Flickr `_b`, 1024 px), crop 4:3 around a chosen point, resize to 640×480, WebP. The manifest's `focalPoint` is where that point lands in the master (50/50 unless the crop hit an edge).
 - License data (author, title, license, URL) is Openverse's index of the source page; the source link is kept per entry so it can be rechecked.
 - The sourcing scripts were run by the agent at build time and are not part of the app. To replace one picture: download a CC0 / CC BY original, crop and export it as above to `public/cards/<id>.webp`, and edit that entry (alt, title, author, source, license); the tests catch a missing file or a license outside the allowed set.
@@ -38,7 +38,7 @@ Pictures for the cards and events of the deck, and the attribution their open li
 - **Alt per photo (D2):** the manifest's Dutch alt describes the real photo; game-content's `imageAlt` described an imagined illustration and is not used for images.
 - **WebP only, one size (D3):** universal support, small files; AVIF would double the files for a few KB each.
 - **Credits on `/credits` (D4):** TASL per photo (title linked to the source, author, license linked to the deed); CC0 photos are credited too, out of courtesy.
-- **Photos, not illustrations (D5):** the content's image themes describe satirical illustrations; free photos match them loosely (an object that stands for the card: a rubber chicken for the deepfake, a railway whistle board for the whistleblower). A generated illustration set would match better but needs the owner's say (cost, style).
+- **Photos, not illustrations (D5):** the content's image themes describe satirical illustrations; free photos match them loosely (an object that stands for the card, such as a railway whistle board for the whistleblower). A generated illustration set would match better but needs the owner's say (cost, style).
 
 - **New cards wait for the image lap (D6, kids-content):** the 40 cards and events added for 11-year-olds have no manifest entry; `getCardImage` returns `null` and GameCard shows its type-icon placeholder. A later lap replaces the imagery in a video-thumbnail style (the new content's `imageTheme` hints say so).
 

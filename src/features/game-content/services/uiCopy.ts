@@ -286,7 +286,8 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
   privacy: "Dat je zelf bepaalt wie wat over jou weet.",
   rectificatie: "Een bericht waarin je zegt: wat we eerder schreven, klopte niet.",
   "scale-up": "Een jong bedrijf dat heel snel groeit.",
-  server: "Een grote computer waar je app op draait. Die kost elke maand geld.",
+  server:
+    "Een computer die websites en apps naar je toestuurt. Een eigen server kost elke maand geld.",
   sponsor: "Een bedrijf dat iemand betaalt om zijn product te laten zien.",
   toezichthouder:
     "Een organisatie die controleert of bedrijven zich aan de regels houden. Die kan boetes geven.",

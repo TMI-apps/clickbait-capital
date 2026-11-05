@@ -99,7 +99,7 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
     body: "Miljoenen mensen kijken elke dag naar jouw feed. Regeringen, kranten en [[adverteerders|adverteerder]] letten nu goed op.",
-    tip: "Een slechte naam telt nu dubbel. Wie het nieuws overslaat, krijgt dat terug.",
+    tip: "Verlies je reputatie, dan telt dat nu dubbel. Wie het nieuws overslaat, krijgt dat terug.",
   },
   4: {
     kicker: "Fase 4",

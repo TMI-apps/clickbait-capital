@@ -32,4 +32,22 @@ describe("Modal", () => {
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
+
+  it("should focus the first control after the description when the description holds a button", () => {
+    render(
+      <Modal
+        open
+        dismissible={false}
+        title="Spoed"
+        description={
+          <>
+            Een <button type="button">woord</button> in de tekst.
+          </>
+        }
+      >
+        <button type="button">Optie A</button>
+      </Modal>
+    );
+    expect(screen.getByRole("button", { name: "Optie A" })).toHaveFocus();
+  });
 });
