@@ -188,5 +188,10 @@
     "title": "Content for 11-year-olds with glossary tooltips",
     "description": "Owner request 2026-11-05: rewrite all player-facing copy for pupils of about 11 (groep 7/8); hard words stay but are emphasized and open a tap tooltip with a kid-friendly meaning (glossary as content data, one kit component). Score cards/events against the audience (gaming, fatbikes, memes, YouTubers), remove the worst-fitting 30% and add twice that many new ones; no real game/brand names. Rerun the balance simulation. Size M. Thread kids-content. Landed: all copy rewritten for groep 7/8; 48 glossary terms (GlossaryTerm kit component on Radix Popover); 20 cards/events removed, 40 added (deck 71 cards + 16 events); no trademarks (tested); no balance retune needed. Decision log § kids-content.",
     "status": "done"
+  },
+  {
+    "title": "Clickbait thumbnail imagery",
+    "description": "Owner request 2026-11-05: card images in YouTube-thumbnail style (strong emotions, faces). Owner chose free-licence stock photos (adults only, licence per image in the manifest and /credits) plus a code-drawn thumbnail treatment (outline, type colour, arrow, emoji, short caption) driven by manifest data. Covers the final card set after the kids-content lap. Size M. Thread thumbnail-imagery. Landed: ThumbnailFrame overlay (type glow, vignette, caption, sticker, arrow/circle) from manifest data; owner-supplied Unsplash photos used as assigned plus vetted CC0/CC BY fallbacks; 68 of 87 ids have a photo, news stays plain; tap opens details and \"In de feed\" plays (D9 supersedes game-board D2). Decision log § thumbnail-imagery.",
+    "status": "done"
   }
 ]

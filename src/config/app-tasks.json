@@ -1,7 +1,7 @@
 [
   {
-    "title": "Clickbait thumbnail imagery",
-    "description": "Owner request 2026-11-05: card images in YouTube-thumbnail style (strong emotions, faces). Owner chose free-licence stock photos (adults only, licence per image in the manifest and /credits) plus a code-drawn thumbnail treatment (outline, type colour, arrow, emoji, short caption) driven by manifest data. Covers the final card set after the kids-content lap. Size M. Thread thumbnail-imagery.",
+    "title": "Photos for the 19 placeholder cards",
+    "description": "After the thumbnail-imagery lap, 19 ids still show the type-icon placeholder (mostly news and new events; list pinned in the card-imagery manifest test PLACEHOLDER_IDS). Owner can add photos via the shared sheet + Drive folder; then wire them like the thumbnail-imagery lap. Size S.",
     "status": "to-do"
   },
   {
