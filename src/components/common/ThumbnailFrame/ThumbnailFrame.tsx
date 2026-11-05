@@ -10,14 +10,12 @@ export interface ThumbnailFrameProps {
   className?: string;
 }
 
-/** Thick inner outline plus glow in the accent colour (tokens: card-type colours). */
+/** Soft inner glow in the accent colour (tokens: card-type colours); the card frame is the outline. */
 const ACCENT_GLOW: Record<ThumbnailAccent, string> = {
-  viral:
-    "shadow-[inset_0_0_0_3px_var(--color-type-viral),inset_0_0_22px_2px_var(--color-type-viral)]",
-  ad: "shadow-[inset_0_0_0_3px_var(--color-type-ad),inset_0_0_22px_2px_var(--color-type-ad)]",
-  news: "shadow-[inset_0_0_0_3px_var(--color-type-news),inset_0_0_22px_2px_var(--color-type-news)]",
-  event:
-    "shadow-[inset_0_0_0_3px_var(--color-type-event),inset_0_0_22px_2px_var(--color-type-event)]",
+  viral: "shadow-[inset_0_0_22px_2px_var(--color-type-viral)]",
+  ad: "shadow-[inset_0_0_22px_2px_var(--color-type-ad)]",
+  news: "shadow-[inset_0_0_22px_2px_var(--color-type-news)]",
+  event: "shadow-[inset_0_0_22px_2px_var(--color-type-event)]",
 };
 
 /** Eight-way ink outline + drop, so the caption reads on any photo (no -webkit-text-stroke). */
@@ -83,8 +81,8 @@ const MarkerShape = ({ marker }: { marker: ThumbnailMarker }) => {
 };
 
 /**
- * Video-thumbnail look drawn in code over a photo: colour and contrast boost, a thick
- * accent outline with glow and a soft vignette, plus optional marker (red arrow or circle),
+ * Video-thumbnail look drawn in code over a photo: colour and contrast boost, a soft accent
+ * glow fading in from the edges and a vignette, plus optional marker (red arrow or circle),
  * emoji sticker and 1–3 word caption. Sizes follow the frame width (container units), so it
  * reads on a compact card as well as in a dialog. Placement leaves the top strip (type chip)
  * and the bottom-right corner (a caller's action button) free. The overlay is decorative (`aria-hidden`);

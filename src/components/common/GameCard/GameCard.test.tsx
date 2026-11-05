@@ -157,4 +157,14 @@ describe("GameCardGallery", () => {
       expect(document.querySelector(`img[src="${src}"]`)).toBeInTheDocument();
     }
   });
+
+  it("should draw the thumbnail look on clickbait types but not on news when a photo is given", () => {
+    const image = { src: SAMPLE_IMAGES.square, alt: "Een foto", thumbnail: { caption: "Wow!" } };
+    const { container, rerender } = render(<GameCard type="viral" title="Viraal" image={image} />);
+    expect(container.querySelector("[data-slot='thumbnail-frame']")).not.toBeNull();
+
+    rerender(<GameCard type="news" title="Nieuws" image={image} />);
+    expect(container.querySelector("[data-slot='thumbnail-frame']")).toBeNull();
+    expect(screen.getByRole("img", { name: "Een foto" })).toBeInTheDocument();
+  });
 });

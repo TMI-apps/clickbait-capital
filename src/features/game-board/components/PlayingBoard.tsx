@@ -73,6 +73,12 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
     if (over?.id === FEED_DROP_ID) playCard(String(active.id));
   };
 
+  /** A tap or Enter opens the details (game-board D2); focus comes back to this slot after. */
+  const showDetails = (card: DraftCardView): void => {
+    screenReader.rememberSlot(view.draft.findIndex((draft) => draft.id === card.id));
+    setDetailCard(card);
+  };
+
   const playFromDetails = (cardId: string): void => {
     setDetailCard(null);
     playCard(cardId);
@@ -112,7 +118,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
         <div className="grid min-h-0 flex-1 grid-rows-[minmax(6rem,1fr)_auto] gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-rows-1 lg:items-stretch">
           <PhoneFeed entries={view.feed} dragging={dragging} />
           <div className="lg:flex lg:flex-col lg:justify-center">
-            <CardDraft cards={view.draft} onPlay={playCard} onShowDetails={setDetailCard} />
+            <CardDraft cards={view.draft} onShowDetails={showDetails} />
           </div>
         </div>
       </div>
@@ -124,6 +130,10 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
         card={detailCard}
         onClose={() => setDetailCard(null)}
         onPlay={playFromDetails}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          screenReader.focusDraftSlot();
+        }}
       />
       <EventModal
         open={view.event !== null}

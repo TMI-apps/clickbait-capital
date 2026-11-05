@@ -13,6 +13,9 @@ Updated: 2026-11-05
 | D4  | Photo index | closed | Openverse (CC0 + CC BY 2.0–4.0; Flickr, StockSnap, WordPress, rawpixel) | loop-plan | Pexels/Unsplash sites and APIs are blocked or key-only from the sandbox; Openverse is the index the first imagery lap used |
 | D5  | People rules | closed | Adults only; no captions that put words in a person's mouth (no quotes, no "I…" captions); captions name the topic | owner brief | — |
 | D6  | Motion | closed | Static overlay, no animation | loop-plan | satisfies reduced motion without a branch; card draw/play motion stays |
+| D7  | News cards | closed | No thumbnail look on news: plain photo, no boost, glow, caption, sticker or marker (`GAME_CARD_TYPES.news.thumbnail = false`); manifest news entries carry no `thumbnail` | owner | news is the honest card type; the contrast with clickbait is the lesson |
+| D8  | Outline | closed | No extra outline on the photo; only the soft type-coloured glow fading in from the edges + vignette | owner | the card frame already is the outline |
+| D9  | Card tap | closed | Tap / Enter opens the detail dialog ("In de feed" plays); drag plays in one move; info button removed; focus returns to the slot | owner (asked) | replaces game-board D2 "tap plays"; rejected: hold for details (not discoverable, no keyboard route), keep the info button |
 
 ## Open
 
@@ -23,3 +26,4 @@ Updated: 2026-11-05
 ## Log
 
 - 2026-11-05 — D1–D6 closed
+- 2026-11-05 — D7–D9 closed after owner feedback on the first render

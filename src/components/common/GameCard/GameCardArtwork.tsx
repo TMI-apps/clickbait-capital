@@ -32,30 +32,42 @@ const ArtworkFallback = ({ type, alt }: { type: GameCardType; alt?: string }) =>
 /**
  * Fixed-ratio image area (token --game-card-image-aspect). Any source shape (portrait,
  * landscape, square) is cropped with object-fit: cover around its focal point and drawn in
- * a ThumbnailFrame (type-coloured outline, optional caption / sticker / marker); a missing
+ * a ThumbnailFrame (colour boost, type-coloured glow, optional caption / sticker / marker) except
+ * on news cards, which stay plain; a missing
  * or broken image falls back to the type icon on a tinted panel, without the frame.
  */
 export const GameCardArtwork = ({ type, image }: GameCardArtworkProps) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const showImage = image !== undefined && image.src !== "" && failedSrc !== image.src;
 
+  if (!showImage) {
+    return (
+      <span className="relative block aspect-game-card-image w-full overflow-hidden bg-muted">
+        <ArtworkFallback type={type} alt={image?.alt} />
+      </span>
+    );
+  }
+
+  const photo = (
+    <img
+      src={image.src}
+      alt={image.alt}
+      loading="lazy"
+      decoding="async"
+      draggable={false}
+      onError={() => setFailedSrc(image.src)}
+      className="block size-full object-cover"
+      style={{ objectPosition: objectPositionOf(image.focalPoint) }}
+    />
+  );
   return (
     <span className="relative block aspect-game-card-image w-full overflow-hidden bg-muted">
-      {showImage ? (
+      {GAME_CARD_TYPES[type].thumbnail ? (
         <ThumbnailFrame accent={type} treatment={image.thumbnail}>
-          <img
-            src={image.src}
-            alt={image.alt}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-            onError={() => setFailedSrc(image.src)}
-            className="block size-full object-cover"
-            style={{ objectPosition: objectPositionOf(image.focalPoint) }}
-          />
+          {photo}
         </ThumbnailFrame>
       ) : (
-        <ArtworkFallback type={type} alt={image?.alt} />
+        photo
       )}
     </span>
   );

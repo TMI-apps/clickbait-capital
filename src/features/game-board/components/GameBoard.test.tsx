@@ -49,6 +49,19 @@ const draftCards = (): HTMLElement[] =>
 
 const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
 
+type User = ReturnType<typeof userEvent.setup>;
+
+/** Confirms the open detail dialog (game-board D2: a tap or Enter opens it, its button plays). */
+const confirmPlay = async (user: User): Promise<void> => {
+  await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "In de feed" }));
+};
+
+/** Plays a draft card the tap way: tap opens the details, "In de feed" plays it. */
+const playCard = async (user: User, card: HTMLElement): Promise<void> => {
+  await user.click(card);
+  await confirmPlay(user);
+};
+
 /** Renders the board and continues past the phase 1 intro (game-flow D2). */
 const renderBoard = async (content: GameContent = SEED_CONTENT, onQuit = vi.fn()) => {
   renderWithProviders(<GameBoard content={content} onQuit={onQuit} seed={11} />);
@@ -69,13 +82,16 @@ describe("GameBoard", () => {
     expect(screen.getByText("De Zolderkamer")).toBeInTheDocument();
   });
 
-  it("should put the card in the feed when the player taps it", async () => {
+  it("should open the details when the player taps a card and play it from there", async () => {
     const { user } = await renderBoard();
     const [viral] = draftCards();
     const title = within(viral).getAllByText(/./)[1]?.textContent ?? "";
 
     await user.click(viral);
+    expect(within(screen.getByRole("dialog")).getAllByText(title).length).toBeGreaterThan(0);
+    await confirmPlay(user);
 
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
     expect(within(feed()).getByText(title, { exact: false })).toBeInTheDocument();
   });
@@ -88,25 +104,26 @@ describe("GameBoard", () => {
     await user.keyboard("{ArrowRight}");
     expect(second).toHaveFocus();
     await user.keyboard("{Enter}");
+    await confirmPlay(user);
 
     expect(within(feed()).getByText("Advertentie")).toBeInTheDocument();
   });
 
-  it("should open the card details and play from there when the info button is used", async () => {
+  it("should leave the draft unchanged when the player closes the details", async () => {
     const { user } = await renderBoard();
-    const [infoButton] = screen.getAllByRole("button", { name: /^Details:/ });
 
-    await user.click(infoButton);
-    const dialog = screen.getByRole("dialog");
-    await user.click(within(dialog).getByRole("button", { name: "In de feed" }));
+    await user.click(draftCards()[0]);
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Toch niet" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+    expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
+    expect(draftCards()[0]).toHaveFocus();
+    expect(screen.queryByRole("button", { name: /^Details:/ })).not.toBeInTheDocument();
   });
 
   it("should require an option when an event interrupts the draft", async () => {
     const { user } = await renderBoard(EVENT_NOW);
-    await user.click(draftCards()[0]);
+    await playCard(user, draftCards()[0]);
 
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).queryByRole("button", { name: "Sluiten" })).not.toBeInTheDocument();
@@ -126,7 +143,7 @@ describe("GameBoard", () => {
 
   it("should show the next phase intro when a milestone is reached", async () => {
     const { user } = await renderBoard(MILESTONE_NOW);
-    await user.click(draftCards()[0]);
+    await playCard(user, draftCards()[0]);
 
     expect(screen.getByRole("heading", { level: 1, name: "Fase 2: De Scale-Up" })).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Aan de slag" }));
@@ -136,10 +153,10 @@ describe("GameBoard", () => {
   it("should show the IPO ending and then the end report when the run is won", async () => {
     const { user } = await renderBoard(WIN_FAST);
     for (let phase = 1; phase < 4; phase++) {
-      await user.click(draftCards()[2]);
+      await playCard(user, draftCards()[2]);
       await user.click(screen.getByRole("button", { name: "Aan de slag" }));
     }
-    await user.click(draftCards()[2]);
+    await playCard(user, draftCards()[2]);
 
     expect(screen.getByText("Beursgang geslaagd")).toBeInTheDocument();
     expect(
@@ -152,7 +169,7 @@ describe("GameBoard", () => {
 
   it("should go from the ending to the results and restart when the game is over", async () => {
     const { user, onQuit } = await renderBoard(BANKRUPT_NOW);
-    await user.click(draftCards()[1]);
+    await playCard(user, draftCards()[1]);
 
     expect(screen.getByRole("heading", { level: 1, name: /: Bankroet$/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Bekijk je rapport" }));
@@ -179,7 +196,7 @@ describe("GameBoard", () => {
 describe("GameBoard juice", () => {
   it("should throw emoji and put flames on Gebruikers when a viral card is played", async () => {
     const { user } = await renderBoard();
-    await user.click(draftCards()[0]);
+    await playCard(user, draftCards()[0]);
 
     expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
@@ -187,11 +204,11 @@ describe("GameBoard juice", () => {
 
   it("should fly coins with a gold accent for an ad and only show a shield for news", async () => {
     const { user } = await renderBoard();
-    await user.click(draftCards()[1]);
+    await playCard(user, draftCards()[1]);
     expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
     expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
 
-    await user.click(draftCards()[2]);
+    await playCard(user, draftCards()[2]);
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
@@ -200,7 +217,7 @@ describe("GameBoard juice", () => {
     act(() => getMotionStore().setPreference("reduced"));
     onTestFinished(() => act(() => getMotionStore().reset()));
     const { user } = await renderBoard();
-    await user.click(draftCards()[0]);
+    await playCard(user, draftCards()[0]);
 
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
@@ -218,6 +235,7 @@ describe("GameBoard with a screen reader", () => {
     const { user } = await renderBoard();
     draftCards()[1].focus();
     await user.keyboard("{Enter}");
+    await confirmPlay(user);
 
     const live = document.querySelector('[aria-live="polite"]');
     await waitFor(() => expect(live?.textContent).not.toBe(""));
@@ -229,6 +247,7 @@ describe("GameBoard with a screen reader", () => {
     const { user } = await renderBoard(EVENT_NOW);
     draftCards()[0].focus();
     await user.keyboard("{Enter}");
+    await confirmPlay(user);
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: /moderatie/i }));
 

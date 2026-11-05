@@ -10,16 +10,24 @@ export interface CardDetailDialogProps {
   card: DraftCardView | null;
   onClose: () => void;
   onPlay: (cardId: string) => void;
+  /** Where focus goes when the dialog closes (the trigger card may have left the draft). */
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
-/** Full card view (large card, whole text) with a play action. */
-export const CardDetailDialog = ({ card: current, onClose, onPlay }: CardDetailDialogProps) => {
+/** Full card view (large card, whole text) with a play action; opened by tapping a draft card. */
+export const CardDetailDialog = ({
+  card: current,
+  onClose,
+  onPlay,
+  onCloseAutoFocus,
+}: CardDetailDialogProps) => {
   const card = useRetainedValue(current);
   return (
     <Modal
       closeLabel={UI_COPY.settings.closeButton}
       open={current !== null}
       onClose={onClose}
+      onCloseAutoFocus={onCloseAutoFocus}
       title={card?.title}
       description={card?.body}
       actions={

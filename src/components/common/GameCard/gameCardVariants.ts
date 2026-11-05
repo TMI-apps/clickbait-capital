@@ -30,6 +30,8 @@ export const GAME_CARD_TYPES: Record<
     chip: string;
     frame: string;
     fallback: string;
+    /** Draw the photo in a ThumbnailFrame (clickbait look); off for news, which stays plain. */
+    thumbnail: boolean;
   }
 > = {
   viral: {
@@ -39,6 +41,7 @@ export const GAME_CARD_TYPES: Record<
     chip: "bg-type-viral text-type-viral-foreground",
     frame: "border-type-viral",
     fallback: "bg-type-viral/20 text-type-viral",
+    thumbnail: true,
   },
   ad: {
     label: "Advertentie",
@@ -47,6 +50,7 @@ export const GAME_CARD_TYPES: Record<
     chip: "bg-type-ad text-type-ad-foreground",
     frame: "border-type-ad",
     fallback: "bg-type-ad/20 text-type-ad",
+    thumbnail: true,
   },
   news: {
     label: "Nieuws",
@@ -55,6 +59,7 @@ export const GAME_CARD_TYPES: Record<
     chip: "bg-type-news text-type-news-foreground",
     frame: "border-type-news",
     fallback: "bg-type-news/20 text-type-news",
+    thumbnail: false,
   },
   event: {
     label: "Gebeurtenis",
@@ -63,6 +68,7 @@ export const GAME_CARD_TYPES: Record<
     chip: "bg-type-event text-type-event-foreground",
     frame: "border-type-event",
     fallback: "bg-type-event/20 text-type-event",
+    thumbnail: true,
   },
 };
 
