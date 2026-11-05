@@ -4,7 +4,8 @@ Pictures for the 54 cards and 13 events, and the attribution their open licenses
 
 ## Purpose
 
-- `getCardImage(contentId)` returns `{ src, alt, focalPoint, width, height }` for the GameCard `image` prop, or `null` (the card then shows its type-icon fallback). The board wires it in: `<GameCard image={getCardImage(card.id) ?? undefined} … />`.
+- `getCardImage(contentId)` returns `{ src, alt, focalPoint, width, height, thumbnail }` for the GameCard `image` prop, or `null` (the card then shows its type-icon fallback). The board wires it in: `<GameCard image={getCardImage(card.id) ?? undefined} … />`.
+- `thumbnail` (manifest field, optional): caption (1–3 words, about the topic, never a quote from the pictured person), emoji sticker and red arrow/circle marker. The GameCard kit draws it over the photo with `ThumbnailFrame` (`src/components/common/ThumbnailFrame/`), plus an always-on colour boost and type-coloured outline (thumbnail-imagery D2, D3).
 - `listCardImageCredits()` and `ImageCreditList` feed the `/credits` page (`src/pages/CreditsPage.tsx`), which also shows the game-audio credit.
 - Not here: the board, the GameCard kit component (it already lazy-loads, crops 4:3 with `object-fit: cover` around the focal point, and falls back on a broken image).
 

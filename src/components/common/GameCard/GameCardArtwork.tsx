@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ThumbnailFrame } from "@/components/common/ThumbnailFrame";
 import { cn } from "@/shared/utils/cn";
 import type { GameCardImage, GameCardType } from "./gameCard.types";
 import { GAME_CARD_TYPES } from "./gameCardVariants";
@@ -30,8 +31,9 @@ const ArtworkFallback = ({ type, alt }: { type: GameCardType; alt?: string }) =>
 
 /**
  * Fixed-ratio image area (token --game-card-image-aspect). Any source shape (portrait,
- * landscape, square) is cropped with object-fit: cover around its focal point; a missing
- * or broken image falls back to the type icon on a tinted panel.
+ * landscape, square) is cropped with object-fit: cover around its focal point and drawn in
+ * a ThumbnailFrame (type-coloured outline, optional caption / sticker / marker); a missing
+ * or broken image falls back to the type icon on a tinted panel, without the frame.
  */
 export const GameCardArtwork = ({ type, image }: GameCardArtworkProps) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
@@ -40,16 +42,18 @@ export const GameCardArtwork = ({ type, image }: GameCardArtworkProps) => {
   return (
     <span className="relative block aspect-game-card-image w-full overflow-hidden bg-muted">
       {showImage ? (
-        <img
-          src={image.src}
-          alt={image.alt}
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          onError={() => setFailedSrc(image.src)}
-          className="block size-full object-cover"
-          style={{ objectPosition: objectPositionOf(image.focalPoint) }}
-        />
+        <ThumbnailFrame accent={type} treatment={image.thumbnail}>
+          <img
+            src={image.src}
+            alt={image.alt}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            onError={() => setFailedSrc(image.src)}
+            className="block size-full object-cover"
+            style={{ objectPosition: objectPositionOf(image.focalPoint) }}
+          />
+        </ThumbnailFrame>
       ) : (
         <ArtworkFallback type={type} alt={image?.alt} />
       )}

@@ -26,6 +26,7 @@ export function getCardImage(contentId: string): CardImage | null {
     focalPoint: entry.focalPoint,
     width: CARD_IMAGE_WIDTH,
     height: CARD_IMAGE_HEIGHT,
+    thumbnail: entry.thumbnail,
   };
 }
 

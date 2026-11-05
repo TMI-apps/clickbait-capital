@@ -1,3 +1,5 @@
+import type { ThumbnailTreatment } from "@/components/common/ThumbnailFrame";
+
 /**
  * Public data shape of the GameCard kit component. Presentation only: a game feature
  * maps its own card model onto these props (no game logic or feature imports here).
@@ -40,4 +42,6 @@ export interface GameCardImage {
   alt: string;
   /** Point to keep in view when the image is cropped, in percent (0–100). Default: centre. */
   focalPoint?: { x: number; y: number };
+  /** Caption, sticker and marker drawn over the photo (the colour boost and outline are always on). */
+  thumbnail?: ThumbnailTreatment;
 }
