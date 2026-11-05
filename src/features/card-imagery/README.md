@@ -5,7 +5,7 @@ Pictures for the cards and events of the deck, and the attribution their open li
 ## Purpose
 
 - `getCardImage(contentId)` returns `{ src, alt, focalPoint, width, height, thumbnail }` for the GameCard `image` prop, or `null` (the card then shows its type-icon fallback). The board wires it in: `<GameCard image={getCardImage(card.id) ?? undefined} … />`.
-- `thumbnail` (manifest field, optional): caption (1–3 words, about the topic, never a quote from the pictured person), emoji sticker and red arrow/circle marker. The GameCard kit draws it over the photo with `ThumbnailFrame` (`src/components/common/ThumbnailFrame/`), plus an always-on colour boost and type-coloured outline (thumbnail-imagery D2, D3).
+- `thumbnail` (manifest field, optional): caption (1–3 words, about the topic, never a quote from the pictured person), emoji sticker and red arrow/circle marker. The GameCard kit draws it over the photo with `ThumbnailFrame` (`src/components/common/ThumbnailFrame/`), plus an always-on colour boost and type-coloured glow (thumbnail-imagery D2, D3, D8). News entries carry no `thumbnail` and the kit draws news photos plain (D7).
 - `listCardImageCredits()` and `ImageCreditList` feed the `/credits` page (`src/pages/CreditsPage.tsx`), which also shows the game-audio credit.
 - Not here: the board, the GameCard kit component (it already lazy-loads, crops 4:3 with `object-fit: cover` around the focal point, and falls back on a broken image).
 
@@ -22,16 +22,17 @@ Pictures for the cards and events of the deck, and the attribution their open li
 
 ## Files
 
-`public/cards/<contentId>.webp`: one 640×480 (4:3) WebP master per id, quality 68, about 1.4 MB for the 47 photos (median 25 KB, largest 126 KB). 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are downloaded once at sourcing time and served from this app.
+`public/cards/<contentId>.webp`: one 640×480 (4:3) WebP master per id, quality 68, about 1.8 MB for the 67 photos (all under 140 KB). 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are downloaded once at sourcing time and served from this app.
 
 ## Sourcing (how the manifest was built)
 
-- Search: Openverse API (`api.openverse.org/v1/images`, anonymous, no key; `license=cc0,by`, `category=photograph`, `mature=false`), one object-focused query per id derived from the content `imageTheme`.
-- Review: candidates on contact sheets; rejected people (faces, minors), recognizable venues, brands or logos, copyrighted artworks or game art in the frame, and anything without a clear CC0 / CC BY license.
-- Result (after kids-content): 24 × CC0 1.0, 23 × CC BY 2.0; sources Flickr 30, rawpixel 10 (public-domain collection), StockSnap 7. The kids-content lap removed the 20 cards and events it dropped from the deck, with their photos. No reuse across ids. No minors or people in frame, no recognizable venues.
-- Processing: largest available rendition (Flickr `_b`, 1024 px), crop 4:3 around a chosen point, resize to 640×480, WebP. The manifest's `focalPoint` is where that point lands in the master (50/50 unless the crop hit an edge).
-- License data (author, title, license, URL) is Openverse's index of the source page; the source link is kept per entry so it can be rechecked.
-- The sourcing scripts were run by the agent at build time and are not part of the app. To replace one picture: download a CC0 / CC BY original, crop and export it as above to `public/cards/<id>.webp`, and edit that entry (alt, title, author, source, license); the tests catch a missing file or a license outside the allowed set.
+- **Owner photos (thumbnail-imagery D10):** 24 entries use photos the owner picked on Unsplash (Unsplash License: free use, credit author and photo page). Two of those photos serve two ids each (`reusedFrom`). Title "Foto op Unsplash", author and photo page from the owner's list.
+- **Vetted fallbacks (D11):** expressive adult faces from Openverse (CC0 StockSnap, CC BY Flickr); each licence was checked on the source page at build time, and the page wins over Openverse's index (one photo is CC BY 4.0 there).
+- **Kept from the first imagery lap:** the remaining entries keep their CC0 / CC BY object photos (Openverse, object-focused queries); the clickbait ones get a thumbnail caption.
+- **Review rules:** adults only (no identifiable children), no brands or logos, no swimwear, no real public figures, nothing that presents a person in a defamatory way; captions stay about the topic.
+- **Processing:** crop 4:3 around a chosen point (optional zoom), resize to 640×480, WebP (quality lowered until under 140 KB). The manifest's `focalPoint` is where that point lands in the master.
+- **Still a placeholder:** the ids in `PLACEHOLDER_IDS` (`services/cardImageLookup.test.ts`) have no entry yet; GameCard shows the type icon.
+- The sourcing scripts ran at build time and are not part of the app. To replace one picture: export a CC0 / CC BY / Unsplash original as above to `public/cards/<id>.webp`, edit that entry (alt, title, author, source, license, thumbnail) and drop the id from `PLACEHOLDER_IDS` if it was there; the tests catch a missing file, a licence outside the allowed set or a caption that breaks the rules.
 
 ## Decisions
 
@@ -41,7 +42,9 @@ Pictures for the cards and events of the deck, and the attribution their open li
 - **Credits on `/credits` (D4):** TASL per photo (title linked to the source, author, license linked to the deed); CC0 photos are credited too, out of courtesy.
 - **Photos, not illustrations (D5):** the content's image themes describe satirical illustrations; free photos match them loosely (an object that stands for the card, such as a railway whistle board for the whistleblower). A generated illustration set would match better but needs the owner's say (cost, style).
 
-- **New cards wait for the image lap (D6, kids-content):** the 40 cards and events added for 11-year-olds have no manifest entry; `getCardImage` returns `null` and GameCard shows its type-icon placeholder. A later lap replaces the imagery in a video-thumbnail style (the new content's `imageTheme` hints say so).
+- **New cards wait for a photo (D6, kids-content; narrowed by thumbnail-imagery):** a card without a manifest entry shows GameCard's type-icon placeholder; the remaining ones are listed in `PLACEHOLDER_IDS`.
+- **Thumbnail look (thumbnail-imagery D2–D8):** expressive photos plus caption / sticker / marker data per entry, drawn by the `ThumbnailFrame` kit component; news stays plain.
+- **Unsplash allowed for owner picks (thumbnail-imagery D10):** next to CC0 / CC BY; credited like CC BY on `/credits`.
 
 ## Dependencies
 

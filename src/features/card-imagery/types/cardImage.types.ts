@@ -4,8 +4,16 @@
  * for (author, source, license link, credit line) next to what the board needs to show it.
  */
 
-/** Licenses the sourcing rules allow (owner: CC0 or CC BY only; no share-alike, no NC). */
-export type CardImageLicense = "CC0 1.0" | "CC BY 2.0" | "CC BY 3.0" | "CC BY 4.0";
+/**
+ * Licenses the sourcing rules allow: CC0 or CC BY (no share-alike, no NC), and the Unsplash
+ * License for photos the owner picked on Unsplash (credit author + photo page; thumbnail-imagery D10).
+ */
+export type CardImageLicense =
+  | "CC0 1.0"
+  | "CC BY 2.0"
+  | "CC BY 3.0"
+  | "CC BY 4.0"
+  | "Unsplash License";
 
 /**
  * Thumbnail parts drawn in code over the photo (GameCard → ThumbnailFrame). Same shape as the
