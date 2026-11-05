@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { SITE_ORIGIN } from "@/config/site";
 import { buildEndReport, GAME_OVER_TEXTS, UI_COPY } from "@/features/game-content/api";
-import { toEndingView, toResultsView } from "@/features/game-flow/services/endFlow";
+import {
+  toEndingView,
+  toResultsView,
+  toShareCardContent,
+} from "@/features/game-flow/services/endFlow";
 import type { RunSummary } from "@/features/game-flow/types/gameFlow.types";
 
 const run = (overrides: Partial<RunSummary> = {}): RunSummary => ({
@@ -71,5 +76,36 @@ describe("toResultsView", () => {
     expect(results.played.map((row) => row.value)).toEqual(["3", "1", "1"]);
     expect(results.stats.find((row) => row.id === "users")?.value).toBe("2.000.000");
     expect(results.stats.find((row) => row.id === "phase")?.value).toBe("2: De Scale-Up");
+  });
+});
+
+describe("toShareCardContent", () => {
+  it("should show the ending, phase, reach and revenue when a run is lost", () => {
+    const summary = run();
+    const ending = toEndingView(summary);
+    const card = toShareCardContent(summary);
+    expect(card).toMatchObject({
+      kicker: UI_COPY.results.lostKicker,
+      title: GAME_OVER_TEXTS.banned.title,
+      line: ending.headline,
+      url: `${SITE_ORIGIN}/`,
+      fileName: UI_COPY.results.shareFileName,
+    });
+    expect(card.stats).toEqual([
+      { label: UI_COPY.results.phaseReachedLabel, value: "2: De Scale-Up" },
+      { label: UI_COPY.results.usersLabel, value: "2.000.000" },
+      { label: UI_COPY.results.revenueLabel, value: "€ 150.000" },
+    ]);
+    expect(card.text).toContain("fase 2 in 12 beurten");
+  });
+
+  it("should use the report title and closing question when the IPO is won", () => {
+    const summary = run({ outcome: "won", reason: null, phaseId: 4, phaseName: "De Beursgang" });
+    const report = buildEndReport(summary);
+    expect(toShareCardContent(summary)).toMatchObject({
+      kicker: UI_COPY.results.wonKicker,
+      title: report.title,
+      line: report.closing,
+    });
   });
 });

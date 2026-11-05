@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## share-card — feat/share-card
+
+Share button on the results screen: a client-side 1080×1350 share card (ending, phase, Hoogste bereik, Totale omzet, ending headline, link) shared through the Web Share API, with download + copied link as fallback (`src/features/result-share/`, `game-flow`, `game-content`).
+
+| id  | topic                  | status | choice                                                                                                                          | source                         | notes                                                                                                                  |
+| --- | ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| D1  | Image renderer         | closed | Hand-written Canvas 2D renderer for one fixed 1080×1350 card, lazy `import()`; no package                                       | loop-plan (spec-reuse-package) | rejected: html-to-image / html2canvas (DOM snapshot, font/CORS quirks, +10–45 KiB), satori (+wasm, needs font buffers) |
+| D2  | Share order            | closed | `navigator.share({ files, text, url })` when `canShare({ files })` → `share({ text, url })` → download PNG + copy text and link | loop-refine (task)             | AbortError (player closed the sheet) is silent                                                                         |
+| D3  | When the image renders | closed | When the results screen mounts, so the click shares synchronously within the user activation                                    | loop-plan                      | Safari drops `share()` after an await outside the gesture                                                              |
+| D4  | Card colors            | closed | Read from the computed design tokens when the results open (follows the theme active then)                                      | loop-plan                      | keeps tokens the SSOT; no hex in the renderer                                                                          |
+| D5  | Shared link            | closed | `SITE_ORIGIN` + `/` (production), also from previews                                                                            | loop-plan                      | previews are not public entry points                                                                                   |
+
 ## launch-basics — feat/launch-basics
 
 Launch basics: Dutch privacy note at `/privacy`, `robots.txt`, plain-text sitemap and per-route canonical links.
