@@ -10,11 +10,6 @@
     "status": "to-do"
   },
   {
-    "title": "Mobile: fullscreen board and instant drag",
-    "description": "Owner request 2026-11-05: /spel fills the phone screen (dvh, safe areas), the app does not scroll, and a touch drag starts immediately instead of after press-and-hold, while a tap still plays a card. Size S-M. Thread mobile-fit.",
-    "status": "to-do"
-  },
-  {
     "title": "Owner test: VoiceOver and TalkBack on a real phone",
     "description": "Follow-up to the screen-reader lap (PR #28). Automated checks covered the accessibility tree and live-region text; nobody has heard real speech yet. Owner plays a few turns with VoiceOver (iOS) or TalkBack (Android) using the steps in PR #28 under \"Test steps (owner)\"; open question: does iOS VoiceOver speak the turn announcement after focus moves to the next card, or drop it? Findings become fix tasks. Size XS.",
     "status": "to-do"

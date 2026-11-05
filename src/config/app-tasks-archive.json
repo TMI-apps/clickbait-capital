@@ -178,5 +178,10 @@
     "title": "Split game-board into board + game-session",
     "description": "Landed: session state moved to src/features/game-session (startSession, applyAction, restoreSession, useGameSession); game-board derives feed, deltas and sounds via useBoardSession; featureBudgets override removed (board 25 files, session 6). Decision log § game-session-split D1-D4.",
     "status": "done"
+  },
+  {
+    "title": "Mobile: fullscreen board and instant drag",
+    "description": "Owner request 2026-11-05: /spel fills the phone screen (dvh, safe areas), the app does not scroll, and a touch drag starts immediately instead of after press-and-hold, while a tap still plays a card. Size S-M. Thread mobile-fit. Landed: h-dvh no-scroll board grid (portrait stack, landscape split), safe-area insets, no rubber-band/pull-to-refresh/double-tap zoom, PointerSensor with 6px distance instead of 150ms touch delay, modal max-height. PWA stays standalone. Decision log § mobile-fit D1-D8.",
+    "status": "done"
   }
 ]
