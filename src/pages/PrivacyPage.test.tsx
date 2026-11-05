@@ -34,4 +34,10 @@ describe("PrivacyPage", () => {
     renderWithProviders(<PrivacyPage />);
     expect(screen.getByText(copy.errorReports)).toBeInTheDocument();
   });
+
+  it("should mention the saved game and how to wipe it when rendered", () => {
+    renderWithProviders(<PrivacyPage />);
+    expect(screen.getByText(/een spel dat nog bezig is/)).toBeInTheDocument();
+    expect(screen.getByText(/een opgeslagen spel wis je ook via Instellingen/)).toBeInTheDocument();
+  });
 });

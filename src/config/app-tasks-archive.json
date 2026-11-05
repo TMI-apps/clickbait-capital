@@ -168,5 +168,10 @@
     "title": "Share card with score",
     "description": "Landed: Deel je resultaat on the results screen (won and lost) shares a canvas-rendered PNG card (ending, phase, Hoogste bereik, Totale omzet, link) via Web Share; fallback downloads the image and copies text + link. Lazy 1.5 KiB chunk, no dependency, no tracking. Decision log § share-card D1-D5. Not verified: real iOS/Android share sheet.",
     "status": "done"
+  },
+  {
+    "title": "Local save and resume",
+    "description": "Landed: run saved as seed + action log (clickbait-capital:run:v1), replayed on resume; Verder spelen / Nieuw spel on / and /spel; corrupt or unreplayable saves dropped; cleared when the run ends; privacy copy names the saved game; resume announced to screen readers. Decision log § local-save D1-D9. Trade-off: a balance change can shift a resumed run.",
+    "status": "done"
   }
 ]

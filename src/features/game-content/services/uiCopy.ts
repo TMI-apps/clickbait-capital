@@ -71,7 +71,7 @@ export const UI_COPY = {
     pauseTitle: "Gepauzeerd",
     resumeButton: "Verder",
     quitButton: "Stoppen",
-    quitConfirm: "Weet je zeker dat je stopt? Je voortgang gaat verloren.",
+    resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
     modifiers: {
       journalismDrought: {
         label: "Journalistieke droogte",
@@ -94,6 +94,11 @@ export const UI_COPY = {
       gain: "+{value}",
       loss: "−{value}",
     },
+  },
+  resume: {
+    kicker: "Opgeslagen spel",
+    title: "Verder waar je was?",
+    body: "Je vorige spel staat nog klaar. Kies je Nieuw spel, dan wordt het gewist.",
   },
   phaseIntro: {
     continueButton: "Aan de slag",
@@ -175,14 +180,14 @@ export const UI_COPY = {
     points: [
       "Geen account en geen inlog. We vragen nooit je naam of e-mailadres.",
       "Geen cookies, geen advertenties, geen bezoekersstatistieken en geen trackers.",
-      "Je instellingen (weergave, geluid en beweging) bewaart je browser alleen op dit apparaat. Ze gaan nergens heen.",
+      "Je instellingen (weergave, geluid en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat, zodat je later verder kunt spelen. Niets daarvan gaat ergens heen, en het spel wordt gewist zodra het afgelopen is.",
       "Om ook offline te kunnen spelen, bewaart je browser de bestanden van het spel en de kaartfoto's op dit apparaat.",
       "De site draait bij Cloudflare. Zoals bij elke website ziet die server je IP-adres om de pagina te kunnen sturen. Wij gebruiken dat niet om je te volgen.",
     ],
     errorReports:
       "Loopt het spel vast, dan sturen we een foutmelding naar onze server: wat er misging, op welke pagina en in welke browser. Zonder naam of andere gegevens over jou.",
     clearHint:
-      "Alles wissen? Verwijder de websitegegevens van deze site in je browser. Geluid en beweging wis je ook via Instellingen.",
+      "Alles wissen? Verwijder de websitegegevens van deze site in je browser. Geluid, beweging en een opgeslagen spel wis je ook via Instellingen.",
     creditsHint: "Wie de foto's en geluiden maakte, staat bij",
     creditsLink: "Credits",
     closeButton: "Sluiten",
