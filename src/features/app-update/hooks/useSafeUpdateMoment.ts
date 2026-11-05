@@ -11,10 +11,11 @@ export interface SafeUpdateMomentOptions {
 const INPUT_EVENTS = ["pointerdown", "keydown"] as const;
 
 /**
- * Applies a waiting update only when no game can be lost (app-update-flow D1): before the player's
- * first input since this page load, or on a route change (a run lives only in memory on its
- * route, so leaving it has ended it and arriving somewhere new has nothing to lose yet).
- * Otherwise the caller keeps showing the prompt.
+ * Applies a waiting update only when it can't interrupt play (app-update-flow D1): before the
+ * player's first input since this page load, or on a route change (leaving `/spel` has paused
+ * the run, and arriving somewhere new has nothing in progress yet). A run is saved on the device
+ * (local-save D6), so a reload no longer loses it, but mid-turn it would still drop the player
+ * onto the resume offer. Otherwise the caller keeps showing the prompt.
  */
 export const useSafeUpdateMoment = ({
   updateReady,

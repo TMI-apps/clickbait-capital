@@ -9,5 +9,6 @@ export {
   PhaseTransitionScreen,
   type PhaseTransitionScreenProps,
 } from "@/features/game-flow/components/PhaseTransitionScreen";
+export { ResumeScreen, type ResumeScreenProps } from "@/features/game-flow/components/ResumeScreen";
 export { usePhaseIntro, type PhaseIntroState } from "@/features/game-flow/hooks/usePhaseIntro";
 export type * from "@/features/game-flow/types/gameFlow.types";

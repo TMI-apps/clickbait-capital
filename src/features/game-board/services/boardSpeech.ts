@@ -92,3 +92,17 @@ export function describeTurn(turn: TurnSnapshot, previous: TurnSnapshot | null):
     .map(sentence)
     .join(" ");
 }
+
+/**
+ * Spoken once when a saved run reopens (local-save D5): where the player is, then the meters,
+ * because the board heading names the phase but not the turn or the values.
+ */
+export function describeResume(phase: PhaseProgressView, meters: MeterView[]): string {
+  const where = fillTemplate(UI_COPY.board.resumedAnnouncement, {
+    phase: String(phase.phaseId),
+    name: phase.phaseName,
+    turn: String(phase.turn),
+  });
+  const values = meters.map((meter) => `${meterLabel(meter)} ${meter.value}`).join(", ");
+  return `${where} ${sentence(values)}`;
+}

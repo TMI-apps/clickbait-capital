@@ -2,7 +2,8 @@ import { describe, expect, it, onTestFinished, vi } from "vitest";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
-import { SEED_CONTENT } from "@/features/game-engine/api";
+import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
+import type { SavedRun } from "@/features/game-save/api";
 import { getMotionStore } from "@/features/game-settings/api";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
 import { renderWithProviders } from "tests/test-utils";
@@ -237,5 +238,33 @@ describe("GameBoard with a screen reader", () => {
       )
     );
     expect(draftCards()[0]).toHaveFocus();
+  });
+});
+
+describe("GameBoard resumed from a save", () => {
+  /** A one-card save on seed 11 for `content`. */
+  const oneCardSave = (content: GameContent): SavedRun => ({
+    version: 1,
+    seed: 11,
+    actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.ad ?? "" }],
+  });
+
+  it("should open on the board and announce where the run stands when the phase did not change", async () => {
+    renderWithProviders(
+      <GameBoard content={SEED_CONTENT} onQuit={vi.fn()} savedRun={oneCardSave(SEED_CONTENT)} />
+    );
+
+    expect(screen.queryByRole("button", { name: "Aan de slag" })).not.toBeInTheDocument();
+    expect(screen.getByText("Beurt 1")).toBeInTheDocument();
+    expect(await screen.findByText(/^Spel hervat\. Fase 1 van 4: /)).toBeInTheDocument();
+  });
+
+  it("should show the phase intro again when the last action started a new phase", () => {
+    renderWithProviders(
+      <GameBoard content={MILESTONE_NOW} onQuit={vi.fn()} savedRun={oneCardSave(MILESTONE_NOW)} />
+    );
+
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Fase 2/);
+    expect(screen.getByRole("button", { name: "Aan de slag" })).toBeInTheDocument();
   });
 });

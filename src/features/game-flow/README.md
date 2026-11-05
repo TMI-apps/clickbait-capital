@@ -14,10 +14,11 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 
 | Layer      | Path                                                                  | Purpose                                                               |
 | ---------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro` |
+| API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `ResumeScreen`, `usePhaseIntro` |
 | Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                       |
 | Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, entrance motion, 44px actions    |
 | Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal                         |
+| Components | `components/ResumeScreen.tsx` | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4) |
 | Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                      |
 | Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                         |
 | Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                   |
@@ -27,7 +28,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 ## Decisions
 
 - **Screens replace the board (game-flow D1):** phase transitions, endings and results render instead of the board as a full-screen `<main>` whose heading takes focus on open; only the event stays a modal over the board, so the player sees the feed it interrupts.
-- **When intros show (D2):** the phase 1 intro opens every run (`PHASE_INTROS` is "shown when the phase starts"); a transition always comes before a milestone event of the same turn; an ending wins over a pending transition. `usePhaseIntro.reset` is called with the board's restart.
+- **When intros show (D2):** the phase 1 intro opens every run (`PHASE_INTROS` is "shown when the phase starts"); a transition always comes before a milestone event of the same turn; an ending wins over a pending transition. `usePhaseIntro.reset` is called with the board's restart. A resumed run passes the phase before its last action as seen, so it opens on the board unless that action started a new phase (local-save D5).
 - **Report on a game over (D3):** the results reuse `buildEndReport` lines for every ending except the IPO valuation; the report intro shows only after a win, and the report title and closing question form the IPO ending screen.
 - **Formatting stays in the board (D4):** the board formats the absolute stats (`statTexts`) with its nl-NL formatters and passes the raw numbers for `buildEndReport`, so no third formatter copy exists here.
 - **Motion:** entrance fades use the motion tokens (`--duration-slow`), which drop to ~0 under prefers-reduced-motion. Bigger juice belongs to the game-juice lap.

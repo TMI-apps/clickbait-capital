@@ -12,7 +12,8 @@ export interface PauseMenuProps {
 
 /**
  * Pause menu: resume, settings or quit to the start screen. Escape and the close button also
- * resume. Settings open inside the dialog (not `/instellingen`), so the run in memory survives.
+ * resume. Settings open inside the dialog (not `/instellingen`), so play continues in place.
+ * "Stoppen" keeps the saved run (local-save D8).
  */
 export const PauseMenu = ({ open, onResume, onQuit }: PauseMenuProps) => {
   const [showSettings, setShowSettings] = useState(false);

@@ -9,6 +9,7 @@ import {
   resolveEvent,
 } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
+import { readSavedRun } from "@/features/game-save/api";
 import { useGameSession } from "@/features/game-board/hooks/useGameSession";
 
 type Session = ReturnType<typeof useGameSession>;
@@ -155,5 +156,68 @@ describe("useGameSession", () => {
     act(() => result.current.play("does-not-exist"));
 
     expect(result.current.view).toBe(before);
+  });
+});
+
+describe("useGameSession saving on the device", () => {
+  it("should save the seed and actions when a card is played", () => {
+    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    const card = result.current.view.draft[0].id;
+
+    act(() => result.current.play(card));
+
+    expect(readSavedRun()).toEqual({
+      version: 1,
+      seed: 3,
+      actions: [{ kind: "card", cardId: card }],
+    });
+  });
+
+  it("should resume the identical board when a saved run is passed", () => {
+    const first = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    for (let count = 0; count < 4; count++) {
+      act(() => step(first.result.current, (session) => session.view.draft[0].id));
+    }
+    const before = first.result.current.view;
+    first.unmount();
+
+    const { result } = renderHook(() =>
+      useGameSession({ content: SEED_CONTENT, savedRun: readSavedRun() })
+    );
+
+    expect(result.current.resumed).toBe(true);
+    expect(result.current.view).toEqual(before);
+  });
+
+  it("should start a new run when the saved run no longer replays", () => {
+    const { result } = renderHook(() =>
+      useGameSession({
+        content: SEED_CONTENT,
+        seed: 3,
+        savedRun: { version: 1, seed: 3, actions: [{ kind: "card", cardId: "gone" }] },
+      })
+    );
+
+    expect(result.current.resumed).toBe(false);
+    expect(result.current.view.feed).toEqual([]);
+    expect(readSavedRun()).toBeNull();
+  });
+
+  it("should clear the save when the run ends", () => {
+    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 7 }));
+
+    playUntilEnd(result, (session) => session.view.draft[0].id);
+
+    expect(result.current.view.end).not.toBeNull();
+    expect(readSavedRun()).toBeNull();
+  });
+
+  it("should clear the save when the run restarts", () => {
+    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    act(() => result.current.play(result.current.view.draft[0].id));
+
+    act(() => result.current.restart());
+
+    expect(readSavedRun()).toBeNull();
   });
 });

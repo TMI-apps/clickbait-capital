@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
+import { writeSavedRun } from "@/features/game-save/api";
 import { HomePage } from "./HomePage";
 import { useAuthContext } from "@/shared/context/AuthContext";
 import { createDefaultAuthContextValue, renderWithProviders } from "tests/test-utils";
@@ -45,5 +46,24 @@ describe("HomePage", () => {
     renderWithProviders(<HomePage />);
 
     expect(screen.getByText("Sign-in failed")).toBeInTheDocument();
+  });
+
+  it("should offer to continue or start a new game when a run is saved", () => {
+    writeSavedRun({ version: 1, seed: 1, actions: [{ kind: "card", cardId: "x" }] });
+
+    renderWithProviders(<HomePage />);
+
+    expect(screen.getByRole("link", { name: "Verder spelen" })).toHaveAttribute("href", "/spel");
+    expect(screen.getByRole("link", { name: "Nieuw spel" })).toHaveAttribute("href", "/spel");
+    expect(screen.queryByRole("link", { name: "Start spel" })).not.toBeInTheDocument();
+  });
+
+  it("should only offer to start when the saved run is corrupt", () => {
+    window.localStorage.setItem("clickbait-capital:run:v1", "{broken");
+
+    renderWithProviders(<HomePage />);
+
+    expect(screen.getByRole("link", { name: "Start spel" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Verder spelen" })).not.toBeInTheDocument();
   });
 });

@@ -1,23 +1,30 @@
-import { useCallback, useMemo, useState } from "react";
-import type { GameContent, GameState, MeterKey } from "@/features/game-engine/api";
-import { createGame, getPendingEvent, playCard, resolveEvent } from "@/features/game-engine/api";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { GameContent, GameState } from "@/features/game-engine/api";
+import type { RunAction, SavedRun } from "@/features/game-save/api";
+import { clearSavedRun, writeSavedRun } from "@/features/game-save/api";
 import {
-  feedEntryForCard,
-  feedEntryForEvent,
   toDraft,
   toEventView,
   toGameEnd,
   toMeters,
   toPhaseProgress,
 } from "@/features/game-board/services/boardView";
-import { soundsForAction } from "@/features/game-board/services/boardSounds";
 import type { BoardSounds } from "@/features/game-board/services/boardSounds";
-import type { BoardView, FeedEntry } from "@/features/game-board/types/gameBoard.types";
+import {
+  applyAction,
+  restoreSession,
+  startSession,
+  toSavedRun,
+} from "@/features/game-board/services/gameSession";
+import type { SessionState } from "@/features/game-board/services/gameSession";
+import type { BoardView } from "@/features/game-board/types/gameBoard.types";
 
 export interface UseGameSessionOptions {
   content: GameContent;
   /** Fixed seed (tests, replays). Without it every run gets a random seed. */
   seed?: number;
+  /** A saved run to continue (local-save D1); ignored when it no longer replays. */
+  savedRun?: SavedRun | null;
 }
 
 export interface GameSession {
@@ -31,80 +38,78 @@ export interface GameSession {
   restart: () => void;
   /** Sounds earned by the last action; `key` changes once per action (`useBoardSounds`). */
   sounds: BoardSounds;
-}
-
-interface SessionState {
-  game: GameState;
-  feed: FeedEntry[];
-  previousMeters: Record<MeterKey, number> | null;
-  sounds: BoardSounds;
+  /** This session continues a saved run (until `restart`). */
+  resumed: boolean;
+  /**
+   * Phase whose intro the player already saw: 0 for a new run; for a resumed run the phase
+   * before its last action, so an intro the reload interrupted shows again (local-save D5).
+   */
+  seenPhase: number;
 }
 
 const randomSeed = (): number => Math.floor(Math.random() * 2 ** 31);
 
-const startSession = (content: GameContent, seed: number | undefined): SessionState => ({
-  game: createGame({ content, seed: seed ?? randomSeed() }),
-  feed: [],
-  previousMeters: null,
-  sounds: { ids: [], key: 0 },
+interface RunState {
+  session: SessionState;
+  resumed: boolean;
+  seenPhase: number;
+}
+
+const freshRun = (content: GameContent, seed: number | undefined): RunState => ({
+  session: startSession(content, seed ?? randomSeed()),
+  resumed: false,
+  seenPhase: 0,
 });
+
+/** The phase before the saved run's last action (replayed without it). */
+const phaseBeforeLastAction = (content: GameContent, saved: SavedRun): number =>
+  restoreSession(content, { ...saved, actions: saved.actions.slice(0, -1) })?.game.phase ?? 0;
+
+const openRun = (
+  content: GameContent,
+  seed: number | undefined,
+  savedRun: SavedRun | null | undefined
+): RunState => {
+  const restored = savedRun ? restoreSession(content, savedRun) : null;
+  if (!restored || !savedRun) return freshRun(content, seed);
+  return { session: restored, resumed: true, seenPhase: phaseBeforeLastAction(content, savedRun) };
+};
+
+/** Keeps the device save in step with the run: written per action, cleared at the end (D3). */
+function useRunPersistence(session: SessionState): void {
+  useEffect(() => {
+    const saved = toSavedRun(session);
+    if (saved) writeSavedRun(saved);
+    else clearSavedRun();
+  }, [session]);
+}
 
 /**
  * One run of the game over the rules engine: holds the engine state, the feed history and
  * the meters before the last action, and exposes the board view. All rules stay in the
- * engine; this hook only sequences calls and keeps UI history.
+ * engine and the action handling in `gameSession`; this hook sequences calls, keeps UI
+ * history and saves the run on the device.
  */
-export function useGameSession({ content, seed }: UseGameSessionOptions): GameSession {
-  const [session, setSession] = useState<SessionState>(() => startSession(content, seed));
+export function useGameSession({ content, seed, savedRun }: UseGameSessionOptions): GameSession {
+  const [run, setRun] = useState<RunState>(() => openRun(content, seed, savedRun));
+  const { session } = run;
+  useRunPersistence(session);
 
-  const play = useCallback(
-    (cardId: string) => {
-      setSession((current) => {
-        const { game } = current;
-        const card = content.cards.find((candidate) => candidate.id === cardId);
-        const inHand = game.hand !== null && Object.values(game.hand).includes(cardId);
-        if (game.status !== "playing" || !card || !inHand) {
-          return current;
-        }
-        const next = playCard(game, content, cardId);
-        return {
-          game: next,
-          feed: [feedEntryForCard(card, game.turn), ...current.feed],
-          previousMeters: game.meters,
-          sounds: {
-            ids: soundsForAction({ cardType: card.type, before: game, after: next }),
-            key: current.sounds.key + 1,
-          },
-        };
-      });
-    },
+  const dispatch = useCallback(
+    (action: RunAction) =>
+      setRun((current) => {
+        const next = applyAction(current.session, content, action);
+        return next === current.session ? current : { ...current, session: next };
+      }),
     [content]
   );
-
+  const play = useCallback((cardId: string) => dispatch({ kind: "card", cardId }), [dispatch]);
   const chooseOption = useCallback(
-    (optionId: string) => {
-      setSession((current) => {
-        const { game } = current;
-        const event = game.status === "event" ? getPendingEvent(game, content) : null;
-        if (!event || !event.options.some((option) => option.id === optionId)) {
-          return current;
-        }
-        const next = resolveEvent(game, content, optionId);
-        return {
-          game: next,
-          feed: [feedEntryForEvent(event, optionId, game.turn), ...current.feed],
-          previousMeters: game.meters,
-          sounds: {
-            ids: soundsForAction({ cardType: null, before: game, after: next }),
-            key: current.sounds.key + 1,
-          },
-        };
-      });
-    },
-    [content]
+    (optionId: string) => dispatch({ kind: "option", optionId }),
+    [dispatch]
   );
 
-  const restart = useCallback(() => setSession(startSession(content, seed)), [content, seed]);
+  const restart = useCallback(() => setRun(freshRun(content, seed)), [content, seed]);
 
   const view = useMemo<BoardView>(() => {
     const { game, feed, previousMeters } = session;
@@ -125,5 +130,7 @@ export function useGameSession({ content, seed }: UseGameSessionOptions): GameSe
     chooseOption,
     restart,
     sounds: session.sounds,
+    resumed: run.resumed,
+    seenPhase: run.seenPhase,
   };
 }

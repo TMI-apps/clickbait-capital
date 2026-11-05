@@ -25,6 +25,8 @@ import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
 
 export interface PlayingBoardProps {
   view: BoardView;
+  /** The run continues a save: the board announces where the player is (local-save D5). */
+  resumed: boolean;
   play: (cardId: string) => void;
   chooseOption: (optionId: string) => void;
   onQuit: () => void;
@@ -36,7 +38,8 @@ export interface PlayingBoardProps {
  * The board during play: meters, phase progress, the phone feed and the 3-card draft, plus
  * the event modal, card detail and pause dialogs, and the drag context.
  */
-export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: PlayingBoardProps) => {
+export const PlayingBoard = (props: PlayingBoardProps) => {
+  const { view, play, chooseOption, onQuit, withTap } = props;
   const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
@@ -49,7 +52,8 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
   // True from the event's arrival until its dialog has fully closed (onCloseAutoFocus).
   const [eventDialogMounted, setEventDialogMounted] = useState(false);
   if (view.event !== null && !eventDialogMounted) setEventDialogMounted(true);
-  const screenReader = useBoardScreenReader(view, view.event !== null || eventDialogMounted);
+  const dialogOpen = view.event !== null || eventDialogMounted;
+  const screenReader = useBoardScreenReader(view, dialogOpen, props.resumed);
 
   const juice = useActionJuice({
     action: view.feed[0]?.type ?? null,
