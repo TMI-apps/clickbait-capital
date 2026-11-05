@@ -6,6 +6,19 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## users-stat-model — feat/users-stat-model
+
+The users stat (Bereik) is read off the Gebruikers meter: `round(meter × phase.usersAtFullMeter / 100)`. It replaces the accumulated `usersPerPoint` model of game-engine D1 (game-engine D1 below). Phase markets were retuned and the board's users goal line names its meter level.
+
+| id  | topic                     | status | choice                                                                                                  | source      | notes                                                                                           |
+| --- | ------------------------- | ------ | ------------------------------------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| D1  | Users stat formula        | closed | Linear: meter × phase market / 100                                                                      | loop-refine | clear-winner over floor × growth^meter: readable off the meter, monotone, 0 only at meter 0     |
+| D2  | Stored or derived on read | closed | Stored in `GameState.stats`, recomputed by one engine function (before the goal check and in `advance`) | loop-refine | consumers read `stats.users` unchanged                                                          |
+| D3  | Phase change              | closed | Recomputed with the new phase's market: Bereik jumps up on a new phase                                  | loop-refine | the market grows; the meter stays                                                               |
+| D4  | Revenue                   | closed | Unchanged: accumulated gross omzet                                                                      | loop-refine | it never falls, so it cannot show the bug; € 500k means total earned                            |
+| D5  | Board readout             | closed | Users goal line adds "(Gebruikers ≥ N)" via `meterForUsers`                                             | loop-refine | no hard-coded numbers in copy                                                                   |
+| D6  | Phase markets             | closed | 115k / 5.3M / 22.5M / 30M (goals at Gebruikers 87 / 95 / 89)                                            | loop-build  | players enter phases at Gebruikers 85–95; 95 keeps the phase 2 users goal real; game-content D9 |
+
 ## juice-motion-setting — feat/juice-motion-setting
 
 Game juice reads the in-app Beweging setting from game-settings instead of its own OS query.

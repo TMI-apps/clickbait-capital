@@ -39,6 +39,10 @@ describe("meterForUsers", () => {
     }
   });
 
+  it("should throw when the phase has no positive market", () => {
+    expect(() => meterForUsers(1, { ...phase1, usersAtFullMeter: 0 })).toThrow();
+  });
+
   it("should return a level above 100 when the target exceeds the phase market", () => {
     expect(meterForUsers(phase1.usersAtFullMeter + 1, phase1)).toBeGreaterThan(100);
   });

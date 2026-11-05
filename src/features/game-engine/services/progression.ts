@@ -45,6 +45,9 @@ export function usersForMeter(meter: number, phase: PhaseDefinition): number {
  * can name the meter level a users goal needs. Can exceed 100 when the market is too small.
  */
 export function meterForUsers(target: number, phase: PhaseDefinition): number {
+  if (!(phase.usersAtFullMeter > 0)) {
+    throw new Error(`game-engine: phase ${phase.id} needs a positive usersAtFullMeter`);
+  }
   let meter = Math.max(0, Math.ceil((target * 100) / phase.usersAtFullMeter));
   while (meter > 0 && usersForMeter(meter - 1, phase) >= target) {
     meter -= 1;
