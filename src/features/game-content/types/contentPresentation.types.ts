@@ -31,14 +31,20 @@ export interface PhaseIntro {
   tip: string;
 }
 
-/** Dutch end screen for one way of losing. */
-export interface GameOverText {
-  title: string;
+/** One telling of a game over: how this run got there and what to take away. */
+export interface GameOverStory {
   /** Short headline in newspaper style. */
   headline: string;
   body: string;
   /** What the player should take away (the learning goal of the vision). */
   lesson: string;
+}
+
+/** Dutch end screen for one way of losing: the shared title plus the run-matched story. */
+export interface GameOverText extends GameOverStory {
+  title: string;
+  /** Which story was picked (`GAME_OVER_TEXTS[reason].variants` key). */
+  variant: string;
 }
 
 /** Numbers the IPO end report is built from (a subset of the engine's `GameState`). */

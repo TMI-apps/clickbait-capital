@@ -6,19 +6,37 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## ending-texts — feat/ending-texts
+
+Game-over texts that match how the run got there, plus removal of the landed game-settings and juice-motion-setting lap folders.
+
+| id  | topic                     | status | choice                                                                                                                                                                                                                                                                                                                                 | source                          | notes                                                                                                                                                                  |
+| --- | ------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Where the story is chosen | closed | Pure `selectGameOverText(reason, run)` in game-content `endings.ts` (game-content README D9), next to the texts and `buildEndReport`; game-flow's `toEndingView` only renders it                                                                                                                                                       | loop-plan                       | which copy fits the run is a content decision; rejected: selection in game-flow (two features would know the variant ids)                                              |
+| D2  | Stories and rules         | closed | Verlaten: most-played type → `adOverload` / `viralBurnout` / `dullFeed` (ties: ads, then viral). Bankroet: < 25% ads → `noIncome`, else `costsOutgrew`. Verbod: viral ≥ 50% → `viralToxicity`, else ≥ 2 crises (toxicity-triggered events; milestones excluded) → `crises`, else more ads than viral → `scamAds`, else `viralToxicity` | orchestrator brief + loop-check | the old single texts became `adOverload`, `noIncome`, `viralToxicity`; the run summary has fired events but no choices, so no story names a choice or a specific event |
+
+## juice-motion-setting — feat/juice-motion-setting
+
+Game juice reads the in-app Beweging setting from game-settings instead of its own OS query.
+
+| id  | topic                                | status | choice                                                                                                                                                                                                                                                                                         | source                  | notes                                                                                                                                                 |
+| --- | ------------------------------------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | "Volledig" over an OS reduce request | closed | `:root[data-motion="full"]` inside the reduce media query restores only the juice durations (`duration-juice`, `-juice-shake`, `-count`, `-card-draw`, `-card-play`); flash, glow and end entrance run on `duration-juice`; the rest of the UI keeps following the OS. Amends game-settings D3 | orchestrator (option A) | rejected: "Volledig" only in JS (particles rendered but 0.01ms, invisible); restoring every duration token (outside the lap, overrides OS for all UI) |
+| D2  | Hook seam                            | closed | game-juice's internal `useMotionPreference` delegates to game-settings `useReducedMotion`; no longer exported from the game-juice api                                                                                                                                                          | loop-plan               | one source of truth; avoids two public hooks with the same name and different shapes                                                                  |
+
 ## game-settings — feat/game-settings
 
 Settings screen, rules page, app-level error/offline states and the launch audit (`src/features/game-settings/`, `src/features/app-status/`).
 
-| # | Decision | State | Choice | By | Why |
-|---|----------|-------|--------|----|-----|
-| D1 | Settings from the pause menu | closed | The pause dialog swaps to `SettingsPanel` instead of navigating to `/instellingen` | agent (clear winner) | The run lives in memory on `/spel`; navigating away would end it |
-| D2 | Motion source of truth | closed | Module-level external store (`useSyncExternalStore`), exposed as `useReducedMotion` / `useMotionPreference` | agent (clear winner) | Readable from any feature without a provider; mirrors the game-audio mute |
-| D3 | CSS for the motion choice | closed | `data-motion` on `<html>`; "Verminderd" sets `--duration-*` to 0.01ms inline; "Volledig" lifts only JS juice | agent (clear winner) | Token pipeline belongs to game-juice; an OS reduce request stays honoured in CSS |
-| D4 | What "Voortgang wissen" clears | closed | Every `localStorage` key with prefix `clickbait-capital:`; colour mode kept | agent (clear winner) | Colour mode is a display preference, not game data |
-| D5 | Where error states live | closed | New `app-status` feature | agent (clear winner) | Different reason to change than settings; app-update owns only the service worker |
-| D6 | Offline behaviour | closed | Non-blocking 6 s banner; full offline screen only when a page fails to load offline | agent (clear winner) | The app is precached and plays offline |
-| D7 | Copy for the main chunk | closed | `@/features/game-content/api/copy` (UI_COPY only) instead of the barrel; rejected: `@__PURE__` annotations (no effect), accepting +18 kB gzip | orchestrator (2026-11-04) | A barrel import from the main chunk moved the whole deck there |
+| #   | Decision                       | State  | Choice                                                                                                                                                                                                                    | By                        | Why                                                                               |
+| --- | ------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | --------------------------------------------------------------------------------- |
+| D1  | Settings from the pause menu   | closed | The pause dialog swaps to `SettingsPanel` instead of navigating to `/instellingen`                                                                                                                                        | agent (clear winner)      | The run lives in memory on `/spel`; navigating away would end it                  |
+| D2  | Motion source of truth         | closed | Module-level external store (`useSyncExternalStore`), exposed as `useReducedMotion` / `useMotionPreference`                                                                                                               | agent (clear winner)      | Readable from any feature without a provider; mirrors the game-audio mute         |
+| D3  | CSS for the motion choice      | closed | `data-motion` on `<html>`; "Verminderd" sets `--duration-*` to 0.01ms inline; "Volledig" lifts only JS juice (amended by juice-motion-setting D1: "Volledig" also restores the juice durations over an OS reduce request) | agent (clear winner)      | Token pipeline belongs to game-juice; an OS reduce request stays honoured in CSS  |
+| D4  | What "Voortgang wissen" clears | closed | Every `localStorage` key with prefix `clickbait-capital:`; colour mode kept                                                                                                                                               | agent (clear winner)      | Colour mode is a display preference, not game data                                |
+| D5  | Where error states live        | closed | New `app-status` feature                                                                                                                                                                                                  | agent (clear winner)      | Different reason to change than settings; app-update owns only the service worker |
+| D6  | Offline behaviour              | closed | Non-blocking 6 s banner; full offline screen only when a page fails to load offline                                                                                                                                       | agent (clear winner)      | The app is precached and plays offline                                            |
+| D7  | Copy for the main chunk        | closed | `@/features/game-content/api/copy` (UI_COPY only) instead of the barrel; rejected: `@__PURE__` annotations (no effect), accepting +18 kB gzip                                                                             | orchestrator (2026-11-04) | A barrel import from the main chunk moved the whole deck there                    |
 
 ## game-juice — feat/game-juice
 
@@ -60,98 +78,98 @@ One open-licensed photo per card and event in `public/cards/`, a license manifes
 
 Retunes the game-content balance for a 25–45-turn run, measured by a `humanLike` simulation strategy that only uses what the board shows.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Run-length tuning | closed | Phase 1 `usersPerPoint` 2,500; phase 3 hold 30 → 12 turns; phase 4 server cost −6 and reputation loss ×2.5 | BRIEF | smallest change set passing the acceptance test; phase 3 hold authorised by the orchestrator; full rationale in `src/features/game-content/README.md` (D8) |
-| D2 | Engine stat model and capped-gain feedback | closed | Out of this lap: a meter-derived users stat (engine) and board feedback for gains capped at 100 are proposed as their own tasks | BRIEF | balance is content data only; both fixes belong to other feature areas |
+| id  | topic                                      | status | choice                                                                                                                          | source | notes                                                                                                                                                      |
+| --- | ------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Run-length tuning                          | closed | Phase 1 `usersPerPoint` 2,500; phase 3 hold 30 → 12 turns; phase 4 server cost −6 and reputation loss ×2.5                      | BRIEF  | smallest change set passing the acceptance test; phase 3 hold authorised by the orchestrator; full rationale in `src/features/game-content/README.md` (D8) |
+| D2  | Engine stat model and capped-gain feedback | closed | Out of this lap: a meter-derived users stat (engine) and board feedback for gains capped at 100 are proposed as their own tasks | BRIEF  | balance is content data only; both fixes belong to other feature areas                                                                                     |
 
 ## game-flow — feat/game-flow
 
 New feature `src/features/game-flow/`: event modal, phase transition screens, endings and the end report between board turns.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Screens vs modals | closed | Transitions and endings replace the board (full-screen, normal DOM, heading focused on mount); only the event stays a modal over the board | BRIEF | — |
-| D2 | Screen order | closed | Phase 1 intro at the start of every run; a transition shows before a milestone event of the same turn; an ending wins over a pending transition | BRIEF | `PHASE_INTROS` say "shown when the phase starts" |
-| D3 | Results for a game over | closed | Reuse the report lines except the IPO valuation; title, intro and closing of the report only on a win | BRIEF | no IPO happened on a game over |
-| D4 | Number formatting | closed | Stays in game-board (`boardView`); game-flow gets formatted stat texts plus raw numbers for `buildEndReport` | BRIEF | no third copy of the nl-NL formatters |
+| id  | topic                   | status | choice                                                                                                                                          | source | notes                                            |
+| --- | ----------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------ |
+| D1  | Screens vs modals       | closed | Transitions and endings replace the board (full-screen, normal DOM, heading focused on mount); only the event stays a modal over the board      | BRIEF  | —                                                |
+| D2  | Screen order            | closed | Phase 1 intro at the start of every run; a transition shows before a milestone event of the same turn; an ending wins over a pending transition | BRIEF  | `PHASE_INTROS` say "shown when the phase starts" |
+| D3  | Results for a game over | closed | Reuse the report lines except the IPO valuation; title, intro and closing of the report only on a win                                           | BRIEF  | no IPO happened on a game over                   |
+| D4  | Number formatting       | closed | Stays in game-board (`boardView`); game-flow gets formatted stat texts plus raw numbers for `buildEndReport`                                    | BRIEF  | no third copy of the nl-NL formatters            |
 
 ## installable-app — feat/installable-app
 
 Home-screen install and offline play via a service worker, with a Dutch update prompt in the new feature `src/features/app-update/`.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Service worker | closed | `vite-plugin-pwa@2.0.0` (pinned devDependency), not a hand-written SW | owner via orchestrator, 2026-11-04 | per-build hashed precache and a tested update flow, no SW source to maintain |
-| D2 | `workbox-window` | closed | `workbox-window@7.4.1` (pinned devDependency) | plugin `peerDependencies` | required peer of `virtual:pwa-register/*`; part of the approved tool |
-| D3 | Update behaviour | closed | `registerType: "prompt"` with a Dutch banner (Herladen / Later) | task text | never reload a running game without consent |
-| D4 | Start URL | closed | `start_url` / `id` `/spel`, `scope` `/` | agent pick | installed app opens into the game |
-| D5 | Manifest | closed | Keep the hand-written `public/manifest.json` (`manifest: false`) | existing file | one SSOT, already linked from `index.html` |
-| D6 | Card images offline | closed | Runtime cache-first `/cards/*`, excluded from precache | task text | later images work without config changes and don't bloat install |
-| D7 | Feature home | closed | New feature `src/features/app-update/` | architecture rule | one concept (app version lifecycle) |
+| id  | topic               | status | choice                                                                | source                             | notes                                                                        |
+| --- | ------------------- | ------ | --------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| D1  | Service worker      | closed | `vite-plugin-pwa@2.0.0` (pinned devDependency), not a hand-written SW | owner via orchestrator, 2026-11-04 | per-build hashed precache and a tested update flow, no SW source to maintain |
+| D2  | `workbox-window`    | closed | `workbox-window@7.4.1` (pinned devDependency)                         | plugin `peerDependencies`          | required peer of `virtual:pwa-register/*`; part of the approved tool         |
+| D3  | Update behaviour    | closed | `registerType: "prompt"` with a Dutch banner (Herladen / Later)       | task text                          | never reload a running game without consent                                  |
+| D4  | Start URL           | closed | `start_url` / `id` `/spel`, `scope` `/`                               | agent pick                         | installed app opens into the game                                            |
+| D5  | Manifest            | closed | Keep the hand-written `public/manifest.json` (`manifest: false`)      | existing file                      | one SSOT, already linked from `index.html`                                   |
+| D6  | Card images offline | closed | Runtime cache-first `/cards/*`, excluded from precache                | task text                          | later images work without config changes and don't bloat install             |
+| D7  | Feature home        | closed | New feature `src/features/app-update/`                                | architecture rule                  | one concept (app version lifecycle)                                          |
 
 ## game-board — feat/game-board
 
 The playable board on `/spel`: draft of three cards, meters, goal progress, events and game over, built on the engine and GameCard.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Content input | closed | `GameBoard` takes `content: GameContent`; `GamePage` passes the content | loop-refine | swapping content is one import line in the page |
-| D2 | Tap behaviour | closed | One tap plays the card; details via an info button | loop-refine | clear-winner: select-then-confirm adds a step; an info button is accessible where long-press is not |
-| D3 | Drag | closed | `@dnd-kit/core` (already a dependency) with a distance-activated pointer sensor | loop-refine | no new dependency; tap and drag coexist |
-| D4 | Fullscreen board | closed | `/spel` hides the Topbar; the pause menu holds quit | loop-refine | vertical space on a phone; the logo link would quit a run by accident |
-| D5 | Event and end dialogs | closed | `Modal` gets `dismissible={false}` | loop-refine | an event must be answered; a kit prop, not a parallel dialog |
-| D6 | Droogte marker | closed | Viral cards get a destructive-colour ring plus icon and "Droogte" label | loop-refine | colour never the only signal |
-| D7 | Narrow phone draft | closed | Three cards in one row | loop-refine | no horizontal scroll at 390px |
-| D8 | Compact GameCard | closed | `GameCard` gets `size="compact"`; the board uses it at every width, full text via the info button | loop-build | orchestrator chose it over a later lap or a scroll-snap row |
-| D9 | Real content and copy | closed | `/spel` plays `GAME_CONTENT`; flavor from the content card, end texts from `GAME_OVER_TEXTS`, labels from `UI_COPY` | loop-build | after game-content merged; compact ad label "Reclame" |
-| D10 | Phase-scaled numbers | closed | Engine api exports `scaleForPhase`; cards and event options show the numbers applied this phase; event options reuse `GameCardEffects` | loop-build | orchestrator option A over a copied rule |
-| D11 | Absolute stats on the board | closed | Only as labelled goal progress ("Bereik: 85.000 / 100.000") | loop-build | orchestrator play-test: a free-standing "0 gebruikers" next to a meter of 56 confused (game-engine D1) |
+| id  | topic                       | status | choice                                                                                                                                 | source      | notes                                                                                                  |
+| --- | --------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| D1  | Content input               | closed | `GameBoard` takes `content: GameContent`; `GamePage` passes the content                                                                | loop-refine | swapping content is one import line in the page                                                        |
+| D2  | Tap behaviour               | closed | One tap plays the card; details via an info button                                                                                     | loop-refine | clear-winner: select-then-confirm adds a step; an info button is accessible where long-press is not    |
+| D3  | Drag                        | closed | `@dnd-kit/core` (already a dependency) with a distance-activated pointer sensor                                                        | loop-refine | no new dependency; tap and drag coexist                                                                |
+| D4  | Fullscreen board            | closed | `/spel` hides the Topbar; the pause menu holds quit                                                                                    | loop-refine | vertical space on a phone; the logo link would quit a run by accident                                  |
+| D5  | Event and end dialogs       | closed | `Modal` gets `dismissible={false}`                                                                                                     | loop-refine | an event must be answered; a kit prop, not a parallel dialog                                           |
+| D6  | Droogte marker              | closed | Viral cards get a destructive-colour ring plus icon and "Droogte" label                                                                | loop-refine | colour never the only signal                                                                           |
+| D7  | Narrow phone draft          | closed | Three cards in one row                                                                                                                 | loop-refine | no horizontal scroll at 390px                                                                          |
+| D8  | Compact GameCard            | closed | `GameCard` gets `size="compact"`; the board uses it at every width, full text via the info button                                      | loop-build  | orchestrator chose it over a later lap or a scroll-snap row                                            |
+| D9  | Real content and copy       | closed | `/spel` plays `GAME_CONTENT`; flavor from the content card, end texts from `GAME_OVER_TEXTS`, labels from `UI_COPY`                    | loop-build  | after game-content merged; compact ad label "Reclame"                                                  |
+| D10 | Phase-scaled numbers        | closed | Engine api exports `scaleForPhase`; cards and event options show the numbers applied this phase; event options reuse `GameCardEffects` | loop-build  | orchestrator option A over a copied rule                                                               |
+| D11 | Absolute stats on the board | closed | Only as labelled goal progress ("Bereik: 85.000 / 100.000")                                                                            | loop-build  | orchestrator play-test: a free-standing "0 gebruikers" next to a meter of 56 confused (game-engine D1) |
 
 ## game-content — feat/game-content
 
 The full Dutch deck, events, phase intros and all player-facing copy in `src/features/game-content/`.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Data format | closed | Typed TS data in `services/*.ts`, not JSON | loop-refine | compile-time checks against the engine schema |
-| D2 | Presentation fields | closed | Own types extending the engine types; no engine schema change | loop-refine | structural typing lets `ContentCard` pass as `CardDefinition` |
-| D3 | Intended loss per pure strategy | closed | viral-only → banned; ad-only → abandoned; news-heavy → bankrupt | loop-refine | design § 2/§ 4 |
-| D4 | "Not modelled yet" items | closed | As events: competitors and ad-pressure in phase 2, fines and hearings in phase 3 | loop-refine | engine README allows content events; no new rules |
-| D5 | Balance ownership | closed | Content owns its phases and balance, copied from `SEED_CONTENT` and retuned where the simulation needs it | loop-refine | the schema allows a content lap to retune |
-| D6 | UI copy home | closed | `uiCopy.ts` constant `UI_COPY` grouped by screen, via the api barrel | loop-refine | no i18n library (Dutch only) |
-| D7 | End report numbers | closed | Derived from the run with fixed satirical scale factors | loop-build | engine README: the board derives it from playedTypes and stats |
-| D8 | Server costs and phase 1 pace | closed | Phase 3 −6, phase 4 −7; phase 1 `usersPerPoint` 2,000; shitstorm threshold 25 | loop-build | seed costs let the lookahead win every run in minimum turns; later retuned by balance-pass D1 |
+| id  | topic                           | status | choice                                                                                                    | source      | notes                                                                                         |
+| --- | ------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+| D1  | Data format                     | closed | Typed TS data in `services/*.ts`, not JSON                                                                | loop-refine | compile-time checks against the engine schema                                                 |
+| D2  | Presentation fields             | closed | Own types extending the engine types; no engine schema change                                             | loop-refine | structural typing lets `ContentCard` pass as `CardDefinition`                                 |
+| D3  | Intended loss per pure strategy | closed | viral-only → banned; ad-only → abandoned; news-heavy → bankrupt                                           | loop-refine | design § 2/§ 4                                                                                |
+| D4  | "Not modelled yet" items        | closed | As events: competitors and ad-pressure in phase 2, fines and hearings in phase 3                          | loop-refine | engine README allows content events; no new rules                                             |
+| D5  | Balance ownership               | closed | Content owns its phases and balance, copied from `SEED_CONTENT` and retuned where the simulation needs it | loop-refine | the schema allows a content lap to retune                                                     |
+| D6  | UI copy home                    | closed | `uiCopy.ts` constant `UI_COPY` grouped by screen, via the api barrel                                      | loop-refine | no i18n library (Dutch only)                                                                  |
+| D7  | End report numbers              | closed | Derived from the run with fixed satirical scale factors                                                   | loop-build  | engine README: the board derives it from playedTypes and stats                                |
+| D8  | Server costs and phase 1 pace   | closed | Phase 3 −6, phase 4 −7; phase 1 `usersPerPoint` 2,000; shitstorm threshold 25                             | loop-build  | seed costs let the lookahead win every run in minimum turns; later retuned by balance-pass D1 |
 
 ## game-audio — feat/game-audio
 
 Web Audio sound player, 11 generated sounds and a mute toggle in `src/features/game-audio/`; wired into the board in #10 (`feat/game-audio-wiring`).
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Player | closed | Web Audio, no library | README § Decisions | per-sound gain also on iOS Safari; Howler.js not needed for 11 one-shots |
-| D2 | Unlock | closed | `AudioContext` created on the first gesture; sounds load right after | README § Decisions | no autoplay warning |
-| D3 | Mute control | closed | Sound-on toggle: `aria-pressed` under the stable name "Geluid" | README § Decisions | visible text "Geluid aan" / "Geluid uit" |
-| D4 | Mix | closed | Files normalized; loud viral / quiet news via the manifest `volume` | README § Decisions | — |
-| D5 | Background music | closed | None yet | README § Decisions | size and credits; can be another manifest entry later |
-| D6 | Levelling | closed | Level files by RMS, mix only by `volume` | README § Decisions | review found the first files 12 dB apart |
-| D7 | Protected file | closed | `projectStructure.config.cjs` allows `public/audio/*.mp3` and `public/cards/*.avif\|webp\|jpg` | owner via orchestrator, 2026-11-04 | nothing else in the file changed |
-| D8 | Sound style | closed | One generation per sound from the orchestrator's style guide (README § Sound style); the first ElevenLabs set is unused | orchestrator | the first set had no shared style |
+| id  | topic            | status | choice                                                                                                                  | source                             | notes                                                                    |
+| --- | ---------------- | ------ | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------ |
+| D1  | Player           | closed | Web Audio, no library                                                                                                   | README § Decisions                 | per-sound gain also on iOS Safari; Howler.js not needed for 11 one-shots |
+| D2  | Unlock           | closed | `AudioContext` created on the first gesture; sounds load right after                                                    | README § Decisions                 | no autoplay warning                                                      |
+| D3  | Mute control     | closed | Sound-on toggle: `aria-pressed` under the stable name "Geluid"                                                          | README § Decisions                 | visible text "Geluid aan" / "Geluid uit"                                 |
+| D4  | Mix              | closed | Files normalized; loud viral / quiet news via the manifest `volume`                                                     | README § Decisions                 | —                                                                        |
+| D5  | Background music | closed | None yet                                                                                                                | README § Decisions                 | size and credits; can be another manifest entry later                    |
+| D6  | Levelling        | closed | Level files by RMS, mix only by `volume`                                                                                | README § Decisions                 | review found the first files 12 dB apart                                 |
+| D7  | Protected file   | closed | `projectStructure.config.cjs` allows `public/audio/*.mp3` and `public/cards/*.avif\|webp\|jpg`                          | owner via orchestrator, 2026-11-04 | nothing else in the file changed                                         |
+| D8  | Sound style      | closed | One generation per sound from the orchestrator's style guide (README § Sound style); the first ElevenLabs set is unused | orchestrator                       | the first set had no shared style                                        |
 
 ## game-card — feat/game-card
 
 Game tokens and the `GameCard` kit component for viral, ad, news and event cards.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Types and meters | closed | Kit variants (`type`, `meter`) with default Dutch label and lucide icon, overridable by props | thread | colour always ships with icon and label; no feature import |
-| D2 | Interactive card | closed | `<button aria-pressed>` when `onSelect` is given, else `<article>` | thread | one tab stop, native keyboard |
-| D3 | Deltas | closed | Signed numbers with arrow, meter icon and name (sr-only "omhoog/omlaag") | thread | engine gives numbers; meaning without colour |
-| D4 | Rarity | closed | `common` / `rare` / `legendary`; common shows no badge | thread | presentational only; the design has no rarity yet |
-| D5 | States gallery | closed | Test-only fixture plus Playwright screenshots; no route | orchestrator | `src/pages` was out of scope for the thread |
-| D6 | Focus vs selected | closed | Focus = foreground outline (offset 4px); selected = primary ring, lift and "Gekozen" badge | thread | keyboard users tell focus from selection |
-| D7 | Frame border | closed | `game-card-frame` utility, not `border-game-card` | thread | Tailwind read `border-game-card` as a colour (width stayed 0) |
-| D8 | Owner review | closed | No preview route; the owner sees screenshots; the game-board lap mounts the cards | orchestrator | owner delegated review |
+| id  | topic             | status | choice                                                                                        | source       | notes                                                         |
+| --- | ----------------- | ------ | --------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------- |
+| D1  | Types and meters  | closed | Kit variants (`type`, `meter`) with default Dutch label and lucide icon, overridable by props | thread       | colour always ships with icon and label; no feature import    |
+| D2  | Interactive card  | closed | `<button aria-pressed>` when `onSelect` is given, else `<article>`                            | thread       | one tab stop, native keyboard                                 |
+| D3  | Deltas            | closed | Signed numbers with arrow, meter icon and name (sr-only "omhoog/omlaag")                      | thread       | engine gives numbers; meaning without colour                  |
+| D4  | Rarity            | closed | `common` / `rare` / `legendary`; common shows no badge                                        | thread       | presentational only; the design has no rarity yet             |
+| D5  | States gallery    | closed | Test-only fixture plus Playwright screenshots; no route                                       | orchestrator | `src/pages` was out of scope for the thread                   |
+| D6  | Focus vs selected | closed | Focus = foreground outline (offset 4px); selected = primary ring, lift and "Gekozen" badge    | thread       | keyboard users tell focus from selection                      |
+| D7  | Frame border      | closed | `game-card-frame` utility, not `border-game-card`                                             | thread       | Tailwind read `border-game-card` as a colour (width stayed 0) |
+| D8  | Owner review      | closed | No preview route; the owner sees screenshots; the game-board lap mounts the cards             | orchestrator | owner delegated review                                        |
 
 ## game-engine — feat/game-engine
 
@@ -195,12 +213,12 @@ An optional orchestrator skill (`loop-orchestrate`) runs several laps at once in
 
 Claude Code hooks give lint, format and type feedback while the agent edits instead of at pre-commit or CI.
 
-| id | topic | status | choice | source | notes |
-|----|-------|--------|--------|--------|-------|
-| D1 | Which hooks | closed | Both; the Stop hook runs type-check only (tests stay with pre-commit and CI) | loop-refine | owner via orchestrator; also consented: push-safety.md step 6 trim, DOC row |
-| D2 | Tool invocation on Windows | closed | Node API / `node node_modules/...`, no pnpm spawn | loop-refine | avoids the `.cmd` shim spawn and ~1 s pnpm overhead |
-| D3 | Stop loop guard | closed | Skip when the tree fingerprint is unchanged since the last pass; on `stop_hook_active` with the same failure fingerprint, allow stop | loop-refine | clear-winner over relying on the 8-cap alone |
-| D4 | Formatting tool | closed | `eslint --fix` only | loop-build | `prettier/prettier` is an ESLint error rule; one tool, one pass |
+| id  | topic                      | status | choice                                                                                                                               | source      | notes                                                                       |
+| --- | -------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ | ----------- | --------------------------------------------------------------------------- |
+| D1  | Which hooks                | closed | Both; the Stop hook runs type-check only (tests stay with pre-commit and CI)                                                         | loop-refine | owner via orchestrator; also consented: push-safety.md step 6 trim, DOC row |
+| D2  | Tool invocation on Windows | closed | Node API / `node node_modules/...`, no pnpm spawn                                                                                    | loop-refine | avoids the `.cmd` shim spawn and ~1 s pnpm overhead                         |
+| D3  | Stop loop guard            | closed | Skip when the tree fingerprint is unchanged since the last pass; on `stop_hook_active` with the same failure fingerprint, allow stop | loop-refine | clear-winner over relying on the 8-cap alone                                |
+| D4  | Formatting tool            | closed | `eslint --fix` only                                                                                                                  | loop-build  | `prettier/prettier` is an ESLint error rule; one tool, one pass             |
 
 ## app-identity-assets — claude/dreamy-brown-55sh7l
 

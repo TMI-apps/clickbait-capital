@@ -6,23 +6,23 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 
 - **Event modal:** one urgent situation with three policy options (A Commercieel, B Ophef, C Journalistiek) and their phase-scaled effects; it must be answered.
 - **Phase transition:** a full-screen intro when a phase starts (De Zolderkamer → De Scale-Up → Wereldwijd Platform → De Beursgang): phase steps, intro, tip and the new goal.
-- **Endings:** Bankroet, Verlaten Platform, Verbod & Regulering (newspaper headline, story, lesson) and the IPO (report title and its closing question). Dramatic in tone.
+- **Endings:** Bankroet, Verlaten Platform, Verbod & Regulering (newspaper headline, story, lesson — the story matching the run, picked by game-content's `selectGameOverText`) and the IPO (report title and its closing question). Dramatic in tone.
 - **Results:** sober numbers: turns, phase reached, users, revenue, the end report lines (damage, misinformation, sleep, family fights, ads, factchecks, crises) and what went into the feed; "Opnieuw spelen" and "Naar het begin".
 - No game rules and no copy here: texts come from `@/features/game-content/api`, numbers from the run summary the board passes.
 
 ## Structure
 
-| Layer      | Path                                                                       | Purpose                                                               |
-| ---------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| API        | `api/index.ts`                                                             | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro` |
-| Components | `components/EventModal.tsx`                                                | Non-dismissible event dialog on the `Modal` kit                       |
-| Components | `components/FlowScreen.tsx`                                                | Full-screen layout: focused heading, entrance motion, 44px actions    |
-| Components | `components/PhaseTransitionScreen.tsx`                                     | Phase intro from `PHASE_INTROS` plus the goal                         |
-| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx`      | Ending → results                                                      |
-| Hooks      | `hooks/usePhaseIntro.ts`                                                   | Which phase intro is still unseen in this run                         |
-| Hooks      | `hooks/useGameEndFlow.ts`                                                  | Ending/results step and their views                                   |
-| Services   | `services/endFlow.ts`                                                      | Pure run summary → ending view and results view (`buildEndReport`)    |
-| Types      | `types/gameFlow.types.ts`                                                  | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`   |
+| Layer      | Path                                                                  | Purpose                                                               |
+| ---------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro` |
+| Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                       |
+| Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, entrance motion, 44px actions    |
+| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal                         |
+| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                      |
+| Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                         |
+| Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                   |
+| Services   | `services/endFlow.ts`                                                 | Pure run summary → ending view and results view (`buildEndReport`)    |
+| Types      | `types/gameFlow.types.ts`                                             | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`   |
 
 ## Decisions
 
@@ -44,6 +44,6 @@ Colocated Vitest: `services/endFlow.test.ts` (ending and results views), `hooks/
 
 ## Dependencies
 
-- `@/features/game-content/api` (`PHASE_INTROS`, `GAME_OVER_TEXTS`, `buildEndReport`, `UI_COPY`).
+- `@/features/game-content/api` (`PHASE_INTROS`, `selectGameOverText` for the ending story, `GAME_OVER_TEXTS` titles for the results, `buildEndReport`, `UI_COPY`).
 - Kit: `Modal`, `Button`, `GameCardEffects`. Icons: `lucide-react`.
 - Used by `@/features/game-board` (`GameBoard`), which maps engine state to these types.

@@ -131,9 +131,9 @@
   --animate-juice-particle: juice-particle var(--duration-juice) cubic-bezier(0.2, 0.7, 0.3, 1) both;
   --animate-juice-pop: juice-pop var(--duration-card-draw) var(--ease-card) both;
   --animate-juice-slide: juice-slide var(--duration-normal) linear both;
-  --animate-juice-flash: juice-flash var(--duration-slow) var(--ease-standard) both;
+  --animate-juice-flash: juice-flash var(--duration-juice) var(--ease-standard) both;
   --animate-juice-glow: juice-glow var(--duration-juice) ease-in-out 2 both;
-  --animate-juice-end: juice-end var(--duration-slow) var(--ease-card) both;
+  --animate-juice-end: juice-end var(--duration-juice) var(--ease-card) both;
   --animate-juice-burst: juice-burst var(--duration-juice) ease-out both;
 
   @keyframes juice-particle {
@@ -228,6 +228,22 @@
       opacity: 0;
       transform: translateY(-2.5rem) scale(0.85);
     }
+  }
+}
+
+/*
+ * Game juice under "Volledig" (game-settings D3 as amended by game-juice D9): when the player
+ * picks full motion over an OS reduce request, restore only the juice durations; the rest of the
+ * UI keeps following the OS. Values mirror src/shared/theme/tokens/base.tokens.json
+ * (src/features/game-juice/services/juiceMotionCss.test.ts keeps them equal).
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion="full"] {
+    --duration-juice: 760ms;
+    --duration-juice-shake: 360ms;
+    --duration-count: 650ms;
+    --duration-card-draw: 420ms;
+    --duration-card-play: 320ms;
   }
 }
 

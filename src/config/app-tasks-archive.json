@@ -133,5 +133,10 @@
     "title": "Context-cost audit: slim always-on rules",
     "description": "meta-audit-harness context-cost lens (R1-R9): moved Model A/B promote and PR procedures from git-workflow.md into loop-ship references, cut Related Rules footers (DOC_RULES_INDEX is SSOT), moved Windows-only shell text to documentation/DOC_WINDOWS_SHELL.md, and trimmed testing, agent-behavior, code-style and architecture to pointers. Always-on context about 17.6k to 14.5k tokens (-18%), no information lost (ledger in the lap folder). Follow-ups R10-R12 are separate backlog tasks. From the Claude Code video-lessons review.",
     "status": "done"
+  },
+  {
+    "title": "Ending texts that match how the run went",
+    "description": "From the production play-test: a news-only run hit Verlaten Platform with ad-blaming text. Each game over now has 2-3 Dutch stories picked by selectGameOverText(reason, run) in game-content (README D9); game-flow renders it. Decision log § ending-texts D1-D2. Size S.",
+    "status": "done"
   }
 ]
