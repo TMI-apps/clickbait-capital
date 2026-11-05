@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
-import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
+import { SEED_CONTENT, createGame, meterForUsers } from "@/features/game-engine/api";
 import {
   capEffects,
   feedEntryForEvent,
@@ -42,7 +42,10 @@ describe("boardView", () => {
     expect(progress.phaseName).toBe("De Scale-Up");
     expect(progress.progress).toBeCloseTo(0.5);
     expect(progress.streak).toBeNull();
-    expect(progress.goalStats[0]).toBe("Bereik: 2.500.000 / 5.000.000");
+    const phase2 = SEED_CONTENT.phases[1]!;
+    expect(progress.goalStats[0]).toBe(
+      `Bereik: 2.500.000 / 5.000.000 (Gebruikers ≥ ${meterForUsers(5_000_000, phase2)})`
+    );
     expect(progress.goalStats[1]).toMatch(/^Omzet: €\s?400\.000 \/ €\s?500\.000$/);
   });
 
@@ -107,7 +110,7 @@ describe("boardView", () => {
       outcome: "lost",
       reason: "bankrupt",
       phaseId: 1,
-      statTexts: { users: "1.000", revenue: expect.stringMatching(/^€\s0$/) },
+      statTexts: { users: "70.000", revenue: expect.stringMatching(/^€\s0$/) },
     });
     expect(toGameEnd(fresh(), SEED_CONTENT)).toBeNull();
   });

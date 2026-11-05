@@ -96,8 +96,11 @@ export interface PhaseDefinition {
   goal: PhaseGoal;
   /** Applied after every card turn (server and staff costs). */
   passiveCosts: Effects;
-  /** Absolute users gained or lost per point of users-meter change from cards and events. */
-  usersPerPoint: number;
+  /**
+   * The users stat at a full Gebruikers meter: the phase's reachable market. The stat is the
+   * meter's share of it (game-engine D1), so a new phase means a bigger market behind the meter.
+   */
+  usersAtFullMeter: number;
   /** Euros of gross revenue per point of positive revenue-meter change from cards and events. */
   revenuePerPoint: number;
   /** Multiplies negative reputation effects of cards, events and decay (reputation loss scales per phase). */
@@ -109,7 +112,8 @@ export interface PhaseDefinition {
 /** Tunable rule constants. Defaults follow the design doc; a content lap may retune them. */
 export interface BalanceConfig {
   startMeter: number;
-  startStats: Record<StatKey, number>;
+  /** Gross revenue at the start; the users stat follows the start meter (game-engine D1). */
+  startRevenue: number;
   /** Toxicity added when any non-news card is played ("nieuws negeren"). */
   newsIgnoredToxicity: number;
   reputationDecay: { afterTurnsWithoutNews: number; amount: number };

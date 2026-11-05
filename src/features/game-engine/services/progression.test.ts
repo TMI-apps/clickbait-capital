@@ -1,40 +1,59 @@
 import { describe, expect, it } from "vitest";
 import type { PhaseGoal } from "@/features/game-engine/types/gameContent.types";
 import { SEED_CONTENT } from "./seedContent";
-import { findTriggeredEvent, getGameOver, getPhase, goalHolds, updateStats } from "./progression";
+import {
+  addGrossRevenue,
+  findTriggeredEvent,
+  getGameOver,
+  getPhase,
+  goalHolds,
+  meterForUsers,
+  usersForMeter,
+} from "./progression";
 
 const phase1 = getPhase(SEED_CONTENT, 1);
 const ipoGoal = getPhase(SEED_CONTENT, 4).goal;
 
-describe("updateStats", () => {
-  it("should add users per meter point and gross revenue per positive revenue point", () => {
-    const stats = updateStats(
-      { users: 1000, revenue: 0 },
-      { users: 10, revenue: 4, reputation: 0, toxicity: 0 },
-      phase1
-    );
-    expect(stats).toEqual({
-      users: 1000 + 10 * phase1.usersPerPoint,
-      revenue: 4 * phase1.revenuePerPoint,
-    });
+describe("usersForMeter", () => {
+  it("should be the meter's share of the phase market when the meter is between 0 and 100", () => {
+    expect(usersForMeter(100, phase1)).toBe(phase1.usersAtFullMeter);
+    expect(usersForMeter(50, phase1)).toBe(phase1.usersAtFullMeter / 2);
+    expect(usersForMeter(0, phase1)).toBe(0);
   });
 
-  it("should lower users but never revenue when the deltas are negative", () => {
-    const stats = updateStats(
-      { users: 20_000, revenue: 9 },
-      { users: -2, revenue: -5, reputation: 0, toxicity: 0 },
-      phase1
-    );
-    expect(stats).toEqual({ users: 20_000 - 2 * phase1.usersPerPoint, revenue: 9 });
+  it("should rise with the meter and stay above 0 when the meter is above 0", () => {
+    for (let meter = 1; meter <= 100; meter++) {
+      expect(usersForMeter(meter, phase1)).toBeGreaterThan(usersForMeter(meter - 1, phase1));
+    }
+  });
+});
+
+describe("meterForUsers", () => {
+  it("should return the lowest meter whose users stat reaches the target when asked for a goal", () => {
+    for (const phase of SEED_CONTENT.phases) {
+      for (const target of [1, 100_000, 5_000_000, 20_000_000]) {
+        const meter = meterForUsers(target, phase);
+        expect(usersForMeter(meter, phase)).toBeGreaterThanOrEqual(target);
+        expect(usersForMeter(meter - 1, phase)).toBeLessThan(target);
+      }
+    }
   });
 
-  it("should not let users fall below 0", () => {
-    const stats = updateStats(
-      { users: 100, revenue: 0 },
-      { users: -50, revenue: 0, reputation: 0, toxicity: 0 },
-      phase1
+  it("should return a level above 100 when the target exceeds the phase market", () => {
+    expect(meterForUsers(phase1.usersAtFullMeter + 1, phase1)).toBeGreaterThan(100);
+  });
+});
+
+describe("addGrossRevenue", () => {
+  it("should add gross revenue per positive revenue point when revenue rises", () => {
+    const effects = { users: 10, revenue: 4, reputation: 0, toxicity: 0 };
+    expect(addGrossRevenue(9, effects, phase1)).toBe(9 + 4 * phase1.revenuePerPoint);
+  });
+
+  it("should never lower revenue when the revenue delta is negative", () => {
+    expect(addGrossRevenue(9, { users: -2, revenue: -5, reputation: 0, toxicity: 0 }, phase1)).toBe(
+      9
     );
-    expect(stats.users).toBe(0);
   });
 });
 

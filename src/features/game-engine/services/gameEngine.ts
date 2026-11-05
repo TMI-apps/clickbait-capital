@@ -11,7 +11,8 @@ import {
   getGameOver,
   getPhase,
   goalHolds,
-  updateStats,
+  addGrossRevenue,
+  usersForMeter,
 } from "@/features/game-engine/services/progression";
 import { pickRandom } from "@/features/game-engine/services/seededRandom";
 import {
@@ -58,8 +59,18 @@ export function drawHand(
   return { hand: ids as Hand, rngState: state };
 }
 
+/**
+ * The single writer of the users stat (game-engine D1): read off the Gebruikers meter in the
+ * current phase. Runs before the goal check and on every exit through `advance`.
+ */
+function withUsersStat(state: GameState, content: GameContent): GameState {
+  const users = usersForMeter(state.meters.users, getPhase(content, state.phase));
+  return { ...state, stats: { ...state.stats, users } };
+}
+
 /** Next step after a card or event: game over, pending event, or a fresh draft. */
-function advance(state: GameState, content: GameContent): GameState {
+function advance(current: GameState, content: GameContent): GameState {
+  const state = withUsersStat(current, content);
   const gameOver = getGameOver(state.meters);
   if (gameOver) {
     return { ...state, status: "lost", gameOver, hand: null, pendingEventId: null };
@@ -88,7 +99,8 @@ function advance(state: GameState, content: GameContent): GameState {
 }
 
 /** Counts the goal streak and moves to the next phase, or wins in phase 4. */
-function progressPhase(state: GameState, content: GameContent): GameState {
+function progressPhase(current: GameState, content: GameContent): GameState {
+  const state = withUsersStat(current, content);
   const phase = getPhase(content, state.phase);
   const goalStreak = goalHolds(phase.goal, state) ? state.goalStreak + 1 : 0;
   if (goalStreak < phase.goal.consecutiveTurns) {
@@ -110,7 +122,7 @@ export function createGame({ content, seed }: CreateGameOptions): GameState {
     phase: 1,
     meters: { revenue: start, users: start, reputation: start },
     toxicity: 0,
-    stats: { ...content.balance.startStats },
+    stats: { users: 0, revenue: content.balance.startRevenue },
     hand: null,
     pendingEventId: null,
     firedEventIds: [],
@@ -144,7 +156,10 @@ export function playCard(state: GameState, content: GameContent, cardId: string)
   const played: GameState = {
     ...state,
     ...applyEffects(state, turn.totalEffects),
-    stats: updateStats(state.stats, turn.cardEffects, phase),
+    stats: {
+      ...state.stats,
+      revenue: addGrossRevenue(state.stats.revenue, turn.cardEffects, phase),
+    },
     turn: state.turn + 1,
     playedTypes: [...state.playedTypes, card.type],
     viralStreak: turn.viralStreak,
@@ -178,7 +193,7 @@ export function resolveEvent(state: GameState, content: GameContent, optionId: s
   const resolved: GameState = {
     ...state,
     ...applyEffects(state, effects),
-    stats: updateStats(state.stats, effects, phase),
+    stats: { ...state.stats, revenue: addGrossRevenue(state.stats.revenue, effects, phase) },
     pendingEventId: null,
     lastTurn: {
       source: { kind: "event", eventId: event.id, optionId },

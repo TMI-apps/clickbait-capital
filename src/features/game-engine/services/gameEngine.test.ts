@@ -37,6 +37,40 @@ function runGame(
 
 const cycle: Policy = (_state, step) => (["viral", "ad", "news"] as const)[step % 3]!;
 
+interface Visited {
+  phases: Set<number>;
+  events: number;
+  lost: number;
+}
+
+/** The users stat as the meter shows it: Gebruikers × the phase market (game-engine D1). */
+function expectUsersReadOffMeter(state: GameState): void {
+  const phase = SEED_CONTENT.phases.find((candidate) => candidate.id === state.phase)!;
+  expect(state.stats.users).toBe(Math.round((state.meters.users * phase.usersAtFullMeter) / 100));
+  expect(state.stats.users > 0).toBe(state.meters.users > 0);
+}
+
+/** Plays one seeded game, checking the users stat in every state and recording what it reached. */
+function playCheckingUsersStat(policy: Policy, visited: Visited): void {
+  let state = createGame({ content: SEED_CONTENT, seed: 11 });
+  for (
+    let step = 0;
+    step < 120 && (state.status === "event" || state.status === "playing");
+    step++
+  ) {
+    expectUsersReadOffMeter(state);
+    visited.phases.add(state.phase);
+    if (state.status === "event") {
+      visited.events += 1;
+      state = resolveEvent(state, SEED_CONTENT, "b");
+    } else {
+      state = playCard(state, SEED_CONTENT, state.hand![policy(state, step)]);
+    }
+  }
+  expectUsersReadOffMeter(state);
+  visited.lost += state.status === "lost" ? 1 : 0;
+}
+
 function withPhases(
   content: GameContent,
   patch: (phase: PhaseDefinition) => PhaseDefinition
@@ -104,6 +138,16 @@ describe("playCard", () => {
     expect(next.meters.revenue).toBe(50 - 1);
     expect(next.meters.reputation).toBe(50 + card.effects.reputation!);
     expect(next.lastTurn?.source).toEqual({ kind: "card", cardId: card.id });
+  });
+
+  it("should read the users stat off the Gebruikers meter and the phase market when any action is taken", () => {
+    const visited: Visited = { phases: new Set(), events: 0, lost: 0 };
+    for (const policy of [cycle, () => "viral", () => "ad", () => "news"] satisfies Policy[]) {
+      playCheckingUsersStat(policy, visited);
+    }
+    expect(visited.phases.size).toBeGreaterThanOrEqual(2);
+    expect(visited.events).toBeGreaterThan(0);
+    expect(visited.lost).toBeGreaterThan(0);
   });
 
   it("should move to phase 2 and open its milestone event when 100k users are reached", () => {

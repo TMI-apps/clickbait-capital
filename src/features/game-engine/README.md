@@ -11,16 +11,16 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| API | `api/index.ts` | Public barrel: engine functions, `scaleForPhase` (so a UI shows the numbers the engine will apply), `SEED_CONTENT`, all types |
-| Services | `services/gameEngine.ts` | `createGame`, `playCard`, `resolveEvent`, `drawHand`, read helpers |
-| Services | `services/turnEffects.ts` | Card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte), phase scaling, passive costs, reputation decay, clamping |
-| Services | `services/progression.ts` | Absolute stats, phase goals, game overs, event triggers |
-| Services | `services/seededRandom.ts` | mulberry32 RNG (`nextRandom`, `pickRandom`) |
-| Services | `services/seedContent.ts` | `SEED_CONTENT`: default balance, the four phases, a 6-card / 3-event seed deck (fixture; not tuned) |
-| Types | `types/gameContent.types.ts` | Content schema: `CardDefinition`, `EventDefinition`, `PhaseDefinition`, `BalanceConfig`, `GameContent` |
-| Types | `types/gameState.types.ts` | `GameState`, `Hand`, `TurnReport`, `GameOverReason` |
+| Layer    | Path                         | Purpose                                                                                                                                                            |
+| -------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| API      | `api/index.ts`               | Public barrel: engine functions, `scaleForPhase`, `usersForMeter` and `meterForUsers` (so a UI shows the numbers the engine will apply), `SEED_CONTENT`, all types |
+| Services | `services/gameEngine.ts`     | `createGame`, `playCard`, `resolveEvent`, `drawHand`, read helpers                                                                                                 |
+| Services | `services/turnEffects.ts`    | Card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte), phase scaling, passive costs, reputation decay, clamping                                        |
+| Services | `services/progression.ts`    | Absolute stats, phase goals, game overs, event triggers                                                                                                            |
+| Services | `services/seededRandom.ts`   | mulberry32 RNG (`nextRandom`, `pickRandom`)                                                                                                                        |
+| Services | `services/seedContent.ts`    | `SEED_CONTENT`: default balance, the four phases, a 6-card / 3-event seed deck (fixture; not tuned)                                                                |
+| Types    | `types/gameContent.types.ts` | Content schema: `CardDefinition`, `EventDefinition`, `PhaseDefinition`, `BalanceConfig`, `GameContent`                                                             |
+| Types    | `types/gameState.types.ts`   | `GameState`, `Hand`, `TurnReport`, `GameOverReason`                                                                                                                |
 
 ### Turn order (one card)
 
@@ -28,7 +28,7 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 2. Phase scaling: negative reputation × `reputationLossMultiplier`, positive revenue × `revenueGainMultiplier` (rounded half away from zero).
 3. Every non-news card adds `newsIgnoredToxicity`.
 4. Passive costs of the phase; reputation decay (−3 × `reputationLossMultiplier`) once `afterTurnsWithoutNews` turns passed without news.
-5. Clamp meters and Toxicity to 0–100; update absolute stats; game over check.
+5. Clamp meters and Toxicity to 0–100; add gross revenue; read users off the Gebruikers meter (D1); game over check.
 6. Phase goal streak; next phase (phase 4: IPO win).
 7. Event check (milestone events on entering their phase, then Toxicity events); otherwise a new draft.
 
@@ -36,7 +36,7 @@ Event options get phase scaling and stats, but no passive costs, decay or goal c
 
 ## Decisions
 
-- **Absolute users and revenue (game-engine D1):** the design's 100k / 5M / 20M users and EUR 500k are separate stats next to the 0–100 meters. Each card or event adds `meterDelta × phase.usersPerPoint` to `stats.users` (can fall, floor 0) and `positiveRevenueDelta × phase.revenuePerPoint` to `stats.revenue` (gross omzet, never falls; passive costs don't count). Goals read the stats; game overs read the meters. The meters are the platform's health this turn, the stats its accumulated size.
+- **Absolute users and revenue (game-engine D1):** the design's 100k / 5M / 20M users and EUR 500k are stats next to the 0–100 meters. **Users are read off the Gebruikers meter:** `stats.users = round(meter × phase.usersAtFullMeter / 100)` (`usersForMeter`), the meter's share of the phase's market, so the number never contradicts the meter: it rises with it and is 0 only at Gebruikers 0 (= Verlaten Platform). One writer recomputes it before the goal check and on every exit through `advance`, so a new phase shows its bigger market behind the same meter (Bereik jumps up on a phase change). `meterForUsers` gives the lowest Gebruikers level that reaches a users target; the board names it in the goal line. **Revenue accumulates:** each card or event adds `positiveRevenueDelta × phase.revenuePerPoint` (`addGrossRevenue`; gross omzet, never falls, passive costs don't count), because the € 500k goal means total earned and a cumulative number cannot drift from a meter it never falls with. Goals read the stats; game overs read the meters. Replaced in users-stat-model: users accumulated `meterDelta × usersPerPoint` (floor 0), so they could reach 0 at a mid-range meter and one event could wipe millions.
 - **Goals (D2):** one shape, `conditions` held for `consecutiveTurns` in a row. Phases 1–2 reach once; phase 3 is users ≥ 20M for 30 turns; the IPO is reputation > 60 and revenue meter > 80 for 10 turns.
 - **Droogte (D3):** "scandal risk doubles" = a viral card's own Toxicity counts 2× (the news-ignored +2 and the Echo-Chamber +25 are not doubled), since Toxicity drives the scandal events; `isJournalismDroughtActive` tells the board to draw the red border.
 - **Echo-Chamber (D4):** the +25 Toxicity fires once per streak, the +50% user bonus on every viral while the streak lasts.

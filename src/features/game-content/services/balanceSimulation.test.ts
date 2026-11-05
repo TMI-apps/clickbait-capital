@@ -193,11 +193,23 @@ interface Run {
   final: GameState;
   /** Card turns played in each phase. */
   phaseTurns: Record<number, number>;
+  /** Phases whose users goal already held on the turn the game entered them. */
+  usersGoalMetOnEntry: number[];
+}
+
+/** True when the phase's users condition (if any) holds in this state. */
+function usersGoalHolds(state: GameState, content: GameContent): boolean {
+  const phase = content.phases.find((candidate) => candidate.id === state.phase);
+  const condition = phase?.goal.conditions.find(
+    (candidate) => candidate.kind === "stat" && candidate.stat === "users"
+  );
+  return condition?.kind === "stat" && state.stats.users >= condition.atLeast;
 }
 
 function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
   let state = createGame({ content, seed });
   const phaseTurns: Record<number, number> = {};
+  const usersGoalMetOnEntry: number[] = [];
   for (let step = 0; step < MAX_STEPS; step++) {
     if (state.status !== "playing" && state.status !== "event") {
       break;
@@ -206,12 +218,16 @@ function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
     if (choice.kind === "card") {
       phaseTurns[state.phase] = (phaseTurns[state.phase] ?? 0) + 1;
     }
+    const before = state.phase;
     state =
       choice.kind === "event"
         ? resolveEvent(state, content, choice.optionId)
         : playCard(state, content, state.hand![choice.type]);
+    if (state.phase !== before && usersGoalHolds(state, content)) {
+      usersGoalMetOnEntry.push(state.phase);
+    }
   }
-  return { final: state, phaseTurns };
+  return { final: state, phaseTurns, usersGoalMetOnEntry };
 }
 
 function percentile(values: number[], fraction: number): number {
@@ -233,22 +249,35 @@ interface Summary {
   medianPhaseTurns: Record<number, number>;
   /** In how many games each event fired. */
   eventFires: Record<string, number>;
+  /** Per phase: in how many games its users goal already held on entry (goal decided by the previous phase). */
+  usersGoalMetOnEntry: Record<number, number>;
 }
 
 function countInto(counts: Record<string, number>, key: string | number): void {
   counts[key] = (counts[key] ?? 0) + 1;
 }
 
+/** Endings, furthest phase, event fires and goals met on entry, counted over the runs. */
+function countOutcomes(
+  runs: Run[]
+): Pick<Summary, "endings" | "maxPhase" | "eventFires" | "usersGoalMetOnEntry"> {
+  const counts = {
+    endings: {} as Record<string, number>,
+    maxPhase: {} as Record<number, number>,
+    eventFires: {} as Record<string, number>,
+    usersGoalMetOnEntry: {} as Record<number, number>,
+  };
+  for (const { final, usersGoalMetOnEntry } of runs) {
+    countInto(counts.endings, final.status === "won" ? "won" : (final.gameOver ?? "unfinished"));
+    countInto(counts.maxPhase, final.phase);
+    final.firedEventIds.forEach((id) => countInto(counts.eventFires, id));
+    usersGoalMetOnEntry.forEach((phase) => countInto(counts.usersGoalMetOnEntry, phase));
+  }
+  return counts;
+}
+
 function summarize(strategy: Strategy): Summary {
   const runs = SEEDS.map((seed) => runGame(GAME_CONTENT, strategy, seed));
-  const endings: Record<string, number> = {};
-  const maxPhase: Record<number, number> = {};
-  const eventFires: Record<string, number> = {};
-  for (const { final } of runs) {
-    countInto(endings, final.status === "won" ? "won" : (final.gameOver ?? "unfinished"));
-    countInto(maxPhase, final.phase);
-    final.firedEventIds.forEach((id) => countInto(eventFires, id));
-  }
   const turns = runs.map((run) => run.final.turn);
   const medianPhaseTurns: Record<number, number> = {};
   for (const phase of [1, 2, 3, 4]) {
@@ -258,12 +287,10 @@ function summarize(strategy: Strategy): Summary {
     }
   }
   return {
-    endings,
-    maxPhase,
+    ...countOutcomes(runs),
     medianTurns: median(turns),
     turnsP10P90: [percentile(turns, 0.1), percentile(turns, 0.9)],
     medianPhaseTurns,
-    eventFires,
   };
 }
 
