@@ -45,6 +45,16 @@ describe("GAME_CONTENT integrity", () => {
     }
   });
 
+  it("should size every phase market above its users goal when the goal is read off the meter", () => {
+    for (const phase of GAME_CONTENT.phases) {
+      for (const condition of phase.goal.conditions) {
+        if (condition.kind === "stat" && condition.stat === "users") {
+          expect(phase.usersAtFullMeter).toBeGreaterThan(condition.atLeast);
+        }
+      }
+    }
+  });
+
   it("should use unique ids when cards and events are looked up by id", () => {
     const ids = [...GAME_CONTENT.cards, ...GAME_CONTENT.events].map((item) => item.id);
     expect(new Set(ids).size).toBe(ids.length);

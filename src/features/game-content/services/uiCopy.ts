@@ -120,7 +120,7 @@ export const UI_COPY = {
     statsTitle: "Jouw platform",
     turnsLabel: "Beurten",
     phaseReachedLabel: "Fase bereikt",
-    usersLabel: "Gebruikers",
+    usersLabel: "Hoogste bereik",
     revenueLabel: "Totale omzet",
     playedTitle: "Wat je in de feed stopte",
   },

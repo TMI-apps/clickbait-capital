@@ -25,6 +25,21 @@ Game-over texts that match how the run got there, plus removal of the landed gam
 | D1  | Where the story is chosen | closed | Pure `selectGameOverText(reason, run)` in game-content `endings.ts` (game-content README D9), next to the texts and `buildEndReport`; game-flow's `toEndingView` only renders it                                                                                                                                                       | loop-plan                       | which copy fits the run is a content decision; rejected: selection in game-flow (two features would know the variant ids)                                              |
 | D2  | Stories and rules         | closed | Verlaten: most-played type → `adOverload` / `viralBurnout` / `dullFeed` (ties: ads, then viral). Bankroet: < 25% ads → `noIncome`, else `costsOutgrew`. Verbod: viral ≥ 50% → `viralToxicity`, else ≥ 2 crises (toxicity-triggered events; milestones excluded) → `crises`, else more ads than viral → `scamAds`, else `viralToxicity` | orchestrator brief + loop-check | the old single texts became `adOverload`, `noIncome`, `viralToxicity`; the run summary has fired events but no choices, so no story names a choice or a specific event |
 
+## users-stat-model — feat/users-stat-model
+
+The users stat (Bereik) is read off the Gebruikers meter: `round(meter × phase.usersAtFullMeter / 100)`. It replaces the accumulated `usersPerPoint` model of game-engine D1 (game-engine D1 below). Phase markets were retuned and the board's users goal line names its meter level.
+
+| id  | topic                     | status | choice                                                                                                  | source       | notes                                                                                           |
+| --- | ------------------------- | ------ | ------------------------------------------------------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| D1  | Users stat formula        | closed | Linear: meter × phase market / 100                                                                      | loop-refine  | clear-winner over floor × growth^meter: readable off the meter, monotone, 0 only at meter 0     |
+| D2  | Stored or derived on read | closed | Stored in `GameState.stats`, recomputed by one engine function (before the goal check and in `advance`) | loop-refine  | consumers read `stats.users` unchanged                                                          |
+| D3  | Phase change              | closed | Recomputed with the new phase's market: Bereik jumps up on a new phase                                  | loop-refine  | the market grows; the meter stays                                                               |
+| D4  | Revenue                   | closed | Unchanged: accumulated gross omzet                                                                      | loop-refine  | it never falls, so it cannot show the bug; € 500k means total earned                            |
+| D5  | Board readout             | closed | Users goal line adds "(Gebruikers ≥ N)" via `meterForUsers`                                             | loop-refine  | no hard-coded numbers in copy                                                                   |
+| D6  | Phase markets             | closed | 115k / 5.3M / 22.5M / 30M (goals at Gebruikers 87 / 95 / 89)                                            | loop-build   | players enter phases at Gebruikers 85–95; 95 keeps the phase 2 users goal real; game-content D9 |
+| D7  | End-screen users number   | closed | Peak Bereik over the run (`GameState.peakUsers`); results label "Hoogste bereik"                        | orchestrator | the IPO-phase stat could read lower than the 20M held in phase 3                                |
+| D8  | Start reach 57.500        | closed | Accepted, no change                                                                                     | orchestrator | the 100k phase 1 goal keeps the start-small scale                                               |
+
 ## juice-motion-setting — feat/juice-motion-setting
 
 Game juice reads the in-app Beweging setting from game-settings instead of its own OS query.
