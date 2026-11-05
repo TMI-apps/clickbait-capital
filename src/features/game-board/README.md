@@ -6,26 +6,25 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 - Shows the three meters (Inkomsten, Gebruikers, Reputatie), the phase with its milestone progress, the central phone feed and the 3-card draft.
 - Lets the player feed a card by tap, drag onto the feed, or keyboard (arrow keys + Enter / Space), answer pending events, see the end of a run, open card details and pause.
-- No game rules here: `useGameSession` calls the engine and keeps only UI history (feed, meters before the last action) and the action log that game-save stores.
+- No game rules and no run state here: the run (engine state, accepted steps, device save) is game-session's `useGameSession`; `useBoardSession` derives the board view, feed, meter deltas and sounds from it.
 
 ## Structure
 
-| Layer      | Path                                                                               | Purpose                                                                         |
-| ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                                                                     | `GameBoard` (props: `content`, `onQuit`, optional `seed`, `savedRun`)           |
-| Components | `components/GameBoard.tsx`                                                         | One run: session, sounds, and which screen shows (board, intro, ending)         |
-| Components | `components/PlayingBoard.tsx`                                                      | Composition during play: header, meters, feed, draft, dialogs, drag context     |
-| Components | `components/MeterPanel.tsx`, `PhaseProgress.tsx`, `PhoneFeed.tsx`, `CardDraft.tsx` | Board parts (presentation)                                                      |
-| Components | `components/CardDetailDialog.tsx`, `PauseMenu.tsx`                                 | Dialogs on the `Modal` kit                                                      |
-| Hooks      | `hooks/useGameSession.ts`                                                          | One run: session, `play`, `chooseOption`, `restart`, the `BoardView`; saves it  |
-| Hooks      | `hooks/useBoardScreenReader.ts` | One polite announcement per action; focus back to the draft slot / board heading |
-| Hooks      | `hooks/useRovingFocus.ts`                                                          | Arrow keys move focus within a group of buttons                                 |
-| Hooks      | `hooks/useBoardSounds.ts`                                                          | Plays the last action's sounds once, follow-up 250 ms after the action          |
-| Services   | `services/boardSounds.ts`                                                          | `soundsForAction`: engine state change → ordered sound ids (pure)               |
-| Services   | `services/boardSpeech.ts` | Pure: spoken turn summary (`describeTurn`), resume summary (`describeResume`) and meter value text |
-| Services   | `services/gameSession.ts` | Pure: `startSession`, `applyAction` (card or event option), `restoreSession` (replay of a save), `toSavedRun` |
-| Services   | `services/boardView.ts`                                                            | Pure engine state → view mappers; run summary for the end screens; formatting   |
-| Types      | `types/gameBoard.types.ts`                                                         | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)         |
+| Layer      | Path                                                                               | Purpose                                                                                                          |
+| ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                                                                     | `GameBoard` (props: `content`, `onQuit`, optional `seed`, `savedRun`)                                            |
+| Components | `components/GameBoard.tsx`                                                         | One run: session, sounds, and which screen shows (board, intro, ending)                                          |
+| Components | `components/PlayingBoard.tsx`                                                      | Composition during play: header, meters, feed, draft, dialogs, drag context                                      |
+| Components | `components/MeterPanel.tsx`, `PhaseProgress.tsx`, `PhoneFeed.tsx`, `CardDraft.tsx` | Board parts (presentation)                                                                                       |
+| Components | `components/CardDetailDialog.tsx`, `PauseMenu.tsx`                                 | Dialogs on the `Modal` kit                                                                                       |
+| Hooks      | `hooks/useBoardSession.ts`                                                         | The game-session run plus the `BoardView` and the last action's `BoardSounds` (derived, memoized on the session) |
+| Hooks      | `hooks/useBoardScreenReader.ts`                                                    | One polite announcement per action; focus back to the draft slot / board heading                                 |
+| Hooks      | `hooks/useRovingFocus.ts`                                                          | Arrow keys move focus within a group of buttons                                                                  |
+| Hooks      | `hooks/useBoardSounds.ts`                                                          | Plays the last action's sounds once, follow-up 250 ms after the action                                           |
+| Services   | `services/boardSounds.ts`                                                          | Pure: `soundsForAction` (engine state change → ordered sound ids), `soundsForLastStep` (session → `BoardSounds`) |
+| Services   | `services/boardSpeech.ts`                                                          | Pure: spoken turn summary (`describeTurn`), resume summary (`describeResume`) and meter value text               |
+| Services   | `services/boardView.ts`                                                            | Pure engine state → view mappers; `toFeed` (session steps → posts); run summary for the end screens; formatting  |
+| Types      | `types/gameBoard.types.ts`                                                         | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)                                          |
 
 ## Decisions
 
@@ -40,7 +39,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
 - **Stats only as goal progress (D11):** the absolute stats (engine D1) show only for the goal conditions that read them, as "Bereik: x / doel (Gebruikers ≥ N)" and "Omzet: x / doel". Bereik is the number behind the Gebruikers meter (engine D1), so the users line names the meter level `N` that reaches the goal in this phase (`meterForUsers`, computed from content, no number in copy) and its progress moves with the meter. Phase 4 (meter goal) shows none. The end screen reports the run's peak reach (`peakUsers`, "Hoogste bereik") instead of the last value, so a player who held 20M never reads 11M at the IPO; game-flow and the end report receive it through `toGameEnd`.
 - **Milestone progress:** the weakest goal condition as a ratio (stat / target, meter / threshold), plus "x/N beurten op rij" when the goal needs a streak.
-- **Sounds at session level (D12):** `useGameSession` computes the sounds of each action with the pure `soundsForAction` (card type or `event-choice`, then one follow-up: `ipo-win` / `game-over` / `phase-up` / `event-appear`, else at most one `meter-loss` / `meter-gain` when a meter moves ≥ 8) and `useBoardSounds` plays them. Dialog components stay sound-free; main buttons (pause, resume, restart, quit, the phase intro's continue) give `ui-tap` via `GameBoard`. The compact `MuteToggle` sits next to pause. Audio, mute and the gesture unlock live in `@/features/game-audio/api`.
+- **Sounds per action (D12, game-session-split D1):** `useBoardSession` derives the last action's sounds from the session (`soundsForLastStep`: none before the first action or for steps replayed from a save; `key` = step count) with the pure `soundsForAction` (card type or `event-choice`, then one follow-up: `ipo-win` / `game-over` / `phase-up` / `event-appear`, else at most one `meter-loss` / `meter-gain` when a meter moves ≥ 8) and `useBoardSounds` plays them. Dialog components stay sound-free; main buttons (pause, resume, restart, quit, the phase intro's continue) give `ui-tap` via `GameBoard`. The compact `MuteToggle` sits next to pause. Audio, mute and the gesture unlock live in `@/features/game-audio/api`.
 - **Juice (game-juice D1–D7):** `PlayingBoard` runs `useActionJuice` from the view (newest feed type, meter deltas, feed length) and marks the played card's slot (`draftCardElement`) so particles start there. The board container shakes on viral, `JuiceLayer` throws the particles, `MeterPanel` counts values and shows `MeterJuice` accents and flashes, `PhoneFeed` uses `FEED_ENTRANCE` per type, the draft staggers its draw by `duration-fast`, and `GameBoard` wraps the end in `EndJuice`.
 - **Wasted gains (game-juice D5):** `capEffects` in `boardView` caps draft and event-option gains at the meter's room to 100 (`overflow` → GameCard's "MAX" mark). `MeterView.full` marks a meter at 100: it glows and shows the kit `CapBadge` ("MAX") in its label row.
 - **Game-flow screens (game-flow D1, D2):** events open the game-flow `EventModal` over the board (the board keeps the last event while it animates closed); phase intros and the endings replace the board (`PhaseTransitionScreen`, `GameEndFlow`). The board's `toGameEnd` gives the run summary (engine numbers plus board-formatted stat texts, game-flow D4); restart also resets the phase intros.
@@ -49,7 +48,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 - **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, so play continues where it was without a trip through the resume offer.
 
-- **Saved runs (local-save D1, D3, D5, D8):** every accepted action is appended to the session's action log; `useGameSession` writes `{ seed, actions }` through `@/features/game-save/api` after each action and clears it when the run ends or has no actions. A `savedRun` prop is replayed with `restoreSession`; if it no longer replays, a new run starts. A resumed board skips the phase intro (`usePhaseIntro(phase, seenPhase)`) unless the save's last action started the phase (then the interrupted intro shows again, before that turn's milestone event), focuses the board heading and speaks `describeResume` once ("Spel hervat. Fase 2 van 4: Scale-up. Beurt 7." plus the meter values), queued like a turn text. Pause → "Stoppen" keeps the save, so the start screen offers "Verder spelen". File budget: override to 27 files in `featureBudgets.config.cjs` (local-save D9); a board / session split is the follow-up if it grows.
+- **Saved runs (local-save D1, D3, D5, D8):** game-session's `useGameSession` records every accepted action, writes the save after each one and replays a `savedRun` prop (a save that no longer replays starts a new run; see `src/features/game-session/README.md`). A resumed board skips the phase intro (`usePhaseIntro(phase, seenPhase)`) unless the save's last action started the phase (then the interrupted intro shows again, before that turn's milestone event), focuses the board heading and speaks `describeResume` once ("Spel hervat. Fase 2 van 4: Scale-up. Beurt 7." plus the meter values), queued like a turn text. Pause → "Stoppen" keeps the save, so the start screen offers "Verder spelen". The run itself moved to game-session (game-session-split), which ended the local-save D9 budget override.
 
 ## Not here yet
 
@@ -57,13 +56,14 @@ Nothing planned is missing: juice (game-juice) and settings in the pause menu (g
 
 ## Testing
 
-Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. event options), `components/MeterPanel.test.tsx` (MAX and danger text), `services/boardSounds.test.ts` (sound order per action), `services/gameSession.test.ts` (replay identity, rejected or ending replays), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart; save written, resumed, cleared), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type, and the Beweging choice "Verminderd" removing particles). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
+Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. event options), `components/MeterPanel.test.tsx` (MAX and danger text), `services/boardSounds.test.ts` (sound order per action), `services/boardView.test.ts` `toFeed` (keys, newest first), `hooks/useBoardSession.test.ts` (acceptance: a scripted player reaches an end; restart; IPO win; feed and deltas; identical board on resume; sounds silent on start, resume and restart, once per action), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type, and the Beweging choice "Verminderd" removing particles). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
 
 ## Dependencies
 
 - `@/features/game-engine/api` (engine functions, `scaleForPhase`, content and state types).
 - `@/features/game-content/api` (`UI_COPY`, `fillTemplate`); the page passes `GAME_CONTENT`.
-- `@/features/game-save/api` (`writeSavedRun`, `clearSavedRun`, `SavedRun` / `RunAction`).
+- `@/features/game-session/api` (`useGameSession`, `SessionState`, `SessionStep`).
+- `@/features/game-save/api` (`SavedRun` type for the `savedRun` prop).
 - `@/features/game-flow/api` (`EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `usePhaseIntro`).
 - `@/features/game-audio/api` (`useSoundEffects`, `MuteToggle`, `SoundEffectId`).
 - `@/features/game-settings/api` (`SettingsPanel` inside the pause menu).

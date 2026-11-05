@@ -18,7 +18,7 @@ const isRunAction = (value: unknown): value is RunAction => {
   return value.kind === "option" && isId(value.optionId);
 };
 
-/** Shape check only; whether the actions are legal is decided by replaying them (game-board). */
+/** Shape check only; whether the actions are legal is decided by replaying them (game-session). */
 export const isSavedRun = (value: unknown): value is SavedRun =>
   isRecord(value) &&
   value.version === SAVED_RUN_VERSION &&

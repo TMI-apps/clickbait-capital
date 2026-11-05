@@ -10,9 +10,9 @@ import {
 } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import { readSavedRun } from "@/features/game-save/api";
-import { useGameSession } from "@/features/game-board/hooks/useGameSession";
+import { useBoardSession } from "@/features/game-board/hooks/useBoardSession";
 
-type Session = ReturnType<typeof useGameSession>;
+type Session = ReturnType<typeof useBoardSession>;
 
 /** One step of a scripted player: answer an event with its first option, else play `pick`. */
 const step = (session: Session, pick: (session: Session) => string): void => {
@@ -87,10 +87,10 @@ function findWinningSeed(): number {
   throw new Error("no winning seed found");
 }
 
-describe("useGameSession", () => {
+describe("useBoardSession", () => {
   describe("acceptance", () => {
     it("should reach a game end and fill the feed when a scripted player plays the draft", () => {
-      const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 7 }));
+      const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 7 }));
       const firstCard = (session: Session): string => session.view.draft[0].id;
 
       playUntilEnd(result, firstCard);
@@ -104,7 +104,7 @@ describe("useGameSession", () => {
     });
 
     it("should start a fresh playing run when restart is called after the end", () => {
-      const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 7 }));
+      const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 7 }));
       playUntilEnd(result, (session) => session.view.draft[0].id);
 
       act(() => result.current.restart());
@@ -118,7 +118,7 @@ describe("useGameSession", () => {
 
   it("should show the IPO win when a careful player wins with the real content", () => {
     const seed = findWinningSeed();
-    const { result } = renderHook(() => useGameSession({ content: GAME_CONTENT, seed }));
+    const { result } = renderHook(() => useBoardSession({ content: GAME_CONTENT, seed }));
     // Mirror the hook's state with the engine to choose like the careful player.
     let mirror = createGame({ content: GAME_CONTENT, seed });
     for (let step = 0; step < 600 && result.current.view.end === null; step++) {
@@ -136,7 +136,7 @@ describe("useGameSession", () => {
   });
 
   it("should put the played card on top of the feed and report meter deltas when a card is played", () => {
-    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     const ad = result.current.view.draft.find((card) => card.type === "ad");
     expect(ad).toBeDefined();
 
@@ -150,7 +150,7 @@ describe("useGameSession", () => {
   });
 
   it("should ignore a card that is not in the open draft when play is called", () => {
-    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     const before = result.current.view;
 
     act(() => result.current.play("does-not-exist"));
@@ -159,22 +159,9 @@ describe("useGameSession", () => {
   });
 });
 
-describe("useGameSession saving on the device", () => {
-  it("should save the seed and actions when a card is played", () => {
-    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
-    const card = result.current.view.draft[0].id;
-
-    act(() => result.current.play(card));
-
-    expect(readSavedRun()).toEqual({
-      version: 1,
-      seed: 3,
-      actions: [{ kind: "card", cardId: card }],
-    });
-  });
-
+describe("useBoardSession resume and sounds", () => {
   it("should resume the identical board when a saved run is passed", () => {
-    const first = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+    const first = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     for (let count = 0; count < 4; count++) {
       act(() => step(first.result.current, (session) => session.view.draft[0].id));
     }
@@ -182,42 +169,44 @@ describe("useGameSession saving on the device", () => {
     first.unmount();
 
     const { result } = renderHook(() =>
-      useGameSession({ content: SEED_CONTENT, savedRun: readSavedRun() })
+      useBoardSession({ content: SEED_CONTENT, savedRun: readSavedRun() })
     );
 
     expect(result.current.resumed).toBe(true);
     expect(result.current.view).toEqual(before);
   });
 
-  it("should start a new run when the saved run no longer replays", () => {
+  it("should give no sounds when a run starts or resumes", () => {
+    const fresh = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
+    expect(fresh.result.current.sounds.ids).toEqual([]);
+    act(() => fresh.result.current.play(fresh.result.current.view.draft[0].id));
+    fresh.unmount();
+
     const { result } = renderHook(() =>
-      useGameSession({
-        content: SEED_CONTENT,
-        seed: 3,
-        savedRun: { version: 1, seed: 3, actions: [{ kind: "card", cardId: "gone" }] },
-      })
+      useBoardSession({ content: SEED_CONTENT, savedRun: readSavedRun() })
     );
 
-    expect(result.current.resumed).toBe(false);
-    expect(result.current.view.feed).toEqual([]);
-    expect(readSavedRun()).toBeNull();
+    expect(result.current.resumed).toBe(true);
+    expect(result.current.sounds.ids).toEqual([]);
   });
 
-  it("should clear the save when the run ends", () => {
-    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 7 }));
+  it("should give the played card's sound once per action when a card is played", () => {
+    const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
+    const card = result.current.view.draft[0];
+    const keyBefore = result.current.sounds.key;
 
-    playUntilEnd(result, (session) => session.view.draft[0].id);
+    act(() => result.current.play(card.id));
 
-    expect(result.current.view.end).not.toBeNull();
-    expect(readSavedRun()).toBeNull();
+    expect(result.current.sounds.ids[0]).toBe(`card-${card.type}`);
+    expect(result.current.sounds.key).not.toBe(keyBefore);
   });
 
-  it("should clear the save when the run restarts", () => {
-    const { result } = renderHook(() => useGameSession({ content: SEED_CONTENT, seed: 3 }));
+  it("should give no sounds when the run restarts", () => {
+    const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     act(() => result.current.play(result.current.view.draft[0].id));
 
     act(() => result.current.restart());
 
-    expect(readSavedRun()).toBeNull();
+    expect(result.current.sounds.ids).toEqual([]);
   });
 });

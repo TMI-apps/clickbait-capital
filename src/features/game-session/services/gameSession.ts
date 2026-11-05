@@ -1,29 +1,44 @@
-import type { GameContent, GameState, MeterKey } from "@/features/game-engine/api";
+import type { GameContent, GameState } from "@/features/game-engine/api";
 import { createGame, getPendingEvent, playCard, resolveEvent } from "@/features/game-engine/api";
 import type { RunAction, SavedRun } from "@/features/game-save/api";
 import { SAVED_RUN_VERSION } from "@/features/game-save/api";
-import { feedEntryForCard, feedEntryForEvent } from "@/features/game-board/services/boardView";
-import { soundsForAction } from "@/features/game-board/services/boardSounds";
-import type { BoardSounds } from "@/features/game-board/services/boardSounds";
-import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 
-/** One run as the board holds it: engine state plus the UI history the engine doesn't keep. */
+/** One accepted player action with the facts a view needs to show it later. */
+export interface SessionStep {
+  action: RunAction;
+  /** Engine turn when the action was taken. */
+  turn: number;
+  /** The event the option answered; null for a card play. */
+  eventId: string | null;
+}
+
+/**
+ * One run: engine state plus the history the engine doesn't keep. Holds facts only; the
+ * board derives its feed, meter deltas and sounds from them (game-session-split D1).
+ */
 export interface SessionState {
   game: GameState;
-  feed: FeedEntry[];
-  previousMeters: Record<MeterKey, number> | null;
-  sounds: BoardSounds;
+  /** Engine state before the last action; null before the first one. */
+  previousGame: GameState | null;
   /** Every accepted action, oldest first: with the seed this is the save (local-save D1). */
-  actions: RunAction[];
+  steps: SessionStep[];
+  /** How many of `steps` were rebuilt from a save: their effects already happened (silent). */
+  replayedStepCount: number;
 }
 
 /** A fresh run on `seed`. */
 export const startSession = (content: GameContent, seed: number): SessionState => ({
   game: createGame({ content, seed }),
-  feed: [],
-  previousMeters: null,
-  sounds: { ids: [], key: 0 },
-  actions: [],
+  previousGame: null,
+  steps: [],
+  replayedStepCount: 0,
+});
+
+const advance = (current: SessionState, next: GameState, step: SessionStep): SessionState => ({
+  game: next,
+  previousGame: current.game,
+  steps: [...current.steps, step],
+  replayedStepCount: current.replayedStepCount,
 });
 
 const playAction = (
@@ -32,20 +47,11 @@ const playAction = (
   action: Extract<RunAction, { kind: "card" }>
 ): SessionState => {
   const { game } = current;
-  const card = content.cards.find((candidate) => candidate.id === action.cardId);
   const inHand = game.hand !== null && Object.values(game.hand).includes(action.cardId);
-  if (game.status !== "playing" || !card || !inHand) return current;
+  const known = content.cards.some((candidate) => candidate.id === action.cardId);
+  if (game.status !== "playing" || !known || !inHand) return current;
   const next = playCard(game, content, action.cardId);
-  return {
-    game: next,
-    feed: [feedEntryForCard(card, game.turn), ...current.feed],
-    previousMeters: game.meters,
-    sounds: {
-      ids: soundsForAction({ cardType: card.type, before: game, after: next }),
-      key: current.sounds.key + 1,
-    },
-    actions: [...current.actions, action],
-  };
+  return advance(current, next, { action, turn: game.turn, eventId: null });
 };
 
 const answerAction = (
@@ -57,16 +63,7 @@ const answerAction = (
   const event = game.status === "event" ? getPendingEvent(game, content) : null;
   if (!event || !event.options.some((option) => option.id === action.optionId)) return current;
   const next = resolveEvent(game, content, action.optionId);
-  return {
-    game: next,
-    feed: [feedEntryForEvent(event, action.optionId, game.turn), ...current.feed],
-    previousMeters: game.meters,
-    sounds: {
-      ids: soundsForAction({ cardType: null, before: game, after: next }),
-      key: current.sounds.key + 1,
-    },
-    actions: [...current.actions, action],
-  };
+  return advance(current, next, { action, turn: game.turn, eventId: event.id });
 };
 
 /**
@@ -87,8 +84,8 @@ const isOver = (session: SessionState): boolean =>
 
 /**
  * Rebuilds a saved run by replaying its actions on its seed. Null when any action is rejected
- * or the run is already over, e.g. after an update changed the cards (local-save D2). Sounds
- * restart at "nothing to play", so a resume is silent.
+ * or the run is already over, e.g. after an update changed the cards (local-save D2). All
+ * steps count as replayed, so a resume is silent.
  */
 export const restoreSession = (content: GameContent, saved: SavedRun): SessionState | null => {
   let session = startSession(content, saved.seed);
@@ -97,11 +94,15 @@ export const restoreSession = (content: GameContent, saved: SavedRun): SessionSt
     if (next === session || isOver(next)) return null;
     session = next;
   }
-  return { ...session, sounds: { ids: [], key: 0 } };
+  return { ...session, replayedStepCount: session.steps.length };
 };
 
 /** What to store for this session: a run in progress with at least one action, else nothing (D3). */
 export const toSavedRun = (session: SessionState): SavedRun | null =>
-  isOver(session) || session.actions.length === 0
+  isOver(session) || session.steps.length === 0
     ? null
-    : { version: SAVED_RUN_VERSION, seed: session.game.seed, actions: session.actions };
+    : {
+        version: SAVED_RUN_VERSION,
+        seed: session.game.seed,
+        actions: session.steps.map((step) => step.action),
+      };

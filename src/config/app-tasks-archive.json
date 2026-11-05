@@ -173,5 +173,10 @@
     "title": "Local save and resume",
     "description": "Landed: run saved as seed + action log (clickbait-capital:run:v1), replayed on resume; Verder spelen / Nieuw spel on / and /spel; corrupt or unreplayable saves dropped; cleared when the run ends; privacy copy names the saved game; resume announced to screen readers. Decision log § local-save D1-D9. Trade-off: a balance change can shift a resumed run.",
     "status": "done"
+  },
+  {
+    "title": "Split game-board into board + game-session",
+    "description": "Landed: session state moved to src/features/game-session (startSession, applyAction, restoreSession, useGameSession); game-board derives feed, deltas and sounds via useBoardSession; featureBudgets override removed (board 25 files, session 6). Decision log § game-session-split D1-D4.",
+    "status": "done"
   }
 ]

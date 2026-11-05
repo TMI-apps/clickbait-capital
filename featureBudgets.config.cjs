@@ -13,13 +13,7 @@ module.exports = {
     maxFilesPerFeature: 25,
   },
   /** Per-feature waivers — `reason` is required (non-empty). */
-  overrides: {
-    "game-board": {
-      maxFilesPerFeature: 27,
-      reason:
-        "session reducer + replay for local save (local-save D1); split board/session later if it grows",
-    },
-  },
+  overrides: {},
   /**
    * Grandfathered snapshots for features that exceeded defaults at baseline time.
    * Regenerate: pnpm validate:feature-size:baseline

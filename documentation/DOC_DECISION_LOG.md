@@ -6,6 +6,17 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## game-session-split — refactor/game-session-split
+
+One run (engine state, accepted steps, replay, device save) moved out of game-board into `src/features/game-session/`; game-board keeps the board UI and reads the run through `@/features/game-session/api` (`useBoardSession`). No user-visible change.
+
+| id  | topic                  | status | choice                                                                                                                                                                                            | source      | notes                                                                                                                                                                        |
+| --- | ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Session holds facts    | closed | `SessionState` = `game`, `previousGame`, `steps` (action, turn, eventId), `replayedStepCount`; the board derives feed (`toFeed`), meter deltas and sounds (`soundsForLastStep`, key = step count) | loop-plan   | rejected: moving feed / sound mappers into game-session (cycle with game-board views, UI in the session). Supersedes the "sounds at session level" wording of game-board D12 |
+| D2  | Names                  | closed | Feature `game-session` keeps `useGameSession` / `gameSession.ts` (role names at the new level); the board wrapper is `useBoardSession`                                                            | loop-plan   | plan review: `previous` → `previousGame`, `replayedSteps` → `replayedStepCount`                                                                                              |
+| D3  | Resumed phase intro    | closed | `seenPhase` = restored `previousGame.phase` instead of a second replay without the last action                                                                                                    | plan-review | same value: a save always has ≥ 1 action                                                                                                                                     |
+| D4  | game-board file budget | closed | `featureBudgets.config.cjs` override for game-board removed (local-save D9 ends); game-board 25 files, game-session 6                                                                             | task        |                                                                                                                                                                              |
+
 ## local-save — feat/local-save
 
 The run in progress is saved on the device and offered again on `/` and `/spel` (`src/features/game-save/`, game-board, game-flow `ResumeScreen`, privacy copy).

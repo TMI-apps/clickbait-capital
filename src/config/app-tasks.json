@@ -15,11 +15,6 @@
     "status": "to-do"
   },
   {
-    "title": "Split game-board into board + game-session",
-    "description": "Follow-up from local-save D9: game-board holds 27 files under a temporary featureBudgets override (limit 25). Move the session reducer, replay and useGameSession into a new game-session feature with an api barrel; game-board keeps the board UI. Drop the override afterwards. Size M.",
-    "status": "to-do"
-  },
-  {
     "title": "Proposed: Achievements and unlockable cards",
     "description": "Local achievements (for example: IPO reached, game over by each cause, a run without news) and cards unlocked by them. Value: replay. Size M. Daily challenges and streaks are a later lap. Owner ranks at Stop 1; do not build without go-ahead.",
     "status": "to-do"
