@@ -17,13 +17,23 @@ const run = (overrides: Partial<RunSummary> = {}): RunSummary => ({
 });
 
 describe("toEndingView", () => {
-  it("should use the game-over texts of the reason when the run is lost", () => {
-    const ending = toEndingView(run({ reason: "abandoned" }));
+  it("should tell the dull-feed story when a news-only run ends in Verlaten Platform", () => {
+    const ending = toEndingView(
+      run({ reason: "abandoned", playedTypes: ["news", "news", "news", "news"] })
+    );
+    const { title, variants } = GAME_OVER_TEXTS.abandoned;
     expect(ending).toMatchObject({
       outcome: "lost",
+      reason: "abandoned",
       kicker: UI_COPY.results.lostKicker,
-      ...GAME_OVER_TEXTS.abandoned,
+      title,
+      ...variants.dullFeed,
     });
+  });
+
+  it("should tell the ad-overload story when an ad-heavy run ends in Verlaten Platform", () => {
+    const ending = toEndingView(run({ reason: "abandoned", playedTypes: ["ad", "ad", "news"] }));
+    expect(ending.headline).toBe(GAME_OVER_TEXTS.abandoned.variants.adOverload.headline);
   });
 
   it("should use the report title and closing when the IPO is won", () => {
