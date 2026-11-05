@@ -26,12 +26,11 @@ const LICENSE_URLS: Record<string, string> = {
 
 /**
  * Cards still without a photo (GameCard shows the type-icon placeholder): new kids-content cards
- * no owner photo or vetted fallback fits yet (thumbnail-imagery lap). Shrink this list as photos land.
+ * without an owner photo or vetted fallback yet (thumbnail-imagery lap). Shrink this list as photos land.
  */
 const PLACEHOLDER_IDS = [
   "ad-fatbikewinkel",
   "ad-snoepwinkel",
-  "ad-puistjescreme",
   "ad-merch-drop",
   "news-nep-giveaway-uitleg",
   "news-fatbike-regels",
@@ -43,7 +42,7 @@ const PLACEHOLDER_IDS = [
   "news-reclame-herkennen",
   "news-challenge-waarschuwing",
   "news-nepvolgers-onderzoek",
-  "news-kinderen-mening",
+  "news-rustige-feed",
   "event-gemeen-filmpje",
   "event-gevaarlijke-challenge",
   "event-skins-oplichting",

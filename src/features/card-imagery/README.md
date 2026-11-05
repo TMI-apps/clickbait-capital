@@ -22,14 +22,14 @@ Pictures for the cards and events of the deck, and the attribution their open li
 
 ## Files
 
-`public/cards/<contentId>.webp`: one 640×480 (4:3) WebP master per id, quality 68, about 1.8 MB for the 67 photos (all under 140 KB). 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are downloaded once at sourcing time and served from this app.
+`public/cards/<contentId>.webp`: one 640×480 (4:3) WebP master per id, quality 68, about 1.8 MB for the 68 photos (all under 140 KB). 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are downloaded once at sourcing time and served from this app.
 
 ## Sourcing (how the manifest was built)
 
-- **Owner photos (thumbnail-imagery D10):** 24 entries use photos the owner picked on Unsplash (Unsplash License: free use, credit author and photo page). Two of those photos serve two ids each (`reusedFrom`). Title "Foto op Unsplash", author and photo page from the owner's list.
+- **Owner photos (thumbnail-imagery D10):** 34 entries use photos the owner picked on Unsplash (Unsplash License: free use, credit author and photo page). Two of those photos serve two ids each (`reusedFrom`). Title "Foto op Unsplash", author and photo page from the owner's list.
 - **Vetted fallbacks (D11):** expressive adult faces from Openverse (CC0 StockSnap, CC BY Flickr); each licence was checked on the source page at build time, and the page wins over Openverse's index (one photo is CC BY 4.0 there).
 - **Kept from the first imagery lap:** the remaining entries keep their CC0 / CC BY object photos (Openverse, object-focused queries); the clickbait ones get a thumbnail caption.
-- **Review rules:** adults only (no identifiable children), no brands or logos, no swimwear, no real public figures, nothing that presents a person in a defamatory way; captions stay about the topic.
+- **Review rules:** for agent-sourced fallbacks: adults only, no brands or logos, no swimwear, no real public figures. Owner-supplied photos are the owner's call and are used as assigned (thumbnail-imagery D11). For every photo: captions stay about the topic and never put words in a person's mouth.
 - **Processing:** crop 4:3 around a chosen point (optional zoom), resize to 640×480, WebP (quality lowered until under 140 KB). The manifest's `focalPoint` is where that point lands in the master.
 - **Still a placeholder:** the ids in `PLACEHOLDER_IDS` (`services/cardImageLookup.test.ts`) have no entry yet; GameCard shows the type icon.
 - The sourcing scripts ran at build time and are not part of the app. To replace one picture: export a CC0 / CC BY / Unsplash original as above to `public/cards/<id>.webp`, edit that entry (alt, title, author, source, license, thumbnail) and drop the id from `PLACEHOLDER_IDS` if it was there; the tests catch a missing file, a licence outside the allowed set or a caption that breaks the rules.
