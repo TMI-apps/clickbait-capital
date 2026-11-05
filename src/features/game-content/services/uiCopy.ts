@@ -18,6 +18,7 @@ export const UI_COPY = {
     howToPlayButton: "Hoe speel je?",
     settingsButton: "Instellingen",
     creditsButton: "Credits",
+    privacyLink: "Privacy",
   },
   howToPlay: {
     title: "Hoe speel je?",
@@ -158,6 +159,26 @@ export const UI_COPY = {
     imagesIntro:
       "Alle foto's staan onder een open licentie (CC0 of CC BY). Met dank aan de makers:",
     audioHeading: "Geluid",
+    privacyLink: "Privacy",
+    closeButton: "Sluiten",
+  },
+  /** Every claim must match the code: audit in documentation/jobs/temp_job_launch-basics/BRIEF.md. */
+  privacy: {
+    title: "Privacy",
+    intro: "Kort gezegd: je hebt geen account nodig en we volgen je niet.",
+    points: [
+      "Geen account en geen inlog. We vragen nooit je naam of e-mailadres.",
+      "Geen cookies, geen advertenties, geen bezoekersstatistieken en geen trackers.",
+      "Je instellingen (weergave, geluid en beweging) bewaart je browser alleen op dit apparaat. Ze gaan nergens heen.",
+      "Om ook offline te kunnen spelen, bewaart je browser de bestanden van het spel en de kaartfoto's op dit apparaat.",
+      "De site draait bij Cloudflare. Zoals bij elke website ziet die server je IP-adres om de pagina te kunnen sturen. Wij gebruiken dat niet om je te volgen.",
+    ],
+    errorReports:
+      "Loopt het spel vast, dan sturen we een foutmelding naar onze server: wat er misging, op welke pagina en in welke browser. Zonder naam of andere gegevens over jou.",
+    clearHint:
+      "Alles wissen? Verwijder de websitegegevens van deze site in je browser. Geluid en beweging wis je ook via Instellingen.",
+    creditsHint: "Wie de foto's en geluiden maakte, staat bij",
+    creditsLink: "Credits",
     closeButton: "Sluiten",
   },
   errors: {

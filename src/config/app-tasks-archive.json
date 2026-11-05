@@ -158,5 +158,10 @@
     "title": "Manual screen-reader pass",
     "description": "From the launch audit: axe reports 0 WCAG violations, but no human screen-reader run yet. Play a full game with VoiceOver (iOS) and TalkBack (Android) or NVDA; fix announcements of meter changes, events and endings (aria-live). Size S. Landed (code side): one polite announcement per turn with meter changes and goal line, focus stays on the card slot, cards/options name their effects, headings carry their kicker, update banner announced. Decision log § screen-reader D1-D5. Real-device speech is a separate owner test task.",
     "status": "done"
+  },
+  {
+    "title": "Launch basics: privacy note and SEO",
+    "description": "Landed: /privacy (Dutch, honest about storage, error-report line only when Supabase is configured), robots.txt, plain-text sitemap.txt (no protected whitelist edit), per-route canonical links. Decision log § launch-basics D1-D5. Not verified: Search Console acceptance (needs owner account).",
+    "status": "done"
   }
 ]

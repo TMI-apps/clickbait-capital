@@ -3,5 +3,6 @@
  */
 export const LEGAL_ORIGIN = "https://example.com";
 
-export const PRIVACY_URL = `${LEGAL_ORIGIN}/privacy`;
+/** In-app privacy note (`src/pages/PrivacyPage.tsx`). */
+export const PRIVACY_URL = "/privacy";
 export const TERMS_URL = `${LEGAL_ORIGIN}/terms`;

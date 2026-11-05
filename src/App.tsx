@@ -12,6 +12,7 @@ import { MainLayout } from "@/layouts/MainLayout/MainLayout";
 import { PageLoadingState } from "@/components/common/PageLoadingState";
 import { QueryErrorBoundary } from "@/components/common/QueryErrorBoundary";
 import { reportError } from "@/features/error-reporting/services/errorReportService";
+import { getCanonicalUrl } from "@/config/site";
 
 const HomePage = lazy(() => import("@/pages/HomePage").then((m) => ({ default: m.HomePage })));
 const TasksPage = lazy(() =>
@@ -31,6 +32,9 @@ const SettingsPage = lazy(() =>
 const HowToPlayPage = lazy(() =>
   import("@/pages/HowToPlayPage").then((m) => ({ default: m.HowToPlayPage }))
 );
+const PrivacyPage = lazy(() =>
+  import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage }))
+);
 const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
@@ -43,9 +47,12 @@ const reportRenderError = (error: Error): void => reportError(error, "react");
 function AppContent() {
   const location = useLocation();
   const isFullscreen = FULLSCREEN_ROUTES.has(location.pathname);
+  const canonicalUrl = getCanonicalUrl(location.pathname);
 
   return (
     <>
+      {/* React 19 hoists this into <head>; one per public route, none on hidden routes. */}
+      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       {!isFullscreen && <Topbar />}
       <div className={isFullscreen ? undefined : "pt-toolbar"}>
         <QueryErrorBoundary onError={reportRenderError} fallback={<AppErrorFallback />}>
@@ -57,6 +64,7 @@ function AppContent() {
                   <Route path="/instellingen" element={<SettingsPage />} />
                   <Route path="/hoe-speel-je" element={<HowToPlayPage />} />
                   <Route path="/credits" element={<CreditsPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
                 </Route>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

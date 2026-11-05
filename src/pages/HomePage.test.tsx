@@ -22,7 +22,7 @@ describe("HomePage", () => {
     expect(screen.queryByText(/inloggen|sign in/i)).not.toBeInTheDocument();
   });
 
-  it("should link to rules, settings and credits when the start screen shows", () => {
+  it("should link to rules, settings, credits and privacy when the start screen shows", () => {
     renderWithProviders(<HomePage />);
 
     expect(screen.getByRole("link", { name: "Hoe speel je?" })).toHaveAttribute(
@@ -34,6 +34,7 @@ describe("HomePage", () => {
       "/instellingen"
     );
     expect(screen.getByRole("link", { name: "Credits" })).toHaveAttribute("href", "/credits");
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
   });
 
   it("should show the auth error when a sign-in return failed", () => {

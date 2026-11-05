@@ -30,11 +30,6 @@
     "status": "to-do"
   },
   {
-    "title": "Proposed: Launch basics: privacy note and SEO",
-    "description": "A short privacy note (no accounts, no tracking unless analytics is added), robots and a sitemap. Favicon, icons and share tags already exist. Value: trust and findability. Size XS. Owner ranks at Stop 1; do not build without go-ahead.",
-    "status": "to-do"
-  },
-  {
     "title": "Proposed: Performance budget in CI",
     "description": "Bundle size limit and a mobile Lighthouse check so the first load stays fast on phones. Value: keeps the game quick as content and images grow. Size S. Owner ranks at Stop 1; do not build without go-ahead.",
     "status": "to-do"

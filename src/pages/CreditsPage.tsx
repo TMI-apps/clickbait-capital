@@ -24,6 +24,9 @@ export const CreditsPage = () => (
         <p>{copy.body}</p>
         <p className="text-sm text-muted-foreground">{copy.disclaimer}</p>
         <p className="text-sm text-muted-foreground">{copy.madeBy}</p>
+        <Link to="/privacy" className="self-start text-sm underline underline-offset-4">
+          {copy.privacyLink}
+        </Link>
       </header>
 
       <section aria-labelledby="credits-images" className="flex flex-col gap-3">
