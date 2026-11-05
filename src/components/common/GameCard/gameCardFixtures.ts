@@ -30,6 +30,11 @@ export const SAMPLE_CARDS: GameCardProps[] = [
       src: SAMPLE_IMAGES.landscape,
       alt: "Iemand schreeuwt in een livestream",
       focalPoint: { x: 70, y: 30 },
+      thumbnail: {
+        caption: "Live ruzie!",
+        sticker: "😡",
+        marker: { shape: "arrow", x: 70, y: 30 },
+      },
     },
     effects: [
       { meter: "users", delta: 12 },
@@ -44,6 +49,7 @@ export const SAMPLE_CARDS: GameCardProps[] = [
       src: SAMPLE_IMAGES.portrait,
       alt: "Telefoon met een gokspel en munten",
       focalPoint: { x: 70, y: 30 },
+      thumbnail: { caption: "Gratis geld?", marker: { shape: "circle", x: 70, y: 30 } },
     },
     effects: [
       { meter: "revenue", delta: 15 },

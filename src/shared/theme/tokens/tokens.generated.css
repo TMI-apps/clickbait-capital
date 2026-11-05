@@ -68,6 +68,10 @@
   /* Tailwind spacing unit (density). */
   --spacing: 0.25rem;
   --success: #2e7d32;
+  --thumbnail-caption: #ffe600;
+  --thumbnail-ink: #0a0a0a;
+  --thumbnail-marker: #ff1a1a;
+  --thumbnail-paper: #fff;
   --type-ad: #8a6100;
   --type-ad-foreground: #fff;
   --type-event: #c62d0f;

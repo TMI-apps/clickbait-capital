@@ -122,6 +122,11 @@
   --color-type-news-foreground: var(--type-news-foreground);
   --color-type-event: var(--type-event);
   --color-type-event-foreground: var(--type-event-foreground);
+  /* Thumbnail treatment (ThumbnailFrame kit component): same on light and dark. */
+  --color-thumbnail-marker: var(--thumbnail-marker);
+  --color-thumbnail-caption: var(--thumbnail-caption);
+  --color-thumbnail-ink: var(--thumbnail-ink);
+  --color-thumbnail-paper: var(--thumbnail-paper);
   --color-meter-revenue: var(--meter-revenue);
   --color-meter-users: var(--meter-users);
   --color-meter-reputation: var(--meter-reputation);

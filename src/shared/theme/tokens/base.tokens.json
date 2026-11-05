@@ -360,5 +360,37 @@
       "$value": 1.3333,
       "$description": "Image area width / height (4:3). Images crop with object-fit: cover around their focal point."
     }
+  },
+  "thumbnail": {
+    "$type": "color",
+    "$description": "Thumbnail treatment (ThumbnailFrame kit component): marker red, caption yellow, ink outline, paper white. Same in light and dark: they sit on photos, not on the theme surface.",
+    "thumbnail-marker": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1.0, 0.102, 0.102],
+        "hex": "#ff1a1a"
+      }
+    },
+    "thumbnail-caption": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1.0, 0.902, 0.0],
+        "hex": "#ffe600"
+      }
+    },
+    "thumbnail-ink": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.0392, 0.0392, 0.0392],
+        "hex": "#0a0a0a"
+      }
+    },
+    "thumbnail-paper": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [1.0, 1.0, 1.0],
+        "hex": "#ffffff"
+      }
+    }
   }
 }

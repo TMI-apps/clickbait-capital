@@ -37,7 +37,7 @@ export const UI_COPY = {
   },
   tutorial: [
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
-    "Sleep één kaart naar de [[feed]], of tik erop om hem te plaatsen.",
+    "Sleep één kaart naar de [[feed]]. Of tik erop: dan lees je meer en kies je 'In de feed'.",
     "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws brengt vertrouwen.",
     "Houd Inkomsten, Gebruikers en Reputatie boven nul. Komt er één op nul, dan is het spel voorbij.",
     "Let op: je ziet niet alles meteen. Sommige keuzes komen later hard terug.",
@@ -169,7 +169,7 @@ export const UI_COPY = {
     madeBy: "Gemaakt door TMI",
     imagesHeading: "Beelden",
     imagesIntro:
-      "Alle foto's mag iedereen gebruiken (open licentie: CC0 of CC BY). Met dank aan de makers:",
+      "Alle foto's mag iedereen gebruiken (vrije licentie: CC0, CC BY of de Unsplash-licentie). Met dank aan de makers:",
     audioHeading: "Geluid",
     privacyLink: "Privacy",
     closeButton: "Sluiten",

@@ -70,7 +70,9 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   });
 
   /** Particles start where the card was (or was dropped), so mark it before it leaves. */
+  /** From a drag or the detail dialog's "In de feed" (closing the dialog is a no-op after a drag). */
   const playCard = (cardId: string): void => {
+    setDetailCard(null);
     screenReader.rememberSlot(view.draft.findIndex((card) => card.id === cardId));
     juice.markOrigin(draftCardElement(cardId));
     play(cardId);
@@ -81,9 +83,10 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
     if (over?.id === FEED_DROP_ID) playCard(String(active.id));
   };
 
-  const playFromDetails = (cardId: string): void => {
-    setDetailCard(null);
-    playCard(cardId);
+  /** A tap or Enter opens the details (game-board D2); focus comes back to this slot after. */
+  const showDetails = (card: DraftCardView): void => {
+    screenReader.rememberSlot(view.draft.findIndex((draft) => draft.id === card.id));
+    setDetailCard(card);
   };
 
   return (
@@ -116,7 +119,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
         />
         <PhoneFeed entries={view.feed} dragging={dragging} />
         <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
-          <CardDraft cards={view.draft} onPlay={playCard} onShowDetails={setDetailCard} />
+          <CardDraft cards={view.draft} onShowDetails={showDetails} />
         </div>
       </div>
       <JuiceLayer burst={juice.burst} />
@@ -126,7 +129,11 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       <CardDetailDialog
         card={detailCard}
         onClose={() => setDetailCard(null)}
-        onPlay={playFromDetails}
+        onPlay={playCard}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          screenReader.focusDraftSlot();
+        }}
       />
       <EventModal
         open={view.event !== null}

@@ -1,0 +1,31 @@
+# Decisions — thumbnail-imagery
+
+Job: `temp_job_thumbnail-imagery`
+Updated: 2026-11-05
+
+## Closed
+
+| id  | topic                     | status | choice                                                                                                                                                                                             | source                   | notes                                                                                                                                 |
+| --- | ------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Image source              | closed | Free stock photos with a free licence + code-drawn effects; no AI, no paid services                                                                                                                | owner (via orchestrator) | —                                                                                                                                     |
+| D2  | Where the treatment lives | closed | Kit component `ThumbnailFrame` in `components/common/`, used by `GameCardArtwork`; data rides on `GameCardImage.thumbnail`                                                                         | loop-plan                | lost: overlay in card-imagery (GameCard would need a render slot; kit stays the only place that draws cards)                          |
+| D3  | Treatment data            | closed | Per-entry `thumbnail` in the image manifest (`caption?`, `sticker?`, `marker?: { shape, x, y }`); none hard-coded per card                                                                         | owner brief              | —                                                                                                                                     |
+| D4  | Photo index               | closed | Openverse (CC0 + CC BY 2.0–4.0; Flickr, StockSnap, WordPress, rawpixel)                                                                                                                            | loop-plan                | Pexels/Unsplash sites and APIs are blocked or key-only from the sandbox; Openverse is the index the first imagery lap used            |
+| D5  | People rules              | closed | Adults only; no captions that put words in a person's mouth (no quotes, no "I…" captions); captions name the topic                                                                                 | owner brief              | —                                                                                                                                     |
+| D6  | Motion                    | closed | Static overlay, no animation                                                                                                                                                                       | loop-plan                | satisfies reduced motion without a branch; card draw/play motion stays                                                                |
+| D7  | News cards                | closed | No thumbnail look on news: plain photo, no boost, glow, caption, sticker or marker (`GAME_CARD_TYPES.news.thumbnail = false`); manifest news entries carry no `thumbnail`                          | owner                    | news is the honest card type; the contrast with clickbait is the lesson                                                               |
+| D8  | Outline                   | closed | No extra outline on the photo; only the soft type-coloured glow fading in from the edges + vignette                                                                                                | owner                    | the card frame already is the outline                                                                                                 |
+| D9  | Card tap                  | closed | Tap / Enter opens the detail dialog ("In de feed" plays); drag plays in one move; info button removed; focus returns to the slot                                                                   | owner (asked)            | replaces game-board D2 "tap plays"; rejected: hold for details (not discoverable, no keyboard route), keep the info button            |
+| D10 | Owner photos              | closed | Owner-picked Unsplash photos (Unsplash License) for 24 entries; licence type gains "Unsplash License"                                                                                              | owner (via orchestrator) | owner delivered 32 files; 5 marked unusable by owner/orchestrator                                                                     |
+| D11 | Owner-supplied images     | closed | The owner decides on owner-supplied images: every owner photo is used exactly as assigned (incl. the six extras), no agent filter on them; the agent only crops and keeps captions about the topic | owner (via orchestrator) | first pass held or replaced 7 owner photos (minors, brands, gesture); owner: "the judgement call on images is mine — use all of them" |
+
+## Open
+
+| id  | topic | status | options briefly | blocked phase |
+| --- | ----- | ------ | --------------- | ------------- |
+
+## Log
+
+- 2026-11-05 — D1–D6 closed
+- 2026-11-05 — D7–D9 closed after owner feedback on the first render
+- 2026-11-05 — D10–D11 closed; O1 closed (final list from kids-content #37)

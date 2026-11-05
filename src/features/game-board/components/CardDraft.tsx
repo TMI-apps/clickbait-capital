@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { GameCard } from "@/components/common/GameCard";
 import { getCardImage } from "@/features/card-imagery/api";
 import { useRovingFocus } from "@/features/game-board/hooks/useRovingFocus";
@@ -24,12 +24,11 @@ export const draftCardElement = (cardId: string): Element | null =>
 interface DraftSlotProps {
   card: DraftCardView;
   index: number;
-  onPlay: (cardId: string) => void;
   onShowDetails: (card: DraftCardView) => void;
 }
 
-/** One draft card: tap / Enter plays it, drag drops it on the feed, the info button opens details. */
-const DraftSlot = ({ card, index, onPlay, onShowDetails }: DraftSlotProps) => {
+/** One draft card: tap / Enter opens its details (with a Play button), drag drops it on the feed. */
+const DraftSlot = ({ card, index, onShowDetails }: DraftSlotProps) => {
   const { setNodeRef, listeners, transform, isDragging } = useDraggable({ id: card.id });
   return (
     <li
@@ -49,48 +48,35 @@ const DraftSlot = ({ card, index, onPlay, onShowDetails }: DraftSlotProps) => {
         title={card.title}
         effects={card.effects}
         image={getCardImage(card.id) ?? undefined}
-        onSelect={() => onPlay(card.id)}
+        onSelect={() => onShowDetails(card)}
         animation="draw"
         size="compact"
         className={cn("h-full", DRAW_DELAY[index])}
       />
-      {/* Overlay over the artwork area (same aspect ratio) for the info button; enters with the card. */}
-      <span
-        className={cn(
-          "pointer-events-none absolute inset-x-0 top-0 flex aspect-game-card-image animate-card-draw items-end justify-between p-1",
-          DRAW_DELAY[index]
-        )}
-      >
-        {card.droughtWarning ? (
+      {card.droughtWarning && (
+        <span
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-0 flex aspect-game-card-image animate-card-draw items-end p-1",
+            DRAW_DELAY[index]
+          )}
+        >
           <AlertTriangle
             aria-hidden="true"
             className="size-6 rounded-full bg-destructive p-1 text-destructive-foreground"
           />
-        ) : (
-          <span />
-        )}
-        <button
-          type="button"
-          aria-label={`Details: ${card.title}`}
-          onClick={() => onShowDetails(card)}
-          onPointerDown={(event) => event.stopPropagation()}
-          className="pointer-events-auto inline-flex size-11 items-center justify-center rounded-full bg-popover/90 text-popover-foreground elevation-md outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
-        >
-          <Info aria-hidden="true" className="size-5" />
-        </button>
-      </span>
+        </span>
+      )}
     </li>
   );
 };
 
 export interface CardDraftProps {
   cards: DraftCardView[];
-  onPlay: (cardId: string) => void;
   onShowDetails: (card: DraftCardView) => void;
 }
 
-/** The 3-card draft. Arrow keys move between cards; Enter / Space plays the focused card. */
-export const CardDraft = ({ cards, onPlay, onShowDetails }: CardDraftProps) => {
+/** The 3-card draft. Arrow keys move between cards; Enter / Space opens the focused card's details. */
+export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
   const { onKeyDown } = useRovingFocus(CARD_SELECTOR);
   const drought = cards.some((card) => card.droughtWarning);
   return (
@@ -117,13 +103,7 @@ export const CardDraft = ({ cards, onPlay, onShowDetails }: CardDraftProps) => {
       )}
       <ul className="mx-auto grid w-full grid-cols-3 gap-2 sm:gap-4" onKeyDown={onKeyDown}>
         {cards.map((card, index) => (
-          <DraftSlot
-            key={card.id}
-            card={card}
-            index={index}
-            onPlay={onPlay}
-            onShowDetails={onShowDetails}
-          />
+          <DraftSlot key={card.id} card={card} index={index} onShowDetails={onShowDetails} />
         ))}
       </ul>
     </section>
