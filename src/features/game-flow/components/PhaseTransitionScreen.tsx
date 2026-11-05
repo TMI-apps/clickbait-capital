@@ -10,7 +10,10 @@ export interface PhaseTransitionScreenProps {
   onContinue: () => void;
 }
 
-/** Phase intro when a phase starts: where you are now, what changes, and the new goal. */
+/**
+ * Phase intro when a phase starts: where you are now, what changes, and the new goal. The step
+ * dots are decorative; the kicker ("Fase 2") in the focused heading says where you are.
+ */
 export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScreenProps) => {
   const intro = PHASE_INTROS[phase.phaseId];
   const steps = Array.from({ length: phase.phaseCount }, (_, index) => index + 1);
@@ -19,11 +22,10 @@ export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScre
       kicker={intro.kicker}
       title={intro.title}
       icon={
-        <ol aria-label={intro.kicker} className="flex gap-1.5">
+        <ol aria-hidden="true" className="flex gap-1.5">
           {steps.map((step) => (
             <li
               key={step}
-              aria-current={step === phase.phaseId ? "step" : undefined}
               className={cn(
                 "h-1.5 flex-1 rounded-full",
                 step <= phase.phaseId ? "bg-primary" : "bg-muted"

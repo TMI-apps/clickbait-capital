@@ -21,11 +21,11 @@ describe("GameCard", () => {
 
   it("should show meter effects as signed numbers with meter names and spoken direction", () => {
     render(<GameCard {...news} />);
-    const items = within(screen.getByRole("list", { name: "Effecten" })).getAllByRole("listitem");
+    const items = within(screen.getByRole("list")).getAllByRole("listitem");
 
     expect(items.map((item) => item.textContent)).toEqual([
-      "Reputatie+8omhoog 8",
-      "Gebruikers−4omlaag 4",
+      "Reputatie+8omhoog 8, ",
+      "Gebruikers−4omlaag 4, ",
       "Inkomsten±0gelijk 0",
     ]);
   });
@@ -34,7 +34,7 @@ describe("GameCard", () => {
     render(
       <GameCard type="ad" title="Gok-app" effects={[{ meter: "revenue", delta: 4, overflow: 8 }]} />
     );
-    const item = within(screen.getByRole("list", { name: "Effecten" })).getByRole("listitem");
+    const item = within(screen.getByRole("list")).getByRole("listitem");
 
     expect(item.textContent).toBe("Inkomsten+4omhoog 4MAX, 8 verspild boven het maximum");
   });

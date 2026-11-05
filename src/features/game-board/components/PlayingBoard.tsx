@@ -10,6 +10,7 @@ import {
 import { Pause } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
+import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
 import { EventModal } from "@/features/game-flow/api";
 import { JuiceLayer, useActionJuice } from "@/features/game-juice/api";
@@ -45,6 +46,8 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } })
   );
 
+  const screenReader = useBoardScreenReader(view);
+
   const juice = useActionJuice({
     action: view.feed[0]?.type ?? null,
     meters: view.meters,
@@ -53,6 +56,7 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
 
   /** Particles start where the card was (or was dropped), so mark it before it leaves. */
   const playCard = (cardId: string): void => {
+    screenReader.rememberSlot(view.draft.findIndex((card) => card.id === cardId));
     juice.markOrigin(draftCardElement(cardId));
     play(cardId);
   };
@@ -107,14 +111,22 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
       </div>
       <JuiceLayer burst={juice.burst} />
       <p aria-live="polite" className="sr-only">
-        {view.feed[0] ? `Geplaatst: ${view.feed[0].title}` : ""}
+        <span key={screenReader.announcement.key}>{screenReader.announcement.text}</span>
       </p>
       <CardDetailDialog
         card={detailCard}
         onClose={() => setDetailCard(null)}
         onPlay={playFromDetails}
       />
-      <EventModal open={view.event !== null} event={shownEvent} onChoose={chooseOption} />
+      <EventModal
+        open={view.event !== null}
+        event={shownEvent}
+        onChoose={chooseOption}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          screenReader.focusDraftSlot();
+        }}
+      />
       <PauseMenu
         open={paused}
         onResume={withTap(() => setPaused(false))}

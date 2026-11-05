@@ -26,14 +26,17 @@ export interface EventModalProps {
   /** The event to show; kept by the caller while the modal animates closed. */
   event: FlowEvent | null;
   onChoose: (optionId: string) => void;
+  /** Where focus goes once the modal has closed; the board returns it to the draft. */
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 /**
  * An event interrupts the draft: one urgent situation and three policy options with their
  * phase-scaled effects. It must be answered (no close button, Escape and overlay ignored).
  */
-export const EventModal = ({ open, event, onChoose }: EventModalProps) => (
+export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventModalProps) => (
   <Modal
+    onCloseAutoFocus={onCloseAutoFocus}
     open={open}
     dismissible={false}
     title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}

@@ -119,7 +119,7 @@ describe("GameBoard", () => {
 
   it("should show the phase 1 intro before the board when a run starts", async () => {
     renderWithProviders(<GameBoard content={SEED_CONTENT} onQuit={vi.fn()} seed={11} />);
-    expect(screen.getByRole("heading", { level: 1, name: "De Zolderkamer" })).toHaveFocus();
+    expect(screen.getByRole("heading", { level: 1, name: "Fase 1: De Zolderkamer" })).toHaveFocus();
     expect(screen.queryByRole("region", { name: /kies een post/i })).not.toBeInTheDocument();
   });
 
@@ -127,7 +127,7 @@ describe("GameBoard", () => {
     const { user } = await renderBoard(MILESTONE_NOW);
     await user.click(draftCards()[0]);
 
-    expect(screen.getByRole("heading", { level: 1, name: "De Scale-Up" })).toHaveFocus();
+    expect(screen.getByRole("heading", { level: 1, name: "Fase 2: De Scale-Up" })).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Aan de slag" }));
     expect(draftCards()).toHaveLength(3);
   });
@@ -142,7 +142,7 @@ describe("GameBoard", () => {
 
     expect(screen.getByText("Beursgang geslaagd")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 1, name: "Gefeliciteerd met je beursgang!" })
+      screen.getByRole("heading", { level: 1, name: /: Gefeliciteerd met je beursgang!$/ })
     ).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Bekijk je rapport" }));
     expect(screen.getByText("Beurswaarde op de eerste handelsdag")).toBeInTheDocument();
@@ -153,14 +153,16 @@ describe("GameBoard", () => {
     const { user, onQuit } = await renderBoard(BANKRUPT_NOW);
     await user.click(draftCards()[1]);
 
-    expect(screen.getByRole("heading", { level: 1, name: "Bankroet" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: /: Bankroet$/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Bekijk je rapport" }));
-    expect(screen.getByRole("heading", { name: "Game over: Bankroet" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Je rapport. Game over: Bankroet" })).toHaveFocus();
     await user.click(screen.getByRole("button", { name: "Naar het begin" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole("button", { name: "Opnieuw spelen" }));
-    expect(screen.getByRole("heading", { level: 1, name: "De Zolderkamer" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Fase 1: De Zolderkamer" })
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Aan de slag" }));
     expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
   });
@@ -202,5 +204,35 @@ describe("GameBoard juice", () => {
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
     expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+  });
+});
+
+describe("GameBoard with a screen reader", () => {
+  it("should focus the board heading when the board opens after the phase intro", async () => {
+    await renderBoard();
+    expect(screen.getByRole("heading", { level: 1, name: /De Zolderkamer/ })).toHaveFocus();
+  });
+
+  it("should announce the post, meter changes and goal line and keep the draft slot focused when a card is played", async () => {
+    const { user } = await renderBoard();
+    draftCards()[1].focus();
+    await user.keyboard("{Enter}");
+
+    const live = document.querySelector('[aria-live="polite"]');
+    expect(live?.textContent).toMatch(/^Geplaatst: .+\. Inkomsten omhoog \d+, nu \d+\..*Bereik: /);
+    expect(draftCards()[1]).toHaveFocus();
+  });
+
+  it("should return focus to the draft and announce the chosen policy when an event is answered", async () => {
+    const { user } = await renderBoard(EVENT_NOW);
+    draftCards()[0].focus();
+    await user.keyboard("{Enter}");
+    const dialog = screen.getByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: /moderatie/i }));
+
+    expect(document.querySelector('[aria-live="polite"]')?.textContent).toContain(
+      "Gekozen: Investeer in moderatie."
+    );
+    expect(draftCards()[0]).toHaveFocus();
   });
 });

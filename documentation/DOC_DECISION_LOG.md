@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## screen-reader — a11y/screen-reader
+
+A full run is followable with VoiceOver / TalkBack: one spoken summary per action, focus that stays in the draft, effects on cards, spoken flow-screen kickers and an update banner that is announced (`src/features/game-board/`, `game-flow`, `app-update`, kit `GameCard` / `Modal`).
+
+| id  | topic              | status | choice                                                                                                                                                                         | source      | notes                                                                                                                   |
+| --- | ------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
+| D1  | Turn announcement  | closed | One polite message per action from pure `describeTurn`: post or chosen policy, changed meters ("Inkomsten omhoog 8, nu 58"), goal line, danger, drought start                    | loop-refine | rejected: a live region per meter (three announcements per turn), `assertive` (interrupts the player's own reading)     |
+| D2  | Focus after a play | closed | Card in the same draft slot after a play and after an event answer; the board heading when the board opens                                                                    | loop-refine | the played card unmounts, so focus fell to `<body>` and readers restarted at the top every turn                          |
+| D3  | Meter tile reading | closed | One `role="meter"` per tile; `valueText` (from `toMeters`) holds value, change and danger/max; visible number, delta, icons `aria-hidden`                                       | loop-refine | before: value read twice plus a separate "Gevaar"                                                                       |
+| D4  | Effects on cards   | closed | Kit `GameCardEffects`: sr-only "Effecten:" text and an unlabelled list, so a card's description and an event option's name include the effects                                | loop-refine | the list's `aria-label` replaced its content in computed names/descriptions: cards described themselves as "Effecten" |
+| D5  | Flow headings      | closed | Kicker spoken inside the focused heading (sr-only), step dots hidden; results heading starts with sr-only "Je rapport." | loop-build  | a lost ending and its results had the same heading, so "Bekijk je rapport" sounded like nothing happened                |
+
 ## app-update-flow — feat/app-update-flow
 
 New deploys reach players reliably without wiping a running game (`src/features/app-update/`).

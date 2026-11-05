@@ -19,6 +19,11 @@ export interface ModalProps {
   dismissible?: boolean;
   /** Accessible name of the close button. Default "Close"; Dutch screens pass "Sluiten". */
   closeLabel?: string;
+  /**
+   * Runs when focus would return after closing; call `event.preventDefault()` to place it
+   * yourself (e.g. when the element that opened the dialog is gone).
+   */
+  onCloseAutoFocus?: (event: Event) => void;
 }
 
 /**
@@ -35,6 +40,7 @@ export const Modal = ({
   className,
   dismissible = true,
   closeLabel = "Close",
+  onCloseAutoFocus,
 }: ModalProps) => {
   const blockDismiss = (event: Event): void => {
     if (!dismissible) event.preventDefault();
@@ -45,6 +51,7 @@ export const Modal = ({
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
           {...(!description && { "aria-describedby": undefined })}
+          onCloseAutoFocus={onCloseAutoFocus}
           onEscapeKeyDown={blockDismiss}
           onPointerDownOutside={blockDismiss}
           onInteractOutside={blockDismiss}

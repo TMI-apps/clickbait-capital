@@ -18,9 +18,11 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 | Components | `components/MeterPanel.tsx`, `PhaseProgress.tsx`, `PhoneFeed.tsx`, `CardDraft.tsx` | Board parts (presentation)                                                      |
 | Components | `components/CardDetailDialog.tsx`, `PauseMenu.tsx`                                 | Dialogs on the `Modal` kit                                                      |
 | Hooks      | `hooks/useGameSession.ts`                                                          | One run: engine state, feed, `play`, `chooseOption`, `restart`, the `BoardView` |
+| Hooks      | `hooks/useBoardScreenReader.ts` | One polite announcement per action; focus back to the draft slot / board heading |
 | Hooks      | `hooks/useRovingFocus.ts`                                                          | Arrow keys move focus within a group of buttons                                 |
 | Hooks      | `hooks/useBoardSounds.ts`                                                          | Plays the last action's sounds once, follow-up 250 ms after the action          |
 | Services   | `services/boardSounds.ts`                                                          | `soundsForAction`: engine state change → ordered sound ids (pure)               |
+| Services   | `services/turnAnnouncement.ts` | Pure: spoken turn summary (`describeTurn`) and meter value text |
 | Services   | `services/boardView.ts`                                                            | Pure engine state → view mappers; run summary for the end screens; formatting   |
 | Types      | `types/gameBoard.types.ts`                                                         | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)         |
 
@@ -41,6 +43,8 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Juice (game-juice D1–D7):** `PlayingBoard` runs `useActionJuice` from the view (newest feed type, meter deltas, feed length) and marks the played card's slot (`draftCardElement`) so particles start there. The board container shakes on viral, `JuiceLayer` throws the particles, `MeterPanel` counts values and shows `MeterJuice` accents and flashes, `PhoneFeed` uses `FEED_ENTRANCE` per type, the draft staggers its draw by `duration-fast`, and `GameBoard` wraps the end in `EndJuice`.
 - **Wasted gains (game-juice D5):** `capEffects` in `boardView` caps draft and event-option gains at the meter's room to 100 (`overflow` → GameCard's "MAX" mark). `MeterView.full` marks a meter at 100: it glows and shows the kit `CapBadge` ("MAX") in its label row.
 - **Game-flow screens (game-flow D1, D2):** events open the game-flow `EventModal` over the board (the board keeps the last event while it animates closed); phase intros and the endings replace the board (`PhaseTransitionScreen`, `GameEndFlow`). The board's `toGameEnd` gives the run summary (engine numbers plus board-formatted stat texts, game-flow D4); restart also resets the phase intros.
+
+- **Screen readers (screen-reader D1–D3):** every card play or event answer produces one polite announcement (`describeTurn`): the post or chosen policy, each changed meter as "Inkomsten omhoog 8, nu 58", the goal line, then warnings (meter in danger; Journalistieke droogte only on the turn it starts). It replaces the old "Geplaatst: …" region and is empty after a phase intro, so no old turn repeats. Focus: board heading when the board opens, the card in the same draft slot after a play, that slot again after an event answer (`EventModal onCloseAutoFocus`). Each meter tile is one `role="meter"` whose `valueText` (from `toMeters`) carries value, change and danger/max; the visible number, delta and icons are `aria-hidden`.
 
 - **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, because the run lives in memory on `/spel`.
 
