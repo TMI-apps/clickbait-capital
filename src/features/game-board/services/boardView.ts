@@ -17,7 +17,7 @@ import {
   meterForUsers,
   scaleForPhase,
 } from "@/features/game-engine/api";
-import { meterValueText } from "@/features/game-board/services/turnAnnouncement";
+import { meterValueText } from "@/features/game-board/services/boardSpeech";
 import type {
   CardEffectView,
   DraftCardView,

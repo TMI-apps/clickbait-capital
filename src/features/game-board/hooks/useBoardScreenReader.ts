@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { describeTurn, type TurnSnapshot } from "@/features/game-board/services/turnAnnouncement";
+import { describeTurn, type TurnSnapshot } from "@/features/game-board/services/boardSpeech";
 import type { BoardView } from "@/features/game-board/types/gameBoard.types";
 
 /** The heading of the playing board; focused when the board opens after a phase intro. */
@@ -21,25 +21,39 @@ function toSnapshot(view: BoardView): TurnSnapshot {
   };
 }
 
+/** Wait after an action before speaking, so the focus move to the next card is read first. */
+const ANNOUNCE_DELAY_MS = 150;
+
 /**
- * The polite announcement of the last action (screen-reader D1). Empty until the first action
- * after mount, so returning to the board after a phase intro doesn't repeat the old turn.
+ * The polite announcement of the last actions (screen-reader D1). Texts queue while `blocked`
+ * (an event dialog is open or still animating out: it hides the rest of the page from screen
+ * readers), then go out together once, after the focus move. Nothing from before mount repeats.
  */
-function useTurnAnnouncement(view: BoardView): { text: string; key: number } {
+function useTurnAnnouncement(view: BoardView, blocked: boolean): { text: string; key: number } {
   const key = view.feed.length;
   const snapshot = toSnapshot(view);
-  const [mountKey] = useState(key);
-  // The last action's snapshot and the one before it (for "drought started").
-  const [turns, setTurns] = useState<{
-    key: number;
-    current: TurnSnapshot;
-    previous: TurnSnapshot | null;
-  }>({ key, current: snapshot, previous: null });
+  // The last action's snapshot (for "drought started") and the texts not yet spoken.
+  const [turns, setTurns] = useState<{ key: number; current: TurnSnapshot; pending: string[] }>({
+    key,
+    current: snapshot,
+    pending: [],
+  });
   if (turns.key !== key) {
-    setTurns({ key, current: snapshot, previous: turns.current });
+    const text = describeTurn(snapshot, turns.current);
+    setTurns({ key, current: snapshot, pending: [...turns.pending, text] });
   }
-  const previous = turns.key === key ? turns.previous : turns.current;
-  return { text: key === mountKey ? "" : describeTurn(snapshot, previous), key };
+  const [spoken, setSpoken] = useState({ text: "", key: 0 });
+
+  useEffect(() => {
+    if (blocked || turns.pending.length === 0) return;
+    const timer = window.setTimeout(() => {
+      setSpoken((last) => ({ text: turns.pending.join(" "), key: last.key + 1 }));
+      setTurns((current) => ({ ...current, pending: [] }));
+    }, ANNOUNCE_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [blocked, turns.pending]);
+
+  return spoken;
 }
 
 /**
@@ -84,10 +98,11 @@ export interface BoardScreenReader {
 
 /**
  * What screen-reader players need from the playing board beyond its markup: one announcement
- * per action and focus that stays in the draft between turns.
+ * per action and focus that stays in the draft between turns. `dialogOpen`: an answer-only
+ * dialog is mounted (including its closing animation).
  */
-export function useBoardScreenReader(view: BoardView): BoardScreenReader {
-  const announcement = useTurnAnnouncement(view);
+export function useBoardScreenReader(view: BoardView, dialogOpen: boolean): BoardScreenReader {
+  const announcement = useTurnAnnouncement(view, dialogOpen);
   const focus = useBoardFocus(view.draft.map((card) => card.id).join());
   return { announcement, ...focus };
 }

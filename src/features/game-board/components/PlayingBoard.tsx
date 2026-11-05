@@ -46,7 +46,10 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } })
   );
 
-  const screenReader = useBoardScreenReader(view);
+  // True from the event's arrival until its dialog has fully closed (onCloseAutoFocus).
+  const [eventDialogMounted, setEventDialogMounted] = useState(false);
+  if (view.event !== null && !eventDialogMounted) setEventDialogMounted(true);
+  const screenReader = useBoardScreenReader(view, view.event !== null || eventDialogMounted);
 
   const juice = useActionJuice({
     action: view.feed[0]?.type ?? null,
@@ -125,6 +128,7 @@ export const PlayingBoard = ({ view, play, chooseOption, onQuit, withTap }: Play
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           screenReader.focusDraftSlot();
+          setEventDialogMounted(false);
         }}
       />
       <PauseMenu

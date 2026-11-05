@@ -4,7 +4,7 @@ import {
   describeTurn,
   meterValueText,
   type TurnSnapshot,
-} from "@/features/game-board/services/turnAnnouncement";
+} from "@/features/game-board/services/boardSpeech";
 import type { MeterView } from "@/features/game-board/types/gameBoard.types";
 
 /** Meters in board order: [revenue, users, reputation] values and their deltas. */
@@ -33,7 +33,7 @@ const snapshot = (overrides: Partial<TurnSnapshot> = {}): TurnSnapshot => ({
   ...overrides,
 });
 
-describe("turnAnnouncement", () => {
+describe("boardSpeech", () => {
   it("should name the post, each changed meter with its new value and the goal line when a card is played", () => {
     expect(describeTurn(snapshot(), null)).toBe(
       "Geplaatst: Pizzeria om de hoek. Inkomsten omhoog 8, nu 58. Gebruikers omlaag 5, nu 45. Bereik: 51.750 / 100.000 (Gebruikers ≥ 87)."

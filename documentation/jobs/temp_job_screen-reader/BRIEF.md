@@ -33,7 +33,7 @@ In a scripted full game at 390px, every turn produces exactly one polite announc
 ## Edges
 | Feature area | Loop today | Hook point | Ride / new |
 |---|---|---|---|
-| game-board | play → `useGameSession` → new `BoardView` → `PlayingBoard` render + `aria-live` "Geplaatst" | `PlayingBoard`, `MeterPanel`, new `services/turnAnnouncement.ts` + `hooks/useTurnAnnouncement.ts` | ride — replaces the existing live region |
+| game-board | play → `useGameSession` → new `BoardView` → `PlayingBoard` render + `aria-live` "Geplaatst" | `PlayingBoard`, `MeterPanel`, new `services/boardSpeech.ts` + `hooks/useBoardScreenReader.ts` | ride — replaces the existing live region |
 | game-flow | `FlowScreen` focuses its heading; `EventModal` on Modal | `FlowScreen`, `PhaseTransitionScreen`, `EventModal` (focus return) | ride |
 | components/common | GameCard, GameCardEffects, Modal | `aria-pressed`, effects text, Modal `onCloseAutoFocus` passthrough | ride |
 | app-update | `UpdatePrompt` mounts `role=status` with text | `UpdatePrompt` | ride |
@@ -43,8 +43,8 @@ S — four edges, each a small change; one new pure service with tests.
 Cut into laps: none
 
 ## Plan
-1. Acceptance test (fails first): `turnAnnouncement.test.ts` — message for a card play, an event answer, an unchanged-meter turn, danger and drought start.
-2. `services/turnAnnouncement.ts` (pure) + `hooks/useTurnAnnouncement.ts` (clear-then-set by key); wire in `PlayingBoard`, drop the old `<p aria-live>`.
+1. Acceptance test (fails first): `boardSpeech.test.ts` — message for a card play, an event answer, an unchanged-meter turn, danger and drought start.
+2. `services/boardSpeech.ts` (pure) + `hooks/useBoardScreenReader.ts` (live text keyed per release, queued while the event dialog is mounted, 150 ms after the focus move); wire in `PlayingBoard`, drop the old `<p aria-live>`.
 3. Focus restore in `PlayingBoard` (slot ref, effect on draft, `onCloseAutoFocus` on EventModal → Modal passthrough), heading focus on mount (`PhaseProgress` h1 `tabIndex=-1`).
 4. Kit: GameCard `aria-pressed`, GameCardEffects text; update GameCard tests.
 5. MeterPanel valuetext with change; hide visual duplicates; update MeterPanel test.

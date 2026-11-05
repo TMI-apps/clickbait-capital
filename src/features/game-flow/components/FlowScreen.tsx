@@ -53,7 +53,12 @@ export const FlowScreen = ({
             tone === "dramatic" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-3xl"
           )}
         >
-          {kicker && <span className="sr-only">{kicker}:</span>} {title}
+          {kicker && (
+            <>
+              <span className="sr-only">{kicker}:</span>{" "}
+            </>
+          )}
+          {title}
         </h1>
         {children}
       </div>

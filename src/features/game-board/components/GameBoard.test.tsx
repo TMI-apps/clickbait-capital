@@ -1,5 +1,5 @@
 import { describe, expect, it, onTestFinished, vi } from "vitest";
-import { act, screen, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
 import { SEED_CONTENT } from "@/features/game-engine/api";
@@ -219,19 +219,22 @@ describe("GameBoard with a screen reader", () => {
     await user.keyboard("{Enter}");
 
     const live = document.querySelector('[aria-live="polite"]');
+    await waitFor(() => expect(live?.textContent).not.toBe(""));
     expect(live?.textContent).toMatch(/^Geplaatst: .+\. Inkomsten omhoog \d+, nu \d+\..*Bereik: /);
     expect(draftCards()[1]).toHaveFocus();
   });
 
-  it("should return focus to the draft and announce the chosen policy when an event is answered", async () => {
+  it("should return focus to the draft and announce the play and the chosen policy together when an event is answered", async () => {
     const { user } = await renderBoard(EVENT_NOW);
     draftCards()[0].focus();
     await user.keyboard("{Enter}");
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: /moderatie/i }));
 
-    expect(document.querySelector('[aria-live="polite"]')?.textContent).toContain(
-      "Gekozen: Investeer in moderatie."
+    await waitFor(() =>
+      expect(document.querySelector('[aria-live="polite"]')?.textContent).toMatch(
+        /^Geplaatst: .+ Gekozen: Investeer in moderatie\./
+      )
     );
     expect(draftCards()[0]).toHaveFocus();
   });
