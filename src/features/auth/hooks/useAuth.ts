@@ -1,9 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { isSupabaseConfigured } from "@/shared/services/supabaseService";
+import { hasPersistedAuthSession, isSupabaseConfigured } from "@/shared/services/supabaseService";
+import { isOAuthRedirectInProgress, isPasswordRecoveryRedirect } from "@/shared/utils/oauthUtils";
 import type { AuthContextValue, User } from "@/features/auth/types/auth.types";
 import { initializeSession } from "./useAuthSession";
 import { useAuthStateSubscription } from "./useAuthStateSubscription";
 import { useAuthHandlers } from "./useAuthHandlers";
+
+/**
+ * Whether this page load has a session to restore or a sign-in redirect to finish. Only then is
+ * supabase-js loaded at startup; everyone else starts signed out without downloading it.
+ */
+const needsAuthAtStartup = (): boolean =>
+  isSupabaseConfigured() &&
+  (hasPersistedAuthSession() || isOAuthRedirectInProgress() || isPasswordRecoveryRedirect());
 
 export const useAuth = (): AuthContextValue => {
   const [user, setUser] = useState<User | null>(null);
@@ -19,7 +28,7 @@ export const useAuth = (): AuthContextValue => {
   }, []);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) {
+    if (!needsAuthAtStartup()) {
       setLoading(false);
       return;
     }

@@ -25,6 +25,7 @@ The route boundary hook is wired in `src/App.tsx`: `<QueryErrorBoundary onError=
 - **URL:** origin and path only. OAuth callbacks carry codes in the query and fragment, so those never leave the page.
 - **Limits:** each hash is sent once per page load, at most 20 sends per page load, and a failed send is never reported again. The database counts repeats and caps distinct clusters (`supabase/README.md`).
 - **Not configured:** when Supabase is not configured, nothing is sent.
+- **Lazy client:** the send awaits `loadSupabase()`, so the first report of a page load also downloads supabase-js (it is not in the main chunk).
 - **Browser notices that are not bugs** (`ResizeObserver loop`) are ignored.
 
 ## Environment tag
@@ -33,7 +34,7 @@ Resolved in this order (`services/reportEnvironment.ts`): `VITE_APP_ENV` if it i
 
 ## Dependencies
 
-- `@/shared/services/supabaseService` (`getSupabase`, `isSupabaseConfigured`)
+- `@/shared/services/supabaseService` (`loadSupabase`, `isSupabaseConfigured`)
 - The `upsert_error_log` function and `error_logs` table from `supabase/migrations/` (apply them before relying on reports)
 - `src/components/common/QueryErrorBoundary` (its `onError` prop)
 

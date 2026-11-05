@@ -1,4 +1,4 @@
-import { getSupabase, isSupabaseConfigured } from "@/shared/services/supabaseService";
+import { isSupabaseConfigured, loadSupabase } from "@/shared/services/supabaseService";
 import * as authService from "@/features/auth/services/authService";
 import { mapProviderUserToAppUser } from "@/shared/utils/userUtils";
 import { isOAuthRedirectInProgress } from "@/shared/utils/oauthUtils";
@@ -32,7 +32,7 @@ export const initializeSession = async (): Promise<{
   }
 
   try {
-    const supabase = getSupabase();
+    const supabase = await loadSupabase();
     const {
       data: { session },
     } = await supabase.auth.getSession();

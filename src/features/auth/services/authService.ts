@@ -1,5 +1,5 @@
 import {
-  getSupabase,
+  loadSupabase,
   isSupabaseConfigured,
   type SupabaseAuth,
   type SupabaseUser,
@@ -33,7 +33,7 @@ const runAuth = async (
   }
 
   try {
-    const { error } = await call(getSupabase().auth);
+    const { error } = await call((await loadSupabase()).auth);
     return { error: error ? new Error(mapAuthError(error)) : null };
   } catch (error) {
     return { error: new Error(mapAuthError(error)) };
@@ -100,7 +100,7 @@ export const hasSignedInSession = async (): Promise<boolean> => {
     return false;
   }
   try {
-    const { data } = await getSupabase().auth.getSession();
+    const { data } = await (await loadSupabase()).auth.getSession();
     return Boolean(data.session && !data.session.user.is_anonymous);
   } catch {
     return false;

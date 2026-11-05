@@ -504,6 +504,11 @@ module.exports = {
           name: "cards",
           children: [{ name: "*.avif" }, { name: "*.webp" }, { name: "*.jpg" }],
         },
+        // Self-hosted fonts (theme tokens; first-load lap)
+        {
+          name: "fonts",
+          children: [{ name: "*.woff2" }, { name: "*.txt" }],
+        },
       ],
     },
     // Tests

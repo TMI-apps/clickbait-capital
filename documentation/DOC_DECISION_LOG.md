@@ -18,6 +18,18 @@ A full run is followable with VoiceOver / TalkBack: one spoken summary per actio
 | D4  | Effects on cards   | closed | Kit `GameCardEffects`: sr-only "Effecten:" text and an unlabelled list, so a card's description and an event option's name include the effects                                | loop-refine | the list's `aria-label` replaced its content in computed names/descriptions: cards described themselves as "Effecten" |
 | D5  | Flow headings      | closed | Kicker spoken inside the focused heading (sr-only), step dots hidden; results heading starts with sr-only "Je rapport." | loop-build  | a lost ending and its results had the same heading, so "Bekijk je rapport" sounded like nothing happened                |
 
+## first-load — perf/first-load
+
+Faster first load: self-hosted fonts, supabase-js loaded on demand, main-chunk bundle budget.
+
+| id  | topic                       | status | choice                                                                                                                                                           | source                 | notes                                                                                                                                      |
+| --- | --------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | When supabase-js loads      | closed | On demand via `loadSupabase()`; at startup only for a stored `sb-*-auth-token*` key or an OAuth/recovery URL (auth README § Lazy loading)                        | loop-plan              | rejected: load on idle (still downloads ~50 KiB gzip for every visitor); route-only loading (hides a signed-in user's profile menu on `/`) |
+| D2  | Anonymous sign-in per visit | closed | Runs only when the client loads without a session                                                                                                                | loop-plan              | refused by the project today (422), so nothing visible changes; enabling or removing it stays its own backlog task (owner decision)        |
+| D3  | Fonts                       | closed | Self-hosted latin WOFF2 of the variable fonts in `public/fonts/`, `font-display: swap`, Space Grotesk preloaded, OFL 1.1 in `public/fonts/OFL.txt` (DOC_THEMING) | loop-build (measured)  | preloading Inter scored 92–93 vs 93–95; rejected: async Google Fonts CSS (third-party round trip, no offline)                              |
+| D4  | `public/fonts` whitelist    | closed | `*.woff2`, `*.txt` under `public/fonts` in `projectStructure.config.cjs`                                                                                         | owner via orchestrator | protected-file consent                                                                                                                     |
+| D5  | Bundle budget               | closed | `pnpm validate:bundle-size` (`scripts/check-bundle-size.cjs`): initial JS <= 150 KiB gzip                                                                        | loop-plan              | 185 KiB before, 136 KiB after; manual until the orchestrator's separate `ci.yml` PR                                                        |
+
 ## app-update-flow — feat/app-update-flow
 
 New deploys reach players reliably without wiping a running game (`src/features/app-update/`).
