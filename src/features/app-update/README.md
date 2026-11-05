@@ -32,5 +32,6 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 
 ## Dependencies
 
-- `vite-plugin-pwa` (`virtual:pwa-register/react`, build-time service worker), `workbox-window` (its peer).
-- Kit `Button`, `lucide-react`. No other feature; no Supabase.
+- `virtual:pwa-register/react` (`vite-plugin-pwa`, with `workbox-window` as its peer): service-worker registration and the update-ready signal.
+- `@/components/common/Button` (kit) for the prompt's actions and `lucide-react` for its icon.
+- No other feature imports.

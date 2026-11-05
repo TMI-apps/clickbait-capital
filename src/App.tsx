@@ -21,6 +21,9 @@ const LoginPage = lazy(() => import("@/pages/LoginPage").then((m) => ({ default:
 const ResetPasswordPage = lazy(() =>
   import("@/pages/ResetPasswordPage").then((m) => ({ default: m.ResetPasswordPage }))
 );
+const CreditsPage = lazy(() =>
+  import("@/pages/CreditsPage").then((m) => ({ default: m.CreditsPage }))
+);
 const GamePage = lazy(() => import("@/pages/GamePage").then((m) => ({ default: m.GamePage })));
 const SettingsPage = lazy(() =>
   import("@/pages/SettingsPage").then((m) => ({ default: m.SettingsPage }))
@@ -53,6 +56,7 @@ function AppContent() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/instellingen" element={<SettingsPage />} />
                   <Route path="/hoe-speel-je" element={<HowToPlayPage />} />
+                  <Route path="/credits" element={<CreditsPage />} />
                 </Route>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
