@@ -1,5 +1,10 @@
 [
   {
+    "title": "Remove landed lap folders and fill the decision log",
+    "description": "Process gap found when the owner asked how far threads followed the loop skills (2026-11-04): landed laps left documentation/jobs/temp_job_* folders on main (game-engine, game-card, game-content, game-audio, game-board, game-flow, installable-app + template leftovers feedback-hooks, orchestrator-parallel-laps), and only game-engine has a section in documentation/DOC_DECISION_LOG.md. Per loop-backlog step 3 / onboarding-first-lap D4: add a ## <slug> section per landed lap from its DECISIONS.md, then remove the folders. Size XS. Result: merged in PR #20 (decision-log sections for 7 game laps + feedback-hooks; 11 landed lap folders removed).",
+    "status": "done"
+  },
+  {
     "title": "Show wasted gains at the meter cap",
     "description": "Found by the balance lap: when a meter is at 100, positive effects on that meter are wasted but the card still shows +N, so players don't learn to adapt. Show a MAX/greyed gain on card effects that would push a meter past 100 (and maybe a subtle cap glow on the meter). Area: src/features/game-board/ (+ GameCard prop if needed). Fits with the game-feel lap. Size S. Result: merged in PR #16 (greyed MAX on capped effects, cap glow on full meters, shared CapBadge kit component).",
     "status": "done"

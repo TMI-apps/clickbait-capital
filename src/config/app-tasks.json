@@ -98,10 +98,5 @@
     "title": "Port feedback hooks to Cursor",
     "description": "Feedback-hooks follow-up: check the current Cursor hooks docs (afterFileEdit, stop) and port the Claude Code PostToolUse lint/format hook and Stop type-check hook where Cursor supports equivalent behavior; document gaps.",
     "status": "to-do"
-  },
-  {
-    "title": "Remove landed lap folders and fill the decision log",
-    "description": "Process gap found when the owner asked how far threads followed the loop skills (2026-11-04): landed laps left documentation/jobs/temp_job_* folders on main (game-engine, game-card, game-content, game-audio, game-board, game-flow, installable-app + template leftovers feedback-hooks, orchestrator-parallel-laps), and only game-engine has a section in documentation/DOC_DECISION_LOG.md. Per loop-backlog step 3 / onboarding-first-lap D4: add a ## <slug> section per landed lap from its DECISIONS.md, then remove the folders. Size XS.",
-    "status": "to-do"
   }
 ]
