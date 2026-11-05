@@ -1,8 +1,9 @@
 import { describe, expect, it, onTestFinished, vi } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { GameContent } from "@/features/game-engine/api";
 import { SEED_CONTENT } from "@/features/game-engine/api";
+import { getMotionStore } from "@/features/game-settings/api";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
 import { renderWithProviders } from "tests/test-utils";
 
@@ -192,18 +193,9 @@ describe("GameBoard juice", () => {
     expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
 
-  it("should show the state change without particles when the player prefers reduced motion", async () => {
-    const original = window.matchMedia;
-    window.matchMedia = (query: string) =>
-      ({
-        ...original(query),
-        matches: query.includes("prefers-reduced-motion"),
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-      }) as MediaQueryList;
-    onTestFinished(() => {
-      window.matchMedia = original;
-    });
+  it("should throw no particles but keep the state change when the player chooses Verminderd", async () => {
+    act(() => getMotionStore().setPreference("reduced"));
+    onTestFinished(() => act(() => getMotionStore().reset()));
     const { user } = await renderBoard();
     await user.click(draftCards()[0]);
 

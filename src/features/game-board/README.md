@@ -50,7 +50,7 @@ Nothing planned is missing: juice (game-juice) and settings in the pause menu (g
 
 ## Testing
 
-Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. event options), `components/MeterPanel.test.tsx` (MAX and danger text), `services/boardSounds.test.ts` (sound order per action), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type and under reduced motion). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
+Colocated Vitest: `services/boardView.test.ts` (mappers, `capEffects` incl. event options), `components/MeterPanel.test.tsx` (MAX and danger text), `services/boardSounds.test.ts` (sound order per action), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart), `components/GameBoard.test.tsx` (phase 1 intro, tap, arrows + Enter, details, event modal, milestone transition, ending → results → restart, pause, juice per type, and the Beweging choice "Verminderd" removing particles). Browser play-tests with Playwright at 390 / 820 / 1280px (see the lap's PR).
 
 ## Dependencies
 
