@@ -60,12 +60,16 @@ export function drawHand(
 }
 
 /**
- * The single writer of the users stat (game-engine D1): read off the Gebruikers meter in the
- * current phase. Runs before the goal check and on every exit through `advance`.
+ * The single writer of the users stat and its peak (game-engine D1): read off the Gebruikers
+ * meter in the current phase. Runs before the goal check and on every exit through `advance`.
  */
 function withUsersStat(state: GameState, content: GameContent): GameState {
   const users = usersForMeter(state.meters.users, getPhase(content, state.phase));
-  return { ...state, stats: { ...state.stats, users } };
+  return {
+    ...state,
+    stats: { ...state.stats, users },
+    peakUsers: Math.max(state.peakUsers, users),
+  };
 }
 
 /** Next step after a card or event: game over, pending event, or a fresh draft. */
@@ -123,6 +127,7 @@ export function createGame({ content, seed }: CreateGameOptions): GameState {
     meters: { revenue: start, users: start, reputation: start },
     toxicity: 0,
     stats: { users: 0, revenue: content.balance.startRevenue },
+    peakUsers: 0,
     hand: null,
     pendingEventId: null,
     firedEventIds: [],

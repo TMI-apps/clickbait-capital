@@ -150,6 +150,22 @@ describe("playCard", () => {
     expect(visited.lost).toBeGreaterThan(0);
   });
 
+  it("should keep the highest users stat of the run when the meter falls again", () => {
+    let state = createGame({ content: SEED_CONTENT, seed: 11 });
+    let peak = state.stats.users;
+    let fell = false;
+    for (let step = 0; step < 60 && state.status !== "lost" && state.status !== "won"; step++) {
+      state =
+        state.status === "event"
+          ? resolveEvent(state, SEED_CONTENT, "a")
+          : playCard(state, SEED_CONTENT, state.hand![step < 3 ? "viral" : "ad"]);
+      fell ||= state.stats.users < peak;
+      peak = Math.max(peak, state.stats.users);
+      expect(state.peakUsers).toBe(peak);
+    }
+    expect(fell).toBe(true);
+  });
+
   it("should move to phase 2 and open its milestone event when 100k users are reached", () => {
     const state = runGame(SEED_CONTENT, { seed: 3, policy: () => "viral", maxSteps: 2 });
     expect(state.stats.users).toBeGreaterThanOrEqual(100_000);

@@ -212,9 +212,11 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
     turn: state.turn,
     phaseId: state.phase,
     phaseName: currentPhase(state, content).name,
-    stats: { ...state.stats },
+    // End screens report the run's peak reach (game-board D11): the users stat follows the
+    // meter and can end below a goal the player already held.
+    stats: { ...state.stats, users: state.peakUsers },
     statTexts: {
-      users: formatStat("users", state.stats.users),
+      users: formatStat("users", state.peakUsers),
       revenue: formatStat("revenue", state.stats.revenue),
     },
     playedTypes: [...state.playedTypes],

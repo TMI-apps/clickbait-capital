@@ -178,3 +178,17 @@ describe("capEffects", () => {
     });
   });
 });
+
+describe("toGameEnd", () => {
+  it("should report the run's peak reach when the game ends below it", () => {
+    const state: GameState = {
+      ...fresh(),
+      status: "won",
+      stats: { users: 11_400_000, revenue: 900_000 },
+      peakUsers: 22_500_000,
+    };
+    const end = toGameEnd(state, SEED_CONTENT);
+    expect(end?.stats.users).toBe(22_500_000);
+    expect(end?.statTexts.users).toBe("22.500.000");
+  });
+});
