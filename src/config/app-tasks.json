@@ -15,13 +15,8 @@
     "status": "to-do"
   },
   {
-    "title": "Proposed: Share card with score",
-    "description": "Share button on the results screen: a generated share image with the outcome and score plus the link. Value: spreads the game. Size S. Owner ranks at Stop 1; do not build without go-ahead.",
-    "status": "to-do"
-  },
-  {
-    "title": "Proposed: Local save and resume",
-    "description": "Save the running game and stats in the browser (localStorage) so a refresh doesn't lose a run. Value: fewer lost games on phones. Size S. No accounts needed. Owner ranks at Stop 1; do not build without go-ahead.",
+    "title": "Split game-board into board + game-session",
+    "description": "Follow-up from local-save D9: game-board holds 27 files under a temporary featureBudgets override (limit 25). Move the session reducer, replay and useGameSession into a new game-session feature with an api barrel; game-board keeps the board UI. Drop the override afterwards. Size M.",
     "status": "to-do"
   },
   {
