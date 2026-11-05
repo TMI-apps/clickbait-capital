@@ -11,6 +11,7 @@ import {
   toGameEnd,
   toMeters,
   toPhaseProgress,
+  toFeed,
 } from "@/features/game-board/services/boardView";
 
 const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
@@ -196,5 +197,28 @@ describe("toGameEnd", () => {
     const end = toGameEnd(state, SEED_CONTENT);
     expect(end?.stats.users).toBe(22_500_000);
     expect(end?.statTexts.users).toBe("22.500.000");
+  });
+});
+
+describe("toFeed", () => {
+  it("should list posts newest first with turn-based keys when steps are given", () => {
+    const [card] = SEED_CONTENT.cards;
+    const [event] = SEED_CONTENT.events;
+    const option = event.options[1];
+
+    const feed = toFeed(
+      [
+        { action: { kind: "card", cardId: card.id }, turn: 1, eventId: null },
+        { action: { kind: "option", optionId: option.id }, turn: 2, eventId: event.id },
+        { action: { kind: "card", cardId: card.id }, turn: 3, eventId: null },
+      ],
+      SEED_CONTENT
+    );
+
+    expect(feed).toEqual([
+      { key: `card-3-${card.id}`, type: card.type, title: card.title, body: card.body },
+      { key: `event-2-${event.id}`, type: "event", title: event.title, body: option.label },
+      { key: `card-1-${card.id}`, type: card.type, title: card.title, body: card.body },
+    ]);
   });
 });

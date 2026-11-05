@@ -17,6 +17,7 @@ import {
   meterForUsers,
   scaleForPhase,
 } from "@/features/game-engine/api";
+import type { SessionStep } from "@/features/game-session/api";
 import { meterValueText } from "@/features/game-board/services/boardSpeech";
 import type {
   CardEffectView,
@@ -255,4 +256,25 @@ export function feedEntryForEvent(
     title: event.title,
     body: stripGlossaryMarkup(option?.label ?? event.body),
   };
+}
+
+/** One feed post for an accepted session step; null when the content no longer has it. */
+const feedEntryForStep = (step: SessionStep, content: GameContent): FeedEntry | null => {
+  const { action, turn, eventId } = step;
+  if (action.kind === "card") {
+    const card = content.cards.find((candidate) => candidate.id === action.cardId);
+    return card ? feedEntryForCard(card, turn) : null;
+  }
+  const event = content.events.find((candidate) => candidate.id === eventId);
+  return event ? feedEntryForEvent(event, action.optionId, turn) : null;
+};
+
+/** The phone feed for a run: one post per accepted step, newest first. */
+export function toFeed(steps: SessionStep[], content: GameContent): FeedEntry[] {
+  const feed: FeedEntry[] = [];
+  for (let index = steps.length - 1; index >= 0; index--) {
+    const entry = feedEntryForStep(steps[index], content);
+    if (entry) feed.push(entry);
+  }
+  return feed;
 }

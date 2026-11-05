@@ -1,5 +1,15 @@
 [
   {
+    "title": "Content for 11-year-olds with glossary tooltips",
+    "description": "Owner request 2026-11-05: rewrite all player-facing copy for pupils of about 11 (groep 7/8); hard words stay but are emphasized and open a tap tooltip with a kid-friendly meaning (glossary as content data, one kit component). Score cards/events against the audience (gaming, fatbikes, memes, YouTubers), remove the worst-fitting 30% and add twice that many new ones; no real game/brand names. Rerun the balance simulation. Size M. Thread kids-content.",
+    "status": "to-do"
+  },
+  {
+    "title": "Clickbait thumbnail imagery",
+    "description": "Owner request 2026-11-05: card images in YouTube-thumbnail style (strong emotions, faces). Owner chose free-licence stock photos (adults only, licence per image in the manifest and /credits) plus a code-drawn thumbnail treatment (outline, type colour, arrow, emoji, short caption) driven by manifest data. Covers the final card set after the kids-content lap. Size M. Thread thumbnail-imagery.",
+    "status": "to-do"
+  },
+  {
     "title": "Owner test: VoiceOver and TalkBack on a real phone",
     "description": "Follow-up to the screen-reader lap (PR #28). Automated checks covered the accessibility tree and live-region text; nobody has heard real speech yet. Owner plays a few turns with VoiceOver (iOS) or TalkBack (Android) using the steps in PR #28 under \"Test steps (owner)\"; open question: does iOS VoiceOver speak the turn announcement after focus moves to the next card, or drop it? Findings become fix tasks. Size XS.",
     "status": "to-do"
@@ -12,11 +22,6 @@
   {
     "title": "Proposed: Tutorial and how-to-play",
     "description": "Interactive first-game walkthrough plus a how-to-play help screen. Value: new players understand the three meters and the hidden toxicity within the first minute. Size M. Fits the vision (anyone online, no teacher). Owner ranks at Stop 1; do not build without go-ahead.",
-    "status": "to-do"
-  },
-  {
-    "title": "Split game-board into board + game-session",
-    "description": "Follow-up from local-save D9: game-board holds 27 files under a temporary featureBudgets override (limit 25). Move the session reducer, replay and useGameSession into a new game-session feature with an api barrel; game-board keeps the board UI. Drop the override afterwards. Size M.",
     "status": "to-do"
   },
   {

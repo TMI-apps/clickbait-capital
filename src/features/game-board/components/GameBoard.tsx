@@ -2,7 +2,7 @@ import type { GameContent } from "@/features/game-engine/api";
 import type { SavedRun } from "@/features/game-save/api";
 import { useSoundEffects } from "@/features/game-audio/api";
 import { useBoardSounds } from "@/features/game-board/hooks/useBoardSounds";
-import { useGameSession } from "@/features/game-board/hooks/useGameSession";
+import { useBoardSession } from "@/features/game-board/hooks/useBoardSession";
 import { GameEndFlow, PhaseTransitionScreen, usePhaseIntro } from "@/features/game-flow/api";
 import { EndJuice } from "@/features/game-juice/api";
 import { PlayingBoard } from "./PlayingBoard";
@@ -21,10 +21,10 @@ export interface GameBoardProps {
 /**
  * One run of the game: the playing board, and the game-flow screens that replace it between
  * turns — full-screen phase transitions and the endings (game-flow D1, D2). All game state
- * comes from `useGameSession`.
+ * comes from the game-session run, as the board sees it (`useBoardSession`).
  */
 export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) => {
-  const { view, play, chooseOption, restart, sounds, resumed, seenPhase } = useGameSession({
+  const { view, play, chooseOption, restart, sounds, resumed, seenPhase } = useBoardSession({
     content,
     seed,
     savedRun,
