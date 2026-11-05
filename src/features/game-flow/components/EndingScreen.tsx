@@ -1,7 +1,8 @@
 import { Ban, Gavel, ServerOff, TrendingUp, UserX } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { UI_COPY } from "@/features/game-content/api";
+import { GlossaryText } from "@/components/common/GlossaryTerm";
+import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import type { EndingView } from "@/features/game-flow/types/gameFlow.types";
 import { cn } from "@/shared/utils/cn";
 import { FlowScreen } from "./FlowScreen";
@@ -55,8 +56,16 @@ export const EndingScreen = ({ ending, onContinue }: EndingScreenProps) => {
       >
         {ending.headline}
       </p>
-      {ending.body && <p className="text-base">{ending.body}</p>}
-      {ending.lesson && <p className="text-base font-semibold">{ending.lesson}</p>}
+      {ending.body && (
+        <p className="text-base">
+          <GlossaryText text={ending.body} glossary={GLOSSARY} />
+        </p>
+      )}
+      {ending.lesson && (
+        <p className="text-base font-semibold">
+          <GlossaryText text={ending.lesson} glossary={GLOSSARY} />
+        </p>
+      )}
     </FlowScreen>
   );
 };

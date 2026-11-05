@@ -24,16 +24,16 @@ export const GAME_OVER_TEXTS = {
     title: "Bankroet",
     variants: {
       noIncome: {
-        headline: "Servers op zwart: app offline wegens onbetaalde rekeningen",
-        body: "De hostingpartij trok de stekker eruit, de investeerders namen de pingpongtafel mee. Je feed was druk, maar niemand betaalde ervoor.",
+        headline: "App offline: de rekeningen zijn niet betaald",
+        body: "Het bedrijf van je [[servers|server]] heeft de stekker eruit getrokken. De [[investeerders|investeerder]] namen de pingpongtafel mee. Je feed was druk, maar niemand betaalde ervoor.",
         lesson:
-          "Aandacht is geen geld. Zonder verdienmodel duwt elk platform vroeg of laat meer reclame in de feed.",
+          "Aandacht is nog geen geld. Een app zonder [[verdienmodel]] gaat vroeg of laat meer reclame laten zien.",
       },
       costsOutgrew: {
-        headline: "Groeiende app bezwijkt onder de eigen serverrekening",
-        body: "De advertenties liepen, maar de rekeningen liepen harder: servers, moderatoren, advocaten. Op een dinsdagochtend was de kas leeg en de groei stond nog op de slides.",
+        headline: "Groeiende app gaat onderuit door hoge rekeningen",
+        body: "De reclame bracht geld op, maar de rekeningen groeiden harder: servers, controleurs, advocaten. Op een dinsdagochtend was het geld op.",
         lesson:
-          "Hoe groter een platform, hoe duurder het draaien. Door die druk willen techbedrijven steeds meer uit elke gebruiker persen.",
+          "Hoe groter een app, hoe duurder hij is. Daarom willen techbedrijven steeds meer geld verdienen aan elke gebruiker.",
       },
     },
   },
@@ -41,22 +41,22 @@ export const GAME_OVER_TEXTS = {
     title: "Verlaten Platform",
     variants: {
       adOverload: {
-        headline: "Gebruikers massaal vertrokken naar de concurrent",
-        body: "Reclame na reclame na reclame. Je gebruikers zijn weggescrold en komen niet terug. Je feed is een spookstad met banners.",
+        headline: "Gebruikers massaal weg naar een andere app",
+        body: "Reclame, reclame en nog eens reclame. Je gebruikers zijn weggescrold en komen niet terug. Je feed is een spookstad vol banners.",
         lesson:
-          "Gebruikers zijn het product. Wie ze te hard uitknijpt, heeft niets meer te verkopen.",
+          "Gebruikers zijn het product. Wie ze te veel reclame laat zien, heeft straks niemand meer om reclame aan te laten zien.",
       },
       dullFeed: {
-        headline: "Gebruikers dutten in en vertrekken naar een app met meer vuurwerk",
-        body: "Nieuws na nieuws na factcheck. Keurig, eerlijk en doodsaai: je gebruikers scrolden naar apps die harder schreeuwen. Je feed klopt helemaal, alleen leest niemand hem nog.",
+        headline: "Gebruikers vallen in slaap en kiezen een drukkere app",
+        body: "Nieuws, nieuws en nog een [[factcheck]]. Netjes, eerlijk en supersaai. Je gebruikers gingen naar apps die harder schreeuwen. Je feed klopt helemaal, maar niemand kijkt nog.",
         lesson:
-          "Op een platform dat om aandacht concurreert, verliest het rustige verhaal van de ophef. Daarom belonen algoritmes sensatie.",
+          "Apps vechten om je aandacht. Een rustig verhaal verliest dan van ophef. Daarom laat een [[algoritme]] vaak juist sensatie zien.",
       },
       viralBurnout: {
-        headline: "Gebruikers ontvluchten de eindeloze ruziefeed",
-        body: "Elke post was ophef, elke scroll een nieuwe rel. Eerst kwamen ze kijken, toen raakten ze uitgeput. Je platform voelt als een kroeg om drie uur 's nachts.",
+        headline: "Gebruikers vluchten weg van de eindeloze ruzie-feed",
+        body: "Elke post was ophef. Elke keer scrollen was een nieuwe ruzie. Eerst kwamen mensen kijken, daarna waren ze het zat.",
         lesson:
-          "Woede trekt kijkers, maar houdt ze niet vast. Wie alleen op ophef draait, brandt het eigen publiek op.",
+          "Boosheid trekt kijkers, maar houdt ze niet vast. Een app die alleen op ophef draait, raakt zijn kijkers kwijt.",
       },
     },
   },
@@ -64,22 +64,22 @@ export const GAME_OVER_TEXTS = {
     title: "Verbod & Regulering",
     variants: {
       viralToxicity: {
-        headline: "Toezichthouder verbiedt app wegens maatschappelijke ontwrichting",
-        body: "Desinformatie, haat en ophef stapelden zich op tot de wetgever ingreep. Je platform wordt verboden en opgesplitst.",
+        headline: "App verboden: hij maakte te veel kapot",
+        body: "[[Nepnieuws]], haat en ophef stapelden zich op. Toen greep de regering in. Je app wordt verboden en in stukken gehakt.",
         lesson:
-          "Ophef levert direct op, de schade komt later. Maar ze komt wel, en dan in één klap.",
+          "Ophef levert meteen kijkers op. De schade komt later. Maar hij komt wel, en dan in één keer.",
       },
       crises: {
-        headline: "Crisis op crisis: parlement verbiedt je platform",
-        body: "De ene crisis was nog niet geblust of de volgende stond al op de voorpagina. Bij elke nieuwe kop zakte het vertrouwen verder weg, tot het parlement besloot dat het genoeg was.",
+        headline: "Crisis na crisis: het parlement verbiedt je app",
+        body: "De ene crisis was nog niet voorbij of de volgende stond al in de krant. Steeds minder mensen vertrouwden je. Toen zei het [[parlement]]: genoeg.",
         lesson:
-          "Platforms worden zelden om één fout verboden. Het zijn de keuzes onder druk die zich opstapelen.",
+          "Een app wordt bijna nooit verboden om één fout. Het zijn de keuzes onder druk die zich opstapelen.",
       },
       scamAds: {
-        headline: "Toezichthouder sluit app na stortvloed aan oplichtersreclame",
-        body: "Gokapps, wondermiddelen, nepcrypto: wie betaalde, kwam in de feed. Na duizenden klachten van gedupeerde gebruikers sluit de toezichthouder je app.",
+        headline: "App gesloten na een stroom nepreclame",
+        body: "Nep-giveaways, wondermiddelen, [[cryptomunten|cryptomunt]]: wie betaalde, kwam in de feed. Na duizenden klachten sluit de [[toezichthouder]] je app.",
         lesson:
-          "Een platform dat elke adverteerder toelaat, verkoopt het vertrouwen van de eigen gebruikers. Daarom bestaan er regels voor reclame.",
+          "Een app die elke reclame toelaat, verkoopt het vertrouwen van zijn eigen gebruikers. Daarom zijn er regels voor reclame.",
       },
     },
   },
@@ -162,19 +162,19 @@ export function selectGameOverText(reason: GameOverReason, run: EndReportInput):
 export const END_REPORT_TEMPLATE = {
   title: "Gefeliciteerd met je beursgang!",
   intro:
-    "In {turns} beurten groeide je app van een zolderkamer tot een beursgenoteerde techreus met {users} gebruikers. Hieronder het rapport dat niet in de prospectus stond.",
+    "In {turns} beurten groeide je app van een zolderkamer tot een groot techbedrijf op de [[beurs]], met {users} gebruikers. Dit is wat er niet in de folder voor [[investeerders|investeerder]] stond.",
   lines: {
-    valuation: "Beurswaarde op de eerste handelsdag",
+    valuation: "Wat je bedrijf waard is op dag één",
     viralPosts: "Virale posts die je bovenaan zette",
-    misinformationShares: "Keer dat desinformatie werd gedeeld",
-    screenHours: "Uren slaap die je gebruikers misliepen",
+    misinformationShares: "Keer dat nepnieuws werd gedeeld",
+    screenHours: "Uren slaap die je gebruikers misten",
     familyFights: "Ruzies aan de keukentafel",
-    adsShown: "Advertenties getoond",
-    factchecksRead: "Mensen die een factcheck helemaal uitlazen",
+    adsShown: "Reclames getoond",
+    factchecksRead: "Mensen die een factcheck helemaal lazen",
     crises: "Crises die je overleefde",
   },
   closing:
-    "De bel van de beurs luidt. De aandeelhouders juichen. De feed draait door, sneller dan ooit. Was het het waard?",
+    "De bel van de beurs gaat. De aandeelhouders juichen. De feed draait door, sneller dan ooit. Was het dat waard?",
 } as const;
 
 type EndReportLineId = keyof typeof END_REPORT_TEMPLATE.lines;

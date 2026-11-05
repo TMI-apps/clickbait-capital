@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { glossaryTermsIn, stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 import {
   createGame,
   type CardType,
@@ -8,6 +9,7 @@ import {
 import {
   buildEndReport,
   CRISES_FROM_EVENTS,
+  END_REPORT_TEMPLATE,
   fillTemplate,
   GAME_OVER_TEXTS,
   NO_INCOME_BELOW_AD_SHARE,
@@ -21,6 +23,7 @@ import {
   getContentEvent,
 } from "@/features/game-content/services/gameContent";
 import { PHASE_INTROS } from "@/features/game-content/services/phases";
+import { GLOSSARY, UI_COPY } from "@/features/game-content/services/uiCopy";
 
 const TYPES: CardType[] = ["viral", "ad", "news"];
 const PHASES: PhaseId[] = [1, 2, 3, 4];
@@ -244,5 +247,115 @@ describe("selectGameOverText", () => {
         expect(story.lesson.length).toBeGreaterThan(20);
       }
     }
+  });
+});
+
+/** Every string in a value with its path, e.g. `cards.3.body`. */
+function collectStrings(value: unknown, path: string): [string, string][] {
+  if (typeof value === "string") return [[path, value]];
+  if (Array.isArray(value)) return value.flatMap((item, i) => collectStrings(item, `${path}.${i}`));
+  if (value !== null && typeof value === "object") {
+    return Object.entries(value).flatMap(([key, item]) => collectStrings(item, `${path}.${key}`));
+  }
+  return [];
+}
+
+const ALL_STRINGS = [
+  ...collectStrings(GAME_CONTENT.cards, "cards"),
+  ...collectStrings(GAME_CONTENT.events, "events"),
+  ...collectStrings(GAME_CONTENT.phases, "phases"),
+  ...collectStrings(PHASE_INTROS, "phaseIntros"),
+  ...collectStrings(GAME_OVER_TEXTS, "gameOver"),
+  ...collectStrings(END_REPORT_TEMPLATE, "endReport"),
+  ...collectStrings(UI_COPY, "ui"),
+];
+
+/** Player-facing strings: not the image hints, which are art direction for the image lap. */
+const PLAYER_STRINGS = ALL_STRINGS.filter(([path]) => !/\.imageTheme$/.test(path));
+
+/**
+ * Fields rendered through `GlossaryText` (kids-content D3). Everything else is plain text:
+ * titles, labels and button texts must not hold a tappable term.
+ */
+const RICH_FIELDS = [
+  /^cards\.\d+\.(body|flavor)$/,
+  /^events\.\d+\.body$/,
+  /^phaseIntros\.\d\.(body|tip)$/,
+  /^gameOver\.\w+\.variants\.\w+\.(body|lesson)$/,
+  /^endReport\.intro$/,
+  /^ui\.howToPlay\.(intro|phases|events|win)$/,
+  /^ui\.tutorial\.\d+$/,
+  /^ui\.privacy\.(intro|points\.\d+|clearHint)$/,
+  /^ui\.credits\.body$/,
+];
+
+/** Real game, platform and brand names the copy must not use (kids-content D6). */
+const TRADEMARKS = [
+  "fortnite",
+  "brawl stars",
+  "roblox",
+  "minecraft",
+  "youtube",
+  "tiktok",
+  "instagram",
+  "snapchat",
+  "whatsapp",
+  "twitch",
+  "discord",
+  "facebook",
+  "twitter",
+  "pubg",
+  "call of duty",
+  "clash",
+  "v-bucks",
+  "robux",
+  "playstation",
+  "xbox",
+  "nintendo",
+  "super73",
+];
+
+describe("glossary", () => {
+  it("should explain every marked word when a string marks a hard word", () => {
+    const missing = PLAYER_STRINGS.flatMap(([path, text]) =>
+      glossaryTermsIn(text)
+        .filter((term) => GLOSSARY[term] === undefined)
+        .map((term) => `${path}: ${term}`)
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("should use every glossary entry when the copy is scanned", () => {
+    const used = new Set(PLAYER_STRINGS.flatMap(([, text]) => glossaryTermsIn(text)));
+    expect(Object.keys(GLOSSARY).filter((term) => !used.has(term))).toEqual([]);
+  });
+
+  it("should keep markup out of titles, labels and buttons when a field is plain text", () => {
+    const misplaced = PLAYER_STRINGS.filter(
+      ([path, text]) => text.includes("[[") && !RICH_FIELDS.some((field) => field.test(path))
+    ).map(([path]) => path);
+    expect(misplaced).toEqual([]);
+  });
+
+  it("should leave no stray brackets when markup is stripped for screen readers", () => {
+    const broken = PLAYER_STRINGS.filter(([, text]) => /\[\[|\]\]/.test(stripGlossaryMarkup(text)));
+    expect(broken.map(([path]) => path)).toEqual([]);
+  });
+
+  it("should give every term a short meaning when a pupil taps it", () => {
+    for (const [term, meaning] of Object.entries(GLOSSARY)) {
+      expect(term, term).toBe(term.toLowerCase());
+      expect(meaning.length, term).toBeGreaterThan(10);
+      expect(meaning.length, term).toBeLessThanOrEqual(120);
+    }
+  });
+
+  it("should not name real games, platforms or brands when copy describes the pupils' world", () => {
+    const named = PLAYER_STRINGS.flatMap(([path, text]) =>
+      TRADEMARKS.filter((name) => text.toLowerCase().includes(name)).map(
+        (name) => `${path}: ${name}`
+      )
+    );
+    expect(named).toEqual([]);
   });
 });

@@ -7,8 +7,8 @@ export interface ModalProps {
   open: boolean;
   onClose?: () => void;
   title?: string;
-  /** Accessible description; rendered visually below the title. */
-  description?: string;
+  /** Accessible description; rendered visually below the title (text, or inline text such as glossary terms). */
+  description?: ReactNode;
   actions?: ReactNode;
   children?: ReactNode;
   className?: string;

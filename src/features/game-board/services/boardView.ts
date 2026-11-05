@@ -27,6 +27,7 @@ import type {
   MeterView,
   PhaseProgressView,
 } from "@/features/game-board/types/gameBoard.types";
+import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
 /** Meter order on the board and on cards (design § 2). */
 export const METER_ORDER: MeterKey[] = ["revenue", "users", "reputation"];
@@ -233,7 +234,12 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
 
 /** Feed post for a played card. `turn` keeps keys unique when a card is drawn again. */
 export function feedEntryForCard(card: CardDefinition, turn: number): FeedEntry {
-  return { key: `card-${turn}-${card.id}`, type: card.type, title: card.title, body: card.body };
+  return {
+    key: `card-${turn}-${card.id}`,
+    type: card.type,
+    title: card.title,
+    body: stripGlossaryMarkup(card.body),
+  };
 }
 
 /** Feed post for a resolved event: the event title plus the chosen policy. */
@@ -247,6 +253,6 @@ export function feedEntryForEvent(
     key: `event-${turn}-${event.id}`,
     type: "event",
     title: event.title,
-    body: option?.label ?? event.body,
+    body: stripGlossaryMarkup(option?.label ?? event.body),
   };
 }

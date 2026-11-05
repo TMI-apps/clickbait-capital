@@ -52,7 +52,7 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
     id: 3,
     name: "Wereldwijd Platform",
     goal: {
-      description: "Overleef 12 beurten met minimaal 20.000.000 gebruikers.",
+      description: "Houd 12 beurten op rij minstens 20.000.000 gebruikers.",
       conditions: [{ kind: "stat", stat: "users", atLeast: 20_000_000 }],
       consecutiveTurns: 12,
     },
@@ -86,25 +86,25 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
   1: {
     kicker: "Fase 1",
     title: "De Zolderkamer",
-    body: "Een matras, een laptop en een app die nog niemand kent. Jij bent het algoritme: jij kiest wat er in de feed komt.",
-    tip: "Niemand let nog op je. Groei is alles: haal 100.000 gebruikers binnen.",
+    body: "Een matras, een laptop en een nieuwe app die nog niemand kent. Jij bent het [[algoritme]]: jij kiest wat iedereen in de [[feed]] ziet.",
+    tip: "Nog niemand let op je. Zorg dat je app groeit: haal 100.000 gebruikers.",
   },
   2: {
     kicker: "Fase 2",
     title: "De Scale-Up",
-    body: "Je hebt een kantoor met een pingpongtafel en investeerders met verwachtingen. De servers kosten nu echt geld.",
-    tip: "Zonder advertenties ga je failliet. Met te veel lopen je gebruikers weg.",
+    body: "Je app is nu een [[scale-up]]. Je hebt een kantoor met een pingpongtafel en [[investeerders|investeerder]] die geld terug willen. De [[servers|server]] kosten nu echt geld.",
+    tip: "Zonder reclame ga je failliet. Met te veel reclame lopen je gebruikers weg.",
   },
   3: {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
-    body: "Miljoenen mensen beginnen en eindigen hun dag in jouw feed. Overheden, kranten en adverteerders kijken mee.",
-    tip: "Reputatieverlies telt nu dubbel. Nieuws negeren komt hard terug.",
+    body: "Miljoenen mensen kijken elke dag naar jouw feed. Regeringen, kranten en [[adverteerders|adverteerder]] letten nu goed op.",
+    tip: "Een slechte naam telt nu dubbel. Wie het nieuws overslaat, krijgt dat terug.",
   },
   4: {
     kicker: "Fase 4",
     title: "De Beursgang",
-    body: "De bel van de beurs hangt al klaar. Aandeelhouders willen winst, toezichthouders wachten op één misstap.",
-    tip: "Houd Reputatie boven 60 en Inkomsten boven 80, tien beurten op rij. Elk reputatieverlies telt nu tweeënhalf keer.",
+    body: "Bijna klaar voor de [[beursgang]]. [[Aandeelhouders|aandeelhouder]] willen winst. De [[toezichthouder]] wacht op één fout.",
+    tip: "Houd Reputatie boven 60 en Inkomsten boven 80, tien beurten op rij. Elk verlies van reputatie telt nu tweeënhalf keer.",
   },
 };

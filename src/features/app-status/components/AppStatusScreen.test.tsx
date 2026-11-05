@@ -27,6 +27,6 @@ describe("AppStatusScreen", () => {
 
     render(<AppErrorFallback />);
 
-    expect(screen.getByRole("heading", { name: "Je bent offline" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Geen internet" })).toBeInTheDocument();
   });
 });

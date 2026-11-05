@@ -4,8 +4,9 @@
 
 ## **1\. High-Concept & Kernfilosofie**
 
-* **Logline:** Als almachtig algoritme van een opkomend socialmediaplatform balanceer je advertenties, virale sensatie en journalistiek nieuws om uit te groeien van studenten-app tot beursgenoteerde techreus.  
+* **Logline:** Als almachtig algoritme van een opkomend socialmediaplatform balanceer je advertenties, virale sensatie en journalistiek nieuws om uit te groeien van zolderkamer-app tot beursgenoteerde techreus.  
 * **Doelstelling:** De speler leert door ervaring waarom sociale media structureel evolueren naar sensatie en polarisatie: de economische en dopamine-gedreven prikkels belonen engagement direct, terwijl ethische schade pas vertraagd en cumulatief terugslaat.  
+* **Doelgroep:** leerlingen van ongeveer 11 jaar (groep 7/8). Ze spelen battle-royale- en brawler-games, rijden op fatbikes en kijken memes, streamers, videomakers en korte filmpjes. Alle tekst gebruikt korte zinnen en gewone woorden; moeilijke woorden zijn gemarkeerd en tonen met één tik een korte uitleg (`GLOSSARY` in `src/features/game-content/`). Kaarten en events komen uit hun wereld (skins, in-game shop, lootboxen, emotes, challenges, influencers, de klassenapp, gamestreams), zonder echte game- of merknamen. Volwassen onderwerpen (gokken, leningen, feesten met drank, rellen, oorlogsbeelden) zitten niet in het spel.  
 * **Perspectief:** Hybride. De interactie toont een centrale smartphone-feed waarin content fysiek landt, terwijl de overkoepelende interface de macro-statistieken van het hele platform toont.
 
 ---
@@ -88,9 +89,9 @@ Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Eén van elk subty
 
 | Kaarttype | Primaire Voordelen | Primaire Nadelen / Risico's |
 | :---- | :---- | :---- |
-| **⚡ Viraal** (Meme, ruzie, sensationele video) | \+++ Gebruikers, verhoogt engagement-combo | \+ Toxicity (verhoogt kans op toekomstig schandaal) |
-| **💰 Advertentie** (Sponsoring, dropshipping, crypto) | \+++ Inkomsten | \- Gebruikers (licht), wekt irritatie op |
-| **📰 Nieuws** (Onderzoeksjournalistiek, verificatie) | \++ Reputatie, verlaagt Toxicity | \- Gebruikers (mensen scrollen weg), levert €0 op |
+| **⚡ Viraal** (Meme, challenge, ruzie, clickbait, nep-giveaway) | \+++ Gebruikers, verhoogt engagement-combo | \+ Toxicity (verhoogt kans op toekomstig schandaal) |
+| **💰 Advertentie** (Skins in de shop, lootbox, gesponsorde stream, crypto) | \+++ Inkomsten | \- Gebruikers (licht), wekt irritatie op |
+| **📰 Nieuws** (Factcheck, uitleg, onderzoek, eerlijke fout-melding) | \++ Reputatie, verlaagt Toxicity | \- Gebruikers (mensen scrollen weg), levert €0 op |
 
 ### **Type 2: Gebeurteniskaarten (Events)**
 

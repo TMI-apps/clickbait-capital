@@ -12,18 +12,18 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 
 ## Structure
 
-| Layer      | Path                                                                  | Purpose                                                               |
-| ---------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Layer      | Path                                                                  | Purpose                                                                               |
+| ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `ResumeScreen`, `usePhaseIntro` |
-| Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                       |
-| Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, entrance motion, 44px actions    |
-| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal                         |
-| Components | `components/ResumeScreen.tsx` | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4) |
-| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                      |
-| Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                         |
-| Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                   |
-| Services   | `services/endFlow.ts`                                                 | Pure run summary → ending, results and share card (`buildEndReport`)  |
-| Types      | `types/gameFlow.types.ts`                                             | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`   |
+| Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                                       |
+| Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, entrance motion, 44px actions                    |
+| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal                                         |
+| Components | `components/ResumeScreen.tsx`                                         | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4)              |
+| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                                      |
+| Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                                         |
+| Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                                   |
+| Services   | `services/endFlow.ts`                                                 | Pure run summary → ending, results and share card (`buildEndReport`)                  |
+| Types      | `types/gameFlow.types.ts`                                             | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`                   |
 
 ## Decisions
 
@@ -36,6 +36,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 - **Spoken headings (screen-reader D5):** the kicker ("Fase 2", "Game over") is visually above the heading but spoken inside it (sr-only, followed by a space only when there is a kicker), since focus lands on the heading; the phase-step dots are `aria-hidden`. The results heading starts with sr-only "Je rapport." because a lost ending and its results share a title. The event modal takes `onCloseAutoFocus` so the board can return focus to the draft.
 - **Share card (game-flow D5, share-card lap):** `toShareCardContent` fills the result-share card from the run: the ending's kicker, title and headline (the IPO closing question on a win), phase reached, Hoogste bereik, Totale omzet, `shareText` and the production link (`SITE_ORIGIN`). `SHARE_RESULT_COPY` maps the share outcomes to `UI_COPY.results` status lines. The button sits between the two results actions on both outcomes.
 - **Report button copy:** `UI_COPY.results.reportButton` ("Bekijk je rapport"), added to game-content in this lap with the orchestrator's approval.
+- **Glossary words (kids-content D3):** `EventModal` (event body), `PhaseTransitionScreen` (body, tip), `EndingScreen` (body, lesson) and `ResultsScreen` (report intro) render text through the kit's `GlossaryText` with `GLOSSARY`. Titles, headlines, option labels and the share card use fields without markup.
 
 ## Not here yet
 

@@ -11,7 +11,7 @@ export const UI_COPY = {
   start: {
     title: "Clickbait Capital",
     intro:
-      "Speel het algoritme van een opkomend socialmediaplatform. Kies wat er in de feed komt en groei van zolderkamer tot beursgang.",
+      "Jij bent het algoritme van een nieuwe app. Kies wat er in de feed komt en groei van zolderkamer tot beursgang.",
     startButton: "Start spel",
     continueButton: "Verder spelen",
     newGameButton: "Nieuw spel",
@@ -23,31 +23,31 @@ export const UI_COPY = {
   howToPlay: {
     title: "Hoe speel je?",
     intro:
-      "Jij bent het algoritme van een nieuw socialmediaplatform. Groei in vier fases van zolderkamer tot beursgang.",
+      "Jij bent het [[algoritme]] van een nieuwe app. Je groeit in vier fases van zolderkamer tot [[beursgang]].",
     phasesTitle: "Vier fases",
     phases:
-      "Zolderkamer, Scale-up, Wereldplatform en Beursgang. Elke fase heeft een doel; haal je het, dan stijgen de kosten en kijkt de wereld scherper mee.",
+      "Zolderkamer, Scale-Up, Wereldwijd Platform en Beursgang. Elke fase heeft een doel. Haal je het, dan worden de kosten hoger en let de wereld beter op.",
     eventsTitle: "Spoed!",
     events:
-      "Soms onderbreekt een crisis je feed. Kies dan een van drie beleidsopties: commercieel, ophef of journalistiek.",
+      "Soms gaat er iets mis op je app. Dan kies je uit drie opties: geld verdienen, ophef maken of eerlijk nieuws.",
     winTitle: "Winnen",
-    win: "Houd in de laatste fase je reputatie en inkomsten lang genoeg hoog en je platform gaat naar de beurs.",
+    win: "Houd in de laatste fase je reputatie en inkomsten lang genoeg hoog. Dan gaat je app naar de [[beurs]].",
     startButton: "Start spel",
     backButton: "Naar het begin",
   },
   tutorial: [
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
-    "Sleep één kaart naar de feed, of tik erop om hem te plaatsen.",
+    "Sleep één kaart naar de [[feed]], of tik erop om hem te plaatsen.",
     "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws brengt vertrouwen.",
-    "Houd Inkomsten, Gebruikers en Reputatie boven nul. Raakt er één de nul, dan is het voorbij.",
-    "Let op: niet alles wat je doet zie je meteen terug. Sommige keuzes komen later hard terug.",
+    "Houd Inkomsten, Gebruikers en Reputatie boven nul. Komt er één op nul, dan is het spel voorbij.",
+    "Let op: je ziet niet alles meteen. Sommige keuzes komen later hard terug.",
   ],
   meters: {
-    revenue: { label: "Inkomsten", description: "Geld voor servers en personeel." },
-    users: { label: "Gebruikers", description: "Hoeveel mensen dagelijks scrollen." },
+    revenue: { label: "Inkomsten", description: "Geld om je app draaiende te houden." },
+    users: { label: "Gebruikers", description: "Hoeveel mensen elke dag scrollen." },
     reputation: {
       label: "Reputatie",
-      description: "Vertrouwen van publiek, adverteerders en overheid.",
+      description: "Hoeveel mensen, bedrijven en de overheid je vertrouwen.",
     },
   },
   cardTypes: {
@@ -74,20 +74,21 @@ export const UI_COPY = {
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
     modifiers: {
       journalismDrought: {
-        label: "Journalistieke droogte",
-        description: "Al vijf beurten geen nieuws. Virale kaarten zijn nu extra riskant.",
+        label: "Geen nieuws meer",
+        description: "Al vijf beurten geen nieuws. Virale kaarten zijn nu extra gevaarlijk.",
       },
       echoChamber: {
-        label: "Echokamer",
-        description: "Drie keer viraal op rij: meer gebruikers, maar de sfeer wordt grimmig.",
+        label: "Steeds hetzelfde",
+        description:
+          "Drie keer viraal achter elkaar: meer gebruikers, maar de sfeer wordt grimmig.",
       },
       adFatigue: {
-        label: "Reclamemoeheid",
-        description: "Te veel reclame: advertenties leveren minder op en jagen mensen weg.",
+        label: "Reclame-moe",
+        description: "Te veel reclame: advertenties leveren minder op en mensen gaan weg.",
       },
       reputationDecay: {
         label: "Vertrouwen lekt weg",
-        description: "Je feed negeert het nieuws. Je reputatie zakt elke beurt.",
+        description: "Je feed laat geen nieuws zien. Je reputatie zakt elke beurt.",
       },
     },
     effectLabels: {
@@ -98,18 +99,18 @@ export const UI_COPY = {
   resume: {
     kicker: "Opgeslagen spel",
     title: "Verder waar je was?",
-    body: "Je vorige spel staat nog klaar. Kies je Nieuw spel, dan wordt het gewist.",
+    body: "Je vorige spel staat nog klaar. Kies je Nieuw spel, dan is het oude spel weg.",
   },
   phaseIntro: {
     continueButton: "Aan de slag",
   },
   events: {
     kicker: "Spoed",
-    prompt: "Kies je beleid",
+    prompt: "Wat doe je?",
     optionKinds: {
-      commercial: "Commercieel",
+      commercial: "Geld",
       engagement: "Ophef",
-      journalism: "Journalistiek",
+      journalism: "Eerlijk nieuws",
     },
     confirmButton: "Kies dit",
   },
@@ -133,7 +134,7 @@ export const UI_COPY = {
     turnsLabel: "Beurten",
     phaseReachedLabel: "Fase bereikt",
     usersLabel: "Hoogste bereik",
-    revenueLabel: "Totale omzet",
+    revenueLabel: "Totaal verdiend",
     playedTitle: "Wat je in de feed stopte",
   },
   settings: {
@@ -142,33 +143,33 @@ export const UI_COPY = {
     music: "Muziek",
     vibration: "Trillen",
     reducedMotion: "Minder beweging",
-    reducedMotionHint: "Geen schermtrilling of vliegende emoji.",
+    reducedMotionHint: "Geen trillend scherm of vliegende emoji.",
     resetProgress: "Voortgang wissen",
-    resetConfirm: "Weet je het zeker? Dit kan niet ongedaan worden.",
+    resetConfirm: "Weet je het zeker? Dit kun je niet terugdraaien.",
     on: "Aan",
     off: "Uit",
     closeButton: "Sluiten",
     openButton: "Instellingen",
     backButton: "Terug",
     motion: "Beweging",
-    motionHint: "Verminderd: geen schermtrilling, confetti of vliegende emoji.",
+    motionHint: "Verminderd: geen trillend scherm, confetti of vliegende emoji.",
     motionOptions: { system: "Systeem", reduced: "Verminderd", full: "Volledig" },
     colorMode: "Weergave",
     colorModeOptions: { light: "Licht", dark: "Donker", system: "Systeem" },
-    resetHint: "Wist je geluid- en bewegingskeuze en een bewaard spel op dit apparaat.",
+    resetHint: "Wist je keuzes voor geluid en beweging en een bewaard spel op dit apparaat.",
     resetConfirmButton: "Ja, wissen",
     resetCancelButton: "Annuleren",
     resetDone: "Voortgang gewist.",
   },
   credits: {
     title: "Over dit spel",
-    body: "Clickbait Capital laat zien waarom sociale media steeds meer draaien om ophef: aandacht en reclame betalen meteen, de schade komt later.",
+    body: "Clickbait Capital laat zien waarom sociale media steeds meer om ophef draaien. Aandacht en reclame leveren meteen geld op. De schade komt later.",
     disclaimer:
-      "Alle bedrijven, merken, personen en gebeurtenissen in dit spel zijn verzonnen. Elke gelijkenis met echte platforms is helaas geen toeval.",
+      "Alle bedrijven, merken, personen en gebeurtenissen in dit spel zijn verzonnen. Lijkt iets op een echte app? Dat is helaas geen toeval.",
     madeBy: "Gemaakt door TMI",
     imagesHeading: "Beelden",
     imagesIntro:
-      "Alle foto's staan onder een open licentie (CC0 of CC BY). Met dank aan de makers:",
+      "Alle foto's mag iedereen gebruiken (open licentie: CC0 of CC BY). Met dank aan de makers:",
     audioHeading: "Geluid",
     privacyLink: "Privacy",
     closeButton: "Sluiten",
@@ -179,15 +180,15 @@ export const UI_COPY = {
     intro: "Kort gezegd: je hebt geen account nodig en we volgen je niet.",
     points: [
       "Geen account en geen inlog. We vragen nooit je naam of e-mailadres.",
-      "Geen cookies, geen advertenties, geen bezoekersstatistieken en geen trackers.",
-      "Je instellingen (weergave, geluid en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat, zodat je later verder kunt spelen. Niets daarvan gaat ergens heen, en het spel wordt gewist zodra het afgelopen is.",
-      "Om ook offline te kunnen spelen, bewaart je browser de bestanden van het spel en de kaartfoto's op dit apparaat.",
-      "De site draait bij Cloudflare. Zoals bij elke website ziet die server je IP-adres om de pagina te kunnen sturen. Wij gebruiken dat niet om je te volgen.",
+      "Geen cookies, geen reclame, geen bezoekerstellers en geen [[trackers|tracker]].",
+      "Je instellingen (weergave, geluid en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
+      "Je browser bewaart de bestanden van het spel en de kaartfoto's op dit apparaat. Zo kun je ook zonder internet spelen.",
+      "De site draait bij Cloudflare. Zoals bij elke website ziet die [[server]] je [[IP-adres]], anders kan hij de pagina niet sturen. Wij gebruiken dat niet om je te volgen.",
     ],
     errorReports:
-      "Loopt het spel vast, dan sturen we een foutmelding naar onze server: wat er misging, op welke pagina en in welke browser. Zonder naam of andere gegevens over jou.",
+      "Loopt het spel vast, dan sturen we een foutmelding naar onze server: wat er misging, op welke pagina en in welke browser. Zonder je naam of andere gegevens over jou.",
     clearHint:
-      "Alles wissen? Verwijder de websitegegevens van deze site in je browser. Geluid, beweging en een opgeslagen spel wis je ook via Instellingen.",
+      "Alles wissen? Verwijder de gegevens van deze site in je browser. Geluid, beweging en een opgeslagen spel wis je ook via Instellingen.",
     creditsHint: "Wie de foto's en geluiden maakte, staat bij",
     creditsLink: "Credits",
     closeButton: "Sluiten",
@@ -196,22 +197,22 @@ export const UI_COPY = {
     generic: "Er ging iets mis. Probeer het opnieuw.",
     gameCrashed: "Het spel liep vast. Je kunt opnieuw beginnen.",
     invalidMove: "Die kaart kun je nu niet spelen.",
-    offline: "Je bent offline. Het spel werkt gewoon door, delen lukt pas als je weer online bent.",
+    offline:
+      "Je hebt geen internet. Het spel werkt gewoon door. Delen lukt pas als je weer internet hebt.",
     saveFailed: "Je voortgang kon niet worden bewaard.",
     loadFailed: "Je opgeslagen spel kon niet worden geladen. Begin een nieuw spel.",
     retryButton: "Opnieuw proberen",
     restartButton: "Nieuw spel",
   },
   appStatus: {
-    offlineBanner: "Je bent offline. Het spel werkt gewoon door.",
-    offlineTitle: "Je bent offline",
-    offlineBody:
-      "Deze pagina is nog niet op je apparaat bewaard. Maak verbinding en probeer het opnieuw.",
+    offlineBanner: "Je hebt geen internet. Het spel werkt gewoon door.",
+    offlineTitle: "Geen internet",
+    offlineBody: "Deze pagina staat nog niet op je apparaat. Zoek internet en probeer het opnieuw.",
     loadFailedTitle: "Laden mislukt",
     loadFailedBody:
       "Het spel kon niet worden geladen. Probeer het opnieuw of ga terug naar het begin.",
     unsupportedTitle: "Browser niet ondersteund",
-    unsupportedBody: "Deze browser mist onderdelen die het spel nodig heeft.",
+    unsupportedBody: "Deze browser kan het spel niet spelen. Er missen onderdelen.",
     browserTip: "Tip: speel in een recente versie van Chrome, Safari, Firefox of Edge.",
     retryButton: "Opnieuw proberen",
     homeButton: "Naar het begin",
@@ -220,10 +221,77 @@ export const UI_COPY = {
     noSavedGame: "Nog geen spel bezig. Start een nieuw spel.",
     noResults: "Je hebt nog niet gespeeld. Je eerste beursgang wacht.",
     emptyFeed: "Je feed is nog leeg. Sleep er een kaart in.",
-    noEvents: "Geen crises. Nog niet.",
+    noEvents: "Geen problemen. Nog niet.",
   },
   loading: {
     game: "Feed laden…",
     shuffle: "Kaarten schudden…",
   },
 } as const;
+
+/**
+ * Hard words in the player-facing copy, with a short meaning for 11-year-olds (kids-content
+ * D1). Strings mark a word as `[[woord]]` or `[[getoonde vorm|term]]`; the kit's
+ * `GlossaryText` shows the meaning on tap. Keys are lower case. `gameContent.test.ts` checks that
+ * every marked term is here and every entry is used.
+ */
+export const GLOSSARY: Readonly<Record<string, string>> = {
+  aandeelhouder:
+    "Iemand die een stukje van een bedrijf bezit. Die wil dat het bedrijf veel winst maakt.",
+  abonnement: "Je betaalt elke maand opnieuw, tot je stopt.",
+  adverteerder: "Een bedrijf dat betaalt om zijn reclame te laten zien.",
+  advertentie: "Een ander woord voor reclame.",
+  algoritme:
+    "Een computerregel die kiest wat jij te zien krijgt. Hij kiest vaak wat je lang laat kijken.",
+  anoniem: "Je weet niet wie het is.",
+  "battle pass": "Een betaalde pas in een game. Hoe meer je speelt, hoe meer beloningen je krijgt.",
+  beurs: "Een markt waar mensen stukjes van bedrijven kopen en verkopen.",
+  beursgang:
+    "Het moment dat iedereen stukjes van je bedrijf kan kopen. Dan ben je een heel groot bedrijf.",
+  bot: "Een computerprogramma dat doet alsof het een mens is.",
+  bron: "Waar informatie vandaan komt. Zo kun je checken of het klopt.",
+  clickbait: "Een titel of plaatje dat expres overdreven is, zodat jij erop klikt.",
+  complot:
+    "Een verhaal dat zegt dat een geheime groep stiekem alles regelt. Meestal zonder bewijs.",
+  concurrent: "Een ander bedrijf dat hetzelfde doet en jouw klanten wil hebben.",
+  cryptomunt: "Geld dat alleen op internet bestaat. Het kan heel snel veel minder waard worden.",
+  data: "Gegevens over jou: wat je kijkt, liket en zoekt.",
+  datalek: "Als geheime gegevens, zoals wachtwoorden, bij de verkeerde mensen terechtkomen.",
+  deepfake:
+    "Een nepvideo, gemaakt met AI. Iemand zegt of doet daarin dingen die nooit gebeurd zijn.",
+  desinformatie: "Nepnieuws dat expres wordt verspreid om mensen voor de gek te houden.",
+  detox:
+    "Een kuur die je lichaam zogenaamd schoonmaakt. Dokters zeggen: dat doet je lichaam zelf al.",
+  dropshipping:
+    "Spullen online verkopen die je zelf nooit ziet. De fabriek stuurt ze meteen naar de koper.",
+  factcheck: "Uitzoeken of iets echt waar is.",
+  feed: "De lijst met berichten en filmpjes die je ziet als je scrolt.",
+  hoorzitting: "Een vergadering waar politici jou vragen stellen. Jij moet antwoord geven.",
+  inflatie: "Als alles duurder wordt. Met hetzelfde geld kun je dan minder kopen.",
+  influencer:
+    "Iemand met veel volgers. Bedrijven betalen influencers om hun spullen aan te prijzen.",
+  investeerder: "Iemand die geld in je bedrijf stopt en later meer geld terug wil.",
+  "ip-adres":
+    "Het adres van je apparaat op internet. Zo weet een website waar hij de pagina heen moet sturen.",
+  journalist: "Iemand die uitzoekt wat er echt gebeurt en daar eerlijk over schrijft.",
+  klokkenluider: "Iemand die vertelt wat er in een bedrijf fout gaat, ook al wil de baas dat niet.",
+  lootbox: "Een verrassingskist in een game. Je betaalt, maar je weet niet wat je krijgt.",
+  misleidend: "Het klopt niet helemaal en zet je op het verkeerde spoor.",
+  nepaccount: "Een account dat doet alsof het van iemand anders is.",
+  nepnieuws: "Een bericht dat doet alsof het waar is, maar niet klopt.",
+  oplichter: "Iemand die mensen bedriegt om hun geld of spullen af te pakken.",
+  parlement: "De groep politici die de wetten van een land maakt.",
+  petitie: "Een lijst met namen van mensen die samen iets willen veranderen.",
+  premium: "Een betaalde versie van een app, met extra's.",
+  privacy: "Dat je zelf bepaalt wie wat over jou weet.",
+  rectificatie: "Een bericht waarin je zegt: wat we eerder schreven, klopte niet.",
+  "scale-up": "Een jong bedrijf dat heel snel groeit.",
+  server: "Een grote computer waar je app op draait. Die kost elke maand geld.",
+  sponsor: "Een bedrijf dat iemand betaalt om zijn product te laten zien.",
+  toezichthouder:
+    "Een organisatie die controleert of bedrijven zich aan de regels houden. Die kan boetes geven.",
+  tracker: "Een stukje code dat bijhoudt wat jij op internet doet.",
+  transparant: "Open en eerlijk laten zien hoe iets werkt.",
+  verdienmodel: "De manier waarop een bedrijf geld verdient.",
+  verkiezingen: "Als volwassenen stemmen wie het land of de gemeente gaat besturen.",
+};

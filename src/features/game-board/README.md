@@ -10,22 +10,22 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 ## Structure
 
-| Layer      | Path                                                                               | Purpose                                                                         |
-| ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                                                                     | `GameBoard` (props: `content`, `onQuit`, optional `seed`, `savedRun`)           |
-| Components | `components/GameBoard.tsx`                                                         | One run: session, sounds, and which screen shows (board, intro, ending)         |
-| Components | `components/PlayingBoard.tsx`                                                      | Composition during play: header, meters, feed, draft, dialogs, drag context     |
-| Components | `components/MeterPanel.tsx`, `PhaseProgress.tsx`, `PhoneFeed.tsx`, `CardDraft.tsx` | Board parts (presentation)                                                      |
-| Components | `components/CardDetailDialog.tsx`, `PauseMenu.tsx`                                 | Dialogs on the `Modal` kit                                                      |
-| Hooks      | `hooks/useGameSession.ts`                                                          | One run: session, `play`, `chooseOption`, `restart`, the `BoardView`; saves it  |
-| Hooks      | `hooks/useBoardScreenReader.ts` | One polite announcement per action; focus back to the draft slot / board heading |
-| Hooks      | `hooks/useRovingFocus.ts`                                                          | Arrow keys move focus within a group of buttons                                 |
-| Hooks      | `hooks/useBoardSounds.ts`                                                          | Plays the last action's sounds once, follow-up 250 ms after the action          |
-| Services   | `services/boardSounds.ts`                                                          | `soundsForAction`: engine state change → ordered sound ids (pure)               |
-| Services   | `services/boardSpeech.ts` | Pure: spoken turn summary (`describeTurn`), resume summary (`describeResume`) and meter value text |
-| Services   | `services/gameSession.ts` | Pure: `startSession`, `applyAction` (card or event option), `restoreSession` (replay of a save), `toSavedRun` |
-| Services   | `services/boardView.ts`                                                            | Pure engine state → view mappers; run summary for the end screens; formatting   |
-| Types      | `types/gameBoard.types.ts`                                                         | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)         |
+| Layer      | Path                                                                               | Purpose                                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                                                                     | `GameBoard` (props: `content`, `onQuit`, optional `seed`, `savedRun`)                                         |
+| Components | `components/GameBoard.tsx`                                                         | One run: session, sounds, and which screen shows (board, intro, ending)                                       |
+| Components | `components/PlayingBoard.tsx`                                                      | Composition during play: header, meters, feed, draft, dialogs, drag context                                   |
+| Components | `components/MeterPanel.tsx`, `PhaseProgress.tsx`, `PhoneFeed.tsx`, `CardDraft.tsx` | Board parts (presentation)                                                                                    |
+| Components | `components/CardDetailDialog.tsx`, `PauseMenu.tsx`                                 | Dialogs on the `Modal` kit                                                                                    |
+| Hooks      | `hooks/useGameSession.ts`                                                          | One run: session, `play`, `chooseOption`, `restart`, the `BoardView`; saves it                                |
+| Hooks      | `hooks/useBoardScreenReader.ts`                                                    | One polite announcement per action; focus back to the draft slot / board heading                              |
+| Hooks      | `hooks/useRovingFocus.ts`                                                          | Arrow keys move focus within a group of buttons                                                               |
+| Hooks      | `hooks/useBoardSounds.ts`                                                          | Plays the last action's sounds once, follow-up 250 ms after the action                                        |
+| Services   | `services/boardSounds.ts`                                                          | `soundsForAction`: engine state change → ordered sound ids (pure)                                             |
+| Services   | `services/boardSpeech.ts`                                                          | Pure: spoken turn summary (`describeTurn`), resume summary (`describeResume`) and meter value text            |
+| Services   | `services/gameSession.ts`                                                          | Pure: `startSession`, `applyAction` (card or event option), `restoreSession` (replay of a save), `toSavedRun` |
+| Services   | `services/boardView.ts`                                                            | Pure engine state → view mappers; run summary for the end screens; formatting                                 |
+| Types      | `types/gameBoard.types.ts`                                                         | View models (`BoardView`, `MeterView`, `DraftCardView`, `FeedEntry`, …)                                       |
 
 ## Decisions
 
@@ -50,6 +50,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Settings inside the pause menu (game-settings D1):** "Instellingen" swaps the pause dialog's content for `SettingsPanel` with a "Terug" button instead of navigating to `/instellingen`, so play continues where it was without a trip through the resume offer.
 
 - **Saved runs (local-save D1, D3, D5, D8):** every accepted action is appended to the session's action log; `useGameSession` writes `{ seed, actions }` through `@/features/game-save/api` after each action and clears it when the run ends or has no actions. A `savedRun` prop is replayed with `restoreSession`; if it no longer replays, a new run starts. A resumed board skips the phase intro (`usePhaseIntro(phase, seenPhase)`) unless the save's last action started the phase (then the interrupted intro shows again, before that turn's milestone event), focuses the board heading and speaks `describeResume` once ("Spel hervat. Fase 2 van 4: Scale-up. Beurt 7." plus the meter values), queued like a turn text. Pause → "Stoppen" keeps the save, so the start screen offers "Verder spelen". File budget: override to 27 files in `featureBudgets.config.cjs` (local-save D9); a board / session split is the follow-up if it grows.
+- **Glossary words (kids-content D3–D4):** `CardDetailDialog` renders the card body and flavor through the kit's `GlossaryText` with `GLOSSARY` (tap a marked word for its meaning; the card there is static, so no button nests in a button). Draft cards show titles only, which carry no markup. `feedEntryForCard` / `feedEntryForEvent` strip the markup, so feed posts and turn announcements are plain text.
 
 ## Not here yet
 
