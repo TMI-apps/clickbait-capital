@@ -15,6 +15,7 @@ export {
   END_REPORT_TEMPLATE,
   fillTemplate,
   GAME_OVER_TEXTS,
+  selectGameOverText,
 } from "@/features/game-content/services/endings";
 export { UI_COPY } from "@/features/game-content/services/uiCopy";
 export type * from "@/features/game-content/types/contentPresentation.types";

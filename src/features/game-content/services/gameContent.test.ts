@@ -5,7 +5,16 @@ import {
   type EventOptionKind,
   type PhaseId,
 } from "@/features/game-engine/api";
-import { buildEndReport, fillTemplate } from "@/features/game-content/services/endings";
+import {
+  buildEndReport,
+  CRISES_FROM_EVENTS,
+  fillTemplate,
+  GAME_OVER_TEXTS,
+  NO_INCOME_BELOW_AD_SHARE,
+  selectGameOverText,
+  TOXIC_FROM_VIRAL_SHARE,
+} from "@/features/game-content/services/endings";
+import { EVENT_CARDS } from "@/features/game-content/services/eventCards";
 import {
   GAME_CONTENT,
   getContentCard,
@@ -115,5 +124,115 @@ describe("buildEndReport", () => {
 
   it("should leave unknown placeholders visible when a value is missing", () => {
     expect(fillTemplate("{a} en {b}", { a: "x" })).toBe("x en {b}");
+  });
+});
+
+/** Crisis events (toxicity triggers) and milestone events from the deck. */
+const CRISIS_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "toxicity").map(
+  (event) => event.id
+);
+const MILESTONE_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "milestone").map(
+  (event) => event.id
+);
+
+/** A lost run: `playedTypes` as a compact string, e.g. "nnnv" = news, news, news, viral. */
+const lostRun = (played: string, firedEventIds: string[] = []) => ({
+  turn: played.length,
+  phaseId: 2 as const,
+  stats: { users: 50_000, revenue: 10_000 },
+  playedTypes: [...played].map((letter) =>
+    letter === "v" ? "viral" : letter === "a" ? "ad" : "news"
+  ) as CardType[],
+  firedEventIds,
+});
+
+/** A run of `total` cards with `count` of one type and news for the rest. */
+const withShare = (letter: string, count: number, total: number): string =>
+  letter.repeat(count) + "n".repeat(total - count);
+
+describe("selectGameOverText", () => {
+  it("should tell a dull-feed story when a news-only run ends in Verlaten Platform", () => {
+    const text = selectGameOverText("abandoned", lostRun("nnnnnnnn"));
+    expect(text.variant).toBe("dullFeed");
+    expect(text.title).toBe("Verlaten Platform");
+    expect(text.body).not.toMatch(/reclame/i);
+  });
+
+  it("should blame the ads when an ad-heavy run ends in Verlaten Platform", () => {
+    expect(selectGameOverText("abandoned", lostRun("aaavaan")).variant).toBe("adOverload");
+  });
+
+  it("should tell a burnout story when a viral-heavy run ends in Verlaten Platform", () => {
+    expect(selectGameOverText("abandoned", lostRun("vvvanvv")).variant).toBe("viralBurnout");
+  });
+
+  it("should say nobody paid when a run with few ads goes bankrupt", () => {
+    expect(selectGameOverText("bankrupt", lostRun("nnvnnvnnna")).variant).toBe("noIncome");
+  });
+
+  it("should blame the costs when a run with plenty of ads still goes bankrupt", () => {
+    expect(selectGameOverText("bankrupt", lostRun("aanvanav")).variant).toBe("costsOutgrew");
+  });
+
+  it("should blame the outrage when a viral-heavy run is banned", () => {
+    expect(selectGameOverText("banned", lostRun("vvvvavn", CRISIS_IDS.slice(0, 3))).variant).toBe(
+      "viralToxicity"
+    );
+  });
+
+  it("should blame the piled-up crises when a run is banned after several crises without a viral majority", () => {
+    expect(selectGameOverText("banned", lostRun("vavanvan", CRISIS_IDS.slice(0, 3))).variant).toBe(
+      "crises"
+    );
+  });
+
+  it("should not count milestone events as crises when a run is banned", () => {
+    const run = lostRun("vavaavna", MILESTONE_IDS);
+    expect(MILESTONE_IDS.length).toBeGreaterThanOrEqual(CRISES_FROM_EVENTS);
+    expect(selectGameOverText("banned", run).variant).toBe("scamAds");
+  });
+
+  it("should blame the scam ads when an ad-heavy run is banned after few events", () => {
+    expect(selectGameOverText("banned", lostRun("aavaavna", CRISIS_IDS.slice(0, 1))).variant).toBe(
+      "scamAds"
+    );
+  });
+
+  it("should switch stories exactly at the thresholds when shares and crises reach them", () => {
+    const total = 20;
+    const adsAtLimit = Math.round(NO_INCOME_BELOW_AD_SHARE * total);
+    expect(
+      selectGameOverText("bankrupt", lostRun(withShare("a", adsAtLimit - 1, total))).variant
+    ).toBe("noIncome");
+    expect(selectGameOverText("bankrupt", lostRun(withShare("a", adsAtLimit, total))).variant).toBe(
+      "costsOutgrew"
+    );
+    const viralAtLimit = Math.round(TOXIC_FROM_VIRAL_SHARE * total);
+    expect(selectGameOverText("banned", lostRun(withShare("v", viralAtLimit, total))).variant).toBe(
+      "viralToxicity"
+    );
+    const almostCrises = CRISIS_IDS.slice(0, CRISES_FROM_EVENTS - 1);
+    const crises = CRISIS_IDS.slice(0, CRISES_FROM_EVENTS);
+    expect(selectGameOverText("banned", lostRun("vaaannnn", almostCrises)).variant).toBe("scamAds");
+    expect(selectGameOverText("banned", lostRun("vaaannnn", crises)).variant).toBe("crises");
+  });
+
+  it("should fall back to a variant of the reason when no card was played", () => {
+    for (const reason of ["bankrupt", "abandoned", "banned"] as const) {
+      const text = selectGameOverText(reason, lostRun(""));
+      expect(Object.keys(GAME_OVER_TEXTS[reason].variants)).toContain(text.variant);
+    }
+  });
+
+  it("should give every variant a Dutch headline, body and lesson when the texts are written", () => {
+    for (const ending of Object.values(GAME_OVER_TEXTS)) {
+      const variants = Object.values(ending.variants);
+      expect(variants.length).toBeGreaterThanOrEqual(2);
+      for (const story of variants) {
+        expect(story.headline.length).toBeGreaterThan(10);
+        expect(story.body.length).toBeGreaterThan(40);
+        expect(story.lesson.length).toBeGreaterThan(20);
+      }
+    }
   });
 });

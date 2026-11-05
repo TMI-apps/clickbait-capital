@@ -6,6 +6,15 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## ending-texts — feat/ending-texts
+
+Game-over texts that match how the run got there, plus removal of the landed game-settings and juice-motion-setting lap folders.
+
+| id  | topic                     | status | choice                                                                                                                                                                                                                                                                                                                                 | source                          | notes                                                                                                                                                                  |
+| --- | ------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Where the story is chosen | closed | Pure `selectGameOverText(reason, run)` in game-content `endings.ts` (game-content README D9), next to the texts and `buildEndReport`; game-flow's `toEndingView` only renders it                                                                                                                                                       | loop-plan                       | which copy fits the run is a content decision; rejected: selection in game-flow (two features would know the variant ids)                                              |
+| D2  | Stories and rules         | closed | Verlaten: most-played type → `adOverload` / `viralBurnout` / `dullFeed` (ties: ads, then viral). Bankroet: < 25% ads → `noIncome`, else `costsOutgrew`. Verbod: viral ≥ 50% → `viralToxicity`, else ≥ 2 crises (toxicity-triggered events; milestones excluded) → `crises`, else more ads than viral → `scamAds`, else `viralToxicity` | orchestrator brief + loop-check | the old single texts became `adOverload`, `noIncome`, `viralToxicity`; the run summary has fired events but no choices, so no story names a choice or a specific event |
+
 ## juice-motion-setting — feat/juice-motion-setting
 
 Game juice reads the in-app Beweging setting from game-settings instead of its own OS query.
