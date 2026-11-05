@@ -1,10 +1,5 @@
 [
   {
-    "title": "Faster first load: fonts and unused sign-in code",
-    "description": "From the game-settings launch audit (Lighthouse mobile perf 79-81, FCP ~3.4 s): (1) Google Fonts stylesheet is render-blocking (~0.9 s FCP): self-host Space Grotesk/Inter subsets or load non-blocking with font-display: swap; (2) supabase-js and auth code sit in the main chunk (~125 KiB unused JS): lazy-load them for /login and /auth/callback only; (3) add a main-chunk bundle-size budget to CI. Target: Lighthouse mobile performance >= 90. Size S-M.",
-    "status": "to-do"
-  },
-  {
     "title": "Manual screen-reader pass",
     "description": "From the launch audit: axe reports 0 WCAG violations, but no human screen-reader run yet. Play a full game with VoiceOver (iOS) and TalkBack (Android) or NVDA; fix announcements of meter changes, events and endings (aria-live). Size S.",
     "status": "to-do"
