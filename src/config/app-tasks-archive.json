@@ -1,5 +1,10 @@
 [
   {
+    "title": "Settings, error states and launch audit",
+    "description": "Wave 3. Area: src/features/game-settings/ (new) and error/empty states. Settings screen (motion, reset progress; sound once audio exists), offline/failed-to-load/unsupported states with retry and home. Launch audit: WCAG AA and keyboard play across all screens, mobile performance and bundle budget, CI green, production deploy verified. Size S. Result: merged in PR #18 (src/features/game-settings: sound/motion/colour settings, progress reset, /instellingen, /hoe-speel-je, app error/offline states; audit: axe WCAG 2.2 AA 0 violations, keyboard play end to end, Lighthouse mobile a11y 100 / perf 79-81).",
+    "status": "done"
+  },
+  {
     "title": "Remove landed lap folders and fill the decision log",
     "description": "Process gap found when the owner asked how far threads followed the loop skills (2026-11-04): landed laps left documentation/jobs/temp_job_* folders on main (game-engine, game-card, game-content, game-audio, game-board, game-flow, installable-app + template leftovers feedback-hooks, orchestrator-parallel-laps), and only game-engine has a section in documentation/DOC_DECISION_LOG.md. Per loop-backlog step 3 / onboarding-first-lap D4: add a ## <slug> section per landed lap from its DECISIONS.md, then remove the folders. Size XS. Result: merged in PR #20 (decision-log sections for 7 game laps + feedback-hooks; 11 landed lap folders removed).",
     "status": "done"

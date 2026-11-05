@@ -12,8 +12,6 @@ export { MeterJuice } from "@/features/game-juice/components/MeterJuice";
 export type { MeterJuiceProps } from "@/features/game-juice/components/MeterJuice";
 export { JUICE_METER_ATTR, useActionJuice } from "@/features/game-juice/hooks/useActionJuice";
 export type { ActionJuice, ParticleBurst } from "@/features/game-juice/hooks/useActionJuice";
-export { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
-export type { MotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
 export { FEED_ENTRANCE } from "@/features/game-juice/services/feedEntrance";
 export type {
   JuiceAction,
