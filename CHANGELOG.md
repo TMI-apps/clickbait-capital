@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.0](https://github.com/TMI-apps/clickbait-capital/compare/v0.44.0...v0.45.0) (2026-11-05)
+
+
+### Features
+
+* Add asymmetric game juice and show wasted gains at the meter cap ([#16](https://github.com/TMI-apps/clickbait-capital/issues/16)) ([361a26d](https://github.com/TMI-apps/clickbait-capital/commit/361a26d004485ee397ded7d3952a06ef790622b0))
+* Add card imagery with license manifest and credits page ([#13](https://github.com/TMI-apps/clickbait-capital/issues/13)) ([c97e3c6](https://github.com/TMI-apps/clickbait-capital/commit/c97e3c6ecddeb3c5c5f4a43ae0288edbf1061a75))
+* Add Dutch game content, events and UI copy ([#9](https://github.com/TMI-apps/clickbait-capital/issues/9)) ([702ab6c](https://github.com/TMI-apps/clickbait-capital/commit/702ab6cf5b629cbd1c8083a3b0714f62138aa286))
+* Add event modal, phase transitions, endings and end report ([#14](https://github.com/TMI-apps/clickbait-capital/issues/14)) ([620d4d9](https://github.com/TMI-apps/clickbait-capital/commit/620d4d9822ac3fa54d9f867ac796f876eba552c1))
+* Add game audio service, sounds and mute toggle ([#8](https://github.com/TMI-apps/clickbait-capital/issues/8)) ([99141b2](https://github.com/TMI-apps/clickbait-capital/commit/99141b26474134abb28d8ad639962bb082d65501))
+* Add game card tokens and GameCard kit component ([#6](https://github.com/TMI-apps/clickbait-capital/issues/6)) ([4c28755](https://github.com/TMI-apps/clickbait-capital/commit/4c287550f9715a79fc02949ca0b400de12f56439))
+* Add game rules engine and content schema ([#5](https://github.com/TMI-apps/clickbait-capital/issues/5)) ([55a076b](https://github.com/TMI-apps/clickbait-capital/commit/55a076b3817888d28f1609d22264c6255e9260f8))
+* Add privacy note, robots.txt, sitemap and canonical links ([#29](https://github.com/TMI-apps/clickbait-capital/issues/29)) ([c959bf7](https://github.com/TMI-apps/clickbait-capital/commit/c959bf7d2a4d15bcc18a8d68cf2136fe65d98de6))
+* Add settings, rules page and app error states ([#18](https://github.com/TMI-apps/clickbait-capital/issues/18)) ([d781d95](https://github.com/TMI-apps/clickbait-capital/commit/d781d9509a5ecdd715c0575746ea320c8b06960e))
+* Add the playable game board on /spel ([#7](https://github.com/TMI-apps/clickbait-capital/issues/7)) ([f918a35](https://github.com/TMI-apps/clickbait-capital/commit/f918a3530d580966574a471118ac4390675d3824))
+* Apply app updates at safe moments and check for them on resume ([#25](https://github.com/TMI-apps/clickbait-capital/issues/25)) ([8824abe](https://github.com/TMI-apps/clickbait-capital/commit/8824abe4f84d0b2cecf2b3b78f7830f63ad02386))
+* Balance the game for a 25-45 turn run ([#11](https://github.com/TMI-apps/clickbait-capital/issues/11)) ([49d045b](https://github.com/TMI-apps/clickbait-capital/commit/49d045b53eb2b2a3b34ef79c156a9b447dccb2d7))
+* Drive game juice from the in-app motion setting ([#21](https://github.com/TMI-apps/clickbait-capital/issues/21)) ([c0858a7](https://github.com/TMI-apps/clickbait-capital/commit/c0858a78b52e637af10e66eaabd67200b0b3bf32))
+* Make a full game followable with a screen reader ([#28](https://github.com/TMI-apps/clickbait-capital/issues/28)) ([85ef776](https://github.com/TMI-apps/clickbait-capital/commit/85ef776bf0e2aa6718265d13aa376dff63a1b898))
+* Make the game installable and playable offline ([#12](https://github.com/TMI-apps/clickbait-capital/issues/12)) ([ab96768](https://github.com/TMI-apps/clickbait-capital/commit/ab96768590bfb13b18fec7b1ea6a1501c49d89a7))
+* Match the game-over text to how the run went ([#23](https://github.com/TMI-apps/clickbait-capital/issues/23)) ([6b477f8](https://github.com/TMI-apps/clickbait-capital/commit/6b477f881732ea0bf9f331264654f2ac1c620417))
+* Read the users stat off the Gebruikers meter ([#22](https://github.com/TMI-apps/clickbait-capital/issues/22)) ([32eb19d](https://github.com/TMI-apps/clickbait-capital/commit/32eb19d1626404fb828239ca08f1c34ef33b7076))
+* Replace the template home with a Dutch start screen ([#2](https://github.com/TMI-apps/clickbait-capital/issues/2)) ([64d9c67](https://github.com/TMI-apps/clickbait-capital/commit/64d9c67510aa45302aef4fdf818c95c97ca8c6d0))
+* Restyle the app in the neon feed theme ([#3](https://github.com/TMI-apps/clickbait-capital/issues/3)) ([6abbd15](https://github.com/TMI-apps/clickbait-capital/commit/6abbd1571c811fe44629df76de495ad4da62afd6))
+* Wire game sounds into the board and level the audio set ([#10](https://github.com/TMI-apps/clickbait-capital/issues/10)) ([a37f19b](https://github.com/TMI-apps/clickbait-capital/commit/a37f19b32ac2ea7e45666d9403aede52cdf7862c))
+
+
+### Performance Improvements
+
+* Self-host fonts and load sign-in code on demand ([#26](https://github.com/TMI-apps/clickbait-capital/issues/26)) ([af789e7](https://github.com/TMI-apps/clickbait-capital/commit/af789e79bf913ee90ba45b44e3d6ff0935d9a4bb))
+
 ## [0.44.0](https://github.com/value-machine/bronze-plate-harness/compare/v0.43.0...v0.44.0) (2026-10-26)
 
 
