@@ -12,22 +12,22 @@ Player settings for Clickbait Capital: sound, motion, colour mode and wiping loc
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| API | `api/index.ts` | `SettingsPanel`, `useMotionPreference`, `useReducedMotion`, `getMotionStore`, `GAME_STORAGE_PREFIX`, `MOTION_PREFERENCES`, types |
-| Components | `components/SettingsPanel.tsx` | The three segmented settings plus the wipe section |
-| Components | `components/SettingRow.tsx`, `ResetProgressSection.tsx` | Labelled 44 px `SegmentedControl` row; wipe button + confirm `Modal` + status line |
-| Hooks | `hooks/useMotionPreference.ts` | `useMotionPreference` (choice + setter + resolved), `useReducedMotion` (resolved only) |
-| Hooks | `hooks/useResetProgress.ts` | Live reset of sound and motion, then `clearGameStorage` |
-| Services | `services/motionPreference.ts` | `createMotionStore` (external store, OS watch), `getMotionStore` page singleton, `applyMotionToDocument` |
-| Services | `services/gameStorage.ts` | `GAME_STORAGE_PREFIX`, `clearGameStorage` |
-| Types | `types/motionPreference.types.ts` | `MOTION_PREFERENCES`, `MotionPreference`, `MotionStore` |
+| Layer      | Path                                                    | Purpose                                                                                                                          |
+| ---------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                                          | `SettingsPanel`, `useMotionPreference`, `useReducedMotion`, `getMotionStore`, `GAME_STORAGE_PREFIX`, `MOTION_PREFERENCES`, types |
+| Components | `components/SettingsPanel.tsx`                          | The three segmented settings plus the wipe section                                                                               |
+| Components | `components/SettingRow.tsx`, `ResetProgressSection.tsx` | Labelled 44 px `SegmentedControl` row; wipe button + confirm `Modal` + status line                                               |
+| Hooks      | `hooks/useMotionPreference.ts`                          | `useMotionPreference` (choice + setter + resolved), `useReducedMotion` (resolved only)                                           |
+| Hooks      | `hooks/useResetProgress.ts`                             | Live reset of sound and motion, then `clearGameStorage`                                                                          |
+| Services   | `services/motionPreference.ts`                          | `createMotionStore` (external store, OS watch), `getMotionStore` page singleton, `applyMotionToDocument`                         |
+| Services   | `services/gameStorage.ts`                               | `GAME_STORAGE_PREFIX`, `clearGameStorage`                                                                                        |
+| Types      | `types/motionPreference.types.ts`                       | `MOTION_PREFERENCES`, `MotionPreference`, `MotionStore`                                                                          |
 
 ## Decisions
 
 - **Settings inside the pause menu (D1):** the pause dialog swaps to `SettingsPanel`; navigating to `/instellingen` would end the in-memory run.
 - **External store, no provider (D2):** `useSyncExternalStore` over a module singleton, like the game-audio mute, so any feature reads it without a provider in `App.tsx`.
-- **CSS follows the choice (D3):** the store sets `data-motion="reduced|full"` on `<html>`; for "Verminderd" it also sets the `--duration-*` tokens to `0.01ms` inline. "Volledig" only lifts JS juice: the token CSS still honours an OS reduce request.
+- **CSS follows the choice (D3):** the store sets `data-motion="reduced|full"` on `<html>`; for "Verminderd" it also sets the `--duration-*` tokens to `0.01ms` inline. "Volledig" lifts JS juice, and game-juice restores its own durations under `data-motion="full"` (`src/index.css`); the rest of the token CSS still honours an OS reduce request (amended by juice-motion-setting D1).
 - **Colour mode survives a wipe (D4):** `color-mode` is a display preference shared with the harness, not game data.
 
 ## Testing

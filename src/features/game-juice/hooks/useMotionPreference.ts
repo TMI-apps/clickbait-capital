@@ -1,20 +1,4 @@
-import { useSyncExternalStore } from "react";
-
-const REDUCED_QUERY = "(prefers-reduced-motion: reduce)";
-
-function reducedQuery(): MediaQueryList | null {
-  return typeof window !== "undefined" && typeof window.matchMedia === "function"
-    ? window.matchMedia(REDUCED_QUERY)
-    : null;
-}
-
-function subscribe(onChange: () => void): () => void {
-  const query = reducedQuery();
-  query?.addEventListener("change", onChange);
-  return () => query?.removeEventListener("change", onChange);
-}
-
-const getReduced = (): boolean => reducedQuery()?.matches ?? false;
+import { useReducedMotion } from "@/features/game-settings/api";
 
 export interface MotionPreference {
   /** True: no shake, no particles, instant numbers; state changes still show. */
@@ -22,10 +6,11 @@ export interface MotionPreference {
 }
 
 /**
- * The in-app motion preference — the one place game motion asks (game-juice D3). It follows
- * the OS `prefers-reduced-motion` today; the settings lap backs it with its motion toggle.
+ * Game juice's view of the motion setting (game-juice D3). Delegates to game-settings'
+ * `useReducedMotion`, the one in-app source: "Verminderd" reduces, "Volledig" plays full juice,
+ * "Systeem" follows `prefers-reduced-motion`. Internal to game-juice; other features read
+ * `@/features/game-settings/api` directly.
  */
 export function useMotionPreference(): MotionPreference {
-  const reduced = useSyncExternalStore(subscribe, getReduced, () => false);
-  return { reduced };
+  return { reduced: useReducedMotion() };
 }
