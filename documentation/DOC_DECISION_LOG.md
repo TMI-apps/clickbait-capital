@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## feed-images — feat/feed-images
+
+Feed posts on `/spel` show the played card's or event's picture: the newest post as photo + title + body, older posts as compact rows (`game-board` `PhoneFeed`, kit `GameCardArtwork` export).
+
+| id  | topic             | status | choice                                                                                                                                                              | source      | notes                                                                                                                                    |
+| --- | ----------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Image path        | closed | Feed reuses the kit's `GameCardArtwork` (exported from the GameCard barrel) with `getCardImage(entry.contentId)`; `FeedEntry` carries the content id, not the image | loop-plan   | lost: an image field on `FeedEntry` (board services would import card-imagery for a UI concern); a feed-only `<img>` (second image path) |
+| D2  | Newest vs older   | closed | Newest post: photo + type + title + body; older posts: compact row (64 px photo, type, title), body kept as screen-reader text                                      | owner brief | keeps the feed readable with many posts                                                                                                  |
+| D3  | Newest layout     | closed | Feed scroll box is a size container: photo on top when it is at least 24rem tall, beside the text otherwise                                                         | loop-plan   | 375×667 feed box is ~210 px tall: a full-width 4:3 photo (~240 px) would not fit                                                         |
+| D4  | Compact thumbnail | closed | Compact rows drop caption / sticker / marker (boost and glow stay); the newest post has the full treatment                                                          | loop-plan   | a 10.5cqw caption at 64 px is ~7 px: noise, not text                                                                                     |
+| D5  | Drag hint         | closed | "Laat los om te plaatsen" overlays the top of the feed; the post list scrolls back to the top when a post arrives                                                   | loop-plan   | newest post stays visible without scrolling, no layout shift while dragging                                                              |
+
 ## thumbnail-imagery — feat/thumbnail-imagery
 
 Card photos get a video-thumbnail look drawn in code (`src/components/common/ThumbnailFrame/`, per-entry `thumbnail` data in the card-imagery manifest); news stays plain; a tap opens card details.

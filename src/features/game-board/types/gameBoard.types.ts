@@ -69,6 +69,8 @@ export interface DraftCardView {
 /** One post in the phone feed (newest first in the list). */
 export interface FeedEntry {
   key: string;
+  /** Card or event id: the feed shows its picture (`getCardImage`, feed-images D1). */
+  contentId: string;
   type: CardType | "event";
   title: string;
   body: string;

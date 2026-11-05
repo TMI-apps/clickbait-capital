@@ -193,5 +193,10 @@
     "title": "Clickbait thumbnail imagery",
     "description": "Owner request 2026-11-05: card images in YouTube-thumbnail style (strong emotions, faces). Owner chose free-licence stock photos (adults only, licence per image in the manifest and /credits) plus a code-drawn thumbnail treatment (outline, type colour, arrow, emoji, short caption) driven by manifest data. Covers the final card set after the kids-content lap. Size M. Thread thumbnail-imagery. Landed: ThumbnailFrame overlay (type glow, vignette, caption, sticker, arrow/circle) from manifest data; owner-supplied Unsplash photos used as assigned plus vetted CC0/CC BY fallbacks; 68 of 87 ids have a photo, news stays plain; tap opens details and \"In de feed\" plays (D9 supersedes game-board D2). Decision log § thumbnail-imagery.",
     "status": "done"
+  },
+  {
+    "title": "Images in the feed posts",
+    "description": "Owner request 2026-11-05: feed posts showed text only. Newest post now shows the card photo with the ThumbnailFrame look (news plain, placeholder icon for ids without photo), older posts are compact rows; /spel still never scrolls. Decision log § feed-images D1-D5.",
+    "status": "done"
   }
 ]

@@ -121,6 +121,7 @@ describe("boardView", () => {
     const event = SEED_CONTENT.events[0];
     const entry = feedEntryForEvent(event, event.options[2].id, 4);
     expect(entry).toMatchObject({
+      contentId: event.id,
       type: "event",
       title: event.title,
       body: event.options[2].label,
@@ -216,9 +217,27 @@ describe("toFeed", () => {
     );
 
     expect(feed).toEqual([
-      { key: `card-3-${card.id}`, type: card.type, title: card.title, body: card.body },
-      { key: `event-2-${event.id}`, type: "event", title: event.title, body: option.label },
-      { key: `card-1-${card.id}`, type: card.type, title: card.title, body: card.body },
+      {
+        key: `card-3-${card.id}`,
+        contentId: card.id,
+        type: card.type,
+        title: card.title,
+        body: card.body,
+      },
+      {
+        key: `event-2-${event.id}`,
+        contentId: event.id,
+        type: "event",
+        title: event.title,
+        body: option.label,
+      },
+      {
+        key: `card-1-${card.id}`,
+        contentId: card.id,
+        type: card.type,
+        title: card.title,
+        body: card.body,
+      },
     ]);
   });
 });
