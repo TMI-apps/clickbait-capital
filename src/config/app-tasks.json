@@ -1,10 +1,5 @@
 [
   {
-    "title": "Photos for the 19 placeholder cards",
-    "description": "After the thumbnail-imagery lap, 19 ids still show the type-icon placeholder (mostly news and new events; list pinned in the card-imagery manifest test PLACEHOLDER_IDS). Owner can add photos via the shared sheet + Drive folder; then wire them like the thumbnail-imagery lap. Size S.",
-    "status": "to-do"
-  },
-  {
     "title": "Owner test: VoiceOver and TalkBack on a real phone",
     "description": "Follow-up to the screen-reader lap (PR #28). Automated checks covered the accessibility tree and live-region text; nobody has heard real speech yet. Owner plays a few turns with VoiceOver (iOS) or TalkBack (Android) using the steps in PR #28 under \"Test steps (owner)\"; open question: does iOS VoiceOver speak the turn announcement after focus moves to the next card, or drop it? Findings become fix tasks. Size XS.",
     "status": "to-do"
