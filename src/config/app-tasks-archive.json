@@ -218,5 +218,10 @@
     "title": "Event dialog redesign: hidden effects, fits one screen",
     "description": "Owner request 2026-11-06: event options show only A/B/C + action (no meters, numbers or kind labels), order shuffled per event (seeded), outcome revealed after the pick with Verder; compact choice rows; dialog fits 360x640/375x667/390x844 without scroll. Decision log § event-redesign.",
     "status": "done"
+  },
+  {
+    "title": "Event-choice juice and feed drop placeholder",
+    "description": "Player feedback 2026-11-06: event choices now play the card juice of their option kind (outcome rows count up, board juice after the dialog closes); dragging a card opens a drop slot at the top of the feed that pushes posts down instead of overlaying them. Decision log § event-juice-drop D1-D4.",
+    "status": "done"
   }
 ]
