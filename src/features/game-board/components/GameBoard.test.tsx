@@ -106,6 +106,8 @@ describe("GameBoard", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await user.click(within(dialog).getByRole("button", { name: /moderatie/i }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await user.click(within(dialog).getByRole("button", { name: "Verder" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(within(feed()).getByText("Investeer in moderatie.")).toBeInTheDocument();
   });
@@ -280,6 +282,7 @@ describe("GameBoard with a screen reader", () => {
     await confirmPlay(user);
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: /moderatie/i }));
+    await user.click(within(dialog).getByRole("button", { name: "Verder" }));
 
     await waitFor(() =>
       expect(document.querySelector('[aria-live="polite"]')?.textContent).toMatch(
