@@ -14,6 +14,12 @@ export const CONTENT_BALANCE: BalanceConfig = {
   adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
   echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
   journalismDrought: { afterTurnsWithoutNews: 5, viralToxicityMultiplier: 2 },
+  eventPacing: {
+    minTurnsBetween: 3,
+    randomExtraTurns: 3,
+    urgentMinTurnsBetween: 2,
+    crisisToxicity: 70,
+  },
 };
 
 export const CONTENT_PHASES: PhaseDefinition[] = [

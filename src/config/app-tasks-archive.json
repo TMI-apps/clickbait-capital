@@ -223,5 +223,10 @@
     "title": "Event-choice juice and feed drop placeholder",
     "description": "Player feedback 2026-11-06: event choices now play the card juice of their option kind (outcome rows count up, board juice after the dialog closes); dragging a card opens a drop slot at the top of the feed that pushes posts down instead of overlaying them. Decision log § event-juice-drop D1-D4.",
     "status": "done"
+  },
+  {
+    "title": "Spread world events over the run as surprises",
+    "description": "Player feedback: events came in chains. At most one event per turn, seeded cooldown (3 + 0-3 turns), milestones and crises wait at least 2 turns, saves bumped to v2. PR #42. Decision log § event pacing.",
+    "status": "done"
   }
 ]

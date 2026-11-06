@@ -97,6 +97,8 @@ Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Eén van elk subty
 
 Gebeurteniskaarten onderbreken de reguliere draft. Er verschijnt één urgente situatie met drie beleidsopties. Gebeurtenissen triggeren op vaste mijlpalen of wanneer Toxicity te hoog oploopt.
 
+**Timing (verrassing, geen stapel):** per beurt verschijnt hooguit één gebeurtenis. Na een gebeurtenis duurt het minstens 3 beurten plus een willekeurig (uit de seed) extra aantal van 0–3 beurten voordat een gewone Toxicity-gebeurtenis kan komen. Mijlpalen en crises bij heel hoge Toxicity (≥ 70) wachten maar 2 beurten. Een mijlpaal komt altijd, desnoods iets later; een Toxicity-gebeurtenis die niet meer geldt als haar beurt komt, vervalt (game-engine D10).
+
 #### **Voorbeeld-Event: "Verkiezingen & Desinformatie"**
 
 *Trigger: Toxicity \> 60 tijdens Mijlpaal 3\.*

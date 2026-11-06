@@ -49,7 +49,7 @@ describe("HomePage", () => {
   });
 
   it("should offer to continue or start a new game when a run is saved", () => {
-    writeSavedRun({ version: 1, seed: 1, actions: [{ kind: "card", cardId: "x" }] });
+    writeSavedRun({ version: 2, seed: 1, actions: [{ kind: "card", cardId: "x" }] });
 
     renderWithProviders(<HomePage />);
 
@@ -59,7 +59,7 @@ describe("HomePage", () => {
   });
 
   it("should only offer to start when the saved run is corrupt", () => {
-    window.localStorage.setItem("clickbait-capital:run:v1", "{broken");
+    window.localStorage.setItem("clickbait-capital:run:v2", "{broken");
 
     renderWithProviders(<HomePage />);
 

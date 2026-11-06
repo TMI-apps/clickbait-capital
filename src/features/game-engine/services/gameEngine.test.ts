@@ -284,3 +284,74 @@ describe("game engine acceptance", () => {
     expect(state.meters.revenue).toBeGreaterThan(80);
   });
 });
+
+interface EventOpening {
+  id: string;
+  turn: number;
+  urgent: boolean;
+}
+
+/** Plays a toxic, random-ish run and records each event as it opens, with the phases reached. */
+function recordEventOpenings(seed: number): { openings: EventOpening[]; phases: Set<number> } {
+  const { crisisToxicity } = SEED_CONTENT.balance.eventPacing;
+  const policy: Policy = (_state, step) => (["viral", "viral", "ad", "news"] as const)[step % 4]!;
+  const openings: EventOpening[] = [];
+  const phases = new Set<number>();
+  let state = createGame({ content: SEED_CONTENT, seed });
+  for (let step = 0; step < 150; step++) {
+    phases.add(state.phase);
+    if (state.status === "event") {
+      const event = getPendingEvent(state, SEED_CONTENT)!;
+      const urgent = event.trigger.kind === "milestone" || state.toxicity >= crisisToxicity;
+      openings.push({ id: event.id, turn: state.turn, urgent });
+      state = resolveEvent(state, SEED_CONTENT, "b");
+    } else if (state.status === "playing" && state.hand) {
+      state = playCard(state, SEED_CONTENT, state.hand[policy(state, step)]);
+    } else {
+      break;
+    }
+  }
+  return { openings, phases };
+}
+
+describe("event pacing (game-engine D10)", () => {
+  const pacing = SEED_CONTENT.balance.eventPacing;
+  const runs = Array.from({ length: 60 }, (_, index) => recordEventOpenings(index * 7919 + 13));
+
+  it("should open at most one event per card turn when several are due", () => {
+    for (const { openings } of runs) {
+      const turns = openings.map((opening) => opening.turn);
+      expect(new Set(turns).size).toBe(turns.length);
+    }
+  });
+
+  it("should keep the cooldown between events when they open", () => {
+    let regularGaps = 0;
+    for (const { openings } of runs) {
+      openings.slice(1).forEach((opening, index) => {
+        const gap = opening.turn - openings[index]!.turn;
+        expect(gap).toBeGreaterThanOrEqual(pacing.urgentMinTurnsBetween);
+        if (!opening.urgent) {
+          regularGaps += 1;
+          expect(gap).toBeGreaterThanOrEqual(pacing.minTurnsBetween);
+        }
+      });
+    }
+    expect(regularGaps).toBeGreaterThan(0);
+  });
+
+  it("should fire the milestone of every phase the run reached when pacing holds events back", () => {
+    for (const { openings, phases } of runs) {
+      const fired = new Set(openings.map((opening) => opening.id));
+      for (const event of SEED_CONTENT.events) {
+        if (event.trigger.kind === "milestone" && phases.has(event.trigger.phase)) {
+          expect(fired.has(event.id)).toBe(true);
+        }
+      }
+    }
+  });
+
+  it("should open the same events on the same turns when the seed and choices are the same", () => {
+    expect(recordEventOpenings(77)).toEqual(recordEventOpenings(77));
+  });
+});

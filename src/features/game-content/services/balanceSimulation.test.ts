@@ -195,6 +195,8 @@ interface Run {
   phaseTurns: Record<number, number>;
   /** Phases whose users goal already held on the turn the game entered them. */
   usersGoalMetOnEntry: number[];
+  /** Card turn on which each event opened, in order (event pacing). */
+  eventTurns: number[];
 }
 
 /** True when the phase's users condition (if any) holds in this state. */
@@ -206,28 +208,48 @@ function usersGoalHolds(state: GameState, content: GameContent): boolean {
   return condition?.kind === "stat" && state.stats.users >= condition.atLeast;
 }
 
+function applyChoice(state: GameState, content: GameContent, choice: Choice): GameState {
+  return choice.kind === "event"
+    ? resolveEvent(state, content, choice.optionId)
+    : playCard(state, content, state.hand![choice.type]);
+}
+
+/** Books one step into the run: card turns per phase, users goal on phase entry, event openings. */
+function recordStep(
+  run: Run,
+  step: { before: GameState; after: GameState; choice: Choice; content: GameContent }
+): void {
+  const { before, after, choice, content } = step;
+  if (choice.kind === "card") {
+    run.phaseTurns[before.phase] = (run.phaseTurns[before.phase] ?? 0) + 1;
+  }
+  if (after.phase !== before.phase && usersGoalHolds(after, content)) {
+    run.usersGoalMetOnEntry.push(after.phase);
+  }
+  // Every step that leaves an event pending opened a new one (one event per resolution).
+  if (after.status === "event") {
+    run.eventTurns.push(after.turn);
+  }
+}
+
 function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
   let state = createGame({ content, seed });
-  const phaseTurns: Record<number, number> = {};
-  const usersGoalMetOnEntry: number[] = [];
+  const run: Run = {
+    final: state,
+    phaseTurns: {},
+    usersGoalMetOnEntry: [],
+    eventTurns: state.status === "event" ? [state.turn] : [],
+  };
   for (let step = 0; step < MAX_STEPS; step++) {
     if (state.status !== "playing" && state.status !== "event") {
       break;
     }
     const choice = strategy(state, content);
-    if (choice.kind === "card") {
-      phaseTurns[state.phase] = (phaseTurns[state.phase] ?? 0) + 1;
-    }
-    const before = state.phase;
-    state =
-      choice.kind === "event"
-        ? resolveEvent(state, content, choice.optionId)
-        : playCard(state, content, state.hand![choice.type]);
-    if (state.phase !== before && usersGoalHolds(state, content)) {
-      usersGoalMetOnEntry.push(state.phase);
-    }
+    const after = applyChoice(state, content, choice);
+    recordStep(run, { before: state, after, choice, content });
+    state = after;
   }
-  return { final: state, phaseTurns, usersGoalMetOnEntry };
+  return { ...run, final: state };
 }
 
 function percentile(values: number[], fraction: number): number {
@@ -251,6 +273,37 @@ interface Summary {
   eventFires: Record<string, number>;
   /** Per phase: in how many games its users goal already held on entry (goal decided by the previous phase). */
   usersGoalMetOnEntry: Record<number, number>;
+  pacing: EventPacing;
+}
+
+/** How events are spread over the runs (event-pacing lap). */
+interface EventPacing {
+  medianEventsPerRun: number;
+  /** Share of events that open on the same card turn as the previous event. */
+  sameTurnRate: number;
+  /** Share of events that open on the same or the next card turn as the previous event. */
+  backToBackRate: number;
+  /** Median card turns between two events of a run. */
+  medianGap: number;
+  /** Smallest gap seen between two events of a run. */
+  minGap: number;
+}
+
+const rate = (count: number, total: number): number =>
+  total === 0 ? 0 : Math.round((count / total) * 100) / 100;
+
+/** Events per run and the turn gaps between them, over all runs of one strategy. */
+function measurePacing(runs: Run[]): EventPacing {
+  const gaps = runs.flatMap(({ eventTurns }) =>
+    eventTurns.slice(1).map((turn, index) => turn - eventTurns[index]!)
+  );
+  return {
+    medianEventsPerRun: median(runs.map((run) => run.eventTurns.length)),
+    sameTurnRate: rate(gaps.filter((gap) => gap === 0).length, gaps.length),
+    backToBackRate: rate(gaps.filter((gap) => gap <= 1).length, gaps.length),
+    medianGap: median(gaps),
+    minGap: gaps.length === 0 ? 0 : Math.min(...gaps),
+  };
 }
 
 function countInto(counts: Record<string, number>, key: string | number): void {
@@ -291,6 +344,7 @@ function summarize(strategy: Strategy): Summary {
     medianTurns: median(turns),
     turnsP10P90: [percentile(turns, 0.1), percentile(turns, 0.9)],
     medianPhaseTurns,
+    pacing: measurePacing(runs),
   };
 }
 
@@ -346,6 +400,23 @@ describe("balance simulation", () => {
 
   it("should let a rule-of-thumb player win the IPO in most games when they follow the board", () => {
     expect(results.ruleOfThumb.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
+  });
+
+  it("should never open two events on the same or the next card turn when any strategy plays", () => {
+    const { urgentMinTurnsBetween } = GAME_CONTENT.balance.eventPacing;
+    for (const summary of Object.values(results)) {
+      expect(summary.pacing.sameTurnRate).toBe(0);
+      expect(summary.pacing.backToBackRate).toBe(0);
+      if (summary.pacing.medianEventsPerRun > 1) {
+        expect(summary.pacing.minGap).toBeGreaterThanOrEqual(urgentMinTurnsBetween);
+      }
+    }
+  });
+
+  it("should spread events at least three turns apart on median when a human-like player plays", () => {
+    for (const summary of [results.humanLike, results.ruleOfThumb, results.mixed]) {
+      expect(summary.pacing.medianGap).toBeGreaterThanOrEqual(3);
+    }
   });
 
   it("should let a careful player win the IPO when they react to every meter", () => {

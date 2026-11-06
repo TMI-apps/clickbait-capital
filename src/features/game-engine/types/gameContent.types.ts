@@ -51,9 +51,10 @@ export interface EventOption {
 }
 
 /**
- * When an event interrupts the draft. `milestone` fires when the game enters the phase;
- * `toxicity` fires when hidden Toxicity is above the threshold (optionally only in some phases).
- * Each event fires at most once per game.
+ * When an event is due. `milestone` is due from the phase on (it opens soon after the game
+ * enters the phase, carried to a later phase if pacing held it back); `toxicity` while hidden
+ * Toxicity is above the threshold (optionally only in some phases). Each event fires at most
+ * once per game; pacing decides on which turn a due event opens (game-engine D10).
  */
 export type EventTrigger =
   | { kind: "milestone"; phase: PhaseId }
@@ -125,6 +126,22 @@ export interface BalanceConfig {
   };
   echoChamber: { streak: number; userGainMultiplier: number; toxicity: number };
   journalismDrought: { afterTurnsWithoutNews: number; viralToxicityMultiplier: number };
+  eventPacing: EventPacingConfig;
+}
+
+/**
+ * How world events are spread over a run (game-engine D10). Gaps count card turns between
+ * the turns on which two events open; at most one event opens per card turn.
+ */
+export interface EventPacingConfig {
+  /** Fewest card turns between a previous event and a regular (Toxicity) event. */
+  minTurnsBetween: number;
+  /** A seeded 0…n extra turns on top of `minTurnsBetween`, drawn after each event. */
+  randomExtraTurns: number;
+  /** Fewest card turns before an urgent event: a milestone, or any event in a crisis. At least 1. */
+  urgentMinTurnsBetween: number;
+  /** Toxicity from which due events are urgent: the crisis reacts fast, but not on the same turn. */
+  crisisToxicity: number;
 }
 
 /** Everything one game needs. */

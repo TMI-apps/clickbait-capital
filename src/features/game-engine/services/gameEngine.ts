@@ -12,6 +12,7 @@ import {
   getPhase,
   goalHolds,
   addGrossRevenue,
+  scheduleNextEvent,
   usersForMeter,
 } from "@/features/game-engine/services/progression";
 import { pickRandom } from "@/features/game-engine/services/seededRandom";
@@ -86,6 +87,7 @@ function advance(current: GameState, content: GameContent): GameState {
   if (event) {
     return {
       ...state,
+      ...scheduleNextEvent(content.balance.eventPacing, state.turn, state.rngState),
       status: "event",
       hand: null,
       pendingEventId: event.id,
@@ -131,6 +133,8 @@ export function createGame({ content, seed }: CreateGameOptions): GameState {
     hand: null,
     pendingEventId: null,
     firedEventIds: [],
+    lastEventTurn: null,
+    nextEventTurn: content.balance.eventPacing.minTurnsBetween,
     playedTypes: [],
     turnsWithoutNews: 0,
     viralStreak: 0,
