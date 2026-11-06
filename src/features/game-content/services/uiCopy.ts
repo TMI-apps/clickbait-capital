@@ -107,11 +107,8 @@ export const UI_COPY = {
   events: {
     kicker: "Spoed",
     prompt: "Wat doe je?",
-    optionKinds: {
-      commercial: "Geld",
-      engagement: "Ophef",
-      journalism: "Eerlijk nieuws",
-    },
+    outcomeKicker: "Je koos",
+    continueButton: "Verder",
     confirmButton: "Kies dit",
   },
   results: {

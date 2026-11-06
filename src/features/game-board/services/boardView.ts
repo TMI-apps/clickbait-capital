@@ -189,7 +189,38 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
   });
 }
 
-/** The pending event with its options, or null. */
+/**
+ * 53-bit string hash (cyrb53). Second copy: `error-reporting/services/errorFingerprint.ts` has
+ * the same function; a third user should extract both to `src/shared/utils/` (code-style F2).
+ */
+const cyrb53 = (input: string): number => {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < input.length; i += 1) {
+    const code = input.charCodeAt(i);
+    h1 = Math.imul(h1 ^ code, 2654435761);
+    h2 = Math.imul(h2 ^ code, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
+
+/**
+ * Deterministic shuffle: items sorted by the hash of `key` + their id, so a resumed or replayed
+ * run shows the same order, and tests can pin it (event-redesign D5).
+ */
+function seededOrder<T extends { id: string }>(items: readonly T[], key: string): T[] {
+  return items
+    .map((item) => ({ item, rank: cyrb53(`${key}:${item.id}`) }))
+    .sort((a, b) => a.rank - b.rank)
+    .map(({ item }) => item);
+}
+
+/**
+ * The pending event with its options, or null. Options come in an order shuffled per run and
+ * event (seed + event id), so the first letter is not always the money option (event-redesign D5).
+ */
 export function toEventView(state: GameState, content: GameContent): EventView | null {
   const event = state.status === "event" ? getPendingEvent(state, content) : null;
   if (!event) {
@@ -200,12 +231,14 @@ export function toEventView(state: GameState, content: GameContent): EventView |
     id: event.id,
     title: event.title,
     body: event.body,
-    options: event.options.map(({ id, kind, label, effects }) => ({
-      id,
-      kind,
-      label,
-      effects: scaledEffects(effects, phase, state),
-    })),
+    options: seededOrder(event.options, `${state.seed}:${event.id}`).map(
+      ({ id, kind, label, effects }) => ({
+        id,
+        kind,
+        label,
+        effects: scaledEffects(effects, phase, state),
+      })
+    ),
   };
 }
 

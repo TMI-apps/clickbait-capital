@@ -32,29 +32,56 @@ const EVENT: FlowEvent = {
 };
 
 describe("EventModal", () => {
-  it("should offer three labelled policy options and stay open on Escape when an event fires", async () => {
-    const onChoose = vi.fn();
-    renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
+  it("should offer three actions without their effects and stay open on Escape when an event fires", async () => {
+    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
     const user = userEvent.setup();
     const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
 
     const options = within(dialog).getAllByRole("button");
     expect(options).toHaveLength(3);
-    expect(options[0]).toHaveTextContent("A · Geld");
+    expect(options.map((option) => option.textContent)).toEqual([
+      "ALaat de ads toe.",
+      "BLaat het woeden.",
+      "CSchakel factcheckers in.",
+    ]);
+    expect(options[0]).toHaveAccessibleName("Laat de ads toe.");
+    expect(
+      within(dialog).queryByText(/Effecten|Geld|Ophef|Eerlijk nieuws|omhoog|omlaag/)
+    ).toBeNull();
+    expect(dialog).not.toHaveTextContent(/\d/);
     expect(within(dialog).getByText("Wat doe je?")).toBeInTheDocument();
 
     await user.keyboard("{Escape}");
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+  });
+
+  it("should reveal the chosen action and its meter changes and apply it only on Verder when an option is picked", async () => {
+    const onChoose = vi.fn();
+    renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
+    const user = userEvent.setup();
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
 
     await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
-    expect(onChoose).toHaveBeenCalledWith("c");
+    expect(onChoose).not.toHaveBeenCalled();
+    expect(within(dialog).queryByRole("button", { name: /ads/ })).toBeNull();
+
+    const next = within(dialog).getByRole("button", { name: "Verder" });
+    expect(next).toHaveFocus();
+    // jsdom joins the flex rows without the spaces a browser adds between block boxes.
+    expect(next).toHaveAccessibleDescription(
+      /^Je koos:\s*Schakel factcheckers in\.\s*Effecten:\s*Reputatie\s*omlaag 16$/
+    );
+
+    await user.click(next);
+    expect(onChoose).toHaveBeenCalledExactlyOnceWith("c");
   });
 
   it("should start the next event with fresh options and focus on the first when events follow each other", async () => {
     const onChoose = vi.fn();
     const { rerender } = renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
     const user = userEvent.setup();
-    const answered = screen.getByRole("button", { name: /factcheckers/ });
+    await user.click(screen.getByRole("button", { name: /factcheckers/ }));
+    const answered = screen.getByRole("button", { name: "Verder" });
     await user.click(answered);
 
     const NEXT: FlowEvent = {
