@@ -20,16 +20,17 @@ At 375×667, 390×844 and 360×640 (dark and light) an event shows photo, title,
 ## Out of scope
 
 - Will NOT touch: engine, balance, event content, board juice / screen-reader announcement (they already run after the dialog closes).
-- Will NOT do: shuffle option order (A is always the commercial option today) — possible follow-up.
+- Option order: shuffled per run + event in the board view layer (added after D5 was decided by the owner).
 
 ## Edges
 
-| Feature area                   | Loop today                                              | Hook point                                 | Ride / new |
-| ------------------------------ | ------------------------------------------------------- | ------------------------------------------ | ---------- |
-| game-flow `EventModal`         | event → options with effects → `onChoose`               | options + new outcome step                 | ride       |
-| kit `Button` `choice`, `Modal` | only consumer is EventModal                             | variant classes; Modal `className`         | ride       |
-| game-content `UI_COPY.events`  | kicker, prompt, optionKinds                             | outcome copy                               | ride       |
-| game-board `PlayingBoard`      | `chooseOption` on tap; juice + announcement after close | unchanged (gets the choice after "Verder") | ride       |
+| Feature area                   | Loop today                                              | Hook point                                 | Ride / new                          |
+| ------------------------------ | ------------------------------------------------------- | ------------------------------------------ | ----------------------------------- |
+| game-flow `EventModal`         | event → options with effects → `onChoose`               | options + new outcome step                 | ride                                |
+| kit `Button` `choice`, `Modal` | only consumer is EventModal                             | variant classes; Modal `className`         | ride                                |
+| game-content `UI_COPY.events`  | kicker, prompt, optionKinds                             | outcome copy                               | ride                                |
+| game-board `PlayingBoard`      | `chooseOption` on tap; juice + announcement after close | unchanged (gets the choice after "Verder") | ride                                |
+| game-board `boardView`         | `toEventView` maps options in engine order              | option order via `seededOrder` (D5)        | ride — view layer, engine unchanged |
 
 Overrun rule (skill-loop D51): a diff that touches a feature area **not** in this table stops the lap.
 
@@ -46,4 +47,4 @@ Cut into laps: none
 
 ## Decisions
 
-DECISIONS.md D1–D5.
+DECISIONS.md D1–D5 (D5 decided by the owner via the orchestrator).

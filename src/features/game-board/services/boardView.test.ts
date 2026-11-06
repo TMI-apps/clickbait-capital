@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
 import { SEED_CONTENT, createGame, meterForUsers } from "@/features/game-engine/api";
+import { GAME_CONTENT } from "@/features/game-content/api";
 import {
   capEffects,
   feedEntryForCard,
@@ -88,7 +89,9 @@ describe("boardView", () => {
       status: "event",
       pendingEventId: "event-investeerders",
     };
-    const commercial = toEventView(state, SEED_CONTENT)?.options[0];
+    const commercial = toEventView(state, SEED_CONTENT)?.options.find(
+      (option) => option.kind === "commercial"
+    );
     // Phase 1 halves positive revenue (+15 raw); users loss is not scaled.
     expect(commercial?.effects).toEqual([
       { meter: "revenue", delta: 8 },
@@ -179,11 +182,31 @@ describe("capEffects", () => {
       meters: { revenue: 97, users: 50, reputation: 50 },
     };
     // Commercial option: revenue +8 after phase 1 scaling; only 3 fit under 100.
-    expect(toEventView(state, SEED_CONTENT)?.options[0].effects).toContainEqual({
+    const commercial = toEventView(state, SEED_CONTENT)?.options.find(
+      (option) => option.kind === "commercial"
+    );
+    expect(commercial?.effects).toContainEqual({
       meter: "revenue",
       delta: 3,
       overflow: 5,
     });
+  });
+});
+
+describe("toEventView option order", () => {
+  it("should keep one option order per run and event and not always lead with the money option when events are shown", () => {
+    const firstKinds = (seed: number): string[] =>
+      GAME_CONTENT.events.map((event) => {
+        const state: GameState = {
+          ...createGame({ content: GAME_CONTENT, seed }),
+          status: "event",
+          pendingEventId: event.id,
+        };
+        return toEventView(state, GAME_CONTENT)?.options[0]?.kind ?? "";
+      });
+    expect(firstKinds(7)).toEqual(firstKinds(7));
+    expect(new Set(firstKinds(7)).size).toBeGreaterThan(1);
+    expect(firstKinds(7)).not.toEqual(firstKinds(8));
   });
 });
 
