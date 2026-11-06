@@ -6,6 +6,17 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## owner-photos — feat/owner-photos
+
+Every card and event shows the photo the owner assigned in their sheet (87 ids, 63 distinct photos); `/credits` names each photo's maker; "verrassingskist" became "loot box" (`card-imagery`, `public/cards/`, `game-content`).
+
+| id  | topic                     | status | choice                                                                                                                                                                | source                   | notes                                                                                         |
+| --- | ------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
+| D1  | Picture set               | closed | Exactly the owner's sheet; all CC0 / CC BY fallbacks and type-icon placeholders removed (`PLACEHOLDER_IDS` empty)                                                     | owner (via orchestrator) | thumbnail-imagery D11: no agent filter on owner photos                                        |
+| D2  | Licence kinds             | closed | `Unsplash License` (photo page + licence page), `Eigen foto TMI`, `AI-beeld van TMI`, `Aangeleverd door TMI` (maker unknown, author "Onbekend"); source URLs optional | loop-plan                | the two "Aangeleverd door TMI" photos (ad-nepgame, news-verkiezingsdebat) await the owner     |
+| D3  | Credits for reused photos | closed | One `/credits` row per distinct photo with its card count; reused ids share one file (`reusedFrom`)                                                                   | loop-plan                | rejected: one row per id (the same maker up to 9 times)                                       |
+| D4  | "Loot box"                | closed | "Verrassingskist" → "Loot box"; news title "Onderzoek: loot boxes"; glossary key "loot box"                                                                           | owner                    | the sheet's "(verassingskisten is een slechte vertaling)" is the owner's note, not title text |
+
 ## feed-images — feat/feed-images
 
 Feed posts on `/spel` show the played card's or event's picture: the newest post as photo + title + body, older posts as compact rows (`game-board` `PhoneFeed`, kit `GameCardArtwork` export).

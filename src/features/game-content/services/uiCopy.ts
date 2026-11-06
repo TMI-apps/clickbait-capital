@@ -169,7 +169,7 @@ export const UI_COPY = {
     madeBy: "Gemaakt door TMI",
     imagesHeading: "Beelden",
     imagesIntro:
-      "Alle foto's mag iedereen gebruiken (vrije licentie: CC0, CC BY of de Unsplash-licentie). Met dank aan de makers:",
+      "De meeste foto's komen van Unsplash: iedereen mag ze gebruiken, met de naam van de maker erbij. Een paar foto's zijn van TMI zelf en één plaatje is met AI gemaakt. Met dank aan de makers:",
     audioHeading: "Geluid",
     privacyLink: "Privacy",
     closeButton: "Sluiten",
@@ -275,7 +275,8 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
     "Het adres van je apparaat op internet. Zo weet een website waar hij de pagina heen moet sturen.",
   journalist: "Iemand die uitzoekt wat er echt gebeurt en daar eerlijk over schrijft.",
   klokkenluider: "Iemand die vertelt wat er in een bedrijf fout gaat, ook al wil de baas dat niet.",
-  lootbox: "Een verrassingskist in een game. Je betaalt, maar je weet niet wat je krijgt.",
+  "loot box":
+    "Een kist in een game die je met echt geld koopt. Je weet niet wat erin zit. Meestal is het iets saais.",
   misleidend: "Het klopt niet helemaal en zet je op het verkeerde spoor.",
   nepaccount: "Een account dat doet alsof het van iemand anders is.",
   nepnieuws: "Een bericht dat doet alsof het waar is, maar niet klopt.",

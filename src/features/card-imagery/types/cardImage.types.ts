@@ -1,19 +1,19 @@
 /**
- * Provenance and display data for the card and event pictures. Every picture is a
- * third-party photo under an open license, so each entry carries what the license asks
- * for (author, source, license link, credit line) next to what the board needs to show it.
+ * Provenance and display data for the card and event pictures. Every picture is one the owner
+ * assigned (owner-photos lap), so each entry carries the credit `/credits` shows (maker, source,
+ * licence) next to what the board needs to show it.
  */
 
 /**
- * Licenses the sourcing rules allow: CC0 or CC BY (no share-alike, no NC), and the Unsplash
- * License for photos the owner picked on Unsplash (credit author + photo page; thumbnail-imagery D10).
+ * Where a picture comes from: an Unsplash photo (credit maker + photo page; thumbnail-imagery D10),
+ * TMI's own photo, an AI image TMI made, or a picture TMI supplied whose maker is not known.
+ * Only the Unsplash License has a source page and a licence page.
  */
 export type CardImageLicense =
-  | "CC0 1.0"
-  | "CC BY 2.0"
-  | "CC BY 3.0"
-  | "CC BY 4.0"
-  | "Unsplash License";
+  | "Unsplash License"
+  | "Eigen foto TMI"
+  | "AI-beeld van TMI"
+  | "Aangeleverd door TMI";
 
 /**
  * Thumbnail parts drawn in code over the photo (GameCard → ThumbnailFrame). Same shape as the
@@ -39,14 +39,13 @@ export interface CardImageManifestEntry {
   alt: string;
   /** Point to keep in view when the frame crops further, in percent (0–100). */
   focalPoint: { x: number; y: number };
-  /** Title of the original work. */
-  title: string;
-  /** Creator as named on the source page. */
+  /** Maker as named in the owner's file name (the Unsplash photographer), "TMI", or "Onbekend". */
   author: string;
-  /** Source page (landing page of the original upload). */
-  sourceUrl: string;
+  /** Source page of the original upload (Unsplash only). */
+  sourceUrl?: string;
   license: CardImageLicense;
-  licenseUrl: string;
+  /** Licence page (Unsplash only). */
+  licenseUrl?: string;
   /** Set when the same photo serves more than one id (sourcing rule: record every reuse). */
   reusedFrom?: string;
   thumbnail?: CardImageThumbnail;
@@ -62,14 +61,16 @@ export interface CardImage {
   thumbnail?: CardImageThumbnail;
 }
 
-/** One line on the credits screen. */
+/** One line on the credits screen: one per distinct picture. */
 export interface CardImageCredit {
+  /** First content id that uses the picture (also the key for its thumbnail). */
   contentId: string;
-  /** "“Title” door Author, CC BY 2.0" — the attribution the license asks for (TASL). */
+  /** "Foto: Author, Unsplash License" — the plain-text attribution. */
   text: string;
-  title: string;
   author: string;
-  sourceUrl: string;
+  sourceUrl?: string;
   license: CardImageLicense;
-  licenseUrl: string;
+  licenseUrl?: string;
+  /** How many cards and events show this picture (the owner reused some). */
+  cardCount: number;
 }

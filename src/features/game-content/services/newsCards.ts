@@ -158,8 +158,8 @@ export const NEWS_CARDS: (CardDefinition & CardPresentation)[] = [
   {
     id: "news-lootbox-onderzoek",
     type: "news",
-    title: "Onderzoek: verrassingskisten",
-    body: "Een [[journalist]] zoekt uit hoeveel geld kinderen uitgeven aan [[lootboxen|lootbox]]. Het is veel. Echt veel.",
+    title: "Onderzoek: loot boxes",
+    body: "Een [[journalist]] zoekt uit hoeveel geld kinderen uitgeven aan [[loot boxes|loot box]]. Het is veel. Echt veel.",
     flavor: "Hoeveel precies? 'Geheim', zegt de gamemaker.",
     effects: { reputation: 8, users: -3, toxicity: -12 },
     imageTheme: "investigative desk with receipts, a game chest icon and a calculator, muted light",

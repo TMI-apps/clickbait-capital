@@ -1,4 +1,4 @@
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { GAME_CONTENT } from "@/features/game-content/api";
@@ -16,39 +16,19 @@ const CONTENT_IDS = [
   ...GAME_CONTENT.events.map((event) => event.id),
 ];
 const PUBLIC_DIR = resolve(process.cwd(), "public");
-const LICENSE_URLS: Record<string, string> = {
-  "CC0 1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
-  "CC BY 2.0": "https://creativecommons.org/licenses/by/2.0/",
-  "CC BY 3.0": "https://creativecommons.org/licenses/by/3.0/",
-  "CC BY 4.0": "https://creativecommons.org/licenses/by/4.0/",
+/** Only the Unsplash License has a licence page; owner-supplied pictures carry none. */
+const LICENSE_URLS: Record<string, string | undefined> = {
   "Unsplash License": "https://unsplash.com/license",
+  "Eigen foto TMI": undefined,
+  "AI-beeld van TMI": undefined,
+  "Aangeleverd door TMI": undefined,
 };
 
 /**
- * Cards still without a photo (GameCard shows the type-icon placeholder): new kids-content cards
- * without an owner photo or vetted fallback yet (thumbnail-imagery lap). Shrink this list as photos land.
+ * Cards still without a photo (GameCard shows the type-icon placeholder). Empty since the
+ * owner-photos lap: the owner assigned a picture to every card and event.
  */
-const PLACEHOLDER_IDS = [
-  "ad-fatbikewinkel",
-  "ad-snoepwinkel",
-  "ad-merch-drop",
-  "news-nep-giveaway-uitleg",
-  "news-fatbike-regels",
-  "news-ai-plaatje-check",
-  "news-kinderbrief",
-  "news-schoolkrant",
-  "news-klassenapp-tips",
-  "news-lootbox-onderzoek",
-  "news-reclame-herkennen",
-  "news-challenge-waarschuwing",
-  "news-nepvolgers-onderzoek",
-  "news-rustige-feed",
-  "event-gemeen-filmpje",
-  "event-gevaarlijke-challenge",
-  "event-skins-oplichting",
-  "event-ouders-alarm",
-  "event-nepvolgers",
-];
+const PLACEHOLDER_IDS: string[] = [];
 
 /** News cards stay plain (thumbnail-imagery D7): no thumbnail data at all. */
 const NEWS_IDS = new Set(
@@ -65,7 +45,7 @@ describe("card image manifest", () => {
     expect(ids.filter((id) => !CONTENT_IDS.includes(id))).toEqual([]);
   });
 
-  it("should leave only the listed cards without a photo when the deck is loaded", () => {
+  it("should give every card and event a photo when the deck is loaded", () => {
     const withoutPhoto = CONTENT_IDS.filter((id) => getCardImage(id) === null);
     expect(withoutPhoto.sort()).toEqual([...PLACEHOLDER_IDS].sort());
   });
@@ -78,14 +58,36 @@ describe("card image manifest", () => {
     }
   });
 
-  it("should carry full attribution under an allowed license when an entry is listed", () => {
+  it("should carry the maker and an allowed licence when an entry is listed", () => {
     for (const entry of CARD_IMAGE_MANIFEST) {
-      expect(LICENSE_URLS[entry.license], entry.contentId).toBe(entry.licenseUrl);
+      expect(Object.keys(LICENSE_URLS), entry.contentId).toContain(entry.license);
+      expect(entry.licenseUrl, entry.contentId).toBe(LICENSE_URLS[entry.license]);
       expect(entry.author, entry.contentId).not.toBe("");
-      expect(entry.title, entry.contentId).not.toBe("");
       expect(entry.alt.length, entry.contentId).toBeGreaterThan(10);
-      expect(entry.sourceUrl, entry.contentId).toMatch(/^https:\/\//);
     }
+  });
+
+  it("should link the Unsplash photo page when the licence is Unsplash", () => {
+    for (const entry of CARD_IMAGE_MANIFEST) {
+      if (entry.license === "Unsplash License")
+        expect(entry.sourceUrl, entry.contentId).toMatch(/^https:\/\/unsplash\.com\/photos\/\S+$/);
+      else expect(entry.sourceUrl, entry.contentId).toBeUndefined();
+    }
+  });
+
+  it("should share one file and one credit when the owner reused a photo", () => {
+    for (const entry of CARD_IMAGE_MANIFEST.filter((item) => item.reusedFrom !== undefined)) {
+      const original = CARD_IMAGE_MANIFEST.find((item) => item.contentId === entry.reusedFrom);
+      expect(original?.reusedFrom, entry.contentId).toBeUndefined();
+      expect(entry.file, entry.contentId).toBe(original?.file);
+      expect(entry.author, entry.contentId).toBe(original?.author);
+    }
+  });
+
+  it("should keep no file in public/cards when no entry uses it", () => {
+    const used = new Set(CARD_IMAGE_MANIFEST.map((entry) => entry.file));
+    const unused = readdirSync(resolve(PUBLIC_DIR, "cards")).filter((file) => !used.has(file));
+    expect(unused).toEqual([]);
   });
 });
 
@@ -156,12 +158,13 @@ describe("listCardImageCredits", () => {
     const credits = listCardImageCredits();
     const distinct = CARD_IMAGE_MANIFEST.filter((entry) => entry.reusedFrom === undefined);
     expect(credits).toHaveLength(distinct.length);
+    expect(credits.reduce((sum, credit) => sum + credit.cardCount, 0)).toBe(
+      CARD_IMAGE_MANIFEST.length
+    );
   });
 
-  it("should format title, author and license when building the credit line", () => {
+  it("should format maker and licence when building the credit line", () => {
     const entry = CARD_IMAGE_MANIFEST[0];
-    expect(formatCardImageCredit(entry)).toBe(
-      `“${entry.title}” door ${entry.author}, ${entry.license}`
-    );
+    expect(formatCardImageCredit(entry)).toBe(`Foto: ${entry.author}, ${entry.license}`);
   });
 });

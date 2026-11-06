@@ -30,23 +30,28 @@ export function getCardImage(contentId: string): CardImage | null {
   };
 }
 
-/** Dutch attribution line in TASL order (title, author, license); the source is the link. */
+/** Dutch attribution line: maker, then licence or origin; the source page is the link. */
 export function formatCardImageCredit(entry: CardImageManifestEntry): string {
-  return `“${entry.title}” door ${entry.author}, ${entry.license}`;
+  return `Foto: ${entry.author}, ${entry.license}`;
 }
 
 /**
- * One credit per distinct photo, in manifest order. A photo reused for several ids
- * (`reusedFrom`) is credited once.
+ * One credit per distinct picture, in manifest order. A picture reused for several ids
+ * (`reusedFrom`) is credited once, with the number of cards that show it.
  */
 export function listCardImageCredits(): CardImageCredit[] {
+  const counts = new Map<string, number>();
+  for (const entry of CARD_IMAGE_MANIFEST) {
+    const key = entry.reusedFrom ?? entry.contentId;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
   return CARD_IMAGE_MANIFEST.filter((entry) => entry.reusedFrom === undefined).map((entry) => ({
     contentId: entry.contentId,
     text: formatCardImageCredit(entry),
-    title: entry.title,
     author: entry.author,
     sourceUrl: entry.sourceUrl,
     license: entry.license,
     licenseUrl: entry.licenseUrl,
+    cardCount: counts.get(entry.contentId) ?? 1,
   }));
 }

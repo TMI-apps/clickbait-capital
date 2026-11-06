@@ -198,5 +198,15 @@
     "title": "Images in the feed posts",
     "description": "Owner request 2026-11-05: feed posts showed text only. Newest post now shows the card photo with the ThumbnailFrame look (news plain, placeholder icon for ids without photo), older posts are compact rows; /spel still never scrolls. Decision log § feed-images D1-D5.",
     "status": "done"
+  },
+  {
+    "title": "Photos for the 19 placeholder cards",
+    "description": "After the thumbnail-imagery lap, 19 ids still show the type-icon placeholder (mostly news and new events; list pinned in the card-imagery manifest test PLACEHOLDER_IDS). Owner can add photos via the shared sheet + Drive folder; then wire them like the thumbnail-imagery lap. Size S. Done by the owner-photos lap.",
+    "status": "done"
+  },
+  {
+    "title": "Owner photos for all 87 cards with artist credits",
+    "description": "Owner filled the image sheet for every id: 63 distinct photos used exactly as assigned (no placeholders, old fallbacks removed); /credits lists the artist from each file name with source and licence; \"verrassingskist\" renamed to loot box. Two sources still unknown (ad-nepgame screenshot, news-verkiezingsdebat nuovo2) credited \"Aangeleverd door TMI\". Decision log § owner-photos D1-D4.",
+    "status": "done"
   }
 ]
