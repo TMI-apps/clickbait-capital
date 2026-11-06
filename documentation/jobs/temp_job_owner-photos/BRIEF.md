@@ -15,7 +15,7 @@ Every card and event id has a manifest entry with the owner's photo (640×480 We
 - Crop/convert the 63 distinct photos from `transport/owner-photos-2` (not committed), regenerate the manifest (alt per photo, captions/stickers for viral/ad/event, news plain), delete the old files.
 - Licence type: Unsplash + owner-supplied kinds (own photo, AI image, supplied by TMI with unknown maker); source/licence URLs optional.
 - `ImageCreditList` + credits intro copy: maker, source, licence, card count for reused photos.
-- Copy: "Verrassingskist" → "Loot box", news title per owner's sheet, glossary term "loot box"; design doc wording.
+- Copy: "Verrassingskist" → "Loot box", news title "Onderzoek: loot boxes", glossary term "loot box"; design doc wording.
 
 ## Out of scope
 
