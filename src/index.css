@@ -376,32 +376,35 @@
   }
 }
 
-@utility bg-foreground-sweep {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  transition: color var(--duration-slow) var(--ease-standard);
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: linear-gradient(
-      45deg,
-      transparent 0%,
-      transparent 45%,
-      var(--foreground) 75%,
-      var(--foreground) 100%
-    );
-    background-size: 250% 250%;
-    background-position: 0% 50%;
-    transition: background-position var(--duration-slow) var(--ease-standard);
+/*
+ * Hover / press / focus surface for outline and choice buttons. It only tints the background
+ * and lights the border: text and icon colours never change, so coloured content (effect
+ * numbers, meter icons) keeps its contrast in every state. Hover sits behind
+ * `@media (hover: hover)` so a tap never leaves a sticky hover on touch screens; press uses
+ * :active. Readable-hover D1 (documentation/DOC_DECISION_LOG.md).
+ */
+@utility interactive-tint {
+  transition-property: background-color, border-color, box-shadow, scale;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--interactive-tint);
+      border-color: var(--primary);
+      box-shadow: var(--elevation-glow);
+    }
   }
-  &:hover {
-    color: var(--background);
+  &:focus-visible {
+    background-color: var(--interactive-tint);
+    border-color: var(--primary);
   }
-  &:hover::before {
-    background-position: 100% 50%;
+  &:active {
+    background-color: var(--interactive-tint-strong);
+    border-color: var(--primary);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    &:active {
+      scale: 0.98;
+    }
   }
 }

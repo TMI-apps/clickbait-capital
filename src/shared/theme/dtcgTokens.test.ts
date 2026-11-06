@@ -19,7 +19,8 @@ const generatedCss = readFileSync(join(tokensDir, "tokens.generated.css"), "utf8
 
 /** Tokens `applyTheme` accepts that the DTCG files leave out on purpose (derived in index.css). */
 const OPTIONAL_TOKENS = ["card-radius", "input-radius"];
-const BRAND_ELEVATIONS = ["elevation-brand", "elevation-brand-active"];
+/** Elevations whose colour follows the mode (light/dark.tokens.json). */
+const MODE_ELEVATIONS = ["elevation-brand", "elevation-brand-active", "elevation-glow"];
 const MOTION_DURATIONS = [
   "duration-fast",
   "duration-normal",
@@ -129,7 +130,7 @@ describe("generated token CSS", () => {
   });
 
   it("should override only mode-dependent tokens in .dark", () => {
-    const expected = [...THEME_COLOR_TOKENS, ...BRAND_ELEVATIONS];
+    const expected = [...THEME_COLOR_TOKENS, ...MODE_ELEVATIONS];
 
     expect([...declaredIn(".dark")].sort()).toEqual([...expected].sort());
   });
@@ -186,6 +187,38 @@ describe("game colour contrast (WCAG AA)", () => {
       const c = colorsOf(mode);
       for (const name of [...METERS, "success", "destructive"]) {
         expect(contrast(c[name], c.card), name).toBeGreaterThanOrEqual(4.5);
+      }
+    }
+  );
+
+  /** `top` (with alpha) laid over the opaque `base`, as the browser composites the wash. */
+  const over = (base: string, top: string, alpha: number): string =>
+    "#" +
+    [1, 3, 5]
+      .map((i) => {
+        const value =
+          (1 - alpha) * parseInt(base.slice(i, i + 2), 16) +
+          alpha * parseInt(top.slice(i, i + 2), 16);
+        return Math.round(value).toString(16).padStart(2, "0");
+      })
+      .join("");
+  const alphaOf = (mode: "light" | "dark", name: string): number => {
+    const doc = JSON.parse(readFileSync(join(tokensDir, `${mode}.tokens.json`), "utf8")) as {
+      color: Record<string, { $value: ColorValue & { alpha?: number } }>;
+    };
+    return doc.color[name].$value.alpha ?? 1;
+  };
+
+  it.each(["light", "dark"] as const)(
+    "should keep choice and outline content at 4.5:1 on the hover and press washes when mode is %s",
+    (mode) => {
+      const c = colorsOf(mode);
+      const content = ["card-foreground", "muted-foreground", ...METERS, "success", "destructive"];
+      for (const wash of ["interactive-tint", "interactive-tint-strong"]) {
+        const surface = over(c.card, c[wash], alphaOf(mode, wash));
+        for (const name of content) {
+          expect(contrast(c[name], surface), `${name} on ${wash}`).toBeGreaterThanOrEqual(4.5);
+        }
       }
     }
   );

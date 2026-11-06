@@ -49,4 +49,26 @@ describe("EventModal", () => {
     await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
     expect(onChoose).toHaveBeenCalledWith("c");
   });
+
+  it("should start the next event with fresh options and focus on the first when events follow each other", async () => {
+    const onChoose = vi.fn();
+    const { rerender } = renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
+    const user = userEvent.setup();
+    const answered = screen.getByRole("button", { name: /factcheckers/ });
+    await user.click(answered);
+
+    const NEXT: FlowEvent = {
+      ...EVENT,
+      id: "event-next",
+      title: "Nog een storm",
+      options: EVENT.options.map((option) => ({ ...option, label: `Volgende ${option.id}.` })),
+    };
+    rerender(<EventModal open event={NEXT} onChoose={onChoose} />);
+
+    const dialog = screen.getByRole("dialog", { name: /Nog een storm/ });
+    const options = within(dialog).getAllByRole("button");
+    expect(options).toHaveLength(3);
+    expect(options).not.toContain(answered);
+    expect(options[0]).toHaveFocus();
+  });
 });

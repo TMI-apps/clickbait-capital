@@ -44,18 +44,21 @@ export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventMod
     description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
   >
     {event && (
-      <fieldset className="flex flex-col gap-2">
+      // Keyed by event: events reuse option ids, so the next event gets fresh buttons (no focus
+      // or press state carried over) and its first option takes focus (readable-hover D3).
+      <fieldset key={event.id} className="flex flex-col gap-2">
         <legend className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
           <Siren aria-hidden="true" className="size-4 text-destructive" />
           {UI_COPY.events.prompt}
         </legend>
-        {event.options.map((option) => {
+        {event.options.map((option, index) => {
           const KindIcon = OPTION_ICON[option.kind];
           return (
             <Button
               key={option.id}
-              variant="outline"
-              className="h-auto min-h-11 w-full flex-col items-start gap-1 py-2 text-left whitespace-normal"
+              variant="choice"
+              // Moves focus inside the open dialog when the next event replaces the options.
+              autoFocus={index === 0}
               onClick={() => onChoose(option.id)}
             >
               <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">

@@ -31,6 +31,8 @@ export const THEME_COLOR_TOKENS = [
   "border",
   "input",
   "ring",
+  "interactive-tint",
+  "interactive-tint-strong",
   "overlay",
   "scrollbar",
   "scrollbar-hover",
@@ -81,6 +83,7 @@ export const THEME_SHARED_TOKENS = [
   "elevation-xl",
   "elevation-brand",
   "elevation-brand-active",
+  "elevation-glow",
 ] as const;
 
 export const THEME_TOKENS = [...THEME_COLOR_TOKENS, ...THEME_SHARED_TOKENS] as const;
