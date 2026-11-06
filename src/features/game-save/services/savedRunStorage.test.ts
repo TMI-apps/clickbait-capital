@@ -9,7 +9,7 @@ import {
 } from "@/features/game-save/services/savedRunStorage";
 
 const RUN: SavedRun = {
-  version: 1,
+  version: 2,
   seed: 42,
   actions: [
     { kind: "card", cardId: "viral-kattenvideo" },
@@ -29,7 +29,7 @@ describe("savedRunStorage", () => {
   });
 
   it("should use a versioned key under the game prefix when it stores a run", () => {
-    expect(SAVED_RUN_KEY).toBe("clickbait-capital:run:v1");
+    expect(SAVED_RUN_KEY).toBe("clickbait-capital:run:v2");
     expect(SAVED_RUN_KEY.startsWith(GAME_STORAGE_PREFIX)).toBe(true);
   });
 
@@ -45,8 +45,8 @@ describe("savedRunStorage", () => {
   });
 
   it.each([
-    ["another version", { ...RUN, version: 2 }],
-    ["a missing seed", { version: 1, actions: [] }],
+    ["another version", { ...RUN, version: 1 }],
+    ["a missing seed", { version: 2, actions: [] }],
     ["a fractional seed", { ...RUN, seed: 1.5 }],
     ["actions that are not a list", { ...RUN, actions: "card" }],
     ["an unknown action kind", { ...RUN, actions: [{ kind: "skip", cardId: "x" }] }],

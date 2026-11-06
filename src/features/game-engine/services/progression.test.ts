@@ -8,7 +8,9 @@ import {
   getPhase,
   goalHolds,
   meterForUsers,
+  scheduleNextEvent,
   usersForMeter,
+  type PacingSnapshot,
 } from "./progression";
 
 const phase1 = getPhase(SEED_CONTENT, 1);
@@ -101,41 +103,121 @@ describe("goalHolds", () => {
   });
 });
 
-describe("findTriggeredEvent", () => {
-  const none: string[] = [];
+const pacing = SEED_CONTENT.balance.eventPacing;
+/** Every milestone already fired, so a test sees only Toxicity events (milestones carry over). */
+const AFTER_MILESTONES = {
+  firedEventIds: SEED_CONTENT.events
+    .filter((event) => event.trigger.kind === "milestone")
+    .map((event) => event.id),
+};
 
+/** A snapshot with no event yet and the regular gap already open. */
+function snapshot(overrides: Partial<PacingSnapshot>): PacingSnapshot {
+  return {
+    turn: 10,
+    phase: 1,
+    toxicity: 0,
+    firedEventIds: [],
+    lastEventTurn: null,
+    nextEventTurn: 0,
+    ...overrides,
+  };
+}
+
+describe("findTriggeredEvent", () => {
   it("should fire the milestone event when the game is in its phase", () => {
-    const event = findTriggeredEvent(SEED_CONTENT, { phase: 2, toxicity: 0, firedEventIds: none });
-    expect(event?.id).toBe("event-investeerders");
+    expect(findTriggeredEvent(SEED_CONTENT, snapshot({ phase: 2 }))?.id).toBe(
+      "event-investeerders"
+    );
   });
 
-  it("should not fire an event twice", () => {
-    const event = findTriggeredEvent(SEED_CONTENT, {
-      phase: 2,
-      toxicity: 0,
-      firedEventIds: ["event-investeerders"],
-    });
-    expect(event).toBeNull();
+  it("should not fire an event twice when it already fired", () => {
+    expect(
+      findTriggeredEvent(
+        SEED_CONTENT,
+        snapshot({ phase: 2, firedEventIds: ["event-investeerders"] })
+      )
+    ).toBeNull();
   });
 
   it("should fire a phase-limited toxicity event only above the threshold in that phase", () => {
     expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 3, toxicity: 61, firedEventIds: none })?.id
+      findTriggeredEvent(SEED_CONTENT, snapshot({ ...AFTER_MILESTONES, phase: 3, toxicity: 61 }))
+        ?.id
     ).toBe("event-verkiezingen");
     expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 3, toxicity: 60, firedEventIds: none })
+      findTriggeredEvent(SEED_CONTENT, snapshot({ ...AFTER_MILESTONES, phase: 3, toxicity: 60 }))
     ).toBeNull();
-    expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 1, toxicity: 61, firedEventIds: none })
-    ).toBeNull();
+    expect(findTriggeredEvent(SEED_CONTENT, snapshot({ phase: 1, toxicity: 61 }))).toBeNull();
   });
 
-  it("should fire the EU fine from phase 2 but not in phase 1 when toxicity is above 75", () => {
+  it("should never open a second event when one opened on the same turn", () => {
+    for (const toxicity of [0, 61, 99]) {
+      expect(
+        findTriggeredEvent(
+          SEED_CONTENT,
+          snapshot({ ...AFTER_MILESTONES, phase: 3, toxicity, lastEventTurn: 10 })
+        )
+      ).toBeNull();
+    }
+  });
+
+  it("should hold a regular toxicity event back when the seeded gap has not passed", () => {
+    const held = snapshot({
+      ...AFTER_MILESTONES,
+      phase: 3,
+      toxicity: 61,
+      lastEventTurn: 5,
+      nextEventTurn: 11,
+    });
+    expect(findTriggeredEvent(SEED_CONTENT, held)).toBeNull();
+    expect(findTriggeredEvent(SEED_CONTENT, { ...held, turn: 11 })?.id).toBe("event-verkiezingen");
+  });
+
+  it("should let a crisis skip the random gap but wait the urgent gap when toxicity is at crisis level", () => {
+    const crisis = snapshot({
+      ...AFTER_MILESTONES,
+      phase: 4,
+      toxicity: pacing.crisisToxicity + 6,
+      lastEventTurn: 10 - pacing.urgentMinTurnsBetween + 1,
+      nextEventTurn: 30,
+    });
+    expect(findTriggeredEvent(SEED_CONTENT, crisis)).toBeNull();
+    expect(findTriggeredEvent(SEED_CONTENT, { ...crisis, turn: 10 + 1 })?.id).toBe(
+      "event-eu-boete"
+    );
+  });
+
+  it("should let a milestone skip the random gap but wait the urgent gap when its phase starts", () => {
+    const entered = snapshot({ phase: 2, lastEventTurn: 9, nextEventTurn: 30 });
+    expect(findTriggeredEvent(SEED_CONTENT, entered)).toBeNull();
     expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 1, toxicity: 76, firedEventIds: none })
-    ).toBeNull();
-    expect(
-      findTriggeredEvent(SEED_CONTENT, { phase: 4, toxicity: 76, firedEventIds: none })?.id
-    ).toBe("event-eu-boete");
+      findTriggeredEvent(SEED_CONTENT, { ...entered, turn: 9 + pacing.urgentMinTurnsBetween })?.id
+    ).toBe("event-investeerders");
+  });
+
+  it("should carry a milestone into the next phase when pacing held it back in its own", () => {
+    expect(findTriggeredEvent(SEED_CONTENT, snapshot({ phase: 3 }))?.id).toBe(
+      "event-investeerders"
+    );
+  });
+});
+
+describe("scheduleNextEvent", () => {
+  it("should wait the minimum plus a seeded extra gap when an event opens", () => {
+    const gaps = new Set<number>();
+    for (let seed = 1; seed <= 200; seed++) {
+      const next = scheduleNextEvent(pacing, 7, seed);
+      expect(next.lastEventTurn).toBe(7);
+      const gap = next.nextEventTurn - 7;
+      expect(gap).toBeGreaterThanOrEqual(pacing.minTurnsBetween);
+      expect(gap).toBeLessThanOrEqual(pacing.minTurnsBetween + pacing.randomExtraTurns);
+      gaps.add(gap);
+    }
+    expect(gaps.size).toBe(pacing.randomExtraTurns + 1);
+  });
+
+  it("should give the same gap and RNG state when the RNG state is the same", () => {
+    expect(scheduleNextEvent(pacing, 4, 12345)).toEqual(scheduleNextEvent(pacing, 4, 12345));
   });
 });

@@ -52,6 +52,10 @@ export interface GameState {
   hand: Hand | null;
   pendingEventId: string | null;
   firedEventIds: string[];
+  /** Card turn on which the last event opened, or null before the first (game-engine D10). */
+  lastEventTurn: number | null;
+  /** Earliest card turn on which a regular event may open: the seeded gap after the last one. */
+  nextEventTurn: number;
   /** Card types played, oldest first. */
   playedTypes: CardType[];
   turnsWithoutNews: number;

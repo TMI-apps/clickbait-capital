@@ -9,9 +9,16 @@ import { getMotionStore } from "@/features/game-settings/api";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
 import { renderWithProviders } from "tests/test-utils";
 
-/** Seed content where the first viral card (Toxicity > 0) triggers the first event. */
+/**
+ * Seed content where the first viral card (Toxicity > 0) triggers the first event: pacing lets
+ * a regular event open from turn 1 (game-engine D10).
+ */
 const EVENT_NOW: GameContent = {
   ...SEED_CONTENT,
+  balance: {
+    ...SEED_CONTENT.balance,
+    eventPacing: { ...SEED_CONTENT.balance.eventPacing, minTurnsBetween: 1 },
+  },
   events: [{ ...SEED_CONTENT.events[0], trigger: { kind: "toxicity", threshold: 0 } }],
 };
 
@@ -296,7 +303,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 1,
+    version: 2,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.ad ?? "" }],
   });

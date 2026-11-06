@@ -14,7 +14,7 @@ const SEED = 1;
 /** A one-card run on the real content, so it replays. */
 const savedRun = (): SavedRun => {
   const hand = createGame({ content: GAME_CONTENT, seed: SEED }).hand;
-  return { version: 1, seed: SEED, actions: [{ kind: "card", cardId: hand?.viral ?? "" }] };
+  return { version: 2, seed: SEED, actions: [{ kind: "card", cardId: hand?.viral ?? "" }] };
 };
 
 const renderGame = (state?: RunStartState) =>

@@ -34,7 +34,7 @@ The full Dutch deck and all player-facing copy for Clickbait Capital, as typed d
 
 ### Events
 
-The engine fires the first open event in `EVENT_CARDS` order, one per turn.
+The engine opens the first due event in `EVENT_CARDS` order (milestones first), at most one per card turn and spaced by `CONTENT_BALANCE.eventPacing` (game-engine D10): a Toxicity event waits 3–6 card turns (3 + seeded 0–3) after the previous event; milestones, and any event while Toxicity ≥ 70, wait only 2. Thresholds below are when an event becomes due, not when it opens.
 
 | Event                              | Trigger                   | Models                                  |
 | ---------------------------------- | ------------------------- | --------------------------------------- |
@@ -77,14 +77,27 @@ The engine fires the first open event in `EVENT_CARDS` order, one per turn.
 
 | Strategy                                  | Ending (60 seeds)                        | Furthest phase | Median turns (p10–p90) | Median turns per phase (1/2/3/4) | Users goal met on entry (phase 2 / 3) |
 | ----------------------------------------- | ---------------------------------------- | -------------- | ---------------------- | -------------------------------- | ------------------------------------- |
-| Viral-only (events: B)                    | 60 × Verbod & Regulering                 | 2              | 8 (7–10)               | 3 / 5 / – / –                    | 38 / –                                |
-| Ad-only (events: A)                       | 60 × Verlaten Platform                   | 1              | 12 (10–13)             | 12 / – / – / –                   | –                                     |
+| Viral-only (events: B)                    | 60 × Verbod & Regulering                 | 2              | 11 (10–11)             | 3 / 7 / – / –                    | 13 / –                                |
+| Ad-only (events: A)                       | 60 × Verlaten Platform                   | 1              | 11 (10–13)             | 11 / – / – / –                   | –                                     |
 | News-heavy, no ads (events: C)            | 60 × Bankroet                            | 1              | 50 (50–50)             | 50 / – / – / –                   | –                                     |
-| Rotate V/A/N (events: C)                  | 53 × Bankroet, 6 unfinished, 1 × won     | 4              | 127 (88–364)           | 19 / 7 / 12 / 93                 | 1 / 60                                |
-| Rotate V/A/N/N/A (events: C)              | 44 unfinished (400 steps), 16 × Verlaten | 1              | –                      | stuck in 1                       | –                                     |
-| Human-like, visible info only             | 60 × IPO won                             | 4              | 34 (32–38)             | 3 / 8 / 12 / 10                  | 24 / 60                               |
-| Rule-of-thumb, visible info, no lookahead | 60 × IPO won                             | 4              | 53 (44–89)             | 9 / 7 / 13 / 23                  | 10 / 60                               |
-| Mixed, one-step lookahead (sees Toxicity) | 60 × IPO won                             | 4              | 40 (33–42)             | 12 / 6 / 12 / 10                 | 5 / 60                                |
+| Rotate V/A/N (events: C)                  | 51 × Bankroet, 6 unfinished, 3 × won     | 4              | 139 (85–332)           | 19 / 6 / 12 / 101                | 2 / 60                                |
+| Rotate V/A/N/N/A (events: C)              | 45 unfinished (400 steps), 15 × Verlaten | 1              | –                      | stuck in 1                       | –                                     |
+| Human-like, visible info only             | 60 × IPO won                             | 4              | 34 (33–37)             | 3 / 8 / 12 / 10                  | 11 / 60                               |
+| Rule-of-thumb, visible info, no lookahead | 60 × IPO won                             | 4              | 53 (47–90)             | 9 / 8 / 12 / 24                  | 6 / 60                                |
+| Mixed, one-step lookahead (sees Toxicity) | 60 × IPO won                             | 4              | 40 (33–43)             | 12 / 6 / 12 / 10                 | 3 / 60                                |
+
+Event pacing (game-engine D10; `pacing` in the JSON). Gap = card turns between the turns on which two events open; back-to-back = gap 0 or 1. Asserted: no strategy has a back-to-back event, and human-like, rule-of-thumb and mixed have a median gap of at least 3.
+
+| Strategy      | Events per run (median), before → after | Same turn, before → after | Back-to-back, before → after | Median gap, before → after | Smallest gap after |
+| ------------- | --------------------------------------- | ------------------------- | ---------------------------- | -------------------------- | ------------------ |
+| Human-like    | 10 → 7                                  | 54% → 0%                  | 65% → 0%                     | 0 → 4                      | 2                  |
+| Rule-of-thumb | 14 → 11                                 | 40% → 0%                  | 52% → 0%                     | 1 → 3                      | 2                  |
+| Mixed         | 8 → 7                                   | 34% → 0%                  | 43% → 0%                     | 3 → 4                      | 2                  |
+| Viral-only    | 7 → 4                                   | 88% → 0%                  | 100% → 0%                    | 0 → 2                      | 2 (crises)         |
+| Ad-only       | 2 → 1                                   | 33% → 0%                  | 100% → 0%                    | 1 → 4                      | 3                  |
+| Rotate V/A/N  | 9 → 9                                   | 2% → 0%                   | 6% → 0%                      | 11 → 11                    | 2                  |
+
+Before the event-pacing lap (events chained on the same turn): viral-only 8 turns (7–10; 3 / 5), phase 2 users goal met on entry 38 of 60; ad-only 12; human-like 34 (32–38), met on entry 24 of 60; rule-of-thumb 53 (44–89; 9 / 7 / 13 / 23), 10 of 60; mixed 40 (33–42), 5 of 60; rotate V/A/N 127, 53 × Bankroet, 1 × won. Same winners and losers, no retune. Viral-only lasts longer because the crises that ended it now come at least 2 turns apart; fewer players meet the phase 2 users goal on entry because fewer stacked event options push Gebruikers up at the phase change.
 
 Before the kids-content lap (54 cards, 13 events): viral-only 11 turns (3 / 8); human-like 34 (31–42; 3 / 7 / 12 / 10), phase 2 users goal met on entry 13 of 60; rule-of-thumb 56 (46–83; 6 / 7 / 13 / 25), 3 of 60; mixed 40; rotate V/A/N 142, 55 × Bankroet; V/A/N/N/A 54 unfinished, 6 × Verlaten. Same winners and losers; viral-only gets banned sooner because the phase 2 viral pool now bites harder, and more human-like players already meet the phase 2 users goal on entry (24 of 60), so phase 2 hinges more often on the € 500k alone. Accepted: the run length stays inside 25–45 turns.
 

@@ -1,5 +1,6 @@
 import type {
   EventDefinition,
+  EventPacingConfig,
   FullEffects,
   GameContent,
   GoalCondition,
@@ -10,10 +11,11 @@ import type {
   StatKey,
 } from "@/features/game-engine/types/gameContent.types";
 import type { GameOverReason } from "@/features/game-engine/types/gameState.types";
+import { nextRandom } from "@/features/game-engine/services/seededRandom";
 
 /**
- * Progression rules: absolute stats next to the meters, phase goals, game overs and
- * event triggers. Pure; reads content, never mutates.
+ * Progression rules: absolute stats next to the meters, phase goals, game overs, event
+ * triggers and their pacing. Pure; reads content, never mutates.
  */
 
 /** Game-over order when several meters hit 0 in the same turn (game-engine D7). */
@@ -93,31 +95,85 @@ export function goalHolds(goal: PhaseGoal, snapshot: GoalSnapshot): boolean {
   return goal.conditions.every((condition) => conditionHolds(condition, snapshot));
 }
 
-interface TriggerSnapshot {
+/**
+ * Event pacing (game-engine D10): world events arrive as surprises spread over the run, not in
+ * bursts. At most one event opens per card turn; a regular event waits for the seeded gap after
+ * the previous one, an urgent one (a milestone, or any event while Toxicity is at crisis level)
+ * only for the short urgent gap. Pure; the random gap comes from the run's RNG state.
+ */
+
+/** What pacing reads from the game state. */
+export interface PacingSnapshot {
+  turn: number;
   phase: PhaseId;
   toxicity: number;
   firedEventIds: readonly string[];
+  /** Card turn on which the last event opened, or null before the first. */
+  lastEventTurn: number | null;
+  /** Earliest card turn on which a regular (non-urgent) event may open. */
+  nextEventTurn: number;
 }
 
-function isTriggered(event: EventDefinition, snapshot: TriggerSnapshot): boolean {
+/** Due by its trigger alone. A milestone stays due after its phase until it fires (carried). */
+function isTriggered(event: EventDefinition, snapshot: PacingSnapshot): boolean {
   const { trigger } = event;
   if (trigger.kind === "milestone") {
-    return trigger.phase === snapshot.phase;
+    return snapshot.phase >= trigger.phase;
   }
   const inPhase = trigger.phases === undefined || trigger.phases.includes(snapshot.phase);
   return inPhase && snapshot.toxicity > trigger.threshold;
 }
 
+/** Milestones, and every event while Toxicity is at crisis level, may skip the random gap. */
+function isUrgent(event: EventDefinition, snapshot: PacingSnapshot, pacing: EventPacingConfig) {
+  return event.trigger.kind === "milestone" || snapshot.toxicity >= pacing.crisisToxicity;
+}
+
+/** Card turns since the last event; Infinity before the first. */
+function turnsSinceLastEvent(snapshot: PacingSnapshot): number {
+  return snapshot.lastEventTurn === null
+    ? Number.POSITIVE_INFINITY
+    : snapshot.turn - snapshot.lastEventTurn;
+}
+
 /**
- * First event (content order, milestones before toxicity) that is due and has not fired yet
- * (game-engine D6), or null.
+ * The event that opens now, or null: the open, triggered events that pacing allows on this
+ * turn, milestones first, then content order (game-engine D6). Never a second event on the
+ * turn of the previous one.
  */
 export function findTriggeredEvent(
   content: GameContent,
-  snapshot: TriggerSnapshot
+  snapshot: PacingSnapshot
 ): EventDefinition | null {
+  const pacing = content.balance.eventPacing;
+  const since = turnsSinceLastEvent(snapshot);
+  if (since < Math.max(1, pacing.urgentMinTurnsBetween)) {
+    return null;
+  }
+  const regularAllowed = snapshot.turn >= snapshot.nextEventTurn;
   const open = content.events.filter(
-    (event) => !snapshot.firedEventIds.includes(event.id) && isTriggered(event, snapshot)
+    (event) =>
+      !snapshot.firedEventIds.includes(event.id) &&
+      isTriggered(event, snapshot) &&
+      (regularAllowed || isUrgent(event, snapshot, pacing))
   );
   return open.find((event) => event.trigger.kind === "milestone") ?? open[0] ?? null;
+}
+
+/**
+ * Pacing state after an event opens on `turn`: the next regular event waits
+ * `minTurnsBetween` plus a seeded 0…`randomExtraTurns` turns, so its timing is not predictable.
+ */
+export function scheduleNextEvent(
+  pacing: EventPacingConfig,
+  turn: number,
+  rngState: number
+): { lastEventTurn: number; nextEventTurn: number; rngState: number } {
+  const step = nextRandom(rngState);
+  const extra = Math.floor(step.value * (pacing.randomExtraTurns + 1));
+  return {
+    lastEventTurn: turn,
+    nextEventTurn: turn + pacing.minTurnsBetween + extra,
+    rngState: step.state,
+  };
 }

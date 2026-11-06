@@ -25,7 +25,7 @@ One run of Clickbait Capital over the rules engine: the engine state, every acce
 
 ## Testing
 
-Colocated Vitest: `services/gameSession.test.ts` (replay identity, rejected or ending replays, replayed step count, step facts), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart; rejected action keeps the session; save written, resumed identically, discarded, cleared on end and restart). Board-level behavior (feed, sounds, view identity on resume): game-board `hooks/useBoardSession.test.ts`.
+Colocated Vitest: `services/gameSession.test.ts` (replay identity, rejected or ending replays, replayed step count, step facts), `hooks/useGameSession.test.ts` (acceptance: a scripted player reaches an end; restart; rejected action keeps the session; save written, resumed identically, discarded, cleared on end and restart). Board-level behavior (feed, sounds, view identity on resume): game-board `hooks/useBoardSession.test.ts`. Save fixtures use the current `SAVED_RUN_VERSION` (2 since event pacing, game-engine D10).
 
 ## Dependencies
 

@@ -16,7 +16,7 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 | API      | `api/index.ts`               | Public barrel: engine functions, `scaleForPhase`, `usersForMeter` and `meterForUsers` (so a UI shows the numbers the engine will apply), `SEED_CONTENT`, all types |
 | Services | `services/gameEngine.ts`     | `createGame`, `playCard`, `resolveEvent`, `drawHand`, read helpers                                                                                                 |
 | Services | `services/turnEffects.ts`    | Card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte), phase scaling, passive costs, reputation decay, clamping                                        |
-| Services | `services/progression.ts`    | Absolute stats, phase goals, game overs, event triggers                                                                                                            |
+| Services | `services/progression.ts`    | Absolute stats, phase goals, game overs, event triggers and pacing (`findTriggeredEvent`, `scheduleNextEvent`, D10)                                                |
 | Services | `services/seededRandom.ts`   | mulberry32 RNG (`nextRandom`, `pickRandom`)                                                                                                                        |
 | Services | `services/seedContent.ts`    | `SEED_CONTENT`: default balance, the four phases, a 6-card / 3-event seed deck (fixture; not tuned)                                                                |
 | Types    | `types/gameContent.types.ts` | Content schema: `CardDefinition`, `EventDefinition`, `PhaseDefinition`, `BalanceConfig`, `GameContent`                                                             |
@@ -30,7 +30,7 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 4. Passive costs of the phase; reputation decay (−3 × `reputationLossMultiplier`) once `afterTurnsWithoutNews` turns passed without news.
 5. Clamp meters and Toxicity to 0–100; add gross revenue; read users off the Gebruikers meter (D1); game over check.
 6. Phase goal streak; next phase (phase 4: IPO win).
-7. Event check (milestone events on entering their phase, then Toxicity events); otherwise a new draft.
+7. Event check under pacing (D10): at most one event per card turn, milestones first, then Toxicity events; otherwise a new draft.
 
 Event options get phase scaling and stats, but no passive costs, decay or goal count (not a turn).
 
@@ -42,6 +42,7 @@ Event options get phase scaling and stats, but no passive costs, decay or goal c
 - **Echo-Chamber (D4):** the +25 Toxicity fires once per streak, the +50% user bonus on every viral while the streak lasts.
 - **Ad-Fatigue (D5):** checked against the previous 4 plays.
 - **Events (D6):** each event fires at most once per game; milestones before Toxicity events; content order breaks ties.
+- **Event pacing (D10, event-pacing lap):** events are surprises spread over the run, not bursts (player feedback: too many right after each other). Rules, with `BalanceConfig.eventPacing`: (1) at most one event opens per card turn, so resolving an event always returns to a draft; (2) a regular (Toxicity) event waits `minTurnsBetween` plus a seeded 0…`randomExtraTurns` card turns after the previous event, drawn from the run RNG when an event opens (`scheduleNextEvent`), and the first regular event waits `minTurnsBetween` from the start; (3) urgent events skip the random gap but still wait `urgentMinTurnsBetween` (≥ 1): milestones, and any due event while Toxicity ≥ `crisisToxicity`, so a crisis reacts fast but never right on top of another event; (4) a milestone is due from its phase on and stays due until it fires (carried to a later phase if pacing held it back), so milestones stay reliable; (5) a Toxicity event that stops being due while it waits (Toxicity fell, or its phases passed) is dropped silently: it never showed. Pacing state is `lastEventTurn` / `nextEventTurn` in `GameState`, so a seed plus the same actions replays the same events. Rejected: a queue of triggered event ids (the triggers already re-check every turn, so a queue would duplicate state); a separate RNG stream for gaps (one run RNG keeps one source of randomness, D-reproducible). The random draw shifts later hands, so saves moved to game-save v2.
 - **Game-over priority (D7):** Bankroet, then Verlaten Platform, then Verbod & Regulering.
 - **Decay scales per phase (D9):** reputation decay is multiplied by the phase's `reputationLossMultiplier` like other reputation loss (design § 6).
 - **Identifiers (D8):** code ids are English (`revenue`, `users`, `reputation`, `viral` / `ad` / `news`, `bankrupt` / `abandoned` / `banned`); all player text is Dutch and lives in content.
