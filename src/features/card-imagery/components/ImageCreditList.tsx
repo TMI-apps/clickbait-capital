@@ -10,9 +10,33 @@ export interface ImageCreditListProps {
 
 const linkClassName = "underline underline-offset-2 hover:text-primary";
 
+/** Text or, when there is a URL, an outbound link (source page, licence page). */
+const OptionalLink = ({ href, children }: { href?: string; children: string }) =>
+  href ? (
+    <a href={href} target="_blank" rel="noreferrer" className={linkClassName}>
+      {children}
+    </a>
+  ) : (
+    <>{children}</>
+  );
+
+/** Second line of a credit: where the photo comes from, its licence, and how often it is used. */
+const CreditDetails = ({ credit }: { credit: CardImageCredit }) => (
+  <span className="text-muted-foreground">
+    {credit.sourceUrl && (
+      <>
+        <OptionalLink href={credit.sourceUrl}>Foto op Unsplash</OptionalLink>
+        {" · "}
+      </>
+    )}
+    <OptionalLink href={credit.licenseUrl}>{credit.license}</OptionalLink>
+    {credit.cardCount > 1 && ` · op ${credit.cardCount} kaarten`}
+  </span>
+);
+
 /**
- * Attribution list for third-party photos: a small lazy thumbnail, then title, author and
- * license, with the title linking to the source page and the license to its deed.
+ * Credit list for the card pictures: a small lazy thumbnail, the maker's name, then the source
+ * page and licence (linked when they have a page). A reused picture is listed once.
  */
 export const ImageCreditList = ({ credits, thumbnails, className }: ImageCreditListProps) => (
   <ul className={cn("flex flex-col gap-3", className)}>
@@ -31,15 +55,9 @@ export const ImageCreditList = ({ credits, thumbnails, className }: ImageCreditL
               className="h-12 w-16 shrink-0 rounded-sm bg-muted object-cover"
             />
           )}
-          <span className="min-w-0 break-words">
-            “
-            <a href={credit.sourceUrl} target="_blank" rel="noreferrer" className={linkClassName}>
-              {credit.title}
-            </a>
-            ” door {credit.author},{" "}
-            <a href={credit.licenseUrl} target="_blank" rel="noreferrer" className={linkClassName}>
-              {credit.license}
-            </a>
+          <span className="flex min-w-0 flex-col break-words">
+            <span className="font-semibold">{credit.author}</span>
+            <CreditDetails credit={credit} />
           </span>
         </li>
       );

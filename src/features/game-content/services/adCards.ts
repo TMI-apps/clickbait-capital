@@ -73,8 +73,8 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
   {
     id: "ad-lootbox",
     type: "ad",
-    title: "Verrassingskist",
-    body: "Reclame voor een [[lootbox]] in een brawler-game: 'Kans op een superzeldzame held!' Die kans is 1 op 1.000.",
+    title: "Loot box",
+    body: "Reclame voor een [[loot box]] in een brawler-game: 'Kans op een superzeldzame held!' Die kans is 1 op 1.000.",
     flavor: "Nog één keer proberen. En nog één.",
     effects: { revenue: 14, users: -3, toxicity: 1 },
     imageTheme:
