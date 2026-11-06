@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
 import { useShake } from "@/features/game-juice/hooks/useShake";
 import { planJuice, WIN_PARTICLE_COUNT } from "@/features/game-juice/services/juicePlan";
@@ -7,6 +7,7 @@ import type {
   JuiceAction,
   JuiceMeter,
   JuiceMeterInput,
+  JuiceMeterDelta,
   JuicePlan,
   ParticleKind,
   ParticlePath,
@@ -82,19 +83,42 @@ export function useParticleBurst({
   return burst;
 }
 
-export interface UseActionJuiceOptions {
+export interface UseActionJuiceOptions<M extends JuiceMeterInput = JuiceMeterInput> {
   /** What the last action was, or null before the first action. */
   action: JuiceAction | null;
-  meters: JuiceMeterInput[];
+  meters: M[];
   /** Changes once per action (the board passes the feed length). */
+  key: number;
+  /**
+   * Keep showing the action before this one (its meters, key and juice) while true, e.g. while
+   * the dialog that caused the action closes; the action plays once it turns false.
+   */
+  hold?: boolean;
+}
+
+interface ShownAction<M> {
+  action: JuiceAction | null;
+  meters: M[];
   key: number;
 }
 
-export interface ActionJuice {
+/**
+ * The last action that was not held. Second copy of game-board's `useRetainedValue` pattern
+ * (`src/features/game-board/hooks/useRetainedValue.ts`); extract to `src/shared/hooks/` at a third.
+ */
+function useShownAction<M>(current: ShownAction<M>, hold: boolean): ShownAction<M> {
+  const [shown, setShown] = useState(current);
+  if (!hold && current.key !== shown.key) setShown(current);
+  return hold ? shown : current;
+}
+
+export interface ActionJuice<M extends JuiceMeterInput = JuiceMeterInput> {
+  /** The meters as they should show: held with the juice while `hold` is true. */
+  meters: M[];
   /** The plan of the last action since mount (accents and flashes), or null. */
   plan: JuicePlan | null;
   burst: ParticleBurst | null;
-  /** Restarts meter flashes and accents per action. */
+  /** Restarts meter flashes and accents per action (held with the juice). */
   key: number;
   /** Ref for the element that shakes on a viral play. */
   shakeRef: RefObject<HTMLDivElement | null>;
@@ -111,7 +135,11 @@ const NO_PARTICLES: JuicePlan["particles"] = { kind: "emoji", count: 0, target: 
  * particles; flashes run at the near-zero reduced durations (invisible), while accents, delta
  * chips and MAX marks still show the state change.
  */
-export function useActionJuice({ action, meters, key }: UseActionJuiceOptions): ActionJuice {
+export function useActionJuice<M extends JuiceMeterInput>({
+  hold = false,
+  ...current
+}: UseActionJuiceOptions<M>): ActionJuice<M> {
+  const { action, meters, key } = useShownAction(current, hold);
   const { reduced } = useMotionPreference();
   const [mountKey] = useState(key);
   const origin = useRef<ScreenPoint | null>(null);
@@ -131,7 +159,7 @@ export function useActionJuice({ action, meters, key }: UseActionJuiceOptions): 
     origin.current = centerOf(element);
   }, []);
 
-  return { plan, burst, key, shakeRef, markOrigin };
+  return { meters, plan, burst, key, shakeRef, markOrigin };
 }
 
 const endOrigin = (): ScreenPoint => ({ x: window.innerWidth / 2, y: window.innerHeight * 0.45 });
@@ -145,4 +173,19 @@ export function useEndBurst(outcome: "won" | "lost"): ParticleBurst | null {
     getOrigin: endOrigin,
     target: null,
   });
+}
+
+/**
+ * The plan for revealing meter changes outside the board, e.g. an event's outcome
+ * (event-juice-drop D2): the same flashes, accents and count-up rule a board action earns.
+ */
+export function useRevealPlan(action: JuiceAction, changes: JuiceMeterDelta[]): JuicePlan {
+  return useMemo(
+    () =>
+      planJuice(
+        action,
+        changes.map(({ meter, delta }) => ({ key: meter, value: 0, delta }))
+      ),
+    [action, changes]
+  );
 }

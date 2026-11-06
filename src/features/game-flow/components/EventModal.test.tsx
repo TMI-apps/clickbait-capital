@@ -76,6 +76,29 @@ describe("EventModal", () => {
     expect(onChoose).toHaveBeenCalledExactlyOnceWith("c");
   });
 
+  it("should play the card juice of the option's kind on the outcome rows when an option is picked", async () => {
+    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
+    const user = userEvent.setup();
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
+
+    await user.click(within(dialog).getByRole("button", { name: /woeden/ }));
+
+    expect(dialog.querySelector('[data-juice-accent="flames"]')).not.toBeNull();
+    expect(dialog.querySelector('[data-juice-flash="gain"]')).not.toBeNull();
+  });
+
+  it("should show the shield and a loss flash but no flames when a journalism option is picked", async () => {
+    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
+    const user = userEvent.setup();
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
+
+    await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
+
+    expect(dialog.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
+    expect(dialog.querySelector('[data-juice-accent="flames"]')).toBeNull();
+    expect(dialog.querySelector("[data-juice-flash]")).toBeNull();
+  });
+
   it("should start the next event with fresh options and focus on the first when events follow each other", async () => {
     const onChoose = vi.fn();
     const { rerender } = renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);

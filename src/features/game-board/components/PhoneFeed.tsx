@@ -86,9 +86,43 @@ const CompactPost = ({ entry }: { entry: FeedEntry }) => (
   </li>
 );
 
+/**
+ * Where a dragged card will land (event-juice-drop D4): a slot shaped like the newest post (same
+ * grid and artwork ratio) at the top of the list, so the posts move down instead of being
+ * covered. Its height opens and closes through a grid-row transition on `duration-normal`
+ * (instant under reduced motion). The feed keys it by the newest post, so it vanishes at once
+ * when the dropped post takes its place.
+ */
+const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
+  <div
+    data-drop-slot={open ? "open" : "closed"}
+    aria-hidden={!open}
+    className={cn(
+      "grid transition-[grid-template-rows,opacity] duration-(--duration-normal) ease-(--ease-standard)",
+      open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+    )}
+  >
+    <div className="min-h-0 overflow-hidden">
+      <div className="pb-2">
+        <div
+          className={cn(
+            "grid grid-cols-[45%_1fr] items-center overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast) [@container(min-height:24rem)]:grid-cols-1",
+            over && "border-solid border-primary bg-primary/15"
+          )}
+        >
+          <div className="aspect-game-card-image" />
+          <p className="p-2.5 text-center text-sm font-semibold text-primary">
+            Laat los om te plaatsen
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export interface PhoneFeedProps {
   entries: FeedEntry[];
-  /** A card is being dragged: show the drop hint. */
+  /** A card is being dragged: open the drop slot. */
   dragging: boolean;
 }
 
@@ -98,10 +132,10 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
   const listRef = useRef<HTMLDivElement>(null);
   const newestKey = entries[0]?.key;
 
-  // A new post lands on top: bring the list back there so it is visible (D5).
+  // A new post lands on top, or a drag opens the slot there: bring the list back to the top (D5).
   useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = 0;
-  }, [newestKey]);
+  }, [newestKey, dragging]);
 
   return (
     <section
@@ -116,15 +150,11 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
       <div className="flex shrink-0 justify-center py-1.5" aria-hidden="true">
         <span className="h-1.5 w-16 rounded-full bg-border" />
       </div>
-      {dragging && (
-        <p className="absolute inset-x-2.5 top-6 z-10 rounded-md border border-dashed border-primary bg-background/95 p-2 text-center text-sm font-semibold text-primary">
-          Laat los om te plaatsen
-        </p>
-      )}
       <div
         ref={listRef}
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 pb-2.5 [container-type:size]"
       >
+        <DropSlot key={newestKey ?? "empty"} open={dragging} over={isOver} />
         {entries.length === 0 ? (
           <p className="p-4 text-center text-sm text-muted-foreground">
             {UI_COPY.emptyStates.emptyFeed}

@@ -23,12 +23,12 @@ Choosing an event option feels flat next to a card play (no particles, accent or
 
 ## Edges
 
-| Feature area | Loop today | Hook point | Ride / new |
-|---|---|---|---|
-| game-juice | `planJuice` per card type; "event" = flash only | event-kind → action map, `EffectsJuice`, `CountUpNumber.from` | ride |
-| kit `GameCardEffects` | static rows | optional per-row `decorate` slot | ride |
-| game-flow `EventModal` | Outcome shows static effects | Outcome uses `EffectsJuice` | ride |
-| game-board `PlayingBoard`, `PhoneFeed`, `boardView` | juice from newest feed type; overlay drop hint | feed entry carries option kind; held juice view; drop slot | ride |
+| Feature area                                        | Loop today                                      | Hook point                                                                             | Ride / new |
+| --------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------- | ---------- |
+| game-juice                                          | `planJuice` per card type; "event" = flash only | event-kind → action map, `EffectsJuice`, `CountUpNumber.from`, `useActionJuice` `hold` | ride       |
+| kit `GameCardEffects`                               | static rows                                     | optional per-row `decorate` slot                                                       | ride       |
+| game-flow `EventModal`                              | Outcome shows static effects                    | Outcome uses `EffectsJuice`                                                            | ride       |
+| game-board `PlayingBoard`, `PhoneFeed`, `boardView` | juice from newest feed type; overlay drop hint  | feed entry carries option kind; drop slot                                              | ride       |
 
 Overrun rule (skill-loop D51): a diff that touches a feature area **not** in this table stops the lap.
 

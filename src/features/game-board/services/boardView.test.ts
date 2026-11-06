@@ -253,6 +253,7 @@ describe("toFeed", () => {
         type: "event",
         title: event.title,
         body: option.label,
+        optionKind: option.kind,
       },
       {
         key: `card-1-${card.id}`,

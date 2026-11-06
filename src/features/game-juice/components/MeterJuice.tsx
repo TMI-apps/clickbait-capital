@@ -45,6 +45,7 @@ export const MeterJuice = ({ accent, flash, version }: MeterJuiceProps) => (
   <span aria-hidden="true" key={version} className="pointer-events-none absolute inset-0">
     {flash && (
       <span
+        data-juice-flash={flash}
         className={cn(
           "absolute inset-0 animate-juice-flash rounded-lg",
           flash === "gain" ? "bg-success/20" : "bg-destructive/20"

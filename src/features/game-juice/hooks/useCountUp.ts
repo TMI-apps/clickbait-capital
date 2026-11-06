@@ -7,14 +7,15 @@ const easeOut = (t: number): number => 1 - (1 - t) ** 3;
 /**
  * Counts the element's text from the previous value to `value` (slot-machine feel). Frames
  * write `textContent` through the ref, so React renders once per change, not per frame.
- * Reduced motion or `instant` writes the new value at once.
+ * Reduced motion or `instant` writes the new value at once. `from` sets the first value to count
+ * from (e.g. 0 for a reveal); by default the first value shows as is.
  */
 export function useCountUp(
   ref: RefObject<HTMLElement | null>,
   value: number,
-  instant = false
+  { instant = false, from }: { instant?: boolean; from?: number } = {}
 ): void {
-  const shown = useRef(value);
+  const shown = useRef(from ?? value);
   const { reduced } = useMotionPreference();
 
   useEffect(() => {
