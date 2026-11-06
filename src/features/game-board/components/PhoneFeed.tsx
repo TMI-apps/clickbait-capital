@@ -13,11 +13,12 @@ import { cn } from "@/shared/utils/cn";
 /** Drop target id the draft cards are dragged onto. */
 export const FEED_DROP_ID = "feed";
 
-const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon; frame: string }> = {
-  viral: { label: "Viraal", icon: Zap, frame: "border-type-viral" },
-  ad: { label: "Advertentie", icon: Megaphone, frame: "border-type-ad" },
-  news: { label: "Nieuws", icon: Newspaper, frame: "border-type-news" },
-  event: { label: "Gebeurtenis", icon: Siren, frame: "border-type-event" },
+/** Type label per post. Posts carry no type-coloured side bar: the card stands on its own (readable-hover D5). */
+const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }> = {
+  viral: { label: "Viraal", icon: Zap },
+  ad: { label: "Advertentie", icon: Megaphone },
+  news: { label: "Nieuws", icon: Newspaper },
+  event: { label: "Gebeurtenis", icon: Siren },
 };
 
 /**
@@ -51,8 +52,7 @@ const NewestPost = ({ entry }: { entry: FeedEntry }) => (
   <li
     data-variant="newest"
     className={cn(
-      "grid grid-cols-[45%_1fr] overflow-hidden rounded-md border-l-4 bg-card text-card-foreground elevation-sm [@container(min-height:24rem)]:grid-cols-1",
-      POST_STYLE[entry.type].frame,
+      "grid grid-cols-[45%_1fr] overflow-hidden rounded-md bg-card text-card-foreground elevation-sm [@container(min-height:24rem)]:grid-cols-1",
       FEED_ENTRANCE[entry.type]
     )}
   >
@@ -73,10 +73,7 @@ const NewestPost = ({ entry }: { entry: FeedEntry }) => (
 const CompactPost = ({ entry }: { entry: FeedEntry }) => (
   <li
     data-variant="compact"
-    className={cn(
-      "flex items-center gap-2 rounded-md border-l-4 bg-card p-1.5 text-card-foreground elevation-sm",
-      POST_STYLE[entry.type].frame
-    )}
+    className="flex items-center gap-2 rounded-md bg-card p-1.5 text-card-foreground elevation-sm"
   >
     <div className="w-16 shrink-0 overflow-hidden rounded-sm">
       <PostArtwork entry={entry} compact />

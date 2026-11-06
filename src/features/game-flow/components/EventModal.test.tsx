@@ -71,4 +71,17 @@ describe("EventModal", () => {
     expect(options).not.toContain(answered);
     expect(options[0]).toHaveFocus();
   });
+
+  it("should show the event's picture above its title and keep it out of the dialog's spoken content when an event fires", () => {
+    const withPicture: FlowEvent = { ...EVENT, id: "event-gemeen-filmpje" };
+    renderWithProviders(<EventModal open event={withPicture} onChoose={vi.fn()} />);
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
+
+    const picture = dialog.querySelector("img");
+    expect(picture).not.toBeNull();
+    expect(picture?.closest('[aria-hidden="true"]')).not.toBeNull();
+    const title = within(dialog).getByRole("heading", { name: /Verkiezingen/ });
+    expect(picture?.compareDocumentPosition(title)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(within(dialog).queryByRole("img")).not.toBeInTheDocument();
+  });
 });
