@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0](https://github.com/TMI-apps/clickbait-capital/compare/v0.45.0...v0.46.0) (2026-11-06)
+
+
+### Features
+
+* Event choices play card juice and the feed opens a drop slot ([#43](https://github.com/TMI-apps/clickbait-capital/issues/43)) ([eab0c75](https://github.com/TMI-apps/clickbait-capital/commit/eab0c75ed5ddd6fb02265c1c777a6ffe28ab69d5))
+* Fit the game board to the phone screen and start drags at once ([#35](https://github.com/TMI-apps/clickbait-capital/issues/35)) ([44b024c](https://github.com/TMI-apps/clickbait-capital/commit/44b024c7c080588d9d67880062c677567f6c6e0c))
+* Hide event effects until the player picks an action ([#41](https://github.com/TMI-apps/clickbait-capital/issues/41)) ([7f5d403](https://github.com/TMI-apps/clickbait-capital/commit/7f5d40307a9038be92d8c7f80748e24dd109466f))
+* Rewrite the game for 11-year-olds with tap-to-explain words ([#37](https://github.com/TMI-apps/clickbait-capital/issues/37)) ([efe40c0](https://github.com/TMI-apps/clickbait-capital/commit/efe40c05cdabb9422230e1454b813d16408d1fd5))
+* Save the running game on the device and offer to resume it ([#31](https://github.com/TMI-apps/clickbait-capital/issues/31)) ([d521d02](https://github.com/TMI-apps/clickbait-capital/commit/d521d02e8692ab9bfcc800b633caf9305f43a370))
+* Share your result as an image card ([#30](https://github.com/TMI-apps/clickbait-capital/issues/30)) ([b5cf71b](https://github.com/TMI-apps/clickbait-capital/commit/b5cf71b57c6231cf60ab84ec33c0fa2bd1817da0))
+* Show the card's picture on feed posts ([#38](https://github.com/TMI-apps/clickbait-capital/issues/38)) ([2b9cb9a](https://github.com/TMI-apps/clickbait-capital/commit/2b9cb9aa1dafb4a9c73655ba323fd921b930e0b7))
+* Spread world events over the run as surprises ([#42](https://github.com/TMI-apps/clickbait-capital/issues/42)) ([ab2adf5](https://github.com/TMI-apps/clickbait-capital/commit/ab2adf5c419a3f29f7fbd2814694f42e535c706d))
+* Thumbnail-style card imagery ([#36](https://github.com/TMI-apps/clickbait-capital/issues/36)) ([6ba3916](https://github.com/TMI-apps/clickbait-capital/commit/6ba3916f4e65a3f68c638200d9abb56587c2d7f5))
+* Use the owner's photo for every card and credit each maker ([#39](https://github.com/TMI-apps/clickbait-capital/issues/39)) ([f33503c](https://github.com/TMI-apps/clickbait-capital/commit/f33503c14e64638918689affbe522b667ab8275b))
+
+
+### Bug Fixes
+
+* Readable buttons, cleaner feed posts and event images ([#40](https://github.com/TMI-apps/clickbait-capital/issues/40)) ([a3aea43](https://github.com/TMI-apps/clickbait-capital/commit/a3aea434cdd8b3c1a9fe537ab49e61e03233be18))
+
 ## [0.45.0](https://github.com/TMI-apps/clickbait-capital/compare/v0.44.0...v0.45.0) (2026-11-05)
 
 
