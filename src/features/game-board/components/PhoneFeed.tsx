@@ -111,7 +111,8 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
           )}
         >
           <div className="aspect-game-card-image" />
-          <p className="p-2.5 text-center text-sm font-semibold text-primary">
+          {/* Text cell as tall as the newest post's type, title and body lines. */}
+          <p className="flex min-h-22 items-center justify-center p-2.5 text-center text-sm font-semibold text-primary">
             Laat los om te plaatsen
           </p>
         </div>

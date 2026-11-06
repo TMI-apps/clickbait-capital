@@ -24,7 +24,8 @@ export const EffectsJuice = ({ effects, action }: EffectsJuiceProps) => {
   const decorate = ({ meter, delta }: GameCardEffect): GameCardEffectDecoration => ({
     amount: <CountUpNumber value={Math.abs(delta)} from={0} instant={!plan.countUp} />,
     overlay: <MeterJuice accent={plan.accents[meter]} flash={plan.flashes[meter]} version={0} />,
-    className: "animate-juice-pop rounded-md px-1",
+    // Right padding keeps the accent badge (top right) clear of the counting number.
+    className: "animate-juice-pop rounded-md pr-6 pl-1",
   });
   return <GameCardEffects effects={effects} decorate={decorate} />;
 };
