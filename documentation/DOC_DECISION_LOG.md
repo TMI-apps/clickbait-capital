@@ -6,6 +6,17 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## readable-hover — fix/readable-hover
+
+Outline and choice buttons get a readable hover / press / focus state: a primary tint, primary border and soft glow that never change text or icon colours; hover only on hover-capable pointers, so a tap leaves nothing behind. Event options use the new kit `choice` variant and take focus on the first option when events follow each other (kit `Button`, `src/index.css`, theme tokens, `game-flow` `EventModal`).
+
+| id  | topic              | status | choice                                                                                                                                                                                                         | source                   | notes                                                                                                               |
+| --- | ------------------ | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| D1  | Interaction effect | closed | `interactive-tint`: primary tint background + primary border + soft glow on hover (`@media (hover: hover)`), stronger tint on `:active`, 0.98 scale without reduced motion; text and icon colours never change | owner via orchestrator   | lost: foreground sweep (inverts colours, unreadable coloured content, sticky on touch)                              |
+| D2  | Scope              | closed | Replace the sweep on the generic `outline` variant too, and add a kit `choice` variant for option lists (event options)                                                                                        | orchestrator + loop-plan | no outline consumer needs the inversion; one utility for both keeps one hover language                              |
+| D3  | Next-event focus   | closed | Event options keyed per event (`key={event.id}`), first option `autoFocus`                                                                                                                                     | loop-build               | events reuse option ids a/b/c, so React kept the clicked button with its focus                                      |
+| D4  | Tokens             | closed | `interactive-tint` (dark primary 10 %, light 4 %), `interactive-tint-strong` (14 % / 5 %), `elevation-glow` (14 px primary, 40 % / 28 %)                                                                       | loop-plan                | alphas capped by the red delta (`destructive`), the lowest-contrast content: ≥ 4.5:1 enforced in dtcgTokens.test.ts |
+
 ## owner-photos — feat/owner-photos
 
 Every card and event shows the photo the owner assigned in their sheet (87 ids, 63 distinct photos); `/credits` names each photo's maker; "verrassingskist" became "loot box" (`card-imagery`, `public/cards/`, `game-content`).
