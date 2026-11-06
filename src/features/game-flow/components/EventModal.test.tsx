@@ -49,4 +49,39 @@ describe("EventModal", () => {
     await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
     expect(onChoose).toHaveBeenCalledWith("c");
   });
+
+  it("should start the next event with fresh options and focus on the first when events follow each other", async () => {
+    const onChoose = vi.fn();
+    const { rerender } = renderWithProviders(<EventModal open event={EVENT} onChoose={onChoose} />);
+    const user = userEvent.setup();
+    const answered = screen.getByRole("button", { name: /factcheckers/ });
+    await user.click(answered);
+
+    const NEXT: FlowEvent = {
+      ...EVENT,
+      id: "event-next",
+      title: "Nog een storm",
+      options: EVENT.options.map((option) => ({ ...option, label: `Volgende ${option.id}.` })),
+    };
+    rerender(<EventModal open event={NEXT} onChoose={onChoose} />);
+
+    const dialog = screen.getByRole("dialog", { name: /Nog een storm/ });
+    const options = within(dialog).getAllByRole("button");
+    expect(options).toHaveLength(3);
+    expect(options).not.toContain(answered);
+    expect(options[0]).toHaveFocus();
+  });
+
+  it("should show the event's picture above its title and keep it out of the dialog's spoken content when an event fires", () => {
+    const withPicture: FlowEvent = { ...EVENT, id: "event-gemeen-filmpje" };
+    renderWithProviders(<EventModal open event={withPicture} onChoose={vi.fn()} />);
+    const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
+
+    const picture = dialog.querySelector("img");
+    expect(picture).not.toBeNull();
+    expect(picture?.closest('[aria-hidden="true"]')).not.toBeNull();
+    const title = within(dialog).getByRole("heading", { name: /Verkiezingen/ });
+    expect(picture?.compareDocumentPosition(title)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(within(dialog).queryByRole("img")).not.toBeInTheDocument();
+  });
 });

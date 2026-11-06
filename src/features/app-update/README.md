@@ -14,13 +14,13 @@ Installable app, offline play and the "new version" prompt for Clickbait Capital
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| API | `api/index.ts` | Public barrel: `UpdatePrompt` |
-| Components | `components/UpdatePrompt.tsx` | Slim bottom banner (kit `Button`; an always-mounted `role="status"` that holds only the text), mounted once in `App.tsx` inside the router |
-| Hooks | `hooks/useAppUpdate.ts` | Registers the SW via `virtual:pwa-register/react`, starts the update checks; `updateReady`, `applyUpdate`, `dismissUpdate` |
-| Hooks | `hooks/useSafeUpdateMoment.ts` | Applies a waiting update before the first input or on a route change |
-| Services | `services/updateChecks.ts` | `watchForUpdates(registration)`: `update()` on foreground and hourly |
+| Layer      | Path                           | Purpose                                                                                                                                    |
+| ---------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| API        | `api/index.ts`                 | Public barrel: `UpdatePrompt`                                                                                                              |
+| Components | `components/UpdatePrompt.tsx`  | Slim bottom banner (kit `Button`; an always-mounted `role="status"` that holds only the text), mounted once in `App.tsx` inside the router |
+| Hooks      | `hooks/useAppUpdate.ts`        | Registers the SW via `virtual:pwa-register/react`, starts the update checks; `updateReady`, `applyUpdate`, `dismissUpdate`                 |
+| Hooks      | `hooks/useSafeUpdateMoment.ts` | Applies a waiting update before the first input or on a route change                                                                       |
+| Services   | `services/updateChecks.ts`     | `watchForUpdates(registration)`: `update()` on foreground and hourly                                                                       |
 
 ## Testing
 

@@ -208,5 +208,10 @@
     "title": "Owner photos for all 87 cards with artist credits",
     "description": "Owner filled the image sheet for every id: 63 distinct photos used exactly as assigned (no placeholders, old fallbacks removed); /credits lists the artist from each file name with source and licence; \"verrassingskist\" renamed to loot box. Two sources still unknown (ad-nepgame screenshot, news-verkiezingsdebat nuovo2) credited \"Aangeleverd door TMI\". Decision log § owner-photos D1-D4.",
     "status": "done"
+  },
+  {
+    "title": "Readable buttons, cleaner feed posts and event images",
+    "description": "Owner requests 2026-11-06: replaced the foreground hover sweep that made event options unreadable with a primary tint/glow (hover only on hover-capable pointers, contrast >=4.5 tested in dark and light); focus lands on the next event first option; removed the coloured left bar from feed posts; events show their photo at the top of the event dialog. Decision log § readable-hover D1-D6.",
+    "status": "done"
   }
 ]

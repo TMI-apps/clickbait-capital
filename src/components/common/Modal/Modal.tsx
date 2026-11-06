@@ -7,6 +7,8 @@ export interface ModalProps {
   open: boolean;
   onClose?: () => void;
   title?: string;
+  /** Picture or other media shown above the title (e.g. an event's photo). */
+  media?: ReactNode;
   /** Accessible description; rendered visually below the title (text, or inline text such as glossary terms). */
   description?: ReactNode;
   actions?: ReactNode;
@@ -37,6 +39,7 @@ export const Modal = ({
   open,
   onClose,
   title,
+  media,
   description,
   actions,
   children,
@@ -76,6 +79,7 @@ export const Modal = ({
             className
           )}
         >
+          {media}
           {title && (
             <DialogPrimitive.Title
               className={cn("text-lg leading-tight font-semibold", dismissible && "pr-8")}

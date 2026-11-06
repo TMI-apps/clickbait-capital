@@ -6,7 +6,11 @@ import { cn } from "@/shared/utils/cn";
 /**
  * Button variants (shadcn/ui). Brand look lives here and in `src/index.css`:
  * - default: brand gradient (theme primary) for main actions
- * - outline: white outline with sweep-on-hover for secondary actions
+ * - outline: foreground outline for secondary actions
+ * - choice: one option in a list of answers (e.g. event options); a quiet card surface that
+ *   holds multi-line, coloured content, left-aligned at full width
+ * outline and choice share `interactive-tint` (src/index.css): hover/press/focus tint the
+ * background and light the border but never change text or icon colours (readable-hover D1).
  * - ghost: primary-colored text button
  */
 export const buttonVariants = cva(
@@ -15,7 +19,9 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-brand-gradient text-primary-foreground",
-        outline: "border border-foreground bg-transparent text-foreground bg-foreground-sweep",
+        outline: "border border-foreground bg-transparent text-foreground interactive-tint",
+        choice:
+          "w-full flex-col items-start gap-1 border border-input bg-card text-left whitespace-normal text-card-foreground interactive-tint",
         secondary: "bg-secondary text-secondary-foreground elevation-md hover:bg-secondary/90",
         ghost: "text-primary hover:bg-primary/10",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
@@ -28,6 +34,10 @@ export const buttonVariants = cva(
         icon: "size-9",
       },
     },
+    compoundVariants: [
+      // After the size classes, so a choice grows with its content instead of the fixed height.
+      { variant: "choice", class: "h-auto min-h-11 px-4 py-2" },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

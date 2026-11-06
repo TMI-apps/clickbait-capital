@@ -13,12 +13,12 @@ User authentication and session management via Supabase.
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| Hooks | `hooks/` | `useAuth`, `useAuthSession`, `useAuthRedirect`, `useAuthCallbackHandler`, `useUserProfileQuery` |
-| Services | `services/` | `authService`, `authCallbackService`, `authErrorMessages`, `authValidation`, `userProfileService`, `authHandlerUtils` |
-| Components | `components/` | `SignInPanel`, `EmailAuthForm` |
-| Types | `types/` | `User`, `UserProfile`, `AuthContextValue`, credentials types |
+| Layer      | Path          | Purpose                                                                                                               |
+| ---------- | ------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Hooks      | `hooks/`      | `useAuth`, `useAuthSession`, `useAuthRedirect`, `useAuthCallbackHandler`, `useUserProfileQuery`                       |
+| Services   | `services/`   | `authService`, `authCallbackService`, `authErrorMessages`, `authValidation`, `userProfileService`, `authHandlerUtils` |
+| Components | `components/` | `SignInPanel`, `EmailAuthForm`                                                                                        |
+| Types      | `types/`      | `User`, `UserProfile`, `AuthContextValue`, credentials types                                                          |
 
 **Cross-layout UI:** `ProfileMenu` lives in `@/layouts/ProfileMenu` (app-shell widget used by Topbar; layouts may compose features, `components/common` may not). Shared viewport/form layout tokens live in `@/shared/theme/appViewLayout`.
 

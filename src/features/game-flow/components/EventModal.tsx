@@ -1,9 +1,10 @@
 import { Coins, Newspaper, Siren, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { GameCardEffects } from "@/components/common/GameCard";
+import { GameCardArtwork, GameCardEffects } from "@/components/common/GameCard";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { Modal } from "@/components/common/Modal";
+import { getCardImage } from "@/features/card-imagery/api";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
 
@@ -32,6 +33,21 @@ export interface EventModalProps {
 }
 
 /**
+ * The event's photo as a banner whose height follows the screen, so title and options still fit
+ * a small phone. Hidden from screen readers: the title and body already tell the event, and the
+ * dialog reads as before (readable-hover D6).
+ */
+const EventPicture = ({ eventId }: { eventId: string }) => (
+  <div aria-hidden="true" className="overflow-hidden rounded-md">
+    <GameCardArtwork
+      type="event"
+      image={getCardImage(eventId) ?? undefined}
+      className="aspect-auto h-[clamp(5.5rem,22dvh,12rem)]"
+    />
+  </div>
+);
+
+/**
  * An event interrupts the draft: one urgent situation and three policy options with their
  * phase-scaled effects. It must be answered (no close button, Escape and overlay ignored).
  */
@@ -41,21 +57,25 @@ export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventMod
     open={open}
     dismissible={false}
     title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}
+    media={event && <EventPicture key={event.id} eventId={event.id} />}
     description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
   >
     {event && (
-      <fieldset className="flex flex-col gap-2">
+      // Keyed by event: events reuse option ids, so the next event gets fresh buttons (no focus
+      // or press state carried over) and its first option takes focus (readable-hover D3).
+      <fieldset key={event.id} className="flex flex-col gap-2">
         <legend className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
           <Siren aria-hidden="true" className="size-4 text-destructive" />
           {UI_COPY.events.prompt}
         </legend>
-        {event.options.map((option) => {
+        {event.options.map((option, index) => {
           const KindIcon = OPTION_ICON[option.kind];
           return (
             <Button
               key={option.id}
-              variant="outline"
-              className="h-auto min-h-11 w-full flex-col items-start gap-1 py-2 text-left whitespace-normal"
+              variant="choice"
+              // Moves focus inside the open dialog when the next event replaces the options.
+              autoFocus={index === 0}
               onClick={() => onChoose(option.id)}
             >
               <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">

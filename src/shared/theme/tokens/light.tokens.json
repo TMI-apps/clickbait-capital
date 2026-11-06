@@ -166,6 +166,24 @@
         "hex": "#c2188f"
       }
     },
+    "interactive-tint": {
+      "$description": "Hover/focus wash on outline and choice buttons: primary at low alpha so text and icons keep their own colour.",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.7608, 0.0941, 0.5608],
+        "alpha": 0.04,
+        "hex": "#c2188f"
+      }
+    },
+    "interactive-tint-strong": {
+      "$description": "Pressed wash on outline and choice buttons.",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0.7608, 0.0941, 0.5608],
+        "alpha": 0.05,
+        "hex": "#c2188f"
+      }
+    },
     "overlay": {
       "$value": {
         "colorSpace": "srgb",
@@ -297,6 +315,35 @@
             "unit": "px"
           },
           "inset": true
+        }
+      ]
+    },
+    "elevation-glow": {
+      "$description": "Soft primary glow around an interactive surface on hover/focus.",
+      "$value": [
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [0.7608, 0.0941, 0.5608],
+            "alpha": 0.28,
+            "hex": "#c2188f"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 0,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 14,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 0,
+            "unit": "px"
+          }
         }
       ]
     }

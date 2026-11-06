@@ -7,7 +7,11 @@ import { GAME_CARD_TYPES } from "./gameCardVariants";
 export interface GameCardArtworkProps {
   type: GameCardType;
   image?: GameCardImage;
+  /** Layout overrides for the image area, e.g. a height-clamped banner (`aspect-auto h-…`). */
+  className?: string;
 }
+
+const ARTWORK_AREA = "relative block aspect-game-card-image w-full overflow-hidden bg-muted";
 
 const clampPercent = (value: number): number => Math.min(100, Math.max(0, value));
 
@@ -36,13 +40,13 @@ const ArtworkFallback = ({ type, alt }: { type: GameCardType; alt?: string }) =>
  * on news cards, which stay plain; a missing
  * or broken image falls back to the type icon on a tinted panel, without the frame.
  */
-export const GameCardArtwork = ({ type, image }: GameCardArtworkProps) => {
+export const GameCardArtwork = ({ type, image, className }: GameCardArtworkProps) => {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const showImage = image !== undefined && image.src !== "" && failedSrc !== image.src;
 
   if (!showImage) {
     return (
-      <span className="relative block aspect-game-card-image w-full overflow-hidden bg-muted">
+      <span className={cn(ARTWORK_AREA, className)}>
         <ArtworkFallback type={type} alt={image?.alt} />
       </span>
     );
@@ -61,7 +65,7 @@ export const GameCardArtwork = ({ type, image }: GameCardArtworkProps) => {
     />
   );
   return (
-    <span className="relative block aspect-game-card-image w-full overflow-hidden bg-muted">
+    <span className={cn(ARTWORK_AREA, className)}>
       {GAME_CARD_TYPES[type].thumbnail ? (
         <ThumbnailFrame accent={type} treatment={image.thumbnail}>
           {photo}

@@ -35,6 +35,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 - **Not dismissible:** the event modal passes `dismissible={false}` (game-board D5); endings have no close, only their actions.
 - **Spoken headings (screen-reader D5):** the kicker ("Fase 2", "Game over") is visually above the heading but spoken inside it (sr-only, followed by a space only when there is a kicker), since focus lands on the heading; the phase-step dots are `aria-hidden`. The results heading starts with sr-only "Je rapport." because a lost ending and its results share a title. The event modal takes `onCloseAutoFocus` so the board can return focus to the draft.
 - **Share card (game-flow D5, share-card lap):** `toShareCardContent` fills the result-share card from the run: the ending's kicker, title and headline (the IPO closing question on a win), phase reached, Hoogste bereik, Totale omzet, `shareText` and the production link (`SITE_ORIGIN`). `SHARE_RESULT_COPY` maps the share outcomes to `UI_COPY.results` status lines. The button sits between the two results actions on both outcomes.
+- **Event options (readable-hover D1–D3):** each option is a kit `Button` `choice` (card surface; hover/press tint the background and light the border, never the text), so the coloured effect numbers stay readable. The option list is keyed per event: events reuse option ids, and a following event must get fresh buttons with focus on its first option. The event's photo (`getCardImage(event.id)` in the kit `GameCardArtwork`, passed through the `Modal` `media` slot) sits above the title as a banner of `clamp(5.5rem, 22dvh, 12rem)`, so the dialog still fits a 375×667 phone; it is `aria-hidden`, so the dialog reads as before (readable-hover D6).
 - **Report button copy:** `UI_COPY.results.reportButton` ("Bekijk je rapport"), added to game-content in this lap with the orchestrator's approval.
 - **Glossary words (kids-content D3):** `EventModal` (event body), `PhaseTransitionScreen` (body, tip), `EndingScreen` (body, lesson) and `ResultsScreen` (report intro) render text through the kit's `GlossaryText` with `GLOSSARY`. Titles, headlines, option labels and the share card use fields without markup.
 
@@ -50,5 +51,6 @@ Colocated Vitest: `services/endFlow.test.ts` (ending, results and share card vie
 
 - `@/features/game-content/api` (`PHASE_INTROS`, `selectGameOverText` for the ending story, `GAME_OVER_TEXTS` titles for the results, `buildEndReport`, `UI_COPY`).
 - `@/features/result-share/api` (`ShareResultButton`, card types) and `@/config/site` (`SITE_ORIGIN`).
-- Kit: `Modal`, `Button`, `GameCardEffects`. Icons: `lucide-react`.
+- `@/features/card-imagery/api` (`getCardImage` for the event photo).
+- Kit: `Modal`, `Button`, `GameCardArtwork`, `GameCardEffects`. Icons: `lucide-react`.
 - Used by `@/features/game-board` (`GameBoard`), which maps engine state to these types.

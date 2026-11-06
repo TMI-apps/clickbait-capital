@@ -12,32 +12,32 @@ Sound effects and the mute toggle for Clickbait Capital. Juice rules: `documenta
 
 ## Structure
 
-| Layer | Path | Purpose |
-|-------|------|---------|
-| API | `api/index.ts` | Public barrel: `useSoundEffects`, `MuteToggle`, `SOUND_EFFECT_IDS`, `SOUND_MANIFEST`, `SOUND_STYLE`, `AUDIO_CREDIT_LINE`, types |
-| Components | `components/MuteToggle.tsx` | Sound on/off toggle (kit `Button`, lucide `Volume2` / `VolumeX`) |
-| Hooks | `hooks/useSoundEffects.ts` | `play`, `muted`, `setMuted`, `toggleMuted`; installs the one-time unlock listeners |
-| Services | `services/soundPlayer.ts` | `createSoundPlayer` (Web Audio: decode, per-sound gain, mute, subscribe) and the page-wide `getSoundPlayer` |
-| Services | `services/soundManifest.ts` | Audio manifest (file, mix volume, generator, prompt, date, license), `SOUND_STYLE`, credit line |
-| Services | `services/muteStorage.ts` | Read / store the mute choice with try/catch |
-| Types | `types/soundEffect.types.ts` | `SOUND_EFFECT_IDS`, `SoundEffectId`, `SoundManifestEntry`, `SoundPlayer` |
+| Layer      | Path                         | Purpose                                                                                                                         |
+| ---------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`               | Public barrel: `useSoundEffects`, `MuteToggle`, `SOUND_EFFECT_IDS`, `SOUND_MANIFEST`, `SOUND_STYLE`, `AUDIO_CREDIT_LINE`, types |
+| Components | `components/MuteToggle.tsx`  | Sound on/off toggle (kit `Button`, lucide `Volume2` / `VolumeX`)                                                                |
+| Hooks      | `hooks/useSoundEffects.ts`   | `play`, `muted`, `setMuted`, `toggleMuted`; installs the one-time unlock listeners                                              |
+| Services   | `services/soundPlayer.ts`    | `createSoundPlayer` (Web Audio: decode, per-sound gain, mute, subscribe) and the page-wide `getSoundPlayer`                     |
+| Services   | `services/soundManifest.ts`  | Audio manifest (file, mix volume, generator, prompt, date, license), `SOUND_STYLE`, credit line                                 |
+| Services   | `services/muteStorage.ts`    | Read / store the mute choice with try/catch                                                                                     |
+| Types      | `types/soundEffect.types.ts` | `SOUND_EFFECT_IDS`, `SoundEffectId`, `SoundManifestEntry`, `SoundPlayer`                                                        |
 
 Files: `public/audio/<id>.mp3` (mono, 44.1 kHz, 96 kbps, about 124 KB for all 11).
 
 ## Sounds
 
-| Id | When the board plays it | Length |
-|----|-------------------------|--------|
-| `card-viral` | Viral card played | ~0.9 s |
-| `card-ad` | Ad card played | ~0.9 s |
-| `card-news` | News card played (deliberately dull) | ~0.5 s |
-| `event-appear` | An event interrupts | ~0.8 s |
-| `event-choice` | Event option chosen | ~0.5 s |
-| `meter-gain` / `meter-loss` | A meter rises / falls noticeably | ~0.5 s |
-| `phase-up` | Next phase reached | ~1.5 s |
-| `game-over` | Bankroet / Verlaten / Verbod | ~2 s |
-| `ipo-win` | IPO ending | ~1.1 s |
-| `ui-tap` | Generic button tap | ~0.5 s |
+| Id                          | When the board plays it              | Length |
+| --------------------------- | ------------------------------------ | ------ |
+| `card-viral`                | Viral card played                    | ~0.9 s |
+| `card-ad`                   | Ad card played                       | ~0.9 s |
+| `card-news`                 | News card played (deliberately dull) | ~0.5 s |
+| `event-appear`              | An event interrupts                  | ~0.8 s |
+| `event-choice`              | Event option chosen                  | ~0.5 s |
+| `meter-gain` / `meter-loss` | A meter rises / falls noticeably     | ~0.5 s |
+| `phase-up`                  | Next phase reached                   | ~1.5 s |
+| `game-over`                 | Bankroet / Verlaten / Verbod         | ~2 s   |
+| `ipo-win`                   | IPO ending                           | ~1.1 s |
+| `ui-tap`                    | Generic button tap                   | ~0.5 s |
 
 ## Sound style
 
