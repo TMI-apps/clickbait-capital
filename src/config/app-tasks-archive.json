@@ -213,5 +213,10 @@
     "title": "Readable buttons, cleaner feed posts and event images",
     "description": "Owner requests 2026-11-06: replaced the foreground hover sweep that made event options unreadable with a primary tint/glow (hover only on hover-capable pointers, contrast >=4.5 tested in dark and light); focus lands on the next event first option; removed the coloured left bar from feed posts; events show their photo at the top of the event dialog. Decision log § readable-hover D1-D6.",
     "status": "done"
+  },
+  {
+    "title": "Event dialog redesign: hidden effects, fits one screen",
+    "description": "Owner request 2026-11-06: event options show only A/B/C + action (no meters, numbers or kind labels), order shuffled per event (seeded), outcome revealed after the pick with Verder; compact choice rows; dialog fits 360x640/375x667/390x844 without scroll. Decision log § event-redesign.",
+    "status": "done"
   }
 ]
