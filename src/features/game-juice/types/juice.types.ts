@@ -10,6 +10,9 @@ export type JuiceMeter = "revenue" | "users" | "reputation";
 /** What caused the feedback: a card type or an answered event. */
 export type JuiceAction = "viral" | "ad" | "news" | "event";
 
+/** Kind of an event option; mirrors the engine's `EventOptionKind` (assigned in the board / flow). */
+export type JuiceEventKind = "commercial" | "engagement" | "journalism";
+
 /** Particle look: neon reaction emoji (viral), gold coins (ad), confetti (a won run). */
 export type ParticleKind = "emoji" | "coin" | "confetti";
 
@@ -23,6 +26,12 @@ export type MeterFlash = "gain" | "loss";
 export interface JuiceMeterInput {
   key: JuiceMeter;
   value: number;
+  delta: number;
+}
+
+/** One meter change as an effect list shows it (e.g. an event outcome). */
+export interface JuiceMeterDelta {
+  meter: JuiceMeter;
   delta: number;
 }
 

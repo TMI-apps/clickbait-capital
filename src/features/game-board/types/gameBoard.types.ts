@@ -74,6 +74,8 @@ export interface FeedEntry {
   type: CardType | "event";
   title: string;
   body: string;
+  /** Event posts: the chosen option's kind, which sets the board juice (event-juice-drop D1). */
+  optionKind?: EventOptionKind;
 }
 
 /** The pending event and its three policy options. */

@@ -1,11 +1,12 @@
 import { useId, useState } from "react";
 import { Siren } from "lucide-react";
 import { Button } from "@/components/common/Button";
-import { GameCardArtwork, GameCardEffects } from "@/components/common/GameCard";
+import { GameCardArtwork } from "@/components/common/GameCard";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { Modal } from "@/components/common/Modal";
 import { getCardImage } from "@/features/card-imagery/api";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
+import { EffectsJuice, juiceActionForEvent } from "@/features/game-juice/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
 
 type EventOption = FlowEvent["options"][number];
@@ -77,7 +78,8 @@ interface OutcomeProps {
 
 /**
  * What the choice did: the action and its meter changes, then "Verder" (event-redesign D2).
- * "Verder" takes focus and is described by the outcome, so a screen reader hears it (D3).
+ * The changes play the card juice of the option's kind (event-juice-drop D1–D2). "Verder"
+ * takes focus and is described by the outcome, so a screen reader hears it (D3).
  */
 const Outcome = ({ option, onContinue }: OutcomeProps) => {
   const outcomeId = useId();
@@ -91,7 +93,9 @@ const Outcome = ({ option, onContinue }: OutcomeProps) => {
           </span>
           <span className="font-medium">{option.label}</span>
         </p>
-        {option.effects.length > 0 && <GameCardEffects effects={option.effects} />}
+        {option.effects.length > 0 && (
+          <EffectsJuice effects={option.effects} action={juiceActionForEvent(option.kind)} />
+        )}
       </div>
       <Button autoFocus aria-describedby={outcomeId} onClick={onContinue}>
         {UI_COPY.events.continueButton}

@@ -1,12 +1,15 @@
 import { describe, expect, it, onTestFinished, vi } from "vitest";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { DndContext } from "@dnd-kit/core";
 import type { GameContent } from "@/features/game-engine/api";
 import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import type { SavedRun } from "@/features/game-save/api";
 import { getMotionStore } from "@/features/game-settings/api";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
+import { PhoneFeed } from "@/features/game-board/components/PhoneFeed";
+import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 import { renderWithProviders } from "tests/test-utils";
 
 /** Seed content where the first viral card (Toxicity > 0) triggers the first event. */
@@ -245,6 +248,20 @@ describe("GameBoard juice", () => {
     expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
 
+  it("should give the board the card juice of the chosen option's kind when an event is answered", async () => {
+    const { user } = await renderBoard(EVENT_NOW);
+    await playCard(user, draftCards()[0]);
+    const dialog = screen.getByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: /groei/ }));
+    await user.click(within(dialog).getByRole("button", { name: "Verder" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
+    const meters = screen.getByRole("list", { name: "Meters" });
+    expect(meters.querySelector('[data-juice-accent="flames"]')).not.toBeNull();
+    expect(meters.querySelector('[data-juice-flash="gain"]')).not.toBeNull();
+  });
+
   it("should throw no particles but keep the state change when the player chooses Verminderd", async () => {
     act(() => getMotionStore().setPreference("reduced"));
     onTestFinished(() => act(() => getMotionStore().reset()));
@@ -318,5 +335,39 @@ describe("GameBoard resumed from a save", () => {
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Fase 2/);
     expect(screen.getByRole("button", { name: "Aan de slag" })).toBeInTheDocument();
+  });
+});
+
+const ENTRIES: FeedEntry[] = [
+  { key: "card-2-v1", contentId: "v1", type: "viral", title: "Nieuwste", body: "Nieuw." },
+  { key: "card-1-a1", contentId: "a1", type: "ad", title: "Ouder", body: "Oud." },
+];
+
+const renderFeed = (dragging: boolean) =>
+  renderWithProviders(
+    <DndContext>
+      <PhoneFeed entries={ENTRIES} dragging={dragging} />
+    </DndContext>
+  );
+
+const dropSlot = (): Element | null => document.querySelector("[data-drop-slot]");
+
+describe("PhoneFeed drop slot", () => {
+  it("should open a slot above the newest post in the list flow when a card is dragged", () => {
+    renderFeed(true);
+
+    expect(dropSlot()?.getAttribute("data-drop-slot")).toBe("open");
+    expect(screen.getByText("Laat los om te plaatsen")).toBeInTheDocument();
+    const list = screen.getByRole("list");
+    // In the scroll flow before the posts, not an absolute overlay on top of them.
+    expect(dropSlot()?.compareDocumentPosition(list)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(dropSlot()?.className).not.toMatch(/absolute/);
+  });
+
+  it("should keep the slot closed and hidden when nothing is dragged", () => {
+    renderFeed(false);
+
+    expect(dropSlot()?.getAttribute("data-drop-slot")).toBe("closed");
+    expect(dropSlot()?.getAttribute("aria-hidden")).toBe("true");
   });
 });
