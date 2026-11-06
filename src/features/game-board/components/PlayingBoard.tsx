@@ -6,7 +6,7 @@ import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
 import { EventModal } from "@/features/game-flow/api";
-import { JuiceLayer, useActionJuice } from "@/features/game-juice/api";
+import { JuiceLayer, juiceActionForPost, useActionJuice } from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -63,10 +63,13 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const dialogOpen = view.event !== null || eventDialogMounted;
   const screenReader = useBoardScreenReader(view, dialogOpen, props.resumed);
 
+  // An event post plays its option kind's card juice once the event dialog has closed, so the
+  // meters count, flash and throw particles in sight, not behind the overlay (event-juice-drop D1, D3).
   const juice = useActionJuice({
-    action: view.feed[0]?.type ?? null,
+    action: juiceActionForPost(view.feed[0]),
     meters: view.meters,
     key: view.feed.length,
+    hold: view.feed[0]?.type === "event" && eventDialogMounted,
   });
 
   /** Particles start where the card was (or was dropped), so mark it before it leaves. */
@@ -111,8 +114,8 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           </Button>
         </header>
         <MeterPanel
-          meters={view.meters}
-          version={view.feed.length}
+          meters={juice.meters}
+          version={juice.key}
           accents={juice.plan?.accents}
           flashes={juice.plan?.flashes}
           countUp={juice.plan?.countUp ?? true}

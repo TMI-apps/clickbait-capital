@@ -290,6 +290,7 @@ export function feedEntryForEvent(
     type: "event",
     title: event.title,
     body: stripGlossaryMarkup(option?.label ?? event.body),
+    optionKind: option?.kind,
   };
 }
 
