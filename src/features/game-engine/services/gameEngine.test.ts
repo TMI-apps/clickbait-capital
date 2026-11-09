@@ -7,6 +7,7 @@ import type {
 import type { GameState } from "@/features/game-engine/types/gameState.types";
 import {
   createGame,
+  drawHand,
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
@@ -16,6 +17,15 @@ import {
 import { SEED_CONTENT } from "./seedContent";
 
 type Policy = (state: GameState, step: number) => CardType;
+
+/**
+ * The hand's card of the wanted type, else its first card: a hand no longer holds one card per
+ * type (shuffled-hand D1), so type-based test policies play the closest card they can.
+ */
+function cardOfType(state: GameState, content: GameContent, type: CardType): string {
+  const cards = getHandCards(state, content)!;
+  return (cards.find((card) => card.type === type) ?? cards[0]!).id;
+}
 
 /** Plays until the game ends or `maxSteps` decisions; events always take the given option. */
 function runGame(
@@ -27,7 +37,7 @@ function runGame(
     if (state.status === "event") {
       state = resolveEvent(state, content, options.eventOption ?? "c");
     } else if (state.status === "playing" && state.hand) {
-      state = playCard(state, content, state.hand[options.policy(state, step)]);
+      state = playCard(state, content, cardOfType(state, content, options.policy(state, step)));
     } else {
       break;
     }
@@ -64,7 +74,7 @@ function playCheckingUsersStat(policy: Policy, visited: Visited): void {
       visited.events += 1;
       state = resolveEvent(state, SEED_CONTENT, "b");
     } else {
-      state = playCard(state, SEED_CONTENT, state.hand![policy(state, step)]);
+      state = playCard(state, SEED_CONTENT, cardOfType(state, SEED_CONTENT, policy(state, step)));
     }
   }
   expectUsersReadOffMeter(state);
@@ -100,15 +110,12 @@ function ipoContent(): GameContent {
 }
 
 describe("createGame", () => {
-  it("should start in phase 1 with meters at 50, toxicity 0 and one card per type", () => {
+  it("should start in phase 1 with meters at 50, toxicity 0 and a hand of three cards", () => {
     const state = createGame({ content: SEED_CONTENT, seed: 1 });
     expect(state.phase).toBe(1);
     expect(state.meters).toEqual({ revenue: 50, users: 50, reputation: 50 });
     expect(state.toxicity).toBe(0);
-    const hand = getHandCards(state, SEED_CONTENT);
-    expect(hand?.viral.type).toBe("viral");
-    expect(hand?.ad.type).toBe("ad");
-    expect(hand?.news.type).toBe("news");
+    expect(getHandCards(state, SEED_CONTENT)).toHaveLength(3);
   });
 
   it("should only draft cards allowed in the current phase", () => {
@@ -119,8 +126,44 @@ describe("createGame", () => {
       ),
     };
     for (let seed = 0; seed < 20; seed++) {
-      expect(createGame({ content, seed }).hand?.viral).toBe("viral-livestream");
+      expect(createGame({ content, seed }).hand).not.toContain("viral-ruzie");
     }
+  });
+});
+
+describe("drawHand", () => {
+  const SEEDS = Array.from({ length: 200 }, (_, index) => index * 7919 + 13);
+  const draws = SEEDS.map((seed) => drawHand(SEED_CONTENT, 1, seed));
+  const typesOf = (hand: readonly string[]): string[] =>
+    hand.map((id) => SEED_CONTENT.cards.find((card) => card.id === id)!.type);
+
+  it("should draw three different cards of the phase when a hand is drawn", () => {
+    for (const { hand } of draws) {
+      expect(hand).toHaveLength(3);
+      expect(new Set(hand).size).toBe(3);
+    }
+  });
+
+  it("should mix types freely when many hands are drawn", () => {
+    const mixes = draws.map(({ hand }) => typesOf(hand));
+    expect(mixes.some((types) => new Set(types).size < 3)).toBe(true);
+    expect(mixes.some((types) => new Set(types).size === 3)).toBe(true);
+  });
+
+  it("should put any type in any slot when many hands are drawn", () => {
+    for (const slot of [0, 1, 2]) {
+      const types = new Set(draws.map(({ hand }) => typesOf(hand)[slot]));
+      expect([...types].sort()).toEqual(["ad", "news", "viral"]);
+    }
+  });
+
+  it("should draw the same hand when the seed is the same", () => {
+    expect(drawHand(SEED_CONTENT, 2, 42)).toEqual(drawHand(SEED_CONTENT, 2, 42));
+  });
+
+  it("should throw when the phase has fewer than three cards", () => {
+    const content: GameContent = { ...SEED_CONTENT, cards: SEED_CONTENT.cards.slice(0, 2) };
+    expect(() => drawHand(content, 1, 1)).toThrow();
   });
 });
 
@@ -132,8 +175,8 @@ describe("playCard", () => {
 
   it("should apply the card, the phase passive cost and count the turn", () => {
     const state = createGame({ content: SEED_CONTENT, seed: 1 });
-    const next = playCard(state, SEED_CONTENT, state.hand!.news);
-    const card = SEED_CONTENT.cards.find((c) => c.id === state.hand!.news)!;
+    const card = getHandCards(state, SEED_CONTENT)!.find((candidate) => candidate.type === "news")!;
+    const next = playCard(state, SEED_CONTENT, card.id);
     expect(next.turn).toBe(1);
     expect(next.meters.revenue).toBe(50 - 1);
     expect(next.meters.reputation).toBe(50 + card.effects.reputation!);
@@ -158,7 +201,11 @@ describe("playCard", () => {
       state =
         state.status === "event"
           ? resolveEvent(state, SEED_CONTENT, "a")
-          : playCard(state, SEED_CONTENT, state.hand![step < 3 ? "viral" : "ad"]);
+          : playCard(
+              state,
+              SEED_CONTENT,
+              cardOfType(state, SEED_CONTENT, step < 3 ? "viral" : "ad")
+            );
       fell ||= state.stats.users < peak;
       peak = Math.max(peak, state.stats.users);
       expect(state.peakUsers).toBe(peak);
@@ -208,7 +255,7 @@ describe("playCard", () => {
     const before = runGame(content, { seed: 9, policy, maxSteps: 8 });
     expect(before.phase).toBe(4);
     expect(before.goalStreak).toBeGreaterThan(0);
-    const broken = playCard(before, content, before.hand!.viral);
+    const broken = playCard(before, content, cardOfType(before, content, "viral"));
     expect(broken.meters.revenue).toBeLessThanOrEqual(80);
     expect(broken.goalStreak).toBe(0);
   });
@@ -258,7 +305,8 @@ describe("game engine acceptance", () => {
     }));
     const state = runGame(content, { seed: 5, policy: () => "news" });
     expect(state.gameOver).toBe("bankrupt");
-    expect(state.turn).toBe(5);
+    // 50 revenue / 10 per turn; an ad in a hand without news can only delay it.
+    expect(state.turn).toBeGreaterThanOrEqual(5);
   });
 
   it("should end with Verbod & Regulering when reputation decays without news", () => {
@@ -306,7 +354,7 @@ function recordEventOpenings(seed: number): { openings: EventOpening[]; phases: 
       openings.push({ id: event.id, turn: state.turn, urgent });
       state = resolveEvent(state, SEED_CONTENT, "b");
     } else if (state.status === "playing" && state.hand) {
-      state = playCard(state, SEED_CONTENT, state.hand[policy(state, step)]);
+      state = playCard(state, SEED_CONTENT, cardOfType(state, SEED_CONTENT, policy(state, step)));
     } else {
       break;
     }

@@ -21,7 +21,7 @@ export const SAMPLE_IMAGES = {
   square: sampleImage(800, 800, "vierkant"),
 };
 
-/** One card per type, in the draft order of DOC_GAME_DESIGN.md § 4. */
+/** One card per type (DOC_GAME_DESIGN.md § 4), for stories and tests. */
 export const SAMPLE_CARDS: GameCardProps[] = [
   {
     type: "viral",

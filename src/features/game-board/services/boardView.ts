@@ -1,6 +1,5 @@
 import type {
   CardDefinition,
-  CardType,
   Effects,
   EventDefinition,
   GameContent,
@@ -32,9 +31,6 @@ import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
 /** Meter order on the board and on cards (design § 2). */
 export const METER_ORDER: MeterKey[] = ["revenue", "users", "reputation"];
-
-/** Draft order: one card per type, left to right. */
-const DRAFT_ORDER: CardType[] = ["viral", "ad", "news"];
 
 const countFormat = new Intl.NumberFormat("nl-NL");
 const euroFormat = new Intl.NumberFormat("nl-NL", {
@@ -175,8 +171,8 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
   }
   const drought = isJournalismDroughtActive(state, content);
   const phase = currentPhase(state, content);
-  return DRAFT_ORDER.map((type) => {
-    const card = hand[type];
+  return hand.map((card) => {
+    const { type } = card;
     return {
       id: card.id,
       type,

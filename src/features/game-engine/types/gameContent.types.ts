@@ -7,7 +7,7 @@
 /** The three visible meters, each 0–100. */
 export type MeterKey = "revenue" | "users" | "reputation";
 
-/** The three regular card types; every draft holds exactly one of each. */
+/** The three regular card types; a draft holds any mix of them (shuffled-hand D1). */
 export type CardType = "viral" | "ad" | "news";
 
 /** Phase number: 1 Zolderkamer, 2 Scale-Up, 3 Wereldwijd Platform, 4 Beursgang. */
