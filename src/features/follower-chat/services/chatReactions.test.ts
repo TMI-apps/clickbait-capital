@@ -75,16 +75,17 @@ describe("chatForStep", () => {
     expect(persona?.lines.toxic).toContain(first?.text);
   });
 
-  it("should let a critical follower leave and keep critics quiet when reputation is very low", () => {
+  it("should let the critics leave once and keep them quiet when reputation drops very low", () => {
     const base = afterPlay("viral");
     const game = { ...base, meters: { ...base.meters, reputation: LEAVE_BELOW_REPUTATION - 5 } };
-    for (let step = 0; step < 20; step += 1) {
-      const batch = chatForStep({ seed: 7, step, game, content });
-      const leave = batch?.messages.filter((message) => message.kind === "leave") ?? [];
-      expect(leave).toHaveLength(1);
-      expect(critics.has(leave[0].followerId)).toBe(true);
-      const talkers = batch?.messages.filter((message) => message.kind === "line") ?? [];
-      expect(talkers.every((message) => !critics.has(message.followerId))).toBe(true);
+    const crossing = chatForStep({ seed: 7, step: 4, game, content, previousReputation: 40 });
+    const left = crossing?.messages.filter((message) => message.kind === "leave") ?? [];
+    expect(left.map((message) => message.followerId).sort()).toEqual([...critics].sort());
+    for (let step = 5; step < 20; step += 1) {
+      const batch = chatForStep({ seed: 7, step, game, content, previousReputation: 15 });
+      const messages = batch?.messages ?? [];
+      expect(messages.some((message) => message.kind === "leave")).toBe(false);
+      expect(messages.every((message) => !critics.has(message.followerId))).toBe(true);
     }
   });
 

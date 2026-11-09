@@ -143,9 +143,7 @@ function toMessage({ follower, cue }: Pick, key: string, random: StepRandom): Ch
   };
 }
 
-function leaveMessage(key: string, random: StepRandom): ChatMessage | null {
-  const follower = random.pick(FOLLOWERS.filter((candidate) => candidate.critical));
-  if (!follower) return null;
+function leaveMessage(follower: FollowerPersona, key: string): ChatMessage {
   return {
     key,
     kind: "leave",
@@ -157,6 +155,19 @@ function leaveMessage(key: string, random: StepRandom): ChatMessage | null {
   };
 }
 
+/** Critics leave once, on the action that drops reputation below the line; after that they are gone. */
+function leaveMessages(
+  context: ChatContext,
+  previousReputation: number | null,
+  step: number
+): ChatMessage[] {
+  const crossed = previousReputation === null || previousReputation >= LEAVE_BELOW_REPUTATION;
+  if (!context.criticsLeft || !crossed) return [];
+  return FOLLOWERS.filter((follower) => follower.critical).map((follower) =>
+    leaveMessage(follower, `${step}-leave-${follower.id}`)
+  );
+}
+
 export interface ChatForStepOptions {
   /** The run's seed. */
   seed: number;
@@ -165,23 +176,26 @@ export interface ChatForStepOptions {
   /** Engine state right after the action. */
   game: GameState;
   content: GameContent;
+  /** Reputation before the action; null when unknown (counts as a crossing). */
+  previousReputation?: number | null;
 }
 
 /**
  * The followers' reaction to one action (follower-chat D2–D4): 2–4 lines by Toxicity, from
- * different followers, on the post's topic and the run's state; one critical follower leaves
- * when reputation is very low. Pure and seeded on run seed + step, so a replay or resume gives
+ * different followers, on the post's topic and the run's state; the critical followers leave
+ * on the action that drops reputation very low and stay quiet while it stays there. Pure and seeded on run seed + step, so a replay or resume gives
  * the same chat and nothing is stored in the save.
  */
-export function chatForStep({ seed, step, game, content }: ChatForStepOptions): ChatBatch | null {
+export function chatForStep(options: ChatForStepOptions): ChatBatch | null {
+  const { seed, step, game, content, previousReputation = null } = options;
   const context = chatContext(game, content);
   if (!context) return null;
   const random = new StepRandom(seed, step);
-  const slots = LINES_PER_PACE[context.pace];
-  const leave = context.criticsLeft ? leaveMessage(`${step}-leave`, random) : null;
-  const picks = pickSpeakers(context, leave ? slots - 1 : slots, random);
+  const leaves = leaveMessages(context, previousReputation, step);
+  const slots = Math.max(1, LINES_PER_PACE[context.pace] - leaves.length);
+  const picks = pickSpeakers(context, slots, random);
   const messages = picks.map((pick, index) => toMessage(pick, `${step}-${index}`, random));
-  return { key: step + 1, pace: context.pace, messages: leave ? [...messages, leave] : messages };
+  return { key: step + 1, pace: context.pace, messages: [...messages, ...leaves] };
 }
 
 /**
@@ -189,7 +203,13 @@ export function chatForStep({ seed, step, game, content }: ChatForStepOptions): 
  * replayed from a save (a resume stays quiet, like the board sounds).
  */
 export function chatForSession(session: SessionState, content: GameContent): ChatBatch | null {
-  const { steps, replayedStepCount, game } = session;
+  const { steps, replayedStepCount, game, previousGame } = session;
   if (steps.length === 0 || steps.length <= replayedStepCount) return null;
-  return chatForStep({ seed: game.seed, step: steps.length - 1, game, content });
+  return chatForStep({
+    seed: game.seed,
+    step: steps.length - 1,
+    game,
+    content,
+    previousReputation: previousGame?.meters.reputation ?? null,
+  });
 }
