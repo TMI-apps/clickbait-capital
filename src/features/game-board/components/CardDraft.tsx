@@ -98,7 +98,7 @@ export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
   return (
     <section
       aria-labelledby="draft-heading"
-      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl board-split:max-w-none"
+      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl board-split:max-w-none board-desk:max-w-md"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
         <h2 id="draft-heading" className="text-sm font-bold">

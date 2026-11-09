@@ -55,13 +55,12 @@ interface NewestPostProps {
  * Newest post: photo plus type, title and body, then its follower comments as they reveal
  * (feed-comments D1, D4). The feed box is a size container (D3): the photo sits on top when the
  * box is tall enough, beside the text otherwise, so the whole post stays visible without scrolling.
- * The desktop board always stacks, like the tall desktop feed did before (desktop-layout D5).
  */
 const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
   <li
     data-variant="newest"
     className={cn(
-      "grid grid-cols-[45%_1fr] overflow-hidden rounded-md bg-card text-card-foreground elevation-sm [@container(min-height:24rem)]:grid-cols-1 board-desk:grid-cols-1",
+      "grid grid-cols-[45%_1fr] overflow-hidden rounded-md bg-card text-card-foreground elevation-sm [@container(min-height:24rem)]:grid-cols-1",
       FEED_ENTRANCE[entry.type]
     )}
   >
@@ -71,7 +70,7 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
     <div className="min-w-0 p-2.5">
       <TypeLabel type={entry.type} />
       <p className="text-sm leading-snug font-bold">{entry.title}</p>
-      <p className="line-clamp-3 text-xs text-muted-foreground [@container(min-height:24rem)]:line-clamp-2 board-desk:line-clamp-2">
+      <p className="line-clamp-3 text-xs text-muted-foreground [@container(min-height:24rem)]:line-clamp-2">
         {entry.body}
       </p>
     </div>
@@ -130,7 +129,7 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
       <div className="pb-2">
         <div
           className={cn(
-            "grid grid-cols-[45%_1fr] items-center overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast) [@container(min-height:24rem)]:grid-cols-1 board-desk:grid-cols-1",
+            "grid grid-cols-[45%_1fr] items-center overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast) [@container(min-height:24rem)]:grid-cols-1",
             over && "border-solid border-primary bg-primary/15"
           )}
         >
@@ -177,7 +176,7 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
       ref={setNodeRef}
       aria-label={UI_COPY.board.feedLabel}
       className={cn(
-        "relative mx-auto flex min-h-24 w-full max-w-sm flex-1 flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
+        "relative mx-auto flex min-h-24 w-full max-w-sm flex-1 board-desk:max-w-md flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
         dragging && "border-dashed",
         isOver && "ring-4 ring-primary"
       )}

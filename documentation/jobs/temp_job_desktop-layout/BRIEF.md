@@ -28,4 +28,4 @@ Phone and small-tablet layouts, the event dialog, feed internals, new copy.
 ## Progress
 
 - Phase 1: Done. Phase 2: Done.
-- Change round (Stop 2): status panel scrolled sideways (D6); feed posts must look like main, only resized (D5). Done.
+- Change round (Stop 2): status panel scrolled sideways (D5). Done; feed posts unchanged (approved at 58ffedf).
