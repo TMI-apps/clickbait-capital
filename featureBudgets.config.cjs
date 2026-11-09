@@ -13,7 +13,13 @@ module.exports = {
     maxFilesPerFeature: 25,
   },
   /** Per-feature waivers — `reason` is required (non-empty). */
-  overrides: {},
+  overrides: {
+    "game-content": {
+      maxFilesPerLayer: 12,
+      reason:
+        "Content data: one services file per content kind (viral, ad, news, events, phases, endings, UI copy, followers) plus the assembly and tests; splitting the deck across features would scatter one content set (follower-chat D2).",
+    },
+  },
   /**
    * Grandfathered snapshots for features that exceeded defaults at baseline time.
    * Regenerate: pnpm validate:feature-size:baseline

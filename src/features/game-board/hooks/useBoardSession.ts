@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { chatForSession } from "@/features/follower-chat/api";
+import type { ChatBatch } from "@/features/follower-chat/api";
 import type { GameContent } from "@/features/game-engine/api";
 import { useGameSession } from "@/features/game-session/api";
 import type { GameSession, UseGameSessionOptions } from "@/features/game-session/api";
@@ -18,6 +20,8 @@ export interface BoardSession extends Omit<GameSession, "session"> {
   view: BoardView;
   /** Sounds earned by the last action; `key` changes once per action (`useBoardSounds`). */
   sounds: BoardSounds;
+  /** The followers' chat reaction to the last action (follower-chat); null before any or on resume. */
+  chat: ChatBatch | null;
 }
 
 const toBoardView = (session: GameSession["session"], content: GameContent): BoardView => {
@@ -41,5 +45,6 @@ export function useBoardSession(options: UseGameSessionOptions): BoardSession {
   const { content } = options;
   const view = useMemo(() => toBoardView(session, content), [session, content]);
   const sounds = useMemo(() => soundsForLastStep(session, content), [session, content]);
-  return { ...run, view, sounds };
+  const chat = useMemo(() => chatForSession(session, content), [session, content]);
+  return { ...run, view, sounds, chat };
 }

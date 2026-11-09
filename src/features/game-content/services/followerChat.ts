@@ -1,0 +1,143 @@
+import type { FollowerPersona } from "@/features/game-content/types/contentPresentation.types";
+
+/**
+ * The recurring followers of the live chat (follower-chat D2): six invented kids-world
+ * characters who react after every post and event choice. Lines are short Dutch at about
+ * age 11; no real people, brands, games or platforms (game-content tone). Two are critical
+ * (grandma and the fact-checker): they complain when reputation drops and leave when it is
+ * very low, so the chat shows the echo chamber that is left over.
+ */
+export const FOLLOWERS: readonly FollowerPersona[] = [
+  {
+    id: "gamer",
+    name: "Gamer_Gijs",
+    face: "🎮",
+    tone: "primary",
+    critical: false,
+    lines: {
+      viral: ["W post 🔥", "dit is echt next level", "GG, iedereen kijkt dit", "nog een keer!! 🔁"],
+      ad: ["skip skip skip ⏭️", "bro, alweer reclame?", "ik wil gewoon filmpjes 😩"],
+      news: ["oké dit is best interessant", "saai… maar wel waar", "huh, wist ik niet 🤔"],
+      hype: [
+        "chat gaat los 🚀",
+        "zoveel nieuwe kijkers!!",
+        "dit is een banger 🔥🔥",
+        "iedereen op school heeft dit gezien",
+      ],
+      toxic: ["L + ratio 💀", "jij snapt er niks van 🤡", "wie dit niet snapt is een noob"],
+      adFatigue: ["nog één reclame en ik ben weg", "meer reclame dan filmpjes 😤"],
+      echoChamber: ["wacht, dit zag ik net ook al", "zelfde filmpje, andere dag 😴"],
+    },
+  },
+  {
+    id: "fatbike",
+    name: "FatbikeFem",
+    face: "🚲",
+    tone: "viral",
+    critical: false,
+    lines: {
+      viral: ["BROEMMM 🚲💨", "dit doen we morgen na op het plein", "haha iedereen moet dit zien"],
+      ad: ["is die korting echt?", "kan ik er een nieuw zadel van kopen?", "meh, reclame 🥱"],
+      news: ["ow, dat is wel heftig", "goed dat iemand dit zegt", "oké ik lees het even"],
+      hype: [
+        "we gaan viraal!! 📈",
+        "mijn hele klas kijkt mee",
+        "zelfs mijn broertje deelt dit",
+        "1 miljoen views, let maar op 🚀",
+      ],
+      toxic: ["haha laat ze maar huilen 😂", "wie dit niet durft is een baby"],
+      echoChamber: ["alweer zo'n challenge? 🙄", "dit is precies hetzelfde als net"],
+      drought: ["is er ook nog gewoon nieuws?"],
+    },
+  },
+  {
+    id: "memes",
+    name: "MemeKoning",
+    face: "😂",
+    tone: "warning",
+    critical: false,
+    lines: {
+      viral: ["💀💀💀", "dit wordt een meme, let maar op", "ik kan niet meer 😂😂"],
+      ad: ["reclame-moment 🤡", "*scrollt snel door*", "wie koopt dit nou 😂"],
+      news: ["wie zet hier nou nieuws 😂", "nieuws? hier?? 😳", "oké respect, eerlijk 🫡"],
+      hype: [
+        "chat ontploft 💥",
+        "ik was hier al vóór het hip was 😎",
+        "dit gaat de hele groepsapp rond",
+        "meme van het jaar 🏆",
+      ],
+      toxic: ["ratio + niemand vroeg erom 💀", "huil maar 😭😂", "ruzie in de chat 🍿"],
+      echoChamber: ["dezelfde meme voor de 5e keer 😴", "copy-paste-feed 📋"],
+    },
+  },
+  {
+    id: "grandma",
+    name: "Oma Riet",
+    face: "👵",
+    tone: "news",
+    critical: true,
+    lines: {
+      viral: [
+        "Wat is een challenge eigenlijk? 🤔",
+        "Pas wel op, jongens!",
+        "Ik snap het niet, maar leuk 😊",
+      ],
+      ad: [
+        "Is dat niet te duur, lieverd?",
+        "Nou nou, wéér iets kopen 🙄",
+        "Lees wel de kleine lettertjes!",
+      ],
+      news: [
+        "Wat goed uitgelegd! 👏",
+        "Dit stuur ik door naar de buurvrouw",
+        "Fijn, eindelijk iets dat klopt",
+      ],
+      toxic: ["Wat een gescheld hier… 😟", "Zo praat je toch niet tegen elkaar?"],
+      complain: ["Ik vertrouw deze app niet meer zo", "Wat is hier aan de hand? 😕"],
+      adFatigue: ["Alleen nog maar reclame, hè"],
+      drought: ["Waar is het nieuws gebleven?"],
+    },
+  },
+  {
+    id: "factchecker",
+    name: "Nina_Checkt",
+    face: "🧐",
+    tone: "success",
+    critical: true,
+    lines: {
+      viral: [
+        "Is dit wel echt? Bron?",
+        "Klinkt als nep, ik check het even 🔍",
+        "Leuk, maar klopt het ook?",
+      ],
+      ad: [
+        "Dit is gewoon reclame, hè 👀",
+        "Let op: ze willen je zakgeld",
+        "Gesponsord, maar dat staat er klein",
+      ],
+      news: ["Eindelijk echte info ✅", "Bron gecheckt: klopt ✅", "Hierom volg ik je"],
+      toxic: ["Al die haat hier… niet oké", "Melden, dit is pesten 🚩"],
+      complain: ["Je feed klopt steeds minder 📉", "Waar zijn je bronnen?"],
+      echoChamber: ["Iedereen zegt hetzelfde. Bubbel-alarm 🫧"],
+      drought: ["Al zo lang geen nieuws 😐", "Alleen nog filmpjes zonder bron"],
+    },
+  },
+  {
+    id: "dealhunter",
+    name: "KortingKevin",
+    face: "🤑",
+    tone: "ad",
+    critical: false,
+    lines: {
+      viral: ["lol, maar waar is de korting?", "leuk filmpje, nu een deal pls", "haha nice 👍"],
+      ad: ["KORTING?! 🤑", "ik heb al besteld 🛒", "hier, pak mijn zakgeld 💸"],
+      news: ["geen deals vandaag? 😢", "hm, oké, goed om te weten", "nieuws levert niks op, toch?"],
+      hype: [
+        "zoveel volgers, nu kassa 💰",
+        "zoveel kijkers = zoveel reclame 🤑",
+        "kun je mij ook beroemd maken?",
+      ],
+      adFatigue: ["zelfs ík heb nu genoeg reclame gezien"],
+    },
+  },
+];
