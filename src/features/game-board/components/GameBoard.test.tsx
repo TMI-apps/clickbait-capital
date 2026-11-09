@@ -78,6 +78,9 @@ const confirmPlay = async (user: User): Promise<void> => {
   await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "In de feed" }));
 };
 
+/** The board's turn announcer; the follower chat has its own (follower-chat D5). */
+const BOARD_LIVE_REGION = '[aria-live="polite"]:not([data-chat-announcer])';
+
 /** Plays a draft card the tap way: tap opens the details, "In de feed" plays it. */
 const playCard = async (user: User, card: HTMLElement): Promise<void> => {
   await user.click(card);
@@ -293,6 +296,33 @@ describe("GameBoard juice", () => {
   });
 });
 
+describe("GameBoard follower chat", () => {
+  /** DOM query: an open dialog hides the board from the accessibility tree. */
+  const chatLines = (): HTMLElement[] => [
+    ...document.querySelectorAll<HTMLElement>('section[aria-label="Live chat van je volgers"] li'),
+  ];
+
+  it("should show follower lines under the feed when a card is played", async () => {
+    const { user } = await renderBoard();
+    expect(chatLines()[0]).toHaveTextContent("Je volgers kijken mee…");
+    await playCard(user, draftCards()[0]);
+    await waitFor(() => expect(chatLines()[0]).not.toHaveTextContent("Je volgers kijken mee…"));
+  });
+
+  it("should react to an event choice only after the event dialog has closed", async () => {
+    const { user } = await renderBoard(EVENT_NOW);
+    await playCard(user, draftCards()[0]);
+    await waitFor(() => expect(chatLines().length).toBeGreaterThanOrEqual(2));
+    const beforeChoice = chatLines().length;
+    const dialog = screen.getByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: /groei/ }));
+    await user.click(within(dialog).getByRole("button", { name: "Verder" }));
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() => expect(chatLines().length).toBeGreaterThan(beforeChoice));
+  });
+});
+
 describe("GameBoard with a screen reader", () => {
   it("should focus the board heading when the board opens after the phase intro", async () => {
     await renderBoard();
@@ -306,7 +336,7 @@ describe("GameBoard with a screen reader", () => {
     await user.keyboard("{Enter}");
     await confirmPlay(user);
 
-    const live = document.querySelector('[aria-live="polite"]');
+    const live = document.querySelector(BOARD_LIVE_REGION);
     await waitFor(() => expect(live?.textContent).not.toBe(""));
     expect(live?.textContent).toMatch(/^Geplaatst: .+\. Inkomsten omhoog \d+, nu \d+\..*Bereik: /);
     expect(draftCards()[slot]).toHaveFocus();
@@ -322,7 +352,7 @@ describe("GameBoard with a screen reader", () => {
     await user.click(within(dialog).getByRole("button", { name: "Verder" }));
 
     await waitFor(() =>
-      expect(document.querySelector('[aria-live="polite"]')?.textContent).toMatch(
+      expect(document.querySelector(BOARD_LIVE_REGION)?.textContent).toMatch(
         /^Geplaatst: .+ Gekozen: Investeer in moderatie\./
       )
     );

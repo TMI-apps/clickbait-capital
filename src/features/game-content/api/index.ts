@@ -17,5 +17,6 @@ export {
   GAME_OVER_TEXTS,
   selectGameOverText,
 } from "@/features/game-content/services/endings";
+export { FOLLOWERS } from "@/features/game-content/services/followerChat";
 export { GLOSSARY, UI_COPY } from "@/features/game-content/services/uiCopy";
 export type * from "@/features/game-content/types/contentPresentation.types";

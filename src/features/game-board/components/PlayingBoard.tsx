@@ -5,6 +5,8 @@ import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import { FollowerChat } from "@/features/follower-chat/api";
+import type { ChatBatch } from "@/features/follower-chat/api";
 import { EventModal } from "@/features/game-flow/api";
 import { JuiceLayer, juiceActionForPost, useActionJuice } from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
@@ -33,6 +35,8 @@ const BOARD_GRID = cn(
 
 export interface PlayingBoardProps {
   view: BoardView;
+  /** The followers' reaction to the last action: a fixed-height strip under the feed, revealed with the juice (follower-chat D1). */
+  chat: ChatBatch | null;
   /** The run continues a save: the board announces where the player is (local-save D5). */
   resumed: boolean;
   play: (cardId: string) => void;
@@ -120,7 +124,10 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           flashes={juice.plan?.flashes}
           countUp={juice.plan?.countUp ?? true}
         />
-        <PhoneFeed entries={view.feed} dragging={dragging} />
+        <div className="flex min-h-0 flex-col gap-1.5">
+          <PhoneFeed entries={view.feed} dragging={dragging} />
+          <FollowerChat batch={props.chat} revealKey={juice.key} />
+        </div>
         <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
           <CardDraft cards={view.draft} onShowDetails={showDetails} />
         </div>

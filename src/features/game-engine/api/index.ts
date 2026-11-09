@@ -11,6 +11,8 @@ export {
   playCard,
   resolveEvent,
 } from "@/features/game-engine/services/gameEngine";
+export { nextRandom } from "@/features/game-engine/services/seededRandom";
+export type { RandomStep } from "@/features/game-engine/services/seededRandom";
 export { scaleForPhase } from "@/features/game-engine/services/turnEffects";
 export { meterForUsers, usersForMeter } from "@/features/game-engine/services/progression";
 export type { CreateGameOptions } from "@/features/game-engine/services/gameEngine";
