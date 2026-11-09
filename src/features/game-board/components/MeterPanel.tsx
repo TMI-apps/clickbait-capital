@@ -72,7 +72,8 @@ export interface MeterPanelProps {
 /**
  * The three platform meters: icon, name, a counting value 0–100, change and an animated bar.
  * A full meter glows and says "MAX" so wasted gains are visible. Screen readers hear one
- * `role="meter"` per tile.
+ * `role="meter"` per tile. A row of three on phones; on the desktop board (`board-desk`) a
+ * stack of larger tiles in the status panel (desktop-layout D1).
  */
 export const MeterPanel = ({
   meters,
@@ -81,7 +82,10 @@ export const MeterPanel = ({
   flashes = {},
   countUp = true,
 }: MeterPanelProps) => (
-  <ul aria-label="Meters" className="grid grid-cols-3 gap-2">
+  <ul
+    aria-label="Meters"
+    className="grid grid-cols-3 gap-2 board-desk:grid-cols-1 board-desk:gap-3"
+  >
     {meters.map(({ key, value, delta, full, danger, valueText }) => {
       const meter = METERS[key];
       return (
@@ -89,7 +93,7 @@ export const MeterPanel = ({
           key={key}
           {...{ [JUICE_METER_ATTR]: key }}
           className={cn(
-            "relative min-w-0 rounded-lg border border-border bg-card p-2 elevation-sm",
+            "relative min-w-0 rounded-lg border border-border bg-card p-2 elevation-sm board-desk:p-4",
             full && meter.capGlow
           )}
         >
@@ -97,7 +101,10 @@ export const MeterPanel = ({
           {/* Visual readout; the meter below speaks label, value, change and state once (screen-reader D3). */}
           <div
             aria-hidden="true"
-            className={cn("flex min-w-0 items-center gap-1 text-xs font-semibold", meter.text)}
+            className={cn(
+              "flex min-w-0 items-center gap-1 text-xs font-semibold board-desk:gap-1.5 board-desk:text-sm",
+              meter.text
+            )}
           >
             <meter.icon aria-hidden="true" className="size-4 shrink-0" />
             <span className="truncate">{meter.label}</span>
@@ -108,7 +115,7 @@ export const MeterPanel = ({
               value={value}
               instant={!countUp}
               className={cn(
-                "font-mono text-xl font-bold tabular-nums sm:text-2xl",
+                "font-mono text-xl font-bold tabular-nums sm:text-2xl board-desk:text-4xl",
                 danger && "text-destructive"
               )}
             />
@@ -122,7 +129,7 @@ export const MeterPanel = ({
             aria-valuemax={100}
             aria-valuenow={value}
             aria-valuetext={valueText}
-            className="mt-1 h-2 overflow-hidden rounded-full bg-muted"
+            className="mt-1 h-2 overflow-hidden rounded-full bg-muted board-desk:mt-2 board-desk:h-3"
           >
             <div
               className={cn(

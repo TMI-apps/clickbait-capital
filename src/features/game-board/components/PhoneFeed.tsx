@@ -176,7 +176,7 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
       ref={setNodeRef}
       aria-label={UI_COPY.board.feedLabel}
       className={cn(
-        "relative mx-auto flex min-h-24 w-full max-w-sm flex-1 flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
+        "relative mx-auto flex min-h-24 w-full max-w-sm flex-1 board-desk:max-w-md flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
         dragging && "border-dashed",
         isOver && "ring-4 ring-primary"
       )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { Pause } from "lucide-react";
 import { Button } from "@/components/common/Button";
@@ -12,7 +12,7 @@ import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
-import { CardDraft, draftCardElement } from "./CardDraft";
+import { CardDraft, DroughtNotice, draftCardElement } from "./CardDraft";
 import { MeterPanel } from "./MeterPanel";
 import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
@@ -23,14 +23,57 @@ const DRAG_START_DISTANCE = 6;
 const POINTER_OPTIONS = { activationConstraint: { distance: DRAG_START_DISTANCE } };
 
 /**
- * Board grid (mobile-fit D2). Portrait: header, meters, feed (takes the rest), draft. Split
- * (sideways phone or large screen): header, meters and feed left, the draft right. Top and bottom
- * padding grow into the notch and home-indicator insets; the body already pads the sides.
+ * Board grid (mobile-fit D2, desktop-layout D1). DOM order is the reading order everywhere:
+ * status (header, meters) before play (feed, draft).
+ * - Portrait: header, meters, feed (takes the rest), draft.
+ * - Split (sideways phone): header, meters and feed left, the draft right.
+ * - Desk (wide, not short): play column left (feed, the draft under it), status panel right
+ *   (header, stacked meters, active modifier notice).
+ * The status and play wrappers are `display: contents` except on desk, so the phone grid places
+ * their children as before. Top and bottom padding grow into the notch and home-indicator
+ * insets; the body pads the sides.
  */
 const BOARD_GRID = cn(
   "mx-auto grid h-dvh w-full max-w-6xl grid-cols-1 grid-rows-[auto_auto_minmax(6rem,1fr)_auto] gap-2 overflow-hidden overscroll-none px-3 touch-manipulation sm:gap-3 sm:px-6",
   "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]",
-  "board-split:grid-cols-2 board-split:grid-rows-[auto_auto_minmax(0,1fr)] board-split:gap-x-4"
+  "board-split:grid-cols-2 board-split:grid-rows-[auto_auto_minmax(0,1fr)] board-split:gap-x-4",
+  "board-desk:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] board-desk:grid-rows-[minmax(0,1fr)] board-desk:gap-x-8 board-desk:py-6"
+);
+
+const DESK_STATUS =
+  "contents board-desk:col-start-2 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3 board-desk:overflow-y-auto";
+const DESK_PLAY =
+  "contents board-desk:col-start-1 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
+
+interface BoardStatusProps {
+  phase: BoardView["phase"];
+  /** Journalistieke Droogte is on: the desk panel shows its notice (desktop-layout D2). */
+  drought: boolean;
+  onPause: () => void;
+  /** The meters, which carry the board's juice. */
+  children: ReactNode;
+}
+
+/** Phase and goal with sound and pause controls, the meters and, on desk, the modifier notice. */
+const BoardStatus = ({ phase, drought, onPause, children }: BoardStatusProps) => (
+  <div className={DESK_STATUS}>
+    <header className="flex shrink-0 items-start gap-2">
+      <PhaseProgress phase={phase} />
+      <MuteToggle compact className="size-11 shrink-0" />
+      <Button
+        variant="outline"
+        size="icon"
+        className="size-11 shrink-0"
+        aria-label={UI_COPY.board.menuButton}
+        onClick={onPause}
+      >
+        <Pause aria-hidden="true" />
+      </Button>
+    </header>
+    {children}
+    {/* Elsewhere CardDraft shows the notice above the cards. */}
+    {drought && <DroughtNotice className="hidden board-desk:flex" />}
+  </div>
 );
 
 export interface PlayingBoardProps {
@@ -102,34 +145,29 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       onDragEnd={handleDragEnd}
     >
       <div ref={juice.shakeRef} data-viewport-lock className={BOARD_GRID}>
-        <header className="flex shrink-0 items-start gap-2">
-          <PhaseProgress phase={view.phase} />
-          <MuteToggle compact className="size-11 shrink-0" />
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-11 shrink-0"
-            aria-label={UI_COPY.board.menuButton}
-            onClick={withTap(() => setPaused(true))}
-          >
-            <Pause aria-hidden="true" />
-          </Button>
-        </header>
-        <MeterPanel
-          meters={juice.meters}
-          version={juice.key}
-          accents={juice.plan?.accents}
-          flashes={juice.plan?.flashes}
-          countUp={juice.plan?.countUp ?? true}
-        />
-        <PhoneFeed
-          entries={view.feed}
-          comments={props.comments}
-          revealKey={juice.key}
-          dragging={dragging}
-        />
-        <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
-          <CardDraft cards={view.draft} onShowDetails={showDetails} />
+        <BoardStatus
+          phase={view.phase}
+          drought={view.draft.some((card) => card.droughtWarning)}
+          onPause={withTap(() => setPaused(true))}
+        >
+          <MeterPanel
+            meters={juice.meters}
+            version={juice.key}
+            accents={juice.plan?.accents}
+            flashes={juice.plan?.flashes}
+            countUp={juice.plan?.countUp ?? true}
+          />
+        </BoardStatus>
+        <div className={DESK_PLAY}>
+          <PhoneFeed
+            entries={view.feed}
+            comments={props.comments}
+            revealKey={juice.key}
+            dragging={dragging}
+          />
+          <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
+            <CardDraft cards={view.draft} onShowDetails={showDetails} />
+          </div>
         </div>
       </div>
       <JuiceLayer burst={juice.burst} />
