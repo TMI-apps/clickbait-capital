@@ -228,5 +228,10 @@
     "title": "Spread world events over the run as surprises",
     "description": "Player feedback: events came in chains. At most one event per turn, seeded cooldown (3 + 0-3 turns), milestones and crises wait at least 2 turns, saves bumped to v2. PR #42. Decision log § event pacing.",
     "status": "done"
+  },
+  {
+    "title": "Shuffle the hand: 3 random cards in random positions",
+    "description": "Player feedback: players tapped by muscle memory. The hand is 3 different cards drawn from the whole phase pool in random order, so 3 ads can happen. IPO hold 10 to 8 turns, saves v3. PR #44. Decision log § shuffled hand.",
+    "status": "done"
   }
 ]
