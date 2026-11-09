@@ -5,8 +5,7 @@ import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
-import { FollowerChat } from "@/features/follower-chat/api";
-import type { ChatBatch } from "@/features/follower-chat/api";
+import type { CommentBatch } from "@/features/follower-comments/api";
 import { EventModal } from "@/features/game-flow/api";
 import { JuiceLayer, juiceActionForPost, useActionJuice } from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
@@ -21,6 +20,7 @@ import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
 
 /** Pixels a pointer moves before a press becomes a drag (mobile-fit D1). */
 const DRAG_START_DISTANCE = 6;
+const POINTER_OPTIONS = { activationConstraint: { distance: DRAG_START_DISTANCE } };
 
 /**
  * Board grid (mobile-fit D2). Portrait: header, meters, feed (takes the rest), draft. Split
@@ -35,8 +35,8 @@ const BOARD_GRID = cn(
 
 export interface PlayingBoardProps {
   view: BoardView;
-  /** The followers' reaction to the last action: a fixed-height strip under the feed, revealed with the juice (follower-chat D1). */
-  chat: ChatBatch | null;
+  /** The followers' comments per session step: shown under each feed post, the newest revealed with the juice (feed-comments D1). */
+  comments: Array<CommentBatch | null>;
   /** The run continues a save: the board announces where the player is (local-save D5). */
   resumed: boolean;
   play: (cardId: string) => void;
@@ -57,9 +57,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const [paused, setPaused] = useState(false);
   const [dragging, setDragging] = useState(false);
   // Mouse, touch and pen alike: a drag starts on the first move past 6px, a tap stays a click (D3).
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: DRAG_START_DISTANCE } })
-  );
+  const sensors = useSensors(useSensor(PointerSensor, POINTER_OPTIONS));
 
   // True from the event's arrival until its dialog has fully closed (onCloseAutoFocus).
   const [eventDialogMounted, setEventDialogMounted] = useState(false);
@@ -124,10 +122,12 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           flashes={juice.plan?.flashes}
           countUp={juice.plan?.countUp ?? true}
         />
-        <div className="flex min-h-0 flex-col gap-1.5">
-          <PhoneFeed entries={view.feed} dragging={dragging} />
-          <FollowerChat batch={props.chat} revealKey={juice.key} />
-        </div>
+        <PhoneFeed
+          entries={view.feed}
+          comments={props.comments}
+          revealKey={juice.key}
+          dragging={dragging}
+        />
         <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
           <CardDraft cards={view.draft} onShowDetails={showDetails} />
         </div>

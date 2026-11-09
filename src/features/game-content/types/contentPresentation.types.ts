@@ -71,7 +71,7 @@ export interface EndReport {
 }
 
 /**
- * What a follower in the live chat reacts to (follower-chat D2): the post's topic (a card type,
+ * What a follower reacts to in the feed comments (follower-chat D2): the post's topic (a card type,
  * or the card type an event option plays like) or a state of the run.
  */
 export type FollowerCue =
@@ -80,7 +80,7 @@ export type FollowerCue =
   | "news"
   /** Many new users this turn. */
   | "hype"
-  /** Hidden Toxicity is high: the chat gets mean. */
+  /** Hidden Toxicity is high: the comments get mean. */
   | "toxic"
   /** Reputation is low: critical followers complain. */
   | "complain"
@@ -88,19 +88,19 @@ export type FollowerCue =
   | "echoChamber"
   | "drought";
 
-/** Avatar tint of a follower; maps to a theme token in the chat component. */
+/** Avatar tint of a follower; maps to a theme token in the comments component. */
 export type FollowerTone = "viral" | "ad" | "news" | "primary" | "success" | "warning";
 
-/** One recurring follower in the live chat: a face, a name and lines per cue. */
+/** One recurring follower who comments under feed posts: a face, a name and lines per cue. */
 export interface FollowerPersona {
   id: string;
-  /** Chat handle shown before the line. Invented, never a real person or brand. */
+  /** Handle shown before the comment. Invented, never a real person or brand. */
   name: string;
   /** One emoji: the follower's face. */
   face: string;
   tone: FollowerTone;
   /** Critical followers complain when reputation drops and leave when it is very low. */
   critical: boolean;
-  /** Short Dutch chat lines (age ~11) per cue; a follower without lines for a cue stays quiet. */
+  /** Short Dutch comments (age ~11) per cue; a follower without lines for a cue stays quiet. */
   lines: Partial<Record<FollowerCue, readonly string[]>>;
 }

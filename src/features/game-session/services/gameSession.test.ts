@@ -86,7 +86,12 @@ describe("gameSession", () => {
     const played = applyAction(first, SEED_CONTENT, { kind: "card", cardId });
 
     expect(played.steps).toEqual([
-      { action: { kind: "card", cardId }, turn: first.game.turn, eventId: null },
+      {
+        action: { kind: "card", cardId },
+        turn: first.game.turn,
+        eventId: null,
+        state: played.game,
+      },
     ]);
     expect(played.previousGame).toBe(first.game);
   });

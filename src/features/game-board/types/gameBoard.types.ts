@@ -69,6 +69,8 @@ export interface DraftCardView {
 /** One post in the phone feed (newest first in the list). */
 export interface FeedEntry {
   key: string;
+  /** Index of the session step the post shows: its follower comments are looked up by it (feed-comments D1). */
+  step: number;
   /** Card or event id: the feed shows its picture (`getCardImage`, feed-images D1). */
   contentId: string;
   type: CardType | "event";

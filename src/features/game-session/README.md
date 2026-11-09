@@ -4,7 +4,7 @@ One run of Clickbait Capital over the rules engine: the engine state, every acce
 
 ## Purpose
 
-- Holds one run: `SessionState` = engine `game`, `previousGame` (state before the last action), `steps` (each accepted action with its turn and answered event, oldest first) and `replayedStepCount` (steps rebuilt from a save).
+- Holds one run: `SessionState` = engine `game`, `previousGame` (state before the last action), `steps` (each accepted action with its turn, answered event and the engine `state` right after it, oldest first) and `replayedStepCount` (steps rebuilt from a save).
 - Takes player actions (`play`, `chooseOption`), ignores ones the run can't take now (same session object back), and starts fresh runs (`restart`).
 - Saves and resumes (local-save D1–D3): writes `{ version, seed, actions }` through `@/features/game-save/api` after each action, clears it when the run ends or has no actions, and replays a `savedRun` (a save that no longer replays starts a new run).
 - "Session" is the in-memory run; game-save and the engine speak of the _run_ (`RunAction`, `SavedRun`) that a session plays and stores.
@@ -21,6 +21,7 @@ One run of Clickbait Capital over the rules engine: the engine state, every acce
 
 - **Facts, not views (game-session-split D1):** the session stores engine states and steps only; feed posts, meter deltas and sounds are the board's projections (`useBoardSession`). This keeps the dependency one-way (game-board → game-session) and the session free of view models.
 - **Silent resume (local-save D5, game-session-split D1):** `restoreSession` marks all replayed steps (`replayedStepCount`), so a view knows their effects already happened; it keeps `previousGame`, so meter deltas after a resume are identical.
+- **State per step (feed-comments D3):** every step keeps the engine state after it, so a view can derive per-post facts for older posts too (the follower comments under each feed post). The replay rebuilds them, so the save stays `{ version, seed, actions }` and `SAVED_RUN_VERSION` is unchanged.
 - **Interrupted phase intro (local-save D5):** `seenPhase` is `previousGame.phase` of the restored run (0 for a new run), so an intro the reload interrupted shows again.
 
 ## Testing

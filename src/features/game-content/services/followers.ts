@@ -1,11 +1,11 @@
 import type { FollowerPersona } from "@/features/game-content/types/contentPresentation.types";
 
 /**
- * The recurring followers of the live chat (follower-chat D2): six invented kids-world
+ * The recurring followers who comment under feed posts (follower-chat D2, feed-comments D1): six invented kids-world
  * characters who react after every post and event choice. Lines are short Dutch at about
  * age 11; no real people, brands, games or platforms (game-content tone). Two are critical
  * (grandma and the fact-checker): they complain when reputation drops and leave when it is
- * very low, so the chat shows the echo chamber that is left over.
+ * very low, so the comments show the echo chamber that is left over.
  */
 export const FOLLOWERS: readonly FollowerPersona[] = [
   {
@@ -19,7 +19,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
       ad: ["skip skip skip ⏭️", "bro, alweer reclame?", "ik wil gewoon filmpjes 😩"],
       news: ["oké dit is best interessant", "saai… maar wel waar", "huh, wist ik niet 🤔"],
       hype: [
-        "chat gaat los 🚀",
+        "de reacties gaan los 🚀",
         "zoveel nieuwe kijkers!!",
         "dit is een banger 🔥🔥",
         "iedereen op school heeft dit gezien",
@@ -61,12 +61,12 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
       ad: ["reclame-moment 🤡", "*scrollt snel door*", "wie koopt dit nou 😂"],
       news: ["wie zet hier nou nieuws 😂", "nieuws? hier?? 😳", "oké respect, eerlijk 🫡"],
       hype: [
-        "chat ontploft 💥",
+        "de reacties ontploffen 💥",
         "ik was hier al vóór het hip was 😎",
         "dit gaat de hele groepsapp rond",
         "meme van het jaar 🏆",
       ],
-      toxic: ["ratio + niemand vroeg erom 💀", "huil maar 😭😂", "ruzie in de chat 🍿"],
+      toxic: ["ratio + niemand vroeg erom 💀", "huil maar 😭😂", "ruzie in de reacties 🍿"],
       echoChamber: ["dezelfde meme voor de 5e keer 😴", "copy-paste-feed 📋"],
     },
   },

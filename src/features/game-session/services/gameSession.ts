@@ -10,6 +10,11 @@ export interface SessionStep {
   turn: number;
   /** The event the option answered; null for a card play. */
   eventId: string | null;
+  /**
+   * Engine state right after the action. Lets a view derive per-post facts for every step, not
+   * only the last one (feed comments, feed-comments D3); rebuilt by the replay, never saved.
+   */
+  state: GameState;
 }
 
 /**
@@ -34,10 +39,14 @@ export const startSession = (content: GameContent, seed: number): SessionState =
   replayedStepCount: 0,
 });
 
-const advance = (current: SessionState, next: GameState, step: SessionStep): SessionState => ({
+const advance = (
+  current: SessionState,
+  next: GameState,
+  step: Omit<SessionStep, "state">
+): SessionState => ({
   game: next,
   previousGame: current.game,
-  steps: [...current.steps, step],
+  steps: [...current.steps, { ...step, state: next }],
   replayedStepCount: current.replayedStepCount,
 });
 
