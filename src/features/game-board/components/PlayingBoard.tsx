@@ -37,13 +37,23 @@ const BOARD_GRID = cn(
   "mx-auto grid h-dvh w-full max-w-6xl grid-cols-1 grid-rows-[auto_auto_minmax(6rem,1fr)_auto] gap-2 overflow-hidden overscroll-none px-3 touch-manipulation sm:gap-3 sm:px-6",
   "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]",
   "board-split:grid-cols-2 board-split:grid-rows-[auto_auto_minmax(0,1fr)] board-split:gap-x-4",
-  "board-desk:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] board-desk:grid-rows-[minmax(0,1fr)] board-desk:gap-x-8 board-desk:py-6"
+  "board-desk:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] board-desk:grid-rows-[minmax(0,1fr)] board-desk:gap-x-8"
 );
 
+/**
+ * Not a scroll container: it fits the shortest desk height, and the meter juice marks poke a few
+ * pixels out of their tiles, which a scroll container turns into a horizontal scrollbar
+ * (desktop-layout D6).
+ */
 const DESK_STATUS =
-  "contents board-desk:col-start-2 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3 board-desk:overflow-y-auto";
+  "contents board-desk:col-start-2 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
+/**
+ * The play column is as wide as the phone feed on main (24rem), so feed posts look the same; on
+ * short desk screens it narrows so the stacked newest post and the whole hand still fit, since both
+ * grow with this width (desktop-layout D5).
+ */
 const DESK_PLAY =
-  "contents board-desk:col-start-1 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
+  "contents board-desk:col-start-1 board-desk:row-start-1 board-desk:mx-auto board-desk:flex board-desk:min-h-0 board-desk:w-full board-desk:max-w-[min(24rem,calc(100dvh-21rem))] board-desk:flex-col board-desk:gap-3";
 
 interface BoardStatusProps {
   phase: BoardView["phase"];
