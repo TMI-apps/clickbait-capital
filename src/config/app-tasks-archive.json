@@ -243,5 +243,10 @@
     "title": "Follower comments inside the feed under each post",
     "description": "Owner Stop 2 feedback on #45: comments belong in the feed. LIVE strip removed; 2-4 comments under the newest post, older posts collapse to one comment plus +N. Feature renamed follower-comments; recomputed from seed + step on resume. PR #46. Decision log § feed-comments.",
     "status": "done"
+  },
+  {
+    "title": "Desktop layout: play column plus vertical stats panel",
+    "description": "Owner request: on desktop the feed with the hand directly beneath it on the left, phase and stats stacked in a panel on the right. Phones unchanged. PR #48. Decision log § desktop-layout.",
+    "status": "done"
   }
 ]
