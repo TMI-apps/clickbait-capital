@@ -72,12 +72,12 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
     id: 4,
     name: "De Beursgang",
     goal: {
-      description: "Houd Reputatie boven 60 en Inkomsten boven 80, 10 beurten op rij.",
+      description: "Houd Reputatie boven 60 en Inkomsten boven 80, 8 beurten op rij.",
       conditions: [
         { kind: "meter", meter: "reputation", above: 60 },
         { kind: "meter", meter: "revenue", above: 80 },
       ],
-      consecutiveTurns: 10,
+      consecutiveTurns: 8,
     },
     passiveCosts: { revenue: -6 },
     usersAtFullMeter: 30_000_000,
@@ -111,6 +111,6 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
     kicker: "Fase 4",
     title: "De Beursgang",
     body: "Bijna klaar voor de [[beursgang]]. [[Aandeelhouders|aandeelhouder]] willen winst. De [[toezichthouder]] wacht op één fout.",
-    tip: "Houd Reputatie boven 60 en Inkomsten boven 80, tien beurten op rij. Elk verlies van reputatie telt nu tweeënhalf keer.",
+    tip: "Houd Reputatie boven 60 en Inkomsten boven 80, acht beurten op rij. Elk verlies van reputatie telt nu tweeënhalf keer.",
   },
 };

@@ -69,7 +69,7 @@ describe("gameSession", () => {
     const first = Object.values(startSession(bankrupt, 5).game.hand ?? {})[0];
 
     expect(
-      restoreSession(bankrupt, { version: 2, seed: 5, actions: [{ kind: "card", cardId: first }] })
+      restoreSession(bankrupt, { version: 3, seed: 5, actions: [{ kind: "card", cardId: first }] })
     ).toBeNull();
   });
 

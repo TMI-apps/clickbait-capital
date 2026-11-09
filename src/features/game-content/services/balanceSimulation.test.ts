@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createGame,
+  getHandCards,
   getPendingEvent,
   playCard,
   resolveEvent,
@@ -19,21 +20,46 @@ import { GAME_CONTENT } from "@/features/game-content/services/gameContent";
 const SEEDS = Array.from({ length: 60 }, (_, index) => index * 7919 + 13);
 const MAX_STEPS = 400;
 
-type Choice = { kind: "card"; type: CardType } | { kind: "event"; optionId: string };
+type Choice = { kind: "card"; cardId: string } | { kind: "event"; optionId: string };
 type Strategy = (state: GameState, content: GameContent) => Choice;
 
-const viralOnly: Strategy = (state) =>
-  state.status === "event" ? { kind: "event", optionId: "b" } : { kind: "card", type: "viral" };
+/**
+ * A hand holds any mix of types (shuffled-hand D1), so a type strategy plays the first type of
+ * its preference order that the hand holds; the rest of the order is its fallback.
+ */
+function preferring(state: GameState, content: GameContent, order: readonly CardType[]): Choice {
+  const cards = getHandCards(state, content)!;
+  for (const type of order) {
+    const card = cards.find((candidate) => candidate.type === type);
+    if (card) {
+      return { kind: "card", cardId: card.id };
+    }
+  }
+  return { kind: "card", cardId: cards[0]!.id };
+}
 
-const adOnly: Strategy = (state) =>
-  state.status === "event" ? { kind: "event", optionId: "a" } : { kind: "card", type: "ad" };
+/** Viral whenever the hand has one; otherwise an ad, news only when nothing else is left. */
+const viralOnly: Strategy = (state, content) =>
+  state.status === "event"
+    ? { kind: "event", optionId: "b" }
+    : preferring(state, content, ["viral", "ad", "news"]);
 
-/** Journalism first; a viral card only when users run low; never ads. */
-const newsHeavy: Strategy = (state) => {
+/** Ads whenever the hand has one; otherwise news, viral only when nothing else is left. */
+const adOnly: Strategy = (state, content) =>
+  state.status === "event"
+    ? { kind: "event", optionId: "a" }
+    : preferring(state, content, ["ad", "news", "viral"]);
+
+/** Journalism first; a viral card when users run low or no news is drawn; an ad only when forced. */
+const newsHeavy: Strategy = (state, content) => {
   if (state.status === "event") {
     return { kind: "event", optionId: "c" };
   }
-  return { kind: "card", type: state.meters.users < 35 ? "viral" : "news" };
+  return preferring(
+    state,
+    content,
+    state.meters.users < 35 ? ["viral", "news", "ad"] : ["news", "viral", "ad"]
+  );
 };
 
 /** Turns without news after which a human reacts: reputation decay shows from 3, the drought border at 5. */
@@ -94,11 +120,13 @@ function lookahead(weights: ScoreWeights): Strategy {
         .sort((a, b) => b.score - a.score)[0];
       return { kind: "event", optionId: best?.id ?? "c" };
     }
-    const hand = state.hand!;
-    const best = (["viral", "ad", "news"] as const)
-      .map((type) => ({ type, score: scoreState(playCard(state, content, hand[type]), weights) }))
+    const best = state
+      .hand!.map((cardId) => ({
+        cardId,
+        score: scoreState(playCard(state, content, cardId), weights),
+      }))
       .sort((a, b) => b.score - a.score)[0]!;
-    return { kind: "card", type: best.type };
+    return { kind: "card", cardId: best.cardId };
   };
 }
 
@@ -151,43 +179,55 @@ function growthCard(state: GameState): CardType {
   return revenue < 70 && adIsFresh(state) ? "ad" : "news";
 }
 
-/**
- * Rule-of-thumb player: no lookahead, only the board. Rescue a meter under 35, news after
- * three turns without it, then play toward the phase goal. Events fix the weakest meter.
- * The browser play-test script uses the same rules.
- */
-const ruleOfThumb: Strategy = (state) => {
+/** The wanted type, then the types that raise the meters from weakest to strongest. */
+function wantedThenWeakest(state: GameState, wanted: CardType): CardType[] {
+  const byNeed = (Object.entries(state.meters) as [Meter, number][])
+    .sort((a, b) => a[1] - b[1])
+    .map(([meter]) => METER_CARD[meter]);
+  return [wanted, ...byNeed.filter((type) => type !== wanted)];
+}
+
+/** The type a rule-of-thumb player wants this turn (before looking at what the hand holds). */
+function ruleOfThumbType(state: GameState): CardType {
   const [meter, value] = weakestMeter(state);
-  if (state.status === "event") {
-    return { kind: "event", optionId: METER_OPTION[meter] };
-  }
   if (value < 35) {
-    return { kind: "card", type: METER_CARD[meter] };
+    return METER_CARD[meter];
   }
   if (state.turnsWithoutNews >= 3) {
-    return { kind: "card", type: "news" };
+    return "news";
   }
-  return { kind: "card", type: state.phase === 4 ? ipoCard(state) : growthCard(state) };
+  return state.phase === 4 ? ipoCard(state) : growthCard(state);
+}
+
+/**
+ * Rule-of-thumb player: no lookahead, only the board. Rescue a meter under 35, news after
+ * three turns without it, then play toward the phase goal; without the wanted type, the card
+ * for the weakest meter. Events fix the weakest meter. The browser play-test script uses the
+ * same rules.
+ */
+const ruleOfThumb: Strategy = (state, content) => {
+  if (state.status === "event") {
+    return { kind: "event", optionId: METER_OPTION[weakestMeter(state)[0]] };
+  }
+  return preferring(state, content, wantedThenWeakest(state, ruleOfThumbType(state)));
 };
+
+/** Plays the rotation's type for this turn, else the next types of the rotation. */
+function rotation(order: readonly CardType[]): Strategy {
+  return (state, content) => {
+    if (state.status === "event") {
+      return { kind: "event", optionId: "c" };
+    }
+    const start = state.turn % order.length;
+    return preferring(state, content, [...order.slice(start), ...order.slice(0, start)]);
+  };
+}
 
 /** The orchestrator's play-test rotation: Viraal, Advertentie, Nieuws, Nieuws, Advertentie. */
-const rotateFive: Strategy = (state) => {
-  if (state.status === "event") {
-    return { kind: "event", optionId: "c" };
-  }
-  return {
-    kind: "card",
-    type: (["viral", "ad", "news", "news", "ad"] as const)[state.turn % 5]!,
-  };
-};
+const rotateFive = rotation(["viral", "ad", "news", "news", "ad"]);
 
 /** Naive balance: Viraal, Advertentie, Nieuws in turn; events take the journalism option. */
-const rotate: Strategy = (state) => {
-  if (state.status === "event") {
-    return { kind: "event", optionId: "c" };
-  }
-  return { kind: "card", type: (["viral", "ad", "news"] as const)[state.turn % 3]! };
-};
+const rotate = rotation(["viral", "ad", "news"]);
 
 interface Run {
   final: GameState;
@@ -211,7 +251,7 @@ function usersGoalHolds(state: GameState, content: GameContent): boolean {
 function applyChoice(state: GameState, content: GameContent, choice: Choice): GameState {
   return choice.kind === "event"
     ? resolveEvent(state, content, choice.optionId)
-    : playCard(state, content, state.hand![choice.type]);
+    : playCard(state, content, choice.cardId);
 }
 
 /** Books one step into the run: card turns per phase, users goal on phase entry, event openings. */

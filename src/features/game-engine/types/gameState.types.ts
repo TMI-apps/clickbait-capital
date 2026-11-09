@@ -12,8 +12,8 @@ export type GameOverReason = "bankrupt" | "abandoned" | "banned";
 /** `event`: a draft is interrupted until `resolveEvent` is called. */
 export type GameStatus = "playing" | "event" | "won" | "lost";
 
-/** The draft: one card id per type. */
-export type Hand = Record<CardType, string>;
+/** The draft: different card ids in slot order, any mix of types (shuffled-hand D1). */
+export type Hand = readonly string[];
 
 /** Which correction rules changed the last card (for UI feedback such as red borders). */
 export interface TurnModifiers {

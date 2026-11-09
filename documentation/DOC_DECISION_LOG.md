@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## shuffled-hand — feat/shuffled-hand
+
+A hand is three different cards drawn at random from the phase's whole pool, any type, in a random order, so players choose on content instead of tapping the same slot (`game-engine` `drawHand` / `Hand` list, `game-board` `toDraft`, `game-save` v3, `game-content` IPO hold 10 → 8). Simulation, human-like: 34 → 44 turns median, 60 × won; rule-of-thumb 60 → 54 × won; one-sided strategies still fail for their own reason.
+
+| id  | topic        | status | choice | source | notes |
+| --- | ------------ | ------ | ------ | ------ | ----- |
+| D1  | Random hand  | closed | A hand is 3 cards drawn at random from the phase's whole pool, any category; slot order is the draw order (random each turn) | owner brief via orchestrator | replaces "one of each type" (design § 4 Type 1) |
+| D2  | Duplicates   | closed | No duplicate card ids in one hand: draw without replacement | loop-plan | a duplicate would show two identical choices (no real choice) and break per-card ids in the DOM |
+| D3  | Save version | closed | `SAVED_RUN_VERSION` 2 → 3; v2 saves are ignored | owner brief | v2 action logs replay into different hands |
+| D4  | Retune       | closed | IPO hold (phase 4 `consecutiveTurns`) 10 → 8 in `CONTENT_PHASES`, goal text and intro tip updated | simulation | with 10 the human-like median was 49 turns (target 25–45); 8 → 44, 7 → 42. Smallest change that meets the target; every other assertion held |
+| D5  | Simulation   | closed | Type strategies play their type when held, else a fixed fallback order; lookahead strategies score the 3 cards in hand | loop-build | a pure one-type strategy is impossible now; fallbacks avoid the type that would rescue the strategy's failing meter |
+
 ## event-pacing — feat/event-pacing
 
 World events become surprises spread over the run: at most one event per card turn, a seeded 3–6-turn gap before a Toxicity event, milestones and crises (Toxicity ≥ 70) after at least 2 turns, milestones carried until they fire (`game-engine` `progression.ts`, `BalanceConfig.eventPacing`, `game-content` `CONTENT_BALANCE`, `game-save` v2). Simulation, human-like: 10 → 7 events per run, same turn 54% → 0%, median gap 0 → 4 turns; same winners and losers, no retune.

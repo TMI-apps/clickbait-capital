@@ -60,16 +60,22 @@ describe("boardView", () => {
     expect(progress.goalStats).toEqual([]);
   });
 
-  it("should give one card per type in viral, ad, news order when a draft is open", () => {
-    const draft = toDraft(fresh(), SEED_CONTENT);
-    expect(draft.map((card) => card.type)).toEqual(["viral", "ad", "news"]);
+  it("should show the hand's cards in drawn order when a draft is open", () => {
+    const state: GameState = { ...fresh(), hand: ["news-klimaat", "ad-gokapp", "ad-crypto"] };
+    const draft = toDraft(state, SEED_CONTENT);
+    expect(draft.map((card) => card.id)).toEqual(["news-klimaat", "ad-gokapp", "ad-crypto"]);
+    expect(draft.map((card) => card.type)).toEqual(["news", "ad", "ad"]);
     expect(draft.some((card) => card.droughtWarning)).toBe(false);
   });
 
-  it("should flag only the viral card when Journalistieke Droogte is active", () => {
-    const state: GameState = { ...fresh(), turnsWithoutNews: 5 };
+  it("should flag every viral card when Journalistieke Droogte is active", () => {
+    const state: GameState = {
+      ...fresh(),
+      turnsWithoutNews: 5,
+      hand: ["viral-ruzie", "ad-gokapp", "viral-livestream"],
+    };
     const flagged = toDraft(state, SEED_CONTENT).filter((card) => card.droughtWarning);
-    expect(flagged.map((card) => card.type)).toEqual(["viral"]);
+    expect(flagged.map((card) => card.id)).toEqual(["viral-ruzie", "viral-livestream"]);
   });
 
   it("should show phase-scaled effects on draft cards when reputation loss is multiplied", () => {
@@ -77,7 +83,7 @@ describe("boardView", () => {
     const state: GameState = {
       ...fresh(),
       phase: 3,
-      hand: { viral: "viral-ruzie", ad: "ad-gokapp", news: "news-klimaat" },
+      hand: ["ad-gokapp", "viral-ruzie", "news-klimaat"],
     };
     const viral = toDraft(state, SEED_CONTENT).find((card) => card.type === "viral");
     expect(viral?.effects).toContainEqual({ meter: "reputation", delta: -4 });

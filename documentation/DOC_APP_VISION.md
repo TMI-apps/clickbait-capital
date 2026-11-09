@@ -22,7 +22,7 @@ Social media platforms drift toward sensation and polarization, and most people 
 
 ## App's role
 
-- **In one sentence, this app:** is a browser card game where you play the algorithm of a rising social media platform: each turn you feed one of three cards (Viral, Ad, News) into the feed and balance Revenue, Users and Reputation, across four phases from attic startup to IPO.
+- **In one sentence, this app:** is a browser card game where you play the algorithm of a rising social media platform: each turn you feed one of three randomly drawn cards (Viral, Ad or News, in any mix) into the feed and balance Revenue, Users and Reputation, across four phases from attic startup to IPO.
 - **It is not:** a news site, a real social network, or a classroom tool with accounts or teacher dashboards.
 - **Integrates with / assumes:** none yet; no accounts, so no login is needed.
 - **Language:** Dutch; all player-facing text is Dutch.
