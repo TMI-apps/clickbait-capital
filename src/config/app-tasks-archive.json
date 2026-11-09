@@ -238,5 +238,10 @@
     "title": "Followers with faces and a live chat",
     "description": "Player feedback: players skip text but want juice. Six invented followers react in a 3-line LIVE chat under the feed after every post and event choice; tone follows toxicity, critics complain and leave at low reputation. Seeded, not saved. PR #45. Decision log § follower-chat.",
     "status": "done"
+  },
+  {
+    "title": "Follower comments inside the feed under each post",
+    "description": "Owner Stop 2 feedback on #45: comments belong in the feed. LIVE strip removed; 2-4 comments under the newest post, older posts collapse to one comment plus +N. Feature renamed follower-comments; recomputed from seed + step on resume. PR #46. Decision log § feed-comments.",
+    "status": "done"
   }
 ]

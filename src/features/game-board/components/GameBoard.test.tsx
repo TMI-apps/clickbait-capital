@@ -70,6 +70,8 @@ const draftCardOfType = (type: string): HTMLElement => {
 };
 
 const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
+/** The feed's posts, without the comment lists nested in them. */
+const posts = (): HTMLElement[] => [...feed().querySelectorAll<HTMLElement>("li[data-variant]")];
 
 type User = ReturnType<typeof userEvent.setup>;
 
@@ -78,8 +80,8 @@ const confirmPlay = async (user: User): Promise<void> => {
   await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "In de feed" }));
 };
 
-/** The board's turn announcer; the follower chat has its own (follower-chat D5). */
-const BOARD_LIVE_REGION = '[aria-live="polite"]:not([data-chat-announcer])';
+/** The board's turn announcer; the feed comments have their own (follower-chat D5). */
+const BOARD_LIVE_REGION = '[aria-live="polite"]:not([data-comment-announcer])';
 
 /** Plays a draft card the tap way: tap opens the details, "In de feed" plays it. */
 const playCard = async (user: User, card: HTMLElement): Promise<void> => {
@@ -184,7 +186,7 @@ describe("GameBoard", () => {
       screen.getByRole("heading", { level: 1, name: "Fase 1: De Zolderkamer" })
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Aan de slag" }));
-    expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
+    expect(posts()).toHaveLength(0);
   });
 
   it("should quit to the start when the player stops from the pause menu", async () => {
@@ -206,7 +208,7 @@ describe("GameBoard card details", () => {
     await confirmPlay(user);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+    expect(posts()).toHaveLength(1);
     expect(within(feed()).getByText(title, { exact: false })).toBeInTheDocument();
   });
 
@@ -218,7 +220,7 @@ describe("GameBoard card details", () => {
 
     await playCard(user, withPhoto);
 
-    const [newest] = within(feed()).getAllByRole("listitem");
+    const [newest] = posts();
     const photo = within(newest).getByRole("img", { name: alt });
     expect(photo).toHaveAttribute("loading", "lazy");
   });
@@ -229,7 +231,7 @@ describe("GameBoard card details", () => {
     await playCard(user, draftCards()[0]);
     await playCard(user, draftCards()[1]);
 
-    const [newest, older] = within(feed()).getAllByRole("listitem");
+    const [newest, older] = posts();
     expect(newest).toHaveAttribute("data-variant", "newest");
     expect(older).toHaveAttribute("data-variant", "compact");
     expect(within(older).getByText(firstTitle)).toBeInTheDocument();
@@ -244,7 +246,7 @@ describe("GameBoard card details", () => {
     await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Toch niet" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(within(feed()).queryAllByRole("listitem")).toHaveLength(0);
+    expect(posts()).toHaveLength(0);
     expect(draftCards()[0]).toHaveFocus();
     expect(screen.queryByRole("button", { name: /^Details:/ })).not.toBeInTheDocument();
   });
@@ -292,34 +294,37 @@ describe("GameBoard juice", () => {
 
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
-    expect(within(feed()).getAllByRole("listitem")).toHaveLength(1);
+    expect(posts()).toHaveLength(1);
   });
 });
 
-describe("GameBoard follower chat", () => {
-  /** DOM query: an open dialog hides the board from the accessibility tree. */
-  const chatLines = (): HTMLElement[] => [
-    ...document.querySelectorAll<HTMLElement>('section[aria-label="Live chat van je volgers"] li'),
+describe("GameBoard feed comments", () => {
+  /** DOM queries: an open dialog hides the board from the accessibility tree. */
+  const commentsOf = (post: HTMLElement | undefined): HTMLElement[] => [
+    ...(post?.querySelectorAll<HTMLElement>("[data-comments] li") ?? []),
   ];
 
-  it("should show follower lines under the feed when a card is played", async () => {
+  it("should show follower comments under the post when a card is played", async () => {
     const { user } = await renderBoard();
-    expect(chatLines()[0]).toHaveTextContent("Je volgers kijken mee…");
+    expect(document.querySelector("[data-comments]")).toBeNull();
     await playCard(user, draftCards()[0]);
-    await waitFor(() => expect(chatLines()[0]).not.toHaveTextContent("Je volgers kijken mee…"));
+    await waitFor(() => expect(commentsOf(posts()[0]).length).toBeGreaterThanOrEqual(2));
   });
 
-  it("should react to an event choice only after the event dialog has closed", async () => {
+  it("should put the event's comments under the event post only after its dialog has closed", async () => {
     const { user } = await renderBoard(EVENT_NOW);
     await playCard(user, draftCards()[0]);
-    await waitFor(() => expect(chatLines().length).toBeGreaterThanOrEqual(2));
-    const beforeChoice = chatLines().length;
+    await waitFor(() => expect(commentsOf(posts()[0]).length).toBeGreaterThanOrEqual(2));
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: /groei/ }));
     await user.click(within(dialog).getByRole("button", { name: "Verder" }));
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    await waitFor(() => expect(chatLines().length).toBeGreaterThan(beforeChoice));
+    await waitFor(() => expect(commentsOf(posts()[0]).length).toBeGreaterThanOrEqual(2));
+    expect(posts()[0]).toHaveAttribute("data-variant", "newest");
+    // The card post below collapses to one comment plus "+N".
+    expect(commentsOf(posts()[1])).toHaveLength(1);
+    expect(posts()[1]).toHaveTextContent(/\+\d+ reacties?/);
   });
 });
 
@@ -378,6 +383,16 @@ describe("GameBoard resumed from a save", () => {
     expect(await screen.findByText(/^Spel hervat\. Fase 1 van 4: /)).toBeInTheDocument();
   });
 
+  it("should show the resumed post's comments at once without announcing them when a save is resumed", () => {
+    renderWithProviders(
+      <GameBoard content={SEED_CONTENT} onQuit={vi.fn()} savedRun={oneCardSave(SEED_CONTENT)} />
+    );
+
+    const comments = posts()[0]?.querySelectorAll("[data-comments] li") ?? [];
+    expect(comments.length).toBeGreaterThanOrEqual(2);
+    expect(document.querySelector("[data-comment-announcer]")?.textContent).toBe("");
+  });
+
   it("should show the phase intro again when the last action started a new phase", () => {
     renderWithProviders(
       <GameBoard content={MILESTONE_NOW} onQuit={vi.fn()} savedRun={oneCardSave(MILESTONE_NOW)} />
@@ -389,14 +404,14 @@ describe("GameBoard resumed from a save", () => {
 });
 
 const ENTRIES: FeedEntry[] = [
-  { key: "card-2-v1", contentId: "v1", type: "viral", title: "Nieuwste", body: "Nieuw." },
-  { key: "card-1-a1", contentId: "a1", type: "ad", title: "Ouder", body: "Oud." },
+  { key: "card-2-v1", step: 1, contentId: "v1", type: "viral", title: "Nieuwste", body: "Nieuw." },
+  { key: "card-1-a1", step: 0, contentId: "a1", type: "ad", title: "Ouder", body: "Oud." },
 ];
 
 const renderFeed = (dragging: boolean) =>
   renderWithProviders(
     <DndContext>
-      <PhoneFeed entries={ENTRIES} dragging={dragging} />
+      <PhoneFeed entries={ENTRIES} comments={[]} revealKey={2} dragging={dragging} />
     </DndContext>
   );
 

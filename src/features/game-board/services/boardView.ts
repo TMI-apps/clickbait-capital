@@ -262,8 +262,11 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
   };
 }
 
+/** A feed post before it is placed in the run (`toFeed` adds its step). */
+type FeedPost = Omit<FeedEntry, "step">;
+
 /** Feed post for a played card. `turn` keeps keys unique when a card is drawn again. */
-export function feedEntryForCard(card: CardDefinition, turn: number): FeedEntry {
+export function feedEntryForCard(card: CardDefinition, turn: number): FeedPost {
   return {
     key: `card-${turn}-${card.id}`,
     contentId: card.id,
@@ -278,7 +281,7 @@ export function feedEntryForEvent(
   event: EventDefinition,
   optionId: string,
   turn: number
-): FeedEntry {
+): FeedPost {
   const option = event.options.find((candidate) => candidate.id === optionId);
   return {
     key: `event-${turn}-${event.id}`,
@@ -291,7 +294,7 @@ export function feedEntryForEvent(
 }
 
 /** One feed post for an accepted session step; null when the content no longer has it. */
-const feedEntryForStep = (step: SessionStep, content: GameContent): FeedEntry | null => {
+const feedEntryForStep = (step: SessionStep, content: GameContent): FeedPost | null => {
   const { action, turn, eventId } = step;
   if (action.kind === "card") {
     const card = content.cards.find((candidate) => candidate.id === action.cardId);
@@ -306,7 +309,7 @@ export function toFeed(steps: SessionStep[], content: GameContent): FeedEntry[] 
   const feed: FeedEntry[] = [];
   for (let index = steps.length - 1; index >= 0; index--) {
     const entry = feedEntryForStep(steps[index], content);
-    if (entry) feed.push(entry);
+    if (entry) feed.push({ ...entry, step: index });
   }
   return feed;
 }

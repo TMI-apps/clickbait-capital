@@ -236,11 +236,12 @@ describe("toFeed", () => {
     const [event] = SEED_CONTENT.events;
     const option = event.options[1];
 
+    const state = fresh();
     const feed = toFeed(
       [
-        { action: { kind: "card", cardId: card.id }, turn: 1, eventId: null },
-        { action: { kind: "option", optionId: option.id }, turn: 2, eventId: event.id },
-        { action: { kind: "card", cardId: card.id }, turn: 3, eventId: null },
+        { action: { kind: "card", cardId: card.id }, turn: 1, eventId: null, state },
+        { action: { kind: "option", optionId: option.id }, turn: 2, eventId: event.id, state },
+        { action: { kind: "card", cardId: card.id }, turn: 3, eventId: null, state },
       ],
       SEED_CONTENT
     );
@@ -248,6 +249,7 @@ describe("toFeed", () => {
     expect(feed).toEqual([
       {
         key: `card-3-${card.id}`,
+        step: 2,
         contentId: card.id,
         type: card.type,
         title: card.title,
@@ -255,6 +257,7 @@ describe("toFeed", () => {
       },
       {
         key: `event-2-${event.id}`,
+        step: 1,
         contentId: event.id,
         type: "event",
         title: event.title,
@@ -263,6 +266,7 @@ describe("toFeed", () => {
       },
       {
         key: `card-1-${card.id}`,
+        step: 0,
         contentId: card.id,
         type: card.type,
         title: card.title,

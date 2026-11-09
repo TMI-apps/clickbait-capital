@@ -24,11 +24,12 @@ export interface GameBoardProps {
  * comes from the game-session run, as the board sees it (`useBoardSession`).
  */
 export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) => {
-  const { view, play, chooseOption, restart, sounds, chat, resumed, seenPhase } = useBoardSession({
-    content,
-    seed,
-    savedRun,
-  });
+  const { view, play, chooseOption, restart, sounds, comments, resumed, seenPhase } =
+    useBoardSession({
+      content,
+      seed,
+      savedRun,
+    });
   const { play: playSound } = useSoundEffects();
   useBoardSounds(sounds);
   const phaseIntro = usePhaseIntro(view.phase.phaseId, seenPhase);
@@ -57,7 +58,7 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
   return (
     <PlayingBoard
       view={view}
-      chat={chat}
+      comments={comments}
       resumed={resumed}
       play={play}
       chooseOption={chooseOption}

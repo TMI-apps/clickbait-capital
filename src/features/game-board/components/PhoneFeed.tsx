@@ -6,6 +6,8 @@ import { GameCardArtwork } from "@/components/common/GameCard";
 import type { GameCardImage } from "@/components/common/GameCard";
 import { getCardImage } from "@/features/card-imagery/api";
 import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
+import { CommentAnnouncer, PostComments, useCommentReveal } from "@/features/follower-comments/api";
+import type { CommentBatch, CommentReveal } from "@/features/follower-comments/api";
 import { UI_COPY } from "@/features/game-content/api";
 import { FEED_ENTRANCE } from "@/features/game-juice/api";
 import { cn } from "@/shared/utils/cn";
@@ -43,12 +45,18 @@ const TypeLabel = ({ type }: { type: FeedEntry["type"] }) => {
   );
 };
 
+interface NewestPostProps {
+  entry: FeedEntry;
+  comments: CommentBatch | null;
+  reveal: CommentReveal;
+}
+
 /**
- * Newest post: photo plus type, title and body. The feed box is a size container (D3): the
- * photo sits on top when the box is tall enough, beside the text otherwise, so the whole post
- * stays visible without scrolling.
+ * Newest post: photo plus type, title and body, then its follower comments as they reveal
+ * (feed-comments D1, D4). The feed box is a size container (D3): the photo sits on top when the
+ * box is tall enough, beside the text otherwise, so the whole post stays visible without scrolling.
  */
-const NewestPost = ({ entry }: { entry: FeedEntry }) => (
+const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
   <li
     data-variant="newest"
     className={cn(
@@ -66,23 +74,38 @@ const NewestPost = ({ entry }: { entry: FeedEntry }) => (
         {entry.body}
       </p>
     </div>
+    {comments && (
+      <PostComments
+        batch={comments}
+        variant="full"
+        shown={reveal.shown}
+        reduced={reveal.reduced}
+        className="col-span-full mx-2.5 mb-2"
+      />
+    )}
   </li>
 );
 
-/** Older post: small photo, type and title; the body stays for screen readers (D2). */
-const CompactPost = ({ entry }: { entry: FeedEntry }) => (
+/**
+ * Older post: small photo, type and title; the body stays for screen readers (D2). Its comments
+ * collapse to the first one plus "+N" (feed-comments D2).
+ */
+const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentBatch | null }) => (
   <li
     data-variant="compact"
-    className="flex items-center gap-2 rounded-md bg-card p-1.5 text-card-foreground elevation-sm"
+    className="flex flex-col gap-1 rounded-md bg-card p-1.5 text-card-foreground elevation-sm"
   >
-    <div className="w-16 shrink-0 overflow-hidden rounded-sm">
-      <PostArtwork entry={entry} compact />
+    <div className="flex items-center gap-2">
+      <div className="w-16 shrink-0 overflow-hidden rounded-sm">
+        <PostArtwork entry={entry} compact />
+      </div>
+      <div className="min-w-0">
+        <TypeLabel type={entry.type} />
+        <p className="truncate text-sm leading-snug font-bold">{entry.title}</p>
+        <p className="sr-only">{entry.body}</p>
+      </div>
     </div>
-    <div className="min-w-0">
-      <TypeLabel type={entry.type} />
-      <p className="truncate text-sm leading-snug font-bold">{entry.title}</p>
-      <p className="sr-only">{entry.body}</p>
-    </div>
+    {comments && <PostComments batch={comments} variant="collapsed" className="ml-0.5" />}
   </li>
 );
 
@@ -123,15 +146,25 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
 
 export interface PhoneFeedProps {
   entries: FeedEntry[];
+  /** Follower comments per session step (`FeedEntry.step`); null where a step has none. */
+  comments: ReadonlyArray<CommentBatch | null>;
+  /** The board's juice key: the newest post's comments reveal once it reaches their batch. */
+  revealKey: number;
   /** A card is being dragged: open the drop slot. */
   dragging: boolean;
 }
 
-/** The central smartphone feed: played cards land on top. Also the drop target for dragging. */
-export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
+/**
+ * The central smartphone feed: played cards land on top with their follower comments under them
+ * (feed-comments D1). Also the drop target for dragging.
+ */
+export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: FEED_DROP_ID });
   const listRef = useRef<HTMLDivElement>(null);
   const newestKey = entries[0]?.key;
+  const commentsOf = (entry: FeedEntry): CommentBatch | null => comments[entry.step] ?? null;
+  const newestComments = entries[0] ? commentsOf(entries[0]) : null;
+  const reveal = useCommentReveal(newestComments, revealKey);
 
   // A new post lands on top, or a drag opens the slot there: bring the list back to the top (D5).
   useEffect(() => {
@@ -164,14 +197,20 @@ export const PhoneFeed = ({ entries, dragging }: PhoneFeedProps) => {
           <ol className="flex flex-col gap-2">
             {entries.map((entry, index) =>
               index === 0 ? (
-                <NewestPost key={entry.key} entry={entry} />
+                <NewestPost
+                  key={entry.key}
+                  entry={entry}
+                  comments={newestComments}
+                  reveal={reveal}
+                />
               ) : (
-                <CompactPost key={entry.key} entry={entry} />
+                <CompactPost key={entry.key} entry={entry} comments={commentsOf(entry)} />
               )
             )}
           </ol>
         )}
       </div>
+      <CommentAnnouncer announcement={reveal.announcement} />
     </section>
   );
 };

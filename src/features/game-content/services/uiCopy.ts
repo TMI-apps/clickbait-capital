@@ -214,12 +214,12 @@ export const UI_COPY = {
     retryButton: "Opnieuw proberen",
     homeButton: "Naar het begin",
   },
-  chat: {
-    label: "Live chat van je volgers",
-    liveBadge: "Live",
-    waiting: "Je volgers kijken mee…",
+  comments: {
+    label: "Reacties van je volgers",
+    moreOne: "+1 reactie",
+    more: "+{count} reacties",
     leftLine: "{name} ontvolgt je 👋",
-    announcement: "Chat: {name}: {text}",
+    announcement: "Reactie: {name}: {text}",
   },
   emptyStates: {
     noSavedGame: "Nog geen spel bezig. Start een nieuw spel.",
