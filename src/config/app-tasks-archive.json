@@ -233,5 +233,10 @@
     "title": "Shuffle the hand: 3 random cards in random positions",
     "description": "Player feedback: players tapped by muscle memory. The hand is 3 different cards drawn from the whole phase pool in random order, so 3 ads can happen. IPO hold 10 to 8 turns, saves v3. PR #44. Decision log § shuffled hand.",
     "status": "done"
+  },
+  {
+    "title": "Followers with faces and a live chat",
+    "description": "Player feedback: players skip text but want juice. Six invented followers react in a 3-line LIVE chat under the feed after every post and event choice; tone follows toxicity, critics complain and leave at low reputation. Seeded, not saved. PR #45. Decision log § follower-chat.",
+    "status": "done"
   }
 ]
