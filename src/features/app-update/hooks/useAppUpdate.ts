@@ -1,7 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useRegisterSW } from "virtual:pwa-register/react";
 import { useSafeUpdateMoment } from "@/features/app-update/hooks/useSafeUpdateMoment";
 import { watchForUpdates } from "@/features/app-update/services/updateChecks";
+import { activateWaitingWorker } from "@/features/app-update/services/workerActivation";
 
 export interface UseAppUpdateResult {
   /** A new version is downloaded and waiting to take over. */
@@ -18,17 +19,26 @@ export interface UseAppUpdateResult {
  * safe moment (`useSafeUpdateMoment`). During a game the prompt lets the player choose.
  */
 export const useAppUpdate = (): UseAppUpdateResult => {
+  const registrationRef = useRef<ServiceWorkerRegistration | undefined>(undefined);
   const {
     needRefresh: [updateReady, setUpdateReady],
-    updateServiceWorker,
   } = useRegisterSW({
     onRegisteredSW: (_swUrl, registration) => {
+      registrationRef.current = registration;
       // App-lifetime watcher: the registration lives as long as the page.
       if (registration) watchForUpdates(registration);
     },
   });
 
-  const applyUpdate = useCallback(() => void updateServiceWorker(true), [updateServiceWorker]);
+  // Not the plugin's `updateServiceWorker`: it only reloads on `controllerchange`, which never
+  // fires on a page no worker controls (app-update-flow D4). Activate, then reload ourselves.
+  const applyUpdate = useCallback(() => {
+    void (async () => {
+      const registration = registrationRef.current;
+      if (registration) await activateWaitingWorker(registration);
+      window.location.reload();
+    })();
+  }, []);
   useSafeUpdateMoment({ updateReady, applyUpdate });
 
   return {
