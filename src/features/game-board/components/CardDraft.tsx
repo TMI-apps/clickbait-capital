@@ -70,6 +70,22 @@ const DraftSlot = ({ card, index, onShowDetails }: DraftSlotProps) => {
   );
 };
 
+/** The Journalistieke Droogte line (game-board D6): text next to the destructive ring and icon. */
+export const DroughtNotice = ({ className }: { className?: string }) => (
+  <p
+    className={cn(
+      "flex items-center gap-1.5 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive",
+      className
+    )}
+  >
+    <AlertTriangle aria-hidden="true" className="size-4 shrink-0" />
+    <span>
+      <span className="font-bold">{UI_COPY.board.modifiers.journalismDrought.label}:</span>{" "}
+      {UI_COPY.board.modifiers.journalismDrought.description}
+    </span>
+  </p>
+);
+
 export interface CardDraftProps {
   cards: DraftCardView[];
   onShowDetails: (card: DraftCardView) => void;
@@ -82,7 +98,7 @@ export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
   return (
     <section
       aria-labelledby="draft-heading"
-      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl board-split:max-w-none"
+      className="mx-auto flex w-full shrink-0 flex-col gap-2 sm:max-w-xl board-split:max-w-none board-desk:max-w-md"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
         <h2 id="draft-heading" className="text-sm font-bold">
@@ -92,15 +108,8 @@ export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
           {UI_COPY.board.dragHint} of gebruik de pijltjes en Enter
         </p>
       </div>
-      {drought && (
-        <p className="flex items-center gap-1.5 rounded-md bg-destructive/15 px-2 py-1 text-xs font-semibold text-destructive">
-          <AlertTriangle aria-hidden="true" className="size-4 shrink-0" />
-          <span>
-            <span className="font-bold">{UI_COPY.board.modifiers.journalismDrought.label}:</span>{" "}
-            {UI_COPY.board.modifiers.journalismDrought.description}
-          </span>
-        </p>
-      )}
+      {/* On desk the board shows the notice in its status panel instead (desktop-layout D2). */}
+      {drought && <DroughtNotice className="board-desk:hidden" />}
       <ul className="mx-auto grid w-full grid-cols-3 gap-2 sm:gap-4" onKeyDown={onKeyDown}>
         {cards.map((card, index) => (
           <DraftSlot key={card.id} card={card} index={index} onShowDetails={onShowDetails} />

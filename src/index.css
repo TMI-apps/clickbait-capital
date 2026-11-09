@@ -46,14 +46,22 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Game board split layout (mobile-fit D2): a phone held sideways (short and wide) or a large screen
- * puts the draft next to the feed instead of under it.
+ * Game board split layout (mobile-fit D2): a phone held sideways (short and wide) puts the draft
+ * next to the feed instead of under it.
  */
 @custom-variant board-split {
   @media (orientation: landscape) and (max-height: 40rem) {
     @slot;
   }
-  @media (min-width: 64rem) {
+}
+
+/*
+ * Game board desktop layout (desktop-layout D1): a wide screen that is not short keeps the draft
+ * under the feed (play column) and stacks the status in a panel beside it. Never overlaps
+ * board-split: a screen at least 64rem wide and at most 40rem high is landscape.
+ */
+@custom-variant board-desk {
+  @media (min-width: 64rem) and (min-height: 40.0625rem) {
     @slot;
   }
 }

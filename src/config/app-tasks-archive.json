@@ -248,5 +248,10 @@
     "title": "Fix the Nu laden update button",
     "description": "Owner report: the new-version reload button did nothing. Cause: on a page without a controlling service worker the new worker activates at once, so no controllerchange fires and no reload happens. applyUpdate now activates the waiting worker itself and then reloads. PR #47. Decision log § update-reload.",
     "status": "done"
+  },
+  {
+    "title": "Desktop layout: play column plus vertical stats panel",
+    "description": "Owner request: on desktop the feed with the hand directly beneath it on the left, phase and stats stacked in a panel on the right. Phones unchanged. PR #48. Decision log § desktop-layout.",
+    "status": "done"
   }
 ]
