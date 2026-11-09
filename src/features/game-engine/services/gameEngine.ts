@@ -1,6 +1,5 @@
 import type {
   CardDefinition,
-  CardType,
   EventDefinition,
   GameContent,
   PhaseId,
@@ -28,7 +27,8 @@ import {
  * GameState; randomness comes only from the seeded RNG state inside the game state.
  */
 
-const CARD_TYPES: readonly CardType[] = ["viral", "ad", "news"];
+/** Cards in every draft (design § 4 Type 1). */
+export const HAND_SIZE = 3;
 const LAST_PHASE: PhaseId = 4;
 
 /** Input for a new game. */
@@ -38,26 +38,33 @@ export interface CreateGameOptions {
   seed: number;
 }
 
-function cardsFor(content: GameContent, type: CardType, phase: PhaseId): CardDefinition[] {
-  return content.cards.filter(
-    (card) => card.type === type && (card.phases?.includes(phase) ?? true)
-  );
+function cardsFor(content: GameContent, phase: PhaseId): CardDefinition[] {
+  return content.cards.filter((card) => card.phases?.includes(phase) ?? true);
 }
 
-/** Draws one card per type for the phase (design § 4 Type 1). */
+/**
+ * Draws `HAND_SIZE` different cards from the phase's whole pool, any type, in draw order
+ * (shuffled-hand D1, D2): a hand can hold three ads, and no slot is tied to a type, so the
+ * player chooses on content instead of position.
+ */
 export function drawHand(
   content: GameContent,
   phase: PhaseId,
   rngState: number
 ): { hand: Hand; rngState: number } {
   let state = rngState;
-  const ids: Partial<Hand> = {};
-  for (const type of CARD_TYPES) {
-    const pick = pickRandom(cardsFor(content, type, phase), state);
-    ids[type] = pick.item.id;
+  let pool = cardsFor(content, phase);
+  if (pool.length < HAND_SIZE) {
+    throw new Error(`game-engine: phase ${phase} has fewer than ${HAND_SIZE} cards`);
+  }
+  const ids: string[] = [];
+  while (ids.length < HAND_SIZE) {
+    const pick = pickRandom(pool, state);
+    ids.push(pick.item.id);
+    pool = pool.filter((card) => card !== pick.item);
     state = pick.state;
   }
-  return { hand: ids as Hand, rngState: state };
+  return { hand: ids, rngState: state };
 }
 
 /**
@@ -156,7 +163,7 @@ function findCard(content: GameContent, cardId: string): CardDefinition {
 
 /** Plays one card from the current draft into the feed: one turn. Throws on an invalid move. */
 export function playCard(state: GameState, content: GameContent, cardId: string): GameState {
-  if (state.status !== "playing" || !state.hand || !Object.values(state.hand).includes(cardId)) {
+  if (state.status !== "playing" || !state.hand || !state.hand.includes(cardId)) {
     throw new Error(`game-engine: card ${cardId} cannot be played now`);
   }
   const card = findCard(content, cardId);
@@ -218,20 +225,9 @@ export function resolveEvent(state: GameState, content: GameContent, optionId: s
   return advance(resolved, content);
 }
 
-/** The draft as full card definitions, or null when no draft is open. */
-export function getHandCards(
-  state: GameState,
-  content: GameContent
-): Record<CardType, CardDefinition> | null {
-  const { hand } = state;
-  if (!hand) {
-    return null;
-  }
-  return {
-    viral: findCard(content, hand.viral),
-    ad: findCard(content, hand.ad),
-    news: findCard(content, hand.news),
-  };
+/** The draft as full card definitions in slot order, or null when no draft is open. */
+export function getHandCards(state: GameState, content: GameContent): CardDefinition[] | null {
+  return state.hand?.map((cardId) => findCard(content, cardId)) ?? null;
 }
 
 /** Journalistieke Droogte is active: the board marks viral cards with a red border. */

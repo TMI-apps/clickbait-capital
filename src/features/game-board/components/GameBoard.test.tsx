@@ -58,6 +58,17 @@ const draftCards = (): HTMLElement[] =>
     .getAllByRole("button")
     .filter((button) => button.dataset.slot === "game-card");
 
+const DEFAULT_SEED = 11;
+/** First hand on `SEED_CONTENT`: viral, news, ad (seed 11 draws ad, ad, news). */
+const VIRAL_SEED = 8;
+
+/** The draft's card of a type; slots are not tied to types (shuffled-hand D1). */
+const draftCardOfType = (type: string): HTMLElement => {
+  const card = draftCards().find((candidate) => candidate.dataset.type === type);
+  if (!card) throw new Error(`this seed draws no ${type} card here`);
+  return card;
+};
+
 const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
 
 type User = ReturnType<typeof userEvent.setup>;
@@ -74,8 +85,9 @@ const playCard = async (user: User, card: HTMLElement): Promise<void> => {
 };
 
 /** Renders the board and continues past the phase 1 intro (game-flow D2). */
-const renderBoard = async (content: GameContent = SEED_CONTENT, onQuit = vi.fn()) => {
-  renderWithProviders(<GameBoard content={content} onQuit={onQuit} seed={11} />);
+const renderBoard = async (content: GameContent = SEED_CONTENT, seed = DEFAULT_SEED) => {
+  const onQuit = vi.fn();
+  renderWithProviders(<GameBoard content={content} onQuit={onQuit} seed={seed} />);
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: "Aan de slag" }));
   return { onQuit, user };
@@ -237,8 +249,8 @@ describe("GameBoard card details", () => {
 
 describe("GameBoard juice", () => {
   it("should throw emoji and put flames on Gebruikers when a viral card is played", async () => {
-    const { user } = await renderBoard();
-    await playCard(user, draftCards()[0]);
+    const { user } = await renderBoard(SEED_CONTENT, VIRAL_SEED);
+    await playCard(user, draftCardOfType("viral"));
 
     expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
@@ -246,11 +258,11 @@ describe("GameBoard juice", () => {
 
   it("should fly coins with a gold accent for an ad and only show a shield for news", async () => {
     const { user } = await renderBoard();
-    await playCard(user, draftCards()[1]);
+    await playCard(user, draftCardOfType("ad"));
     expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
     expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
 
-    await playCard(user, draftCards()[2]);
+    await playCard(user, draftCardOfType("news"));
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
@@ -272,8 +284,8 @@ describe("GameBoard juice", () => {
   it("should throw no particles but keep the state change when the player chooses Verminderd", async () => {
     act(() => getMotionStore().setPreference("reduced"));
     onTestFinished(() => act(() => getMotionStore().reset()));
-    const { user } = await renderBoard();
-    await playCard(user, draftCards()[0]);
+    const { user } = await renderBoard(SEED_CONTENT, VIRAL_SEED);
+    await playCard(user, draftCardOfType("viral"));
 
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
     expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
@@ -289,14 +301,15 @@ describe("GameBoard with a screen reader", () => {
 
   it("should announce the post, meter changes and goal line and keep the draft slot focused when a card is played", async () => {
     const { user } = await renderBoard();
-    draftCards()[1].focus();
+    const slot = draftCards().indexOf(draftCardOfType("ad"));
+    draftCards()[slot]!.focus();
     await user.keyboard("{Enter}");
     await confirmPlay(user);
 
     const live = document.querySelector('[aria-live="polite"]');
     await waitFor(() => expect(live?.textContent).not.toBe(""));
     expect(live?.textContent).toMatch(/^Geplaatst: .+\. Inkomsten omhoog \d+, nu \d+\..*Bereik: /);
-    expect(draftCards()[1]).toHaveFocus();
+    expect(draftCards()[slot]).toHaveFocus();
   });
 
   it("should return focus to the draft and announce the play and the chosen policy together when an event is answered", async () => {
@@ -320,9 +333,9 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 2,
+    version: 3,
     seed: 11,
-    actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.ad ?? "" }],
+    actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });
 
   it("should open on the board and announce where the run stands when the phase did not change", async () => {

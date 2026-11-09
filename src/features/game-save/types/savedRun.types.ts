@@ -4,9 +4,10 @@ export type RunAction = { kind: "card"; cardId: string } | { kind: "option"; opt
 /**
  * Schema version of the stored run; bump it (and the key) when the shape changes or when an
  * engine change makes old action logs replay into a different game. 2: event pacing
- * (game-engine D10) moves events to other turns, so a v1 log no longer matches its run.
+ * (game-engine D10) moves events to other turns, so a v1 log no longer matches its run. 3: the
+ * shuffled hand (shuffled-hand D1) draws other cards, so a v2 log no longer matches.
  */
-export const SAVED_RUN_VERSION = 2;
+export const SAVED_RUN_VERSION = 3;
 
 /**
  * The minimal state that reproduces a run (local-save D1): the engine is pure and seeded, so

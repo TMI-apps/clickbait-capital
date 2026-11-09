@@ -85,7 +85,7 @@ De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en inc
 
 ### **Type 1: De Reguliere 3-Kaarten Draft**
 
-Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Eén van elk subtype:
+Elke beurt krijgt de speler exact drie kaarten gepresenteerd, willekeurig getrokken uit alle kaarten van de fase, welk subtype ook: soms drie advertenties, soms twee nieuwskaarten en één virale. De volgorde is ook elke beurt anders, zodat de speler op de inhoud kiest en niet op de plek (shuffled-hand D1). Dezelfde kaart komt nooit twee keer in één hand. De subtypes:
 
 | Kaarttype | Primaire Voordelen | Primaire Nadelen / Risico's |
 | :---- | :---- | :---- |
@@ -196,7 +196,7 @@ Het spel verloopt over vier fases. Elke fase verhoogt de operationele kosten en 
 
 ### **Fase 4: De Beursgang (IPO \- Eindspel)**
 
-* **Doel:** Beursnotering succesvol afronden (Behoud Reputatie \> 60 én Inkomsten \> 80 gedurende 10 opeenvolgende beurten).  
+* **Doel:** Beursnotering succesvol afronden (Behoud Reputatie \> 60 én Inkomsten \> 80 gedurende 8 opeenvolgende beurten; was 10, verlaagd omdat een willekeurige hand niet altijd de nodige kaart biedt, shuffled-hand D4).  
 * **Dilemma:** De ultieme stresstest. Aandeelhouders eisen maximale winst (pusht naar Ads/Viraal), terwijl toezichthouders wachten op één misstap (eist Nieuws).  
 * **Overwinning:** Succesvolle IPO. De speler krijgt een eindrapport dat toont hoeveel maatschappelijke schade, desinformatie en mentale gezondheidsproblemen hun platform heeft aangericht om dit doel te bereiken.
 

@@ -47,7 +47,7 @@ const playAction = (
   action: Extract<RunAction, { kind: "card" }>
 ): SessionState => {
   const { game } = current;
-  const inHand = game.hand !== null && Object.values(game.hand).includes(action.cardId);
+  const inHand = game.hand?.includes(action.cardId) ?? false;
   const known = content.cards.some((candidate) => candidate.id === action.cardId);
   if (game.status !== "playing" || !known || !inHand) return current;
   const next = playCard(game, content, action.cardId);

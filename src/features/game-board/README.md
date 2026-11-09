@@ -4,7 +4,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 ## Purpose
 
-- Shows the three meters (Inkomsten, Gebruikers, Reputatie), the phase with its milestone progress, the central phone feed and the 3-card draft.
+- Shows the three meters (Inkomsten, Gebruikers, Reputatie), the phase with its milestone progress, the central phone feed and the 3-card draft (cards in the engine's drawn order, any mix of types; shuffled-hand D1).
 - Lets the player open a card's details by tap or keyboard (arrow keys + Enter / Space) and feed it from there, or drag it onto the feed; answer pending events, see the end of a run, open card details and pause.
 - No game rules and no run state here: the run (engine state, accepted steps, device save) is game-session's `useGameSession`; `useBoardSession` derives the board view, feed, meter deltas and sounds from it.
 
@@ -35,7 +35,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 - **Fullscreen (D4):** `/spel` hides the Topbar (`FULLSCREEN_ROUTES` in `src/App.tsx`); quitting goes through the pause menu.
 - **Fits the screen (mobile-fit D2–D6):** the board is one `h-dvh` grid that never scrolls: portrait stacks header, meters, feed (takes the rest, scrolls its own posts) and draft; the `board-split` variant (`src/index.css`: sideways phone up to 40rem high, or ≥ lg) puts header, meters and feed left and the draft right. The feed (min 6rem) absorbs short screens; cards scale with the column width (no height cap: below ~500px tall portrait the draft bottom clips). Top / bottom padding grow into the notch and home-indicator insets (`viewport-fit=cover`; the body pads the sides). `data-viewport-lock` on the board root stops document scroll, rubber-band and pull-to-refresh; `touch-action: manipulation` stops double-tap zoom, pinch zoom stays (WCAG 1.4.4). The installed app keeps `display: standalone`.
 - **Answer-only dialogs (D5):** events and the end screen use `Modal` with `dismissible={false}` (no close button, Escape and overlay ignored); the pause and detail dialogs pass `closeLabel="Sluiten"` (the kit default stays "Close").
-- **Droogte (D6):** during Journalistieke Droogte the viral card gets a destructive ring and warning icon, and a text line above the draft explains it (colour is never the only signal).
+- **Droogte (D6):** during Journalistieke Droogte every viral card in the draft gets a destructive ring and warning icon, and a text line above the draft explains it (colour is never the only signal).
 - **Compact cards (D7, D8):** the three cards stay in one row at 390px using `GameCard size="compact"` at every width; the flavor text and full labels are in the detail dialog.
 - **Meter change:** the delta chip shows the change since the previous action including passive costs, not the card's printed effect.
 - **Stats only as goal progress (D11):** the absolute stats (engine D1) show only for the goal conditions that read them, as "Bereik: x / doel (Gebruikers ≥ N)" and "Omzet: x / doel". Bereik is the number behind the Gebruikers meter (engine D1), so the users line names the meter level `N` that reaches the goal in this phase (`meterForUsers`, computed from content, no number in copy) and its progress moves with the meter. Phase 4 (meter goal) shows none. The end screen reports the run's peak reach (`peakUsers`, "Hoogste bereik") instead of the last value, so a player who held 20M never reads 11M at the IPO; game-flow and the end report receive it through `toGameEnd`.
