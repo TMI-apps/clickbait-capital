@@ -225,6 +225,23 @@ describe("GameBoard card details", () => {
     expect(photo).toHaveAttribute("loading", "lazy");
   });
 
+  // Regression lock (feed-top-card D1): the newest post is the top-image card on every screen
+  // size. jsdom has no layout, so the test pins the structure: photo first, one column, no
+  // size- or breakpoint-dependent variant that could put the photo beside the text again.
+  it("should render the newest post as a card with the photo on top when a card is played", async () => {
+    const { user } = await renderBoard(GAME_CONTENT);
+    const withPhoto = draftCards().find((card) => within(card).queryByRole("img") !== null);
+    if (!withPhoto) throw new Error("seed 11 draws no card with a photo");
+
+    await playCard(user, withPhoto);
+
+    const [newest] = posts();
+    expect(newest).toHaveAttribute("data-variant", "newest");
+    expect(newest.className).toMatch(/\bflex-col\b/);
+    expect(newest.className).not.toMatch(/grid-cols-|@container|\b(sm|md|lg|board-\w+):/);
+    expect(within(newest.firstElementChild as HTMLElement).getByRole("img")).toBeInTheDocument();
+  });
+
   it("should show a compact older post and keep its text when a second card is played", async () => {
     const { user } = await renderBoard();
     const firstTitle = within(draftCards()[0]).getAllByText(/./)[1]?.textContent ?? "";
