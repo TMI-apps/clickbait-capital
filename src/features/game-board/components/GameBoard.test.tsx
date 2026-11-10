@@ -243,7 +243,7 @@ describe("GameBoard card details", () => {
     const photoArea = newest.firstElementChild as HTMLElement;
     expect(within(photoArea).getByRole("img")).toBeInTheDocument();
     // D2: on a short feed box the photo is cropped to fit, not swapped for another layout.
-    expect(photoArea.className).toMatch(/\bh-\[clamp\(/);
+    expect(photoArea.className).toMatch(/\bh-\[max\(4rem,min\(12rem,/);
   });
 
   it("should show a compact older post and keep its text when a second card is played", async () => {

@@ -16,13 +16,14 @@ import { cn } from "@/shared/utils/cn";
 export const FEED_DROP_ID = "feed";
 
 /**
- * Photo height of the newest post and its drop slot (feed-top-card D1, D2): the natural 4:3
- * height when the feed box has room, otherwise cropped (object-fit: cover around the focal
- * point) so type, title and body (~7rem) still fit under it in the box; never under 4rem.
+ * Photo height of the newest post and its drop slot (feed-top-card D1–D3): a banner cropped
+ * with object-fit: cover around the focal point. At most 12rem and never taller than 4:3 (D3);
+ * on a short feed box it shrinks so type, title and body (~7rem) still fit under it (D2); never
+ * under 4rem.
  * `cq*` units resolve against the feed list, which is a size container.
  */
 const NEWEST_PHOTO_HEIGHT =
-  "aspect-auto h-[clamp(4rem,calc(100cqh-7rem),calc(100cqw/var(--game-card-image-aspect)))]";
+  "aspect-auto h-[max(4rem,min(12rem,calc(100cqh-7rem),calc(100cqw/var(--game-card-image-aspect))))]";
 
 /** Type label per post. Posts carry no type-coloured side bar: the card stands on its own (readable-hover D5). */
 const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }> = {
