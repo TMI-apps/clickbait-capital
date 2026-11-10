@@ -35,12 +35,15 @@ const HowToPlayPage = lazy(() =>
 const PrivacyPage = lazy(() =>
   import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage }))
 );
+const ScoreMockupPage = lazy(() =>
+  import("@/pages/ScoreMockupPage").then((m) => ({ default: m.ScoreMockupPage }))
+);
 const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
 
 /** Routes that fill the screen without the Topbar (the game has its own pause menu). */
-const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel"]);
+const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel", "/mockup/score"]);
 
 const reportRenderError = (error: Error): void => reportError(error, "react");
 
@@ -71,6 +74,8 @@ function AppContent() {
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/spel" element={<GamePage />} />
+                {/* Throwaway score-redesign prototype, unlinked (score-redesign D7). */}
+                <Route path="/mockup/score" element={<ScoreMockupPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
