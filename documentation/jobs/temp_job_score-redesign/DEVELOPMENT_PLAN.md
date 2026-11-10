@@ -11,7 +11,7 @@
 | --- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
 | L1  | `feat/score-engine`   | engine model, content data, balance simulation, save bump, endings without Verlaten/Verbod, interim board tiles (D23)                                                | M    |
 | L2  | `feat/score-chart`    | `ScoreChart` replaces the tiles; forecast on drag + detail dialog; card faces (D15); scandal warning styling; juice + screen reader; delete the mockup if #50 landed | M    |
-| L3  | `feat/score-end-copy` | result + share card + end report copy for users/money, how-to-play, glossary, DOC_GAME_DESIGN § 2/6/7, phase intros                                                  | S    |
+| L3  | `feat/score-endgame` | result + share card + end report copy for users/money, how-to-play, glossary, DOC_GAME_DESIGN § 2/6/7, phase intros                                                  | S    |
 
 - **Acceptance test (L1):** `src/features/game-engine/services/gameEngine.test.ts` § score model (direct effects on users/money, goal lines advance the phase, bankrupt only, scandal chance draws a scandal) + `src/features/game-content/services/balanceSimulation.test.ts` (endings per strategy).
 - **Plan review:** single-agent lenses in this lap (below). L2 gets a short plan in its own lap section when it starts.
