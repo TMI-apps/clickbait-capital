@@ -7,15 +7,14 @@ const series = [
 ];
 
 describe("toChartGeometry", () => {
-  it("should give every line its own goal line in its own lane, top to bottom", () => {
+  it("should put every goal line at its own height on one chart", () => {
     const { lines } = toChartGeometry(series, 12);
     expect(lines.map((line) => [line.key, line.goalText])).toEqual([
       ["users", "100.000"],
       ["money", "€ 150.000"],
     ]);
-    expect(lines[0]!.goalY).toBeLessThan(CHART_HEIGHT / 2);
-    expect(lines[1]!.goalY).toBeGreaterThan(CHART_HEIGHT / 2);
-    expect(lines[1]!.goalY).toBeLessThan(CHART_HEIGHT);
+    expect(lines[0]!.goalY).toBeLessThan(lines[1]!.goalY);
+    expect(lines[1]!.goalY - lines[0]!.goalY).toBeGreaterThan(CHART_HEIGHT / 10);
   });
 
   it("should put a line that passed its goal above its goal line and one below it under it", () => {
@@ -24,7 +23,7 @@ describe("toChartGeometry", () => {
     expect(lines[1]!.last.y).toBeGreaterThan(lines[1]!.goalY);
   });
 
-  it("should draw a line at the bottom of its lane when a series has no points yet", () => {
+  it("should start a series with no points at the bottom of the chart", () => {
     const { lines } = toChartGeometry([{ ...series[0]!, shares: [] }], 12);
     expect(lines[0]!.last).toEqual({ x: 0, y: CHART_HEIGHT });
   });

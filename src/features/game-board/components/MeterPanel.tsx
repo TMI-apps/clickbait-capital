@@ -59,13 +59,14 @@ export interface MeterPanelProps {
 }
 
 /**
- * The score (score-redesign D10): the chart with Gebruikers and Geld racing to the phase's goal
- * line, and under it one readout per number: icon, name, absolute amount, the last change and
- * the goal. A reached goal line glows and shows a check. Screen readers hear one `role="meter"`
- * per number. Phone and desk alike: chart on top, the two readouts side by side.
+ * The score (score-redesign D10, D31): one chart with Gebruikers and Geld racing to their own
+ * coloured goal lines, and the two counters side by side laid over its bottom corners on a
+ * translucent backing: icon, name, absolute amount and the last change. A reached goal glows and
+ * shows a check. Screen readers hear one `role="meter"` per number, with its goal. Phone and desk
+ * alike; the desk chart is just taller.
  */
 export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: MeterPanelProps) => (
-  <section className="rounded-lg border border-border bg-card p-2 elevation-sm board-desk:p-4">
+  <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
     <ScoreChart
       series={meters.map((tile) => ({
         key: tile.key,
@@ -74,59 +75,89 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
         goalText: tile.goalAmountText,
       }))}
       slots={SCORE_HISTORY_POINTS}
-    />
-    <ul
-      aria-label="Gebruikers en geld"
-      className="mt-1 grid grid-cols-2 gap-2 board-desk:mt-3 board-desk:grid-cols-1 board-desk:gap-3"
+      className="h-24 sm:h-28 board-desk:h-56"
     >
-      {meters.map((tile) => {
-        const meter = METERS[tile.key];
-        return (
-          <li
+      <ul
+        aria-label="Gebruikers en geld"
+        className="absolute inset-x-0 bottom-0 grid grid-cols-2 items-end gap-2"
+      >
+        {meters.map((tile, index) => (
+          <ScoreCounter
             key={tile.key}
-            {...{ [JUICE_METER_ATTR]: tile.key }}
-            className={cn("relative min-w-0 rounded-md px-1", tile.full && meter.capGlow)}
-          >
-            <MeterJuice accent={accents[tile.key]} flash={flashes[tile.key]} version={version} />
-            {/* Visual readout; the meter below speaks amount, change and goal once (screen-reader D3). */}
-            <div
-              aria-hidden="true"
-              className={cn(
-                "flex min-w-0 items-center gap-1 text-xs font-semibold board-desk:text-sm",
-                meter.text
-              )}
-            >
-              <meter.icon aria-hidden="true" className="size-4 shrink-0" />
-              <span className="truncate">{meter.label}</span>
-              {tile.full && <Check aria-hidden="true" className="size-4 text-success" />}
-            </div>
-            <div aria-hidden="true" className="flex flex-wrap items-baseline gap-x-1.5">
-              <span
-                className={cn(
-                  "font-mono text-lg font-bold whitespace-nowrap tabular-nums sm:text-2xl board-desk:text-3xl",
-                  tile.danger && "text-destructive"
-                )}
-              >
-                {tile.amountText}
-              </span>
-              <MeterDelta key={version} delta={tile.delta} text={tile.deltaText} />
-              {tile.danger && <AlertTriangle className="size-4 text-destructive" />}
-            </div>
-            <span
-              role="meter"
-              aria-label={meter.label}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={tile.value}
-              aria-valuetext={tile.valueText}
-              className="sr-only"
-            />
-          </li>
-        );
-      })}
-    </ul>
+            tile={tile}
+            alignEnd={index === meters.length - 1}
+            version={version}
+            accent={accents[tile.key]}
+            flash={flashes[tile.key]}
+          />
+        ))}
+      </ul>
+    </ScoreChart>
   </section>
 );
+
+interface ScoreCounterProps {
+  tile: MeterView;
+  /** The right-hand counter aligns to the chart's right edge. */
+  alignEnd: boolean;
+  version: number;
+  accent?: MeterAccent;
+  flash?: MeterFlash;
+}
+
+/** One counter over the chart: a translucent backing keeps it readable over the lines. */
+const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterProps) => {
+  const meter = METERS[tile.key];
+  return (
+    <li
+      {...{ [JUICE_METER_ATTR]: tile.key }}
+      className={cn(
+        "relative min-w-0 rounded-md bg-card/80 px-1.5 py-0.5 backdrop-blur-[2px]",
+        alignEnd && "justify-self-end text-right",
+        tile.full && meter.capGlow
+      )}
+    >
+      <MeterJuice accent={accent} flash={flash} version={version} />
+      {/* Visual readout; the meter below speaks amount, change and goal once (screen-reader D3). */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "flex min-w-0 items-center gap-1 text-xs font-semibold board-desk:text-sm",
+          alignEnd && "justify-end",
+          meter.text
+        )}
+      >
+        <meter.icon aria-hidden="true" className="size-3.5 shrink-0" />
+        <span className="truncate">{meter.label}</span>
+        {tile.full && <Check aria-hidden="true" className="size-3.5 text-success" />}
+      </div>
+      <div
+        aria-hidden="true"
+        className={cn("flex flex-wrap items-baseline gap-x-1", alignEnd && "justify-end")}
+      >
+        <span
+          className={cn(
+            "font-mono text-base leading-tight font-bold whitespace-nowrap tabular-nums sm:text-lg board-desk:text-2xl",
+            tile.danger && "text-destructive"
+          )}
+        >
+          {tile.amountText}
+        </span>
+        <MeterDelta key={version} delta={tile.delta} text={tile.deltaText} />
+        {tile.danger && <AlertTriangle className="size-4 text-destructive" />}
+      </div>
+      <span
+        role="meter"
+        aria-label={meter.label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={tile.value}
+        aria-valuetext={tile.valueText}
+        className="sr-only"
+      />
+    </li>
+  );
+};
 
 /** The scandal warning under the tiles (score-redesign D13): only while reputation is low. */
 export const ScandalWarning = ({ text }: { text: string }) => (
