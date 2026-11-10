@@ -31,7 +31,9 @@ export function getCardImage(contentId: string): CardImage | null {
 }
 
 /** Dutch attribution line: maker, then licence or origin; the source page is the link. */
-export function formatCardImageCredit(entry: CardImageManifestEntry): string {
+export function formatCardImageCredit(
+  entry: Pick<CardImageManifestEntry, "author" | "license">
+): string {
   return `Foto: ${entry.author}, ${entry.license}`;
 }
 
@@ -47,6 +49,7 @@ export function listCardImageCredits(): CardImageCredit[] {
   }
   return CARD_IMAGE_MANIFEST.filter((entry) => entry.reusedFrom === undefined).map((entry) => ({
     contentId: entry.contentId,
+    src: `/cards/${entry.file}`,
     text: formatCardImageCredit(entry),
     author: entry.author,
     sourceUrl: entry.sourceUrl,

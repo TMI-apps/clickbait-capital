@@ -3,18 +3,17 @@ import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { AUDIO_CREDIT_LINE } from "@/features/game-audio/api";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
-import { getCardImage, ImageCreditList, listCardImageCredits } from "@/features/card-imagery/api";
+import {
+  ImageCreditList,
+  listCardImageCredits,
+  listPhaseImageCredits,
+} from "@/features/card-imagery/api";
 import { appScrollContentClassName } from "@/shared/theme/appViewLayout";
 import { cn } from "@/shared/utils/cn";
 
 const copy = UI_COPY.credits;
-const imageCredits = listCardImageCredits();
-const thumbnails = new Map(
-  imageCredits.flatMap((credit) => {
-    const image = getCardImage(credit.contentId);
-    return image ? [[credit.contentId, image.src] as const] : [];
-  })
-);
+/** Phase intro photos first (they open the run), then the card and event photos. */
+const imageCredits = [...listPhaseImageCredits(), ...listCardImageCredits()];
 
 /** About and credits: what the game is, the disclaimer, and every image and audio credit. */
 export const CreditsPage = () => (
@@ -37,7 +36,7 @@ export const CreditsPage = () => (
           {copy.imagesHeading}
         </h2>
         <p className="text-sm text-muted-foreground">{copy.imagesIntro}</p>
-        <ImageCreditList credits={imageCredits} thumbnails={thumbnails} />
+        <ImageCreditList credits={imageCredits} />
       </section>
 
       <section aria-labelledby="credits-audio" className="flex flex-col gap-3">

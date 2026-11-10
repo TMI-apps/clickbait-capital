@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import { CARD_IMAGE_MANIFEST } from "@/features/card-imagery/services/cardImageManifest";
+import { PHASE_IMAGE_MANIFEST } from "@/features/card-imagery/services/phaseImageManifest";
 import {
   CARD_IMAGE_HEIGHT,
   CARD_IMAGE_WIDTH,
@@ -84,8 +85,10 @@ describe("card image manifest", () => {
     }
   });
 
-  it("should keep no file in public/cards when no entry uses it", () => {
-    const used = new Set(CARD_IMAGE_MANIFEST.map((entry) => entry.file));
+  it("should keep no file in public/cards when no card or phase entry uses it", () => {
+    const used = new Set(
+      [...CARD_IMAGE_MANIFEST, ...PHASE_IMAGE_MANIFEST].map((entry) => entry.file)
+    );
     const unused = readdirSync(resolve(PUBLIC_DIR, "cards")).filter((file) => !used.has(file));
     expect(unused).toEqual([]);
   });
