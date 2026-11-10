@@ -22,9 +22,9 @@ No later PR changed the newest-post markup. The switch is `[@container(min-heigh
 
 ## Fix
 
-Use one layout for the newest post: the top-image card (the existing tall variant: photo full-width on top, type, title, two-line body, comments). This removes the container query, the side-by-side columns and the `container-type:size` they needed. The drop slot gets the same shape. Older posts stay compact. On a short feed box the list scrolls inside the phone frame; the page itself still never scrolls.
+Use one layout for the newest post: the top-image card (the existing tall variant: photo full-width on top, type, title, two-line body, comments). This removes the container query, the side-by-side columns and the `container-type:size` they needed. The drop slot gets the same shape. Older posts stay compact. On a short feed box the photo is cropped to fit (D2, owner: "I always want the card view. Even if that might crop the image."): its height is `clamp(4rem, 100cqh − 7rem, 4:3 height)`, so type, title and body stay visible. The page never scrolls.
 
 ## Success check
 
 - `GameBoard.test.tsx` › "should render the newest post as a card with the photo on top when a card is played" fails on e1f3c50 and passes with the fix.
-- Playwright at the six sizes: photo on top of the newest post, no document scroll.
+- Playwright at the six sizes: photo on top of the newest post, body text inside the feed box, no document scroll. Photo height: 254 px (390×844), 108 px (390×664), 64 px (360×640, 844×390), about 314 px (1024×768, 1440×900).

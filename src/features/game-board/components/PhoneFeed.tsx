@@ -15,6 +15,15 @@ import { cn } from "@/shared/utils/cn";
 /** Drop target id the draft cards are dragged onto. */
 export const FEED_DROP_ID = "feed";
 
+/**
+ * Photo height of the newest post and its drop slot (feed-top-card D1, D2): the natural 4:3
+ * height when the feed box has room, otherwise cropped (object-fit: cover around the focal
+ * point) so type, title and body (~7rem) still fit under it in the box; never under 4rem.
+ * `cq*` units resolve against the feed list, which is a size container.
+ */
+const NEWEST_PHOTO_HEIGHT =
+  "aspect-auto h-[clamp(4rem,calc(100cqh-7rem),calc(100cqw/var(--game-card-image-aspect)))]";
+
 /** Type label per post. Posts carry no type-coloured side bar: the card stands on its own (readable-hover D5). */
 const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }> = {
   viral: { label: "Viraal", icon: Zap },
@@ -23,16 +32,23 @@ const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }>
   event: { label: "Gebeurtenis", icon: Siren },
 };
 
+interface PostArtworkProps {
+  entry: FeedEntry;
+  compact: boolean;
+  /** Layout override for the image area (the newest post's photo height). */
+  className?: string;
+}
+
 /**
  * The entry's picture in the kit's card artwork (same image path as the draft: lazy, focal
  * point, ThumbnailFrame except on news, type-icon placeholder; feed-images D1). A compact row
  * drops caption, sticker and marker, which are unreadable at 64 px (D4).
  */
-const PostArtwork = ({ entry, compact }: { entry: FeedEntry; compact: boolean }) => {
+const PostArtwork = ({ entry, compact, className }: PostArtworkProps) => {
   const image = getCardImage(entry.contentId);
   const shown: GameCardImage | undefined =
     image && compact ? { ...image, thumbnail: undefined } : (image ?? undefined);
-  return <GameCardArtwork type={entry.type} image={shown} />;
+  return <GameCardArtwork type={entry.type} image={shown} className={className} />;
 };
 
 const TypeLabel = ({ type }: { type: FeedEntry["type"] }) => {
@@ -54,7 +70,7 @@ interface NewestPostProps {
 /**
  * Newest post: a card with the photo full-width on top, then type, title and body, then its
  * follower comments as they reveal (feed-comments D1, D4). Same card on every screen size
- * (feed-top-card D1, replaces feed-images D3): on a short feed box the list scrolls instead.
+ * (feed-top-card D1, replaces feed-images D3); on a short feed box the photo is cropped (D2).
  */
 const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
   <li
@@ -64,7 +80,7 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
       FEED_ENTRANCE[entry.type]
     )}
   >
-    <PostArtwork entry={entry} compact={false} />
+    <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
     <div className="min-w-0 p-2.5">
       <TypeLabel type={entry.type} />
       <p className="text-sm leading-snug font-bold">{entry.title}</p>
@@ -129,7 +145,7 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
             over && "border-solid border-primary bg-primary/15"
           )}
         >
-          <div className="aspect-game-card-image" />
+          <div className={NEWEST_PHOTO_HEIGHT} />
           {/* Text cell as tall as the newest post's type, title and body lines. */}
           <p className="flex min-h-22 items-center justify-center p-2.5 text-center text-sm font-semibold text-primary">
             Laat los om te plaatsen
@@ -182,7 +198,7 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
       </div>
       <div
         ref={listRef}
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 pb-2.5"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2.5 pb-2.5 [container-type:size]"
       >
         <DropSlot key={newestKey ?? "empty"} open={dragging} over={isOver} />
         {entries.length === 0 ? (
