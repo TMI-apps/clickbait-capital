@@ -19,13 +19,14 @@ On `/spel`, at 390×844, 360×640 and 1440×900:
 - the three meter tiles are replaced by one chart with two lines (Gebruikers, Geld), each showing its current number and the phase goal line;
 - playing a card or an event option changes those two numbers by the card's effect in absolute units, and the chart animates to the new point;
 - while a card is dragged, or open in its detail dialog, dashed forecast points show both values after that card;
+- the only game over is Geld below € 0; a phase ends the turn both goal lines are reached;
 - reputation is not shown; below the scandal threshold a "Schandaal dreigt: N% per beurt" warning shows the engine's per-turn scandal chance, and a scandal opens as a 3-option event;
 - the balance simulation proves the intended endings per strategy;
 - the board still fits without document scroll.
 
 ## In scope
 
-- **Engine:** Gebruikers and Geld become absolute, canonical state. The users/revenue meters, `usersForMeter` and gross omzet go. Card and event effects land directly on them, scaled per phase. Reputation and toxicity stay hidden 0–100. A seeded per-turn scandal chance draws scandal events. Goals and game overs read the two values. Save version bump.
+- **Engine:** Gebruikers and Geld become absolute, canonical state. The users/revenue meters, `usersForMeter` and gross omzet go. Card and event effects land directly on them, scaled per phase. Reputation and toxicity stay hidden 0–100. A seeded per-turn scandal chance draws scandal events. Goals are two goal lines (D17); the only game over is Geld below € 0 (D16). Save version bump.
 - **Content:** scandal tags on the existing toxicity events, phase scale factors, retuned goals, balance simulation.
 - **Board:** a `ScoreChart` replaces `MeterPanel`; forecast on drag and in the detail dialog; scandal-risk warning; card faces; screen reader.
 - **End flow:** result, share and end report show users and money.
@@ -62,4 +63,4 @@ M+ overall, cut into three laps:
 
 ## Decisions
 
-DECISIONS.md D1–D9 (lap 0; D1, D2, D8 and D9's trigger superseded) and D10–D18 (build). Open: D15 (card faces), D16 (game overs), D17 (phase goals; the orchestrator is asking the owner).
+DECISIONS.md D1–D9 (lap 0; D1, D2, D8 and D9's trigger superseded) and D10–D18 (build). D15–D17 answered by the owner (2026-11-10). D20–D24 added by loop-plan.
