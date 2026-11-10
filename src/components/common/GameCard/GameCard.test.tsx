@@ -26,7 +26,7 @@ describe("GameCard", () => {
     expect(items.map((item) => item.textContent)).toEqual([
       "Reputatie+8omhoog 8, ",
       "Gebruikers−4omlaag 4, ",
-      "Inkomsten±0gelijk 0",
+      "Geld±0gelijk 0",
     ]);
   });
 
@@ -36,7 +36,7 @@ describe("GameCard", () => {
     );
     const item = within(screen.getByRole("list")).getByRole("listitem");
 
-    expect(item.textContent).toBe("Inkomsten+4omhoog 4MAX, 8 verspild boven het maximum");
+    expect(item.textContent).toBe("Geld+4omhoog 4MAX, 8 verspild boven het maximum");
   });
 
   it("should keep full type and meter names for screen readers when the card is compact", () => {
@@ -45,7 +45,7 @@ describe("GameCard", () => {
 
     expect(card).toHaveTextContent("Reclame");
     expect(within(card).getByText("Advertentie")).toHaveClass("sr-only");
-    expect(within(card).getAllByText("Inkomsten")[0]).toHaveClass("sr-only");
+    expect(within(card).getAllByText("Geld")[0]).toHaveClass("sr-only");
     if (typeof ad.flavor === "string") expect(card).not.toHaveTextContent(ad.flavor);
   });
 

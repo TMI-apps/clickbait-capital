@@ -10,35 +10,33 @@ import type { RunSummary } from "@/features/game-flow/types/gameFlow.types";
 
 const run = (overrides: Partial<RunSummary> = {}): RunSummary => ({
   outcome: "lost",
-  reason: "banned",
+  reason: "bankrupt",
   turn: 12,
   phaseId: 2,
   phaseName: "De Scale-Up",
-  stats: { users: 2_000_000, revenue: 150_000 },
-  statTexts: { users: "2.000.000", revenue: "€ 150.000" },
+  score: { users: 2_000_000, money: 150_000 },
+  statTexts: { users: "2.000.000", money: "€ 150.000" },
   playedTypes: ["viral", "viral", "ad", "news", "viral"],
   firedEventIds: ["event-a"],
   ...overrides,
 });
 
 describe("toEndingView", () => {
-  it("should tell the dull-feed story when a news-only run ends in Verlaten Platform", () => {
-    const ending = toEndingView(
-      run({ reason: "abandoned", playedTypes: ["news", "news", "news", "news"] })
-    );
-    const { title, variants } = GAME_OVER_TEXTS.abandoned;
+  it("should tell the no-income story when a run with few ads goes bankrupt", () => {
+    const ending = toEndingView(run({ playedTypes: ["news", "news", "viral", "news"] }));
+    const { title, variants } = GAME_OVER_TEXTS.bankrupt;
     expect(ending).toMatchObject({
       outcome: "lost",
-      reason: "abandoned",
+      reason: "bankrupt",
       kicker: UI_COPY.results.lostKicker,
       title,
-      ...variants.dullFeed,
+      ...variants.noIncome,
     });
   });
 
-  it("should tell the ad-overload story when an ad-heavy run ends in Verlaten Platform", () => {
-    const ending = toEndingView(run({ reason: "abandoned", playedTypes: ["ad", "ad", "news"] }));
-    expect(ending.headline).toBe(GAME_OVER_TEXTS.abandoned.variants.adOverload.headline);
+  it("should tell the missing-audience story when an ad-heavy run goes bankrupt", () => {
+    const ending = toEndingView(run({ playedTypes: ["ad", "ad", "news"] }));
+    expect(ending.headline).toBe(GAME_OVER_TEXTS.bankrupt.variants.noAudience.headline);
   });
 
   it("should use the report title and closing when the IPO is won", () => {
@@ -65,7 +63,7 @@ describe("toResultsView", () => {
 
   it("should leave out the IPO valuation and intro when the run is lost", () => {
     const results = toResultsView(run());
-    expect(results.title).toBe(`${UI_COPY.results.lostKicker}: Verbod & Regulering`);
+    expect(results.title).toBe(`${UI_COPY.results.lostKicker}: Bankroet`);
     expect(results.intro).toBe("");
     expect(results.report.map((row) => row.id)).not.toContain("valuation");
     expect(results.report.length).toBeGreaterThan(0);
@@ -80,13 +78,13 @@ describe("toResultsView", () => {
 });
 
 describe("toShareCardContent", () => {
-  it("should show the ending, phase, reach and revenue when a run is lost", () => {
+  it("should show the ending, phase, users and money when a run is lost", () => {
     const summary = run();
     const ending = toEndingView(summary);
     const card = toShareCardContent(summary);
     expect(card).toMatchObject({
       kicker: UI_COPY.results.lostKicker,
-      title: GAME_OVER_TEXTS.banned.title,
+      title: GAME_OVER_TEXTS.bankrupt.title,
       line: ending.headline,
       url: `${SITE_ORIGIN}/`,
       fileName: UI_COPY.results.shareFileName,
@@ -94,7 +92,7 @@ describe("toShareCardContent", () => {
     expect(card.stats).toEqual([
       { label: UI_COPY.results.phaseReachedLabel, value: "2: De Scale-Up" },
       { label: UI_COPY.results.usersLabel, value: "2.000.000" },
-      { label: UI_COPY.results.revenueLabel, value: "€ 150.000" },
+      { label: UI_COPY.results.moneyLabel, value: "€ 150.000" },
     ]);
     expect(card.text).toContain("fase 2 in 12 beurten");
   });

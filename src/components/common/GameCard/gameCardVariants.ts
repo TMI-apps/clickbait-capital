@@ -76,7 +76,7 @@ export const GAME_CARD_METERS: Record<
   GameCardMeter,
   { label: string; icon: LucideIcon; text: string }
 > = {
-  revenue: { label: "Inkomsten", icon: Coins, text: "text-meter-revenue" },
+  revenue: { label: "Geld", icon: Coins, text: "text-meter-revenue" },
   users: { label: "Gebruikers", icon: TrendingUp, text: "text-meter-users" },
   reputation: { label: "Reputatie", icon: ShieldCheck, text: "text-meter-reputation" },
 };

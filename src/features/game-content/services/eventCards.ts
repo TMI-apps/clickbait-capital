@@ -2,8 +2,8 @@ import type { EventDefinition } from "@/features/game-engine/api";
 import type { EventPresentation } from "@/features/game-content/types/contentPresentation.types";
 
 /**
- * Event cards (design § 4 Type 2): milestones on entering phases 2–4 and Toxicity
- * boomerangs. Options are always ordered A commercial, B engagement, C journalism.
+ * Event cards (design § 4 Type 2): milestones on entering phases 2–4 and scandals, drawn by
+ * the per-turn scandal chance once hidden reputation is low (score-redesign D13, D14). Options are always ordered A commercial, B engagement, C journalism.
  * The engine fires each event once (the first open one in this order) and scales negative
  * reputation per phase, so the same −10 hurts much harder at the IPO. Events also model the
  * engine README's "Not modelled yet" lines: competitors and ad-pressure complaints (phase 2),
@@ -14,7 +14,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-gemeen-filmpje",
     title: "Gemeen filmpje over een klasgenoot",
     body: "Op je app gaat een gemeen filmpje rond over een kind uit groep 8. Ouders bellen de school. Iedereen kijkt naar jouw app.",
-    trigger: { kind: "toxicity", threshold: 18, phases: [1] },
+    trigger: { kind: "scandal", phases: [1] },
     options: [
       {
         id: "a",
@@ -43,7 +43,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-eerste-shitstorm",
     title: "Je eerste ophef",
     body: "Een bericht op je app loopt uit de hand. De hele school praat erover. Je ouders ook.",
-    trigger: { kind: "toxicity", threshold: 25, phases: [1] },
+    trigger: { kind: "scandal", phases: [1] },
     options: [
       {
         id: "a",
@@ -99,7 +99,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-concurrent-kloon",
     title: "Een andere app doet je na",
     body: "Een nieuwe app lijkt heel erg op die van jou. Maar dan sneller en harder. Je gebruikers kijken alvast rond bij die [[concurrent]].",
-    trigger: { kind: "toxicity", threshold: 15, phases: [2] },
+    trigger: { kind: "scandal", phases: [2] },
     options: [
       {
         id: "a",
@@ -127,7 +127,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-advertentieklachten",
     title: "Klachten over te veel reclame",
     body: "Gebruikers starten een [[petitie]]: 'Niet om de twee berichten reclame!' Maar de [[adverteerders|adverteerder]] willen juist meer.",
-    trigger: { kind: "toxicity", threshold: 35, phases: [2] },
+    trigger: { kind: "scandal", phases: [2] },
     options: [
       {
         id: "a",
@@ -155,7 +155,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-gevaarlijke-challenge",
     title: "Een challenge wordt gevaarlijk",
     body: "Een nieuwe challenge gaat rond op je app. Kinderen raken gewond. Het nieuws praat over jouw app.",
-    trigger: { kind: "toxicity", threshold: 50, phases: [2, 3] },
+    trigger: { kind: "scandal", phases: [2, 3] },
     options: [
       {
         id: "a",
@@ -184,7 +184,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-skins-oplichting",
     title: "Oplichters beloven gratis skins",
     body: "Op je app staan honderden reclames voor 'gratis skins'. Kinderen raken hun account kwijt aan [[oplichters|oplichter]]. Ouders zijn woedend.",
-    trigger: { kind: "toxicity", threshold: 55, phases: [2, 3] },
+    trigger: { kind: "scandal", phases: [2, 3] },
     options: [
       {
         id: "a",
@@ -241,7 +241,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-streamer-drama",
     title: "Streamers maken ruzie",
     body: "Twee grote streamers maken ruzie op je app. Hun fans schelden elkaar overal uit. Het is druk. En gemeen.",
-    trigger: { kind: "toxicity", threshold: 35, phases: [3] },
+    trigger: { kind: "scandal", phases: [3] },
     options: [
       {
         id: "a",
@@ -270,7 +270,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-toezichthouder-boete",
     title: "Een boete voor je app",
     body: "De [[toezichthouder]] zegt: jouw feed doet kinderen kwaad. De boete heeft heel veel nullen.",
-    trigger: { kind: "toxicity", threshold: 45, phases: [3] },
+    trigger: { kind: "scandal", phases: [3] },
     options: [
       {
         id: "a",
@@ -298,7 +298,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-verkiezingen",
     title: "Nepnieuws over de verkiezingen",
     body: "Er gaat [[desinformatie]] rond over de [[verkiezingen]]. Politieke partijen willen reclame maken. Trollen willen ruzie.",
-    trigger: { kind: "toxicity", threshold: 60, phases: [3] },
+    trigger: { kind: "scandal", phases: [3] },
     options: [
       {
         id: "a",
@@ -326,7 +326,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-hoorzitting",
     title: "Uitleggen in het parlement",
     body: "Je moet naar een [[hoorzitting]] in het [[parlement]]. Waarom maakt je app mensen boos? Het is live op tv.",
-    trigger: { kind: "toxicity", threshold: 70, phases: [3, 4] },
+    trigger: { kind: "scandal", phases: [3, 4] },
     options: [
       {
         id: "a",
@@ -354,7 +354,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-ouders-alarm",
     title: "Ouders en scholen slaan alarm",
     body: "Kinderen slapen slecht en zitten de hele nacht op je app. Scholen verbieden je app in de klas. Ouders willen dat je iets doet.",
-    trigger: { kind: "toxicity", threshold: 80, phases: [3, 4] },
+    trigger: { kind: "scandal", phases: [3, 4] },
     options: [
       {
         id: "a",
@@ -412,7 +412,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-nepvolgers",
     title: "De helft is nep",
     body: "Een [[journalist]] ontdekt dat veel accounts op je app [[bots|bot]] zijn. [[Adverteerders|adverteerder]] willen hun geld terug.",
-    trigger: { kind: "toxicity", threshold: 40, phases: [4] },
+    trigger: { kind: "scandal", phases: [4] },
     options: [
       {
         id: "a",
@@ -441,7 +441,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     id: "event-gelekte-documenten",
     title: "Geheime papieren uitgelekt",
     body: "Geheime stukken van je bedrijf komen naar buiten. Je wist dat je feed kinderen ongelukkig maakt. En je deed niks.",
-    trigger: { kind: "toxicity", threshold: 65, phases: [4] },
+    trigger: { kind: "scandal", phases: [4] },
     options: [
       {
         id: "a",

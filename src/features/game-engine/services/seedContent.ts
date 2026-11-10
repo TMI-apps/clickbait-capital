@@ -1,38 +1,38 @@
 import type { GameContent } from "@/features/game-engine/types/gameContent.types";
 
 /**
- * Small seed content: a default balance and the four phases from the design doc, plus a
- * minimal deck (two cards per type, three events). Test fixture and placeholder until the
- * content lap supplies the full deck; numbers are first guesses, not tuned.
+ * Small seed content: the tuned balance and phases of the full deck (game-content `phases.ts`,
+ * copied so engine tests stay independent of content), plus a minimal deck (two cards per type,
+ * three events). Test fixture only.
  */
 export const SEED_CONTENT: GameContent = {
   balance: {
-    startMeter: 50,
-    startRevenue: 0,
+    startUsers: 50_000,
+    startMoney: 100_000,
+    userLossPerPoint: 0.02,
+    startReputation: 60,
     newsIgnoredToxicity: 2,
+    toxicityDrain: { from: 50, perPoint: 0.05 },
     reputationDecay: { afterTurnsWithoutNews: 3, amount: 3 },
     adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
     echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
     journalismDrought: { afterTurnsWithoutNews: 5, viralToxicityMultiplier: 2 },
-    eventPacing: {
-      minTurnsBetween: 3,
-      randomExtraTurns: 3,
-      urgentMinTurnsBetween: 2,
-      crisisToxicity: 70,
-    },
+    scandal: { threshold: 30, rampPoints: 15, maxChance: 0.7, finePoints: 16 },
+    eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
   },
   phases: [
     {
       id: 1,
       name: "De Zolderkamer",
       goal: {
-        description: "Bereik 100.000 gebruikers.",
-        conditions: [{ kind: "stat", stat: "users", atLeast: 100_000 }],
-        consecutiveTurns: 1,
+        description: "Haal 100.000 gebruikers en € 150.000.",
+        users: 100_000,
+        money: 150_000,
       },
       passiveCosts: { revenue: -1 },
-      usersAtFullMeter: 140_000,
-      revenuePerPoint: 5_000,
+      usersPerPoint: 1_500,
+      moneyPerPoint: 2_000,
+      audienceUsers: 60_000,
       reputationLossMultiplier: 0.5,
       revenueGainMultiplier: 0.5,
     },
@@ -40,16 +40,14 @@ export const SEED_CONTENT: GameContent = {
       id: 2,
       name: "De Scale-Up",
       goal: {
-        description: "Bereik 5.000.000 gebruikers en € 500.000 omzet.",
-        conditions: [
-          { kind: "stat", stat: "users", atLeast: 5_000_000 },
-          { kind: "stat", stat: "revenue", atLeast: 500_000 },
-        ],
-        consecutiveTurns: 1,
+        description: "Haal 300.000 gebruikers en € 600.000.",
+        users: 300_000,
+        money: 600_000,
       },
-      passiveCosts: { revenue: -3 },
-      usersAtFullMeter: 6_250_000,
-      revenuePerPoint: 10_000,
+      passiveCosts: { revenue: -2 },
+      usersPerPoint: 8_000,
+      moneyPerPoint: 10_000,
+      audienceUsers: 150_000,
       reputationLossMultiplier: 1,
       revenueGainMultiplier: 1,
     },
@@ -57,31 +55,30 @@ export const SEED_CONTENT: GameContent = {
       id: 3,
       name: "Wereldwijd Platform",
       goal: {
-        description: "Overleef 30 beurten met minimaal 20.000.000 gebruikers.",
-        conditions: [{ kind: "stat", stat: "users", atLeast: 20_000_000 }],
-        consecutiveTurns: 30,
+        description: "Haal 1 miljoen gebruikers en € 1,2 miljoen.",
+        users: 1_000_000,
+        money: 1_200_000,
       },
-      passiveCosts: { revenue: -5 },
-      usersAtFullMeter: 25_000_000,
-      revenuePerPoint: 50_000,
-      reputationLossMultiplier: 2,
+      passiveCosts: { revenue: -3 },
+      usersPerPoint: 25_000,
+      moneyPerPoint: 25_000,
+      audienceUsers: 500_000,
+      reputationLossMultiplier: 1.5,
       revenueGainMultiplier: 1,
     },
     {
       id: 4,
       name: "De Beursgang",
       goal: {
-        description: "Houd Reputatie boven 60 en Inkomsten boven 80, 10 beurten op rij.",
-        conditions: [
-          { kind: "meter", meter: "reputation", above: 60 },
-          { kind: "meter", meter: "revenue", above: 80 },
-        ],
-        consecutiveTurns: 10,
+        description: "Haal 3 miljoen gebruikers en € 4 miljoen.",
+        users: 3_000_000,
+        money: 4_000_000,
       },
-      passiveCosts: { revenue: -6 },
-      usersAtFullMeter: 30_000_000,
-      revenuePerPoint: 100_000,
-      reputationLossMultiplier: 3,
+      passiveCosts: { revenue: -3 },
+      usersPerPoint: 75_000,
+      moneyPerPoint: 60_000,
+      audienceUsers: 1_500_000,
+      reputationLossMultiplier: 2,
       revenueGainMultiplier: 1,
     },
   ],
@@ -160,7 +157,7 @@ export const SEED_CONTENT: GameContent = {
       id: "event-verkiezingen",
       title: "Verkiezingen & Desinformatie",
       body: "Valse claims over de verkiezingen gaan rond op je platform.",
-      trigger: { kind: "toxicity", threshold: 60, phases: [3] },
+      trigger: { kind: "scandal", phases: [3] },
       options: [
         {
           id: "a",
@@ -186,7 +183,7 @@ export const SEED_CONTENT: GameContent = {
       id: "event-eu-boete",
       title: "EU-boete",
       body: "Brussel onderzoekt de schade die je feed aanricht.",
-      trigger: { kind: "toxicity", threshold: 75, phases: [2, 3, 4] },
+      trigger: { kind: "scandal", phases: [2, 3, 4] },
       options: [
         {
           id: "a",

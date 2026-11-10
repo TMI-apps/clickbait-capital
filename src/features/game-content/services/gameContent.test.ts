@@ -7,14 +7,14 @@ import {
   type PhaseId,
 } from "@/features/game-engine/api";
 import {
+  AD_HEAVY_SHARE,
   buildEndReport,
-  CRISES_FROM_EVENTS,
   END_REPORT_TEMPLATE,
   fillTemplate,
   GAME_OVER_TEXTS,
   NO_INCOME_BELOW_AD_SHARE,
+  SCANDALS_FROM_EVENTS,
   selectGameOverText,
-  TOXIC_FROM_VIRAL_SHARE,
 } from "@/features/game-content/services/endings";
 import { EVENT_CARDS } from "@/features/game-content/services/eventCards";
 import {
@@ -48,14 +48,18 @@ describe("GAME_CONTENT integrity", () => {
     }
   });
 
-  it("should size every phase market above its users goal when the goal is read off the meter", () => {
-    for (const phase of GAME_CONTENT.phases) {
-      for (const condition of phase.goal.conditions) {
-        if (condition.kind === "stat" && condition.stat === "users") {
-          expect(phase.usersAtFullMeter).toBeGreaterThan(condition.atLeast);
-        }
-      }
-    }
+  it("should raise both goal lines every phase when the phases are read in order", () => {
+    GAME_CONTENT.phases.slice(1).forEach((phase, index) => {
+      const previous = GAME_CONTENT.phases[index]!;
+      expect(phase.goal.users, `users phase ${phase.id}`).toBeGreaterThan(previous.goal.users);
+      expect(phase.goal.money, `money phase ${phase.id}`).toBeGreaterThan(previous.goal.money);
+    });
+  });
+
+  it("should start below both goal lines of phase 1 when a run begins", () => {
+    const { balance, phases } = GAME_CONTENT;
+    expect(balance.startUsers).toBeLessThan(phases[0]!.goal.users);
+    expect(balance.startMoney).toBeLessThan(phases[0]!.goal.money);
   });
 
   it("should use unique ids when cards and events are looked up by id", () => {
@@ -92,9 +96,19 @@ describe("GAME_CONTENT integrity", () => {
     }
   });
 
-  it("should include the design's election event when Toxicity runs high in phase 3", () => {
+  it("should include the design's election event as a phase-3 scandal", () => {
     const event = GAME_CONTENT.events.find((candidate) => candidate.id === "event-verkiezingen");
-    expect(event?.trigger).toEqual({ kind: "toxicity", threshold: 60, phases: [3] });
+    expect(event?.trigger).toEqual({ kind: "scandal", phases: [3] });
+  });
+
+  it("should offer at least two scandals in every phase when reputation runs low", () => {
+    for (const phase of PHASES) {
+      const scandals = GAME_CONTENT.events.filter(
+        (event) =>
+          event.trigger.kind === "scandal" && (event.trigger.phases?.includes(phase) ?? true)
+      );
+      expect(scandals.length, `phase ${phase}`).toBeGreaterThanOrEqual(2);
+    }
   });
 
   it("should fill every presentation field when a card or event is shown", () => {
@@ -122,7 +136,7 @@ describe("buildEndReport", () => {
   it("should derive the damage lines from the run when a game is won", () => {
     const report = buildEndReport({
       turn: 60,
-      stats: { users: 25_000_000, revenue: 12_000_000 },
+      score: { users: 25_000_000, money: 12_000_000 },
       playedTypes: ["viral", "viral", "ad", "news"],
       firedEventIds: ["event-investeerders", "event-roadshow"],
     });
@@ -132,7 +146,7 @@ describe("buildEndReport", () => {
     expect(values.viralPosts).toBe("2");
     expect(values.factchecksRead).toBe("37");
     expect(values.crises).toBe("2");
-    expect(values.valuation).toMatch(/480\.000\.000/);
+    expect(values.valuation).toMatch(/245\.000\.000/);
   });
 
   it("should leave unknown placeholders visible when a value is missing", () => {
@@ -140,8 +154,8 @@ describe("buildEndReport", () => {
   });
 });
 
-/** Crisis events (toxicity triggers) and milestone events from the deck. */
-const CRISIS_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "toxicity").map(
+/** Scandal events and milestone events from the deck. */
+const SCANDAL_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "scandal").map(
   (event) => event.id
 );
 const MILESTONE_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "milestone").map(
@@ -152,7 +166,7 @@ const MILESTONE_IDS = EVENT_CARDS.filter((event) => event.trigger.kind === "mile
 const lostRun = (played: string, firedEventIds: string[] = []) => ({
   turn: played.length,
   phaseId: 2 as const,
-  stats: { users: 50_000, revenue: 10_000 },
+  score: { users: 50_000, money: -1_000 },
   playedTypes: [...played].map((letter) =>
     letter === "v" ? "viral" : letter === "a" ? "ad" : "news"
   ) as CardType[],
@@ -164,54 +178,32 @@ const withShare = (letter: string, count: number, total: number): string =>
   letter.repeat(count) + "n".repeat(total - count);
 
 describe("selectGameOverText", () => {
-  it("should tell a dull-feed story when a news-only run ends in Verlaten Platform", () => {
-    const text = selectGameOverText("abandoned", lostRun("nnnnnnnn"));
-    expect(text.variant).toBe("dullFeed");
-    expect(text.title).toBe("Verlaten Platform");
-    expect(text.body).not.toMatch(/reclame/i);
-  });
-
-  it("should blame the ads when an ad-heavy run ends in Verlaten Platform", () => {
-    expect(selectGameOverText("abandoned", lostRun("aaavaan")).variant).toBe("adOverload");
-  });
-
-  it("should tell a burnout story when a viral-heavy run ends in Verlaten Platform", () => {
-    expect(selectGameOverText("abandoned", lostRun("vvvanvv")).variant).toBe("viralBurnout");
-  });
-
   it("should say nobody paid when a run with few ads goes bankrupt", () => {
-    expect(selectGameOverText("bankrupt", lostRun("nnvnnvnnna")).variant).toBe("noIncome");
+    const text = selectGameOverText("bankrupt", lostRun("nnvnnvnnna"));
+    expect(text.variant).toBe("noIncome");
+    expect(text.title).toBe("Bankroet");
   });
 
-  it("should blame the costs when a run with plenty of ads still goes bankrupt", () => {
-    expect(selectGameOverText("bankrupt", lostRun("aanvanav")).variant).toBe("costsOutgrew");
+  it("should blame the costs when a run with some ads still goes bankrupt", () => {
+    expect(selectGameOverText("bankrupt", lostRun("aanvvnnv")).variant).toBe("costsOutgrew");
   });
 
-  it("should blame the outrage when a viral-heavy run is banned", () => {
-    expect(selectGameOverText("banned", lostRun("vvvvavn", CRISIS_IDS.slice(0, 3))).variant).toBe(
-      "viralToxicity"
-    );
+  it("should blame the missing audience when an ad-heavy run goes bankrupt", () => {
+    expect(selectGameOverText("bankrupt", lostRun("aavaaana")).variant).toBe("noAudience");
   });
 
-  it("should blame the piled-up crises when a run is banned after several crises without a viral majority", () => {
-    expect(selectGameOverText("banned", lostRun("vavanvan", CRISIS_IDS.slice(0, 3))).variant).toBe(
-      "crises"
-    );
+  it("should blame the scandals when a run goes bankrupt after several scandals", () => {
+    const run = lostRun("vvvavn", SCANDAL_IDS.slice(0, SCANDALS_FROM_EVENTS));
+    expect(selectGameOverText("bankrupt", run).variant).toBe("scandals");
   });
 
-  it("should not count milestone events as crises when a run is banned", () => {
-    const run = lostRun("vavaavna", MILESTONE_IDS);
-    expect(MILESTONE_IDS.length).toBeGreaterThanOrEqual(CRISES_FROM_EVENTS);
-    expect(selectGameOverText("banned", run).variant).toBe("scamAds");
+  it("should not count milestone events as scandals when a run goes bankrupt", () => {
+    const run = lostRun("nnvnnvnnna", MILESTONE_IDS);
+    expect(MILESTONE_IDS.length).toBeGreaterThanOrEqual(SCANDALS_FROM_EVENTS);
+    expect(selectGameOverText("bankrupt", run).variant).toBe("noIncome");
   });
 
-  it("should blame the scam ads when an ad-heavy run is banned after few events", () => {
-    expect(selectGameOverText("banned", lostRun("aavaavna", CRISIS_IDS.slice(0, 1))).variant).toBe(
-      "scamAds"
-    );
-  });
-
-  it("should switch stories exactly at the thresholds when shares and crises reach them", () => {
+  it("should switch stories exactly at the thresholds when shares and scandals reach them", () => {
     const total = 20;
     const adsAtLimit = Math.round(NO_INCOME_BELOW_AD_SHARE * total);
     expect(
@@ -220,21 +212,17 @@ describe("selectGameOverText", () => {
     expect(selectGameOverText("bankrupt", lostRun(withShare("a", adsAtLimit, total))).variant).toBe(
       "costsOutgrew"
     );
-    const viralAtLimit = Math.round(TOXIC_FROM_VIRAL_SHARE * total);
-    expect(selectGameOverText("banned", lostRun(withShare("v", viralAtLimit, total))).variant).toBe(
-      "viralToxicity"
+    const heavy = Math.round(AD_HEAVY_SHARE * total);
+    expect(selectGameOverText("bankrupt", lostRun(withShare("a", heavy, total))).variant).toBe(
+      "noAudience"
     );
-    const almostCrises = CRISIS_IDS.slice(0, CRISES_FROM_EVENTS - 1);
-    const crises = CRISIS_IDS.slice(0, CRISES_FROM_EVENTS);
-    expect(selectGameOverText("banned", lostRun("vaaannnn", almostCrises)).variant).toBe("scamAds");
-    expect(selectGameOverText("banned", lostRun("vaaannnn", crises)).variant).toBe("crises");
+    const almost = SCANDAL_IDS.slice(0, SCANDALS_FROM_EVENTS - 1);
+    expect(selectGameOverText("bankrupt", lostRun("nnvnnvnnna", almost)).variant).toBe("noIncome");
   });
 
   it("should fall back to a variant of the reason when no card was played", () => {
-    for (const reason of ["bankrupt", "abandoned", "banned"] as const) {
-      const text = selectGameOverText(reason, lostRun(""));
-      expect(Object.keys(GAME_OVER_TEXTS[reason].variants)).toContain(text.variant);
-    }
+    const text = selectGameOverText("bankrupt", lostRun(""));
+    expect(Object.keys(GAME_OVER_TEXTS.bankrupt.variants)).toContain(text.variant);
   });
 
   it("should give every variant a Dutch headline, body and lesson when the texts are written", () => {

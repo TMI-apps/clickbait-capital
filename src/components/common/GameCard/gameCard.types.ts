@@ -8,7 +8,7 @@ import type { ThumbnailTreatment } from "@/components/common/ThumbnailFrame";
 /** Card type: drives frame colour, type chip icon and Dutch label. */
 export type GameCardType = "viral" | "ad" | "news" | "event";
 
-/** Meter a card effect moves: Inkomsten, Gebruikers, Reputatie. */
+/** Meter a card effect moves: Geld, Gebruikers, Reputatie. */
 export type GameCardMeter = "revenue" | "users" | "reputation";
 
 /** Rarity tier; `common` shows no badge. */

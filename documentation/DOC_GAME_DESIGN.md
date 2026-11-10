@@ -13,6 +13,8 @@
 
 ## **2\. De Drie Kernmeters & Systeemmechanieken**
 
+> **Herzien (score-redesign, L1):** Gebruikers en Geld zijn nu absolute getallen en vormen de score; Reputatie (en Toxicity) is verborgen. Het enige game over is Bankroet (Geld onder € 0). Onder een reputatiedrempel toont het bord een schandaalkans per beurt, en schandalen zijn de bestaande gebeurtenissen met drie opties. Bron: `documentation/jobs/temp_job_score-redesign/DECISIONS.md` D10–D28; deze paragraaf wordt in L3 herschreven.
+
 Bovenaan het scherm staan drie primaire resources. Alle meters hebben een schaal van 0 tot 100 (startwaarde: 50). Raken de meters 0, dan resulteert dit direct in een specifieke **Game Over**.
 
 ```
@@ -165,6 +167,8 @@ Het audiovisuele design manipuleert de speler actief om dezelfde keuzes te maken
 ---
 
 ## **6\. Mijlpalen & Progressie (Van Zolderkamer tot Monopolie)**
+
+> **Herzien (score-redesign D17):** elke fase heeft twee doellijnen, voor Gebruikers en voor Geld (100.000 / € 150.000; 300.000 / € 600.000; 1 miljoen / € 1,2 miljoen; 3 miljoen / € 4 miljoen). Er zijn geen beurten-op-rij-doelen en fase 4 heeft geen reputatievoorwaarde meer. De fasedoelen hieronder zijn historisch; ze worden in L3 herschreven.
 
 Het spel verloopt over vier fases. Elke fase verhoogt de operationele kosten en schaalt de impact van reputatieverlies exponentieel op.
 

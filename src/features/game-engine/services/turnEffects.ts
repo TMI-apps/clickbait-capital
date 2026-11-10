@@ -4,14 +4,15 @@ import type {
   CardType,
   Effects,
   FullEffects,
-  MeterKey,
   PhaseDefinition,
+  ScoreKey,
 } from "@/features/game-engine/types/gameContent.types";
 import type { TurnModifiers } from "@/features/game-engine/types/gameState.types";
 
 /**
  * Per-turn rule math: card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte),
- * phase scaling, passive costs, reputation decay and clamping. Pure; no game-state shape.
+ * phase scaling, passive costs, reputation decay, toxicity drain, and how points land on the
+ * absolute score (score-redesign D11, D20). Pure; no game-state shape.
  */
 
 const METER_MIN = 0;
@@ -24,15 +25,17 @@ export interface CardTurnInput {
   playedTypes: readonly CardType[];
   viralStreak: number;
   turnsWithoutNews: number;
+  /** Hidden Toxicity before the turn: drains reputation (score-redesign D21). */
+  toxicity: number;
   phase: PhaseDefinition;
   balance: BalanceConfig;
 }
 
 /** The outcome of one card turn, plus the updated streak counters. */
 export interface CardTurnResult {
-  /** The card's own effect after modifiers and phase scaling (feeds the absolute stats). */
+  /** The card's own effect after modifiers and phase scaling (its gain is scaled by the audience). */
   cardEffects: FullEffects;
-  /** Card effects plus passive costs and reputation decay (applied to the meters). */
+  /** Card effects plus passive costs, reputation decay and toxicity drain. */
   totalEffects: FullEffects;
   modifiers: TurnModifiers;
   viralStreak: number;
@@ -156,12 +159,14 @@ export function computeCardTurn(input: CardTurnInput): CardTurnResult {
     : addEffects(scaled, { toxicity: balance.newsIgnoredToxicity });
 
   const reputationDecay = turnsWithoutNews >= balance.reputationDecay.afterTurnsWithoutNews;
-  const withCosts = addEffects(cardEffects, phase.passiveCosts);
-  const totalEffects = reputationDecay
-    ? addEffects(withCosts, {
-        reputation: scaleLoss(-balance.reputationDecay.amount, phase.reputationLossMultiplier),
-      })
-    : withCosts;
+  const decay = reputationDecay
+    ? scaleLoss(-balance.reputationDecay.amount, phase.reputationLossMultiplier)
+    : 0;
+  const { from, perPoint } = balance.toxicityDrain;
+  const drain = -Math.round(Math.max(0, input.toxicity - from) * perPoint);
+  const totalEffects = addEffects(addEffects(cardEffects, phase.passiveCosts), {
+    reputation: decay + drain,
+  });
 
   return {
     cardEffects,
@@ -181,17 +186,57 @@ function clamp(value: number): number {
   return Math.min(METER_MAX, Math.max(METER_MIN, value));
 }
 
-/** Applies effects to the meters and hidden Toxicity, clamped to 0–100. */
-export function applyEffects(
-  current: { meters: Record<MeterKey, number>; toxicity: number },
-  effects: FullEffects
-): { meters: Record<MeterKey, number>; toxicity: number } {
+const AUDIENCE_MAX = 1.5;
+
+/** How much ads pay at this many users: users / audienceUsers, 0–1.5 (score-redesign D20). */
+export function audienceFactor(users: number, phase: PhaseDefinition): number {
+  if (!(phase.audienceUsers > 0)) {
+    throw new Error(`game-engine: phase ${phase.id} needs a positive audienceUsers`);
+  }
+  return Math.min(AUDIENCE_MAX, Math.max(0, users / phase.audienceUsers));
+}
+
+/** The score and hidden values one turn changes. */
+export interface ScoreSnapshot {
+  users: number;
+  money: number;
+  reputation: number;
+  toxicity: number;
+}
+
+/** What a turn's effects do: the new values and the absolute change on the score. */
+export interface ScoreChange extends ScoreSnapshot {
+  delta: Record<ScoreKey, number>;
+}
+
+/**
+ * Lands one turn on the score (score-redesign D11, D20, D26): users gains × `usersPerPoint`,
+ * users losses take `userLossPerPoint` of the current users per point; money: the gain part of `gainEffects` scaled by the audience before the turn,
+ * the rest of `effects.revenue` (losses, passive costs) at full price. Reputation and Toxicity
+ * clamp to 0–100. `gainEffects` defaults to `effects` (events have no costs).
+ */
+export function applyScore(
+  current: ScoreSnapshot,
+  effects: FullEffects,
+  context: { phase: PhaseDefinition; userLossPerPoint: number; gainEffects?: FullEffects }
+): ScoreChange {
+  const { phase } = context;
+  const gain = Math.max(0, (context.gainEffects ?? effects).revenue);
+  const rest = effects.revenue - gain;
+  const moneyDelta = Math.round(
+    gain * phase.moneyPerPoint * audienceFactor(current.users, phase) + rest * phase.moneyPerPoint
+  );
+  const usersDelta =
+    effects.users >= 0
+      ? Math.round(effects.users * phase.usersPerPoint)
+      : -Math.round(current.users * Math.min(1, -effects.users * context.userLossPerPoint));
+  const users = Math.max(0, current.users + usersDelta);
+  const money = current.money + moneyDelta;
   return {
-    meters: {
-      revenue: clamp(current.meters.revenue + effects.revenue),
-      users: clamp(current.meters.users + effects.users),
-      reputation: clamp(current.meters.reputation + effects.reputation),
-    },
+    users,
+    money,
+    reputation: clamp(current.reputation + effects.reputation),
     toxicity: clamp(current.toxicity + effects.toxicity),
+    delta: { users: users - current.users, money: moneyDelta },
   };
 }

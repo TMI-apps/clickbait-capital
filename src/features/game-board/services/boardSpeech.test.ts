@@ -2,70 +2,88 @@ import { describe, expect, it } from "vitest";
 import {
   describeMeterChange,
   describeTurn,
-  meterValueText,
   type TurnSnapshot,
 } from "@/features/game-board/services/boardSpeech";
 import type { MeterView } from "@/features/game-board/types/gameBoard.types";
 
-/** Meters in board order: [revenue, users, reputation] values and their deltas. */
-const meters = ([revenue, users, reputation]: number[], deltas = [0, 0, 0]): MeterView[] =>
-  (
-    [
-      ["revenue", revenue],
-      ["users", users],
-      ["reputation", reputation],
-    ] as const
-  ).map(([key, value], index) => ({
-    key,
-    value,
-    delta: deltas[index],
-    full: value >= 100,
-    danger: value <= 20,
+/** The two score tiles in board order (users, money) with their amount and change texts. */
+const tiles = (users: [string, string], money: [string, string], danger = false): MeterView[] => [
+  {
+    key: "users",
+    value: 50,
+    history: [0.5, 0.8],
+    amount: 0,
+    amountText: users[0],
+    delta: users[1] === "" ? 0 : users[1].startsWith("−") ? -1 : 1,
+    deltaText: users[1],
+    goalText: "Doel: 100.000",
+    full: false,
+    danger: false,
     valueText: "",
-  }));
+  },
+  {
+    key: "revenue",
+    value: 10,
+    history: [0.5, 0.8],
+    amount: 0,
+    amountText: money[0],
+    delta: money[1] === "" ? 0 : money[1].startsWith("−") ? -1 : 1,
+    deltaText: money[1],
+    goalText: "Doel: € 150.000",
+    full: false,
+    danger,
+    valueText: "",
+  },
+];
 
 const snapshot = (overrides: Partial<TurnSnapshot> = {}): TurnSnapshot => ({
   latest: { type: "ad", title: "Pizzeria om de hoek", body: "Korting!" },
-  meters: meters([58, 45, 50], [8, -5, 0]),
-  goalStats: ["Bereik: 51.750 / 100.000 (Gebruikers ≥ 87)"],
-  streak: null,
+  meters: tiles(["45.500", "−4.500"], ["€ 114.000", "+€ 14.000"]),
+  goalStats: ["Gebruikers: 45.500 / 100.000", "Geld: € 114.000 / € 150.000"],
+  scandal: null,
   drought: false,
   ...overrides,
 });
 
 describe("boardSpeech", () => {
-  it("should name the post, each changed meter with its new value and the goal line when a card is played", () => {
+  it("should name the post, each changed number with its new amount and the goal lines when a card is played", () => {
     expect(describeTurn(snapshot(), null)).toBe(
-      "Geplaatst: Pizzeria om de hoek. Inkomsten omhoog 8, nu 58. Gebruikers omlaag 5, nu 45. Bereik: 51.750 / 100.000 (Gebruikers ≥ 87)."
+      "Geplaatst: Pizzeria om de hoek. Gebruikers −4.500, nu 45.500. Geld +€ 14.000, nu € 114.000. Gebruikers: 45.500 / 100.000. Geld: € 114.000 / € 150.000."
     );
   });
 
   it("should name the chosen policy when an event was answered", () => {
     const text = describeTurn(
       snapshot({
-        latest: { type: "event", title: "Je eerste shitstorm", body: "Haal het weg." },
-        meters: meters([50, 40, 56], [0, -5, 6]),
+        latest: { type: "event", title: "Je eerste ophef", body: "Haal het weg." },
+        meters: tiles(["40.000", "−6.000"], ["€ 100.000", ""]),
       }),
       null
     );
     expect(text).toMatch(
-      /^Je eerste shitstorm. Gekozen: Haal het weg\. Gebruikers omlaag 5, nu 40\. Reputatie omhoog 6, nu 56\./
+      /^Je eerste ophef. Gekozen: Haal het weg\. Gebruikers −6.000, nu 40.000\./
     );
   });
 
-  it("should say the meters stayed the same when nothing changed", () => {
-    expect(describeTurn(snapshot({ meters: meters([50, 50, 50]), goalStats: [] }), null)).toBe(
-      "Geplaatst: Pizzeria om de hoek. Meters onveranderd."
-    );
+  it("should say the numbers stayed the same when nothing changed", () => {
+    expect(
+      describeTurn(
+        snapshot({ meters: tiles(["50.000", ""], ["€ 100.000", ""]), goalStats: [] }),
+        null
+      )
+    ).toBe("Geplaatst: Pizzeria om de hoek. Gebruikers en geld onveranderd.");
   });
 
-  it("should warn about every meter in danger and the goal streak when they apply", () => {
+  it("should warn about low money and the scandal risk when they apply", () => {
     const text = describeTurn(
-      snapshot({ meters: meters([15, 45, 50], [-3, 0, 0]), streak: { current: 1, required: 2 } }),
+      snapshot({
+        meters: tiles(["50.000", ""], ["€ 4.000", "−€ 2.000"], true),
+        scandal: "Schandaal dreigt: 35% kans per beurt",
+      }),
       null
     );
-    expect(text).toContain("Doel gehaald: 1 van 2 beurten op rij.");
-    expect(text).toMatch(/Let op: Inkomsten gevaarlijk laag\.$/);
+    expect(text).toContain("Let op: Geld bijna op.");
+    expect(text).toMatch(/Let op: Schandaal dreigt: 35% kans per beurt\.$/);
   });
 
   it("should announce the journalism drought only on the turn it starts", () => {
@@ -80,14 +98,8 @@ describe("boardSpeech", () => {
     expect(describeTurn(snapshot({ latest: null }), null)).toBe("");
   });
 
-  it("should phrase a meter's value with its change and state when read on the board", () => {
+  it("should phrase a change in the words the cards use", () => {
     expect(describeMeterChange(-5)).toBe("omlaag 5");
-    expect(meterValueText(meters([100, 60, 15], [4, 0, -5])[0])).toBe(
-      "100 van 100, omhoog 4, maximum bereikt"
-    );
-    expect(meterValueText(meters([100, 60, 15], [4, 0, -5])[2])).toBe(
-      "15 van 100, omlaag 5, gevaarlijk laag"
-    );
-    expect(meterValueText(meters([100, 60, 15])[1])).toBe("60 van 100");
+    expect(describeMeterChange(8)).toBe("omhoog 8");
   });
 });

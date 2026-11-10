@@ -39,11 +39,11 @@ export const UI_COPY = {
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
     "Sleep één kaart naar de [[feed]]. Of tik erop: dan lees je meer en kies je 'In de feed'.",
     "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws brengt vertrouwen.",
-    "Houd Inkomsten, Gebruikers en Reputatie boven nul. Komt er één op nul, dan is het spel voorbij.",
-    "Let op: je ziet niet alles meteen. Sommige keuzes komen later hard terug.",
+    "Haal elke fase de doellijn voor gebruikers en geld. Zakt je geld onder nul, dan ben je failliet.",
+    "Let op: je ziet niet alles meteen. Zie je 'Schandaal dreigt', dan komen je keuzes hard terug.",
   ],
   meters: {
-    revenue: { label: "Inkomsten", description: "Geld om je app draaiende te houden." },
+    revenue: { label: "Geld", description: "Geld om je app draaiende te houden." },
     users: { label: "Gebruikers", description: "Hoeveel mensen elke dag scrollen." },
     reputation: {
       label: "Reputatie",
@@ -59,7 +59,6 @@ export const UI_COPY = {
     phaseLabel: "Fase {phase} van 4",
     goalLabel: "Doel",
     turnLabel: "Beurt {turn}",
-    goalStreakLabel: "Doel gehaald: {streak} van {needed} beurten op rij",
     usersStatLabel: "{users} gebruikers",
     revenueStatLabel: "{revenue} omzet",
     dragHint: "Sleep een kaart naar je feed",
@@ -131,7 +130,7 @@ export const UI_COPY = {
     turnsLabel: "Beurten",
     phaseReachedLabel: "Fase bereikt",
     usersLabel: "Hoogste bereik",
-    revenueLabel: "Totaal verdiend",
+    moneyLabel: "Geld aan het eind",
     playedTitle: "Wat je in de feed stopte",
   },
   settings: {

@@ -1,9 +1,9 @@
-import type { CardType, GameContent, GameState, MeterKey } from "@/features/game-engine/api";
+import type { CardType, GameContent, GameState, ScoreKey } from "@/features/game-engine/api";
 import type { SoundEffectId } from "@/features/game-audio/api";
 import type { SessionState } from "@/features/game-session/api";
 
-/** A meter must move at least this much (0–100 scale) in one action to earn a meter blip. */
-export const METER_CUE_THRESHOLD = 8;
+/** Users or money must move at least this share of their value in one action to earn a blip. */
+export const METER_CUE_THRESHOLD = 0.1;
 
 const CARD_SOUNDS: Record<CardType, SoundEffectId> = {
   viral: "card-viral",
@@ -11,7 +11,7 @@ const CARD_SOUNDS: Record<CardType, SoundEffectId> = {
   news: "card-news",
 };
 
-const METER_KEYS: MeterKey[] = ["revenue", "users", "reputation"];
+const SCORE_KEYS: ScoreKey[] = ["users", "money"];
 
 /** The game's state change after one action, as one optional "big" sound (end, phase, event). */
 const milestoneSound = (before: GameState, after: GameState): SoundEffectId | null => {
@@ -24,7 +24,9 @@ const milestoneSound = (before: GameState, after: GameState): SoundEffectId | nu
 
 /** At most one subtle meter blip: a clear loss wins over a gain (the player should notice it). */
 const meterSound = (before: GameState, after: GameState): SoundEffectId | null => {
-  const deltas = METER_KEYS.map((key) => after.meters[key] - before.meters[key]);
+  const deltas = SCORE_KEYS.map(
+    (key) => (after[key] - before[key]) / Math.max(1, Math.abs(before[key]))
+  );
   if (deltas.some((delta) => delta <= -METER_CUE_THRESHOLD)) return "meter-loss";
   if (deltas.some((delta) => delta >= METER_CUE_THRESHOLD)) return "meter-gain";
   return null;

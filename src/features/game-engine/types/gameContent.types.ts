@@ -4,8 +4,14 @@
  * code changes. Rules SSOT: documentation/DOC_GAME_DESIGN.md.
  */
 
-/** The three visible meters, each 0–100. */
+/**
+ * The three effect keys an authored card or event moves (in points). `users` and `revenue` land
+ * on the absolute score (Gebruikers, Geld), `reputation` on the hidden 0–100 value (score-redesign D11).
+ */
 export type MeterKey = "revenue" | "users" | "reputation";
+
+/** The two score numbers on the board: absolute Gebruikers and Geld (euros). */
+export type ScoreKey = "users" | "money";
 
 /** The three regular card types; a draft holds any mix of them (shuffled-hand D1). */
 export type CardType = "viral" | "ad" | "news";
@@ -52,13 +58,14 @@ export interface EventOption {
 
 /**
  * When an event is due. `milestone` is due from the phase on (it opens soon after the game
- * enters the phase, carried to a later phase if pacing held it back); `toxicity` while hidden
- * Toxicity is above the threshold (optionally only in some phases). Each event fires at most
- * once per game; pacing decides on which turn a due event opens (game-engine D10).
+ * enters the phase, carried to a later phase if pacing held it back) and fires once. `scandal`
+ * events are drawn by the per-turn scandal chance while reputation is below the threshold
+ * (score-redesign D13, D22), optionally only in some phases; they may repeat once all of the
+ * phase's scandals have fired. Pacing decides on which turn an event opens (game-engine D10).
  */
 export type EventTrigger =
   | { kind: "milestone"; phase: PhaseId }
-  | { kind: "toxicity"; threshold: number; phases?: PhaseId[] };
+  | { kind: "scandal"; phases?: PhaseId[] };
 
 /** An event card that interrupts the draft until the player picks an option. */
 export interface EventDefinition {
@@ -70,23 +77,16 @@ export interface EventDefinition {
   options: [EventOption, EventOption, EventOption];
 }
 
-/** Absolute stats tracked next to the meters (users = DAU, revenue = gross omzet in EUR). */
-export type StatKey = "users" | "revenue";
-
-/** One condition of a phase goal: an absolute stat at least a value, or a meter above one. */
-export type GoalCondition =
-  | { kind: "stat"; stat: StatKey; atLeast: number }
-  | { kind: "meter"; meter: MeterKey; above: number };
-
 /**
- * A phase goal holds when all conditions hold for `consecutiveTurns` turns in a row
- * (1 = reach once). Phase 3 and the IPO use longer streaks.
+ * A phase goal: two goal lines (score-redesign D17). The phase ends on the turn both numbers
+ * reach their line; there is no streak and no reputation condition.
  */
 export interface PhaseGoal {
   /** Dutch goal text for the board. */
   description: string;
-  conditions: GoalCondition[];
-  consecutiveTurns: number;
+  users: number;
+  /** Euros. */
+  money: number;
 }
 
 /** One of the four phases: goal, costs and how hard reputation loss hits. */
@@ -97,13 +97,15 @@ export interface PhaseDefinition {
   goal: PhaseGoal;
   /** Applied after every card turn (server and staff costs). */
   passiveCosts: Effects;
+  /** Gebruikers one authored users point of gain adds in this phase (score-redesign D11). */
+  usersPerPoint: number;
+  /** Euros per authored revenue point in this phase (gains and passive costs alike). */
+  moneyPerPoint: number;
   /**
-   * The users stat at a full Gebruikers meter: the phase's reachable market. The stat is the
-   * meter's share of it (game-engine D1), so a new phase means a bigger market behind the meter.
+   * Users at which ads and commercial options pay their full amount (score-redesign D20): money
+   * gains scale with users / audienceUsers, between 0 and 1.5.
    */
-  usersAtFullMeter: number;
-  /** Euros of gross revenue per point of positive revenue-meter change from cards and events. */
-  revenuePerPoint: number;
+  audienceUsers: number;
   /** Multiplies negative reputation effects of cards, events and decay (reputation loss scales per phase). */
   reputationLossMultiplier: number;
   /** Multiplies positive revenue effects of cards and events (ads pay little in phase 1). */
@@ -112,11 +114,24 @@ export interface PhaseDefinition {
 
 /** Tunable rule constants. Defaults follow the design doc; a content lap may retune them. */
 export interface BalanceConfig {
-  startMeter: number;
-  /** Gross revenue at the start; the users stat follows the start meter (game-engine D1). */
-  startRevenue: number;
+  startUsers: number;
+  /** Euros at the start (the investor's money); below 0 is Bankroet (score-redesign D16). */
+  startMoney: number;
+  /** Hidden reputation at the start (0–100). */
+  startReputation: number;
+  /**
+   * Share of the current users one point of users loss removes (score-redesign D26): losses are
+   * relative, so a news card right after a phase change never wipes the users out; gains stay
+   * per phase (usersPerPoint), so growth does not compound.
+   */
+  userLossPerPoint: number;
   /** Toxicity added when any non-news card is played ("nieuws negeren"). */
   newsIgnoredToxicity: number;
+  /**
+   * Hidden Toxicity above `from` drains reputation every card turn: `perPoint` per point over it
+   * (score-redesign D21), so a little toxicity is harmless and a toxic feed eats trust.
+   */
+  toxicityDrain: { from: number; perPoint: number };
   reputationDecay: { afterTurnsWithoutNews: number; amount: number };
   adFatigue: {
     window: number;
@@ -126,7 +141,25 @@ export interface BalanceConfig {
   };
   echoChamber: { streak: number; userGainMultiplier: number; toxicity: number };
   journalismDrought: { afterTurnsWithoutNews: number; viralToxicityMultiplier: number };
+  scandal: ScandalConfig;
   eventPacing: EventPacingConfig;
+}
+
+/**
+ * Scandal risk (score-redesign D13): 0 at or above `threshold`, rising linearly to `maxChance`
+ * over `rampPoints` reputation points below it.
+ */
+export interface ScandalConfig {
+  threshold: number;
+  rampPoints: number;
+  /** Highest chance per card turn, 0–1. At this chance a scandal counts as urgent for pacing. */
+  maxChance: number;
+  /**
+   * Revenue points every scandal costs on top of the chosen option (a fine, angry advertisers),
+   * at the phase's `moneyPerPoint`, so scandals push toward Bankroet, the only game over
+   * (score-redesign D25).
+   */
+  finePoints: number;
 }
 
 /**
@@ -138,10 +171,8 @@ export interface EventPacingConfig {
   minTurnsBetween: number;
   /** A seeded 0…n extra turns on top of `minTurnsBetween`, drawn after each event. */
   randomExtraTurns: number;
-  /** Fewest card turns before an urgent event: a milestone, or any event in a crisis. At least 1. */
+  /** Fewest card turns before an urgent event: a milestone, or a scandal at the maximum chance. At least 1. */
   urgentMinTurnsBetween: number;
-  /** Toxicity from which due events are urgent: the crisis reacts fast, but not on the same turn. */
-  crisisToxicity: number;
 }
 
 /** Everything one game needs. */

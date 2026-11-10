@@ -50,7 +50,8 @@ export interface GameOverText extends GameOverStory {
 /** Numbers the IPO end report is built from (a subset of the engine's `GameState`). */
 export interface EndReportInput {
   turn: number;
-  stats: { users: number; revenue: number };
+  /** Peak users and final money of the run. */
+  score: { users: number; money: number };
   playedTypes: readonly ("viral" | "ad" | "news")[];
   firedEventIds: readonly string[];
 }

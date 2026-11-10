@@ -20,7 +20,7 @@ function toSnapshot(view: BoardView): TurnSnapshot {
     latest: view.feed[0] ?? null,
     meters: view.meters,
     goalStats: view.phase.goalStats,
-    streak: view.phase.streak,
+    scandal: view.scandal?.text ?? null,
     drought: view.draft.some((card) => card.droughtWarning),
   };
 }

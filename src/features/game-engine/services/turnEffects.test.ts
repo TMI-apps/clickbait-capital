@@ -4,7 +4,7 @@ import type {
   PhaseDefinition,
 } from "@/features/game-engine/types/gameContent.types";
 import { SEED_CONTENT } from "./seedContent";
-import { applyEffects, computeCardTurn, scaleForPhase } from "./turnEffects";
+import { applyScore, audienceFactor, computeCardTurn, scaleForPhase } from "./turnEffects";
 
 const balance = SEED_CONTENT.balance;
 /** Neutral phase so modifier tests read the design numbers directly. */
@@ -41,6 +41,7 @@ const base = {
   playedTypes: [],
   viralStreak: 0,
   turnsWithoutNews: 0,
+  toxicity: 0,
   phase: NEUTRAL_PHASE,
   balance,
 };
@@ -126,6 +127,18 @@ describe("computeCardTurn", () => {
     expect(result.cardEffects).toEqual({ revenue: 0, users: 0, reputation: 8, toxicity: -10 });
   });
 
+  it("should not drain reputation when toxicity is at or below the drain level", () => {
+    const result = computeCardTurn({ ...base, card: ad, toxicity: balance.toxicityDrain.from });
+    expect(result.totalEffects.reputation).toBe(0);
+  });
+
+  it("should drain reputation by the toxicity above the drain level", () => {
+    const result = computeCardTurn({ ...base, card: ad, toxicity: 60 });
+    const { from, perPoint } = balance.toxicityDrain;
+    expect(result.totalEffects.reputation).toBe(-Math.round((60 - from) * perPoint));
+    expect(result.cardEffects.reputation).toBe(0);
+  });
+
   it("should add the phase passive costs to the total but not to the card effects", () => {
     const phase = { ...NEUTRAL_PHASE, passiveCosts: { revenue: -4 } };
     const result = computeCardTurn({ ...base, card: news, phase });
@@ -164,12 +177,71 @@ describe("scaleForPhase", () => {
   });
 });
 
-describe("applyEffects", () => {
-  it("should clamp meters and toxicity to 0–100", () => {
-    const result = applyEffects(
-      { meters: { revenue: 95, users: 3, reputation: 50 }, toxicity: 98 },
-      { revenue: 10, users: -10, reputation: 0, toxicity: 10 }
+describe("applyScore", () => {
+  const phase = NEUTRAL_PHASE;
+  const { userLossPerPoint } = balance;
+  const atFullAudience = { users: phase.audienceUsers, money: 100, reputation: 50, toxicity: 98 };
+
+  it("should land users and money points on the score at the phase rates", () => {
+    const result = applyScore(
+      atFullAudience,
+      { revenue: 3, users: 2, reputation: 0, toxicity: 0 },
+      { phase, userLossPerPoint }
     );
-    expect(result).toEqual({ meters: { revenue: 100, users: 0, reputation: 50 }, toxicity: 100 });
+    expect(result.delta).toEqual({
+      users: 2 * phase.usersPerPoint,
+      money: 3 * phase.moneyPerPoint,
+    });
+    expect(result.users).toBe(phase.audienceUsers + 2 * phase.usersPerPoint);
+    expect(result.money).toBe(100 + 3 * phase.moneyPerPoint);
+  });
+
+  it("should scale a money gain by the audience but take costs in full", () => {
+    const half = { ...atFullAudience, users: phase.audienceUsers / 2 };
+    const total = { revenue: 6, users: 0, reputation: 0, toxicity: 0 };
+    const gain = { revenue: 10, users: 0, reputation: 0, toxicity: 0 };
+    const result = applyScore(half, total, { phase, userLossPerPoint, gainEffects: gain });
+    expect(result.delta.money).toBe(10 * phase.moneyPerPoint * 0.5 - 4 * phase.moneyPerPoint);
+  });
+
+  it("should take a users loss as a share of the current users per point", () => {
+    const result = applyScore(
+      { users: 100_000, money: 0, reputation: 50, toxicity: 0 },
+      { revenue: 0, users: -5, reputation: 0, toxicity: 0 },
+      { phase, userLossPerPoint }
+    );
+    expect(result.delta.users).toBe(-Math.round(100_000 * 5 * userLossPerPoint));
+  });
+
+  it("should never take users below 0 and clamp reputation and toxicity to 0–100", () => {
+    const result = applyScore(
+      { users: 10, money: 0, reputation: 50, toxicity: 98 },
+      { revenue: 0, users: -1_000, reputation: 60, toxicity: 10 },
+      { phase, userLossPerPoint }
+    );
+    expect(result).toMatchObject({ users: 0, reputation: 100, toxicity: 100 });
+    expect(result.delta.users).toBe(-10);
+  });
+
+  it("should let money fall below 0 when costs exceed it", () => {
+    const result = applyScore(
+      { ...atFullAudience, money: 10 },
+      { revenue: -1, users: 0, reputation: 0, toxicity: 0 },
+      { phase, userLossPerPoint }
+    );
+    expect(result.money).toBe(10 - phase.moneyPerPoint);
+  });
+});
+
+describe("audienceFactor", () => {
+  it("should be users / audienceUsers between 0 and 1.5", () => {
+    const phase = NEUTRAL_PHASE;
+    expect(audienceFactor(0, phase)).toBe(0);
+    expect(audienceFactor(phase.audienceUsers / 4, phase)).toBe(0.25);
+    expect(audienceFactor(phase.audienceUsers * 5, phase)).toBe(1.5);
+  });
+
+  it("should throw when the phase has no positive audience", () => {
+    expect(() => audienceFactor(1, { ...NEUTRAL_PHASE, audienceUsers: 0 })).toThrow();
   });
 });

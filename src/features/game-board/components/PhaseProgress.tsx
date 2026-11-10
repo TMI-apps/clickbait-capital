@@ -7,7 +7,7 @@ export interface PhaseProgressProps {
   phase: PhaseProgressView;
 }
 
-/** Phase name, goal text, progress bar and the absolute stats the goal reads. */
+/** Phase name, goal text, progress bar and both numbers against their goal lines. */
 export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
   const percent = Math.round(phase.progress * 100);
   return (
@@ -43,14 +43,6 @@ export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
         {phase.goalStats.map((text) => (
           <span key={text}>{text}</span>
         ))}
-        {phase.streak && (
-          <span>
-            {fillTemplate(UI_COPY.board.goalStreakLabel, {
-              streak: String(phase.streak.current),
-              needed: String(phase.streak.required),
-            })}
-          </span>
-        )}
         <span>{fillTemplate(UI_COPY.board.turnLabel, { turn: String(phase.turn) })}</span>
       </p>
     </section>

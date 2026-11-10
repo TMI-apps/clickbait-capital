@@ -9,13 +9,13 @@ import type {
 import { EVENT_CARDS } from "@/features/game-content/services/eventCards";
 
 /**
- * End screens: the three game overs (design § 2) and the IPO end report (design § 6 Fase 4)
+ * End screens: the game over, Bankroet (score-redesign D16), and the IPO end report (design § 6 Fase 4)
  * that shows what the win cost society. Report numbers are derived from the run, then
  * dressed up; they are satire, not statistics.
  */
 
 /**
- * The game overs. Each has one title and 2–3 stories; `selectGameOverText` picks the story
+ * The game over. It has one title and four stories; `selectGameOverText` picks the story
  * that matches how the run got there (game-content D9), so the ending never blames ads the
  * player never showed.
  */
@@ -35,51 +35,17 @@ export const GAME_OVER_TEXTS = {
         lesson:
           "Hoe groter een app, hoe duurder hij is. Daarom willen techbedrijven steeds meer geld verdienen aan elke gebruiker.",
       },
-    },
-  },
-  abandoned: {
-    title: "Verlaten Platform",
-    variants: {
-      adOverload: {
-        headline: "Gebruikers massaal weg naar een andere app",
-        body: "Reclame, reclame en nog eens reclame. Je gebruikers zijn weggescrold en komen niet terug. Je feed is een spookstad vol banners.",
+      noAudience: {
+        headline: "Reclame zonder kijkers: adverteerders betalen niet meer",
+        body: "Reclame, reclame en nog eens reclame. Je gebruikers zijn weggescrold. Zonder kijkers wilde geen adverteerder nog betalen, en de rekeningen bleven komen.",
         lesson:
           "Gebruikers zijn het product. Wie ze te veel reclame laat zien, heeft straks niemand meer om reclame aan te laten zien.",
       },
-      dullFeed: {
-        headline: "Gebruikers vallen in slaap en kiezen een drukkere app",
-        body: "Nieuws, nieuws en nog een [[factcheck]]. Netjes, eerlijk en supersaai. Je gebruikers gingen naar apps die harder schreeuwen. Je feed klopt helemaal, maar niemand kijkt nog.",
+      scandals: {
+        headline: "Schandaal na schandaal: niemand wil nog betalen",
+        body: "[[Nepnieuws]], haat en ophef: de ene ophef was nog niet voorbij of de volgende stond al in de krant. Boetes, boze adverteerders en advocaten kostten zoveel dat het geld op was.",
         lesson:
-          "Apps vechten om je aandacht. Een rustig verhaal verliest dan van ophef. Daarom laat een [[algoritme]] vaak juist sensatie zien.",
-      },
-      viralBurnout: {
-        headline: "Gebruikers vluchten weg van de eindeloze ruzie-feed",
-        body: "Elke post was ophef. Elke keer scrollen was een nieuwe ruzie. Eerst kwamen mensen kijken, daarna waren ze het zat.",
-        lesson:
-          "Boosheid trekt kijkers, maar houdt ze niet vast. Een app die alleen op ophef draait, raakt zijn kijkers kwijt.",
-      },
-    },
-  },
-  banned: {
-    title: "Verbod & Regulering",
-    variants: {
-      viralToxicity: {
-        headline: "App verboden: hij maakte te veel kapot",
-        body: "[[Nepnieuws]], haat en ophef stapelden zich op. Toen greep de regering in. Je app wordt verboden en in stukken gehakt.",
-        lesson:
-          "Ophef levert meteen kijkers op. De schade komt later. Maar hij komt wel, en dan in één keer.",
-      },
-      crises: {
-        headline: "Crisis na crisis: het parlement verbiedt je app",
-        body: "De ene crisis was nog niet voorbij of de volgende stond al in de krant. Steeds minder mensen vertrouwden je. Toen zei het [[parlement]]: genoeg.",
-        lesson:
-          "Een app wordt bijna nooit verboden om één fout. Het zijn de keuzes onder druk die zich opstapelen.",
-      },
-      scamAds: {
-        headline: "App gesloten na een stroom nepreclame",
-        body: "Nep-giveaways, wondermiddelen, [[cryptomunten|cryptomunt]]: wie betaalde, kwam in de feed. Na duizenden klachten sluit de [[toezichthouder]] je app.",
-        lesson:
-          "Een app die elke reclame toelaat, verkoopt het vertrouwen van zijn eigen gebruikers. Daarom zijn er regels voor reclame.",
+          "Ophef levert meteen kijkers op. De schade komt later. Maar hij komt wel, en dan kost hij veel geld.",
       },
     },
   },
@@ -100,40 +66,27 @@ function typeShares(run: EndReportInput): Record<"viral" | "ad" | "news", number
   };
 }
 
-/** Bankroet: under this share of ads, nobody paid; above it, the costs outgrew the income. */
+/** Bankroet: under this share of ads, nobody paid; from AD_HEAVY_SHARE on, the ads drove users away. */
 export const NO_INCOME_BELOW_AD_SHARE = 0.25;
-/** Verbod: from this viral share the ban is about outrage. */
-export const TOXIC_FROM_VIRAL_SHARE = 0.5;
-/** Verbod: this many crises (toxicity-triggered events) make it a story of piled-up crises. */
-export const CRISES_FROM_EVENTS = 2;
+export const AD_HEAVY_SHARE = 0.5;
+/** Bankroet: this many scandals make it a story of piled-up scandals. */
+export const SCANDALS_FROM_EVENTS = 2;
 
-/** Crisis events (toxicity triggers); milestone events such as the investors are not crises. */
-const CRISIS_EVENT_IDS = new Set(
-  EVENT_CARDS.filter((event) => event.trigger.kind === "toxicity").map((event) => event.id)
+/** Scandal events (score-redesign D14); milestone events such as the investors are not scandals. */
+const SCANDAL_EVENT_IDS = new Set(
+  EVENT_CARDS.filter((event) => event.trigger.kind === "scandal").map((event) => event.id)
 );
 
-function crisisCount(run: EndReportInput): number {
-  return run.firedEventIds.filter((id) => CRISIS_EVENT_IDS.has(id)).length;
+function scandalCount(run: EndReportInput): number {
+  return run.firedEventIds.filter((id) => SCANDAL_EVENT_IDS.has(id)).length;
 }
 
+/** Bankroet, the only game over (score-redesign D16): scandals first, then the ad share. */
 function bankruptVariant(run: EndReportInput): GameOverVariant<"bankrupt"> {
-  return typeShares(run).ad < NO_INCOME_BELOW_AD_SHARE ? "noIncome" : "costsOutgrew";
-}
-
-/** Verlaten: the type the player leaned on most (ties: ads, then viral, then news). */
-function abandonedVariant(run: EndReportInput): GameOverVariant<"abandoned"> {
-  const { viral, ad, news } = typeShares(run);
-  if (news > ad && news > viral) return "dullFeed";
-  if (viral > ad) return "viralBurnout";
-  return "adOverload";
-}
-
-/** Verbod: a viral majority is outrage; else several crises; else scam ads; else outrage. */
-function bannedVariant(run: EndReportInput): GameOverVariant<"banned"> {
-  const { viral, ad } = typeShares(run);
-  if (viral >= TOXIC_FROM_VIRAL_SHARE) return "viralToxicity";
-  if (crisisCount(run) >= CRISES_FROM_EVENTS) return "crises";
-  return ad > viral ? "scamAds" : "viralToxicity";
+  if (scandalCount(run) >= SCANDALS_FROM_EVENTS) return "scandals";
+  const { ad } = typeShares(run);
+  if (ad >= AD_HEAVY_SHARE) return "noAudience";
+  return ad < NO_INCOME_BELOW_AD_SHARE ? "noIncome" : "costsOutgrew";
 }
 
 function textOf<V extends string>(
@@ -145,16 +98,12 @@ function textOf<V extends string>(
 
 /**
  * The game-over text that matches how the run got there (game-content D9): the shared title
- * plus the story picked from the run's played card types and crisis events. Pure.
+ * plus the story picked from the run's scandals and played card types. Pure.
  */
 export function selectGameOverText(reason: GameOverReason, run: EndReportInput): GameOverText {
   switch (reason) {
     case "bankrupt":
       return textOf(GAME_OVER_TEXTS.bankrupt, bankruptVariant(run));
-    case "abandoned":
-      return textOf(GAME_OVER_TEXTS.abandoned, abandonedVariant(run));
-    case "banned":
-      return textOf(GAME_OVER_TEXTS.banned, bannedVariant(run));
   }
 }
 
@@ -171,7 +120,7 @@ export const END_REPORT_TEMPLATE = {
     familyFights: "Ruzies aan de keukentafel",
     adsShown: "Reclames getoond",
     factchecksRead: "Mensen die een factcheck helemaal lazen",
-    crises: "Crises die je overleefde",
+    crises: "Schandalen en crises die je overleefde",
   },
   closing:
     "De bel van de beurs gaat. De aandeelhouders juichen. De feed draait door, sneller dan ooit. Was het dat waard?",
@@ -197,12 +146,12 @@ function countType(input: EndReportInput, type: "viral" | "ad" | "news"): number
 
 /** The report numbers. Multipliers are satirical scale factors, tuned to read as plausible. */
 function reportValues(input: EndReportInput): Record<EndReportLineId, string> {
-  const { users, revenue } = input.stats;
+  const { users, money } = input.score;
   const viral = countType(input, "viral");
   const ads = countType(input, "ad");
   const news = countType(input, "news");
   return {
-    valuation: euroFormat.format(revenue * 40),
+    valuation: euroFormat.format(Math.max(0, money) * 10 + users * 5),
     viralPosts: numberFormat.format(viral),
     misinformationShares: numberFormat.format(viral * users * 0.03),
     screenHours: numberFormat.format(users * input.turn * 0.02),
@@ -225,7 +174,7 @@ export function buildEndReport(input: EndReportInput): EndReport {
     title: END_REPORT_TEMPLATE.title,
     intro: fillTemplate(END_REPORT_TEMPLATE.intro, {
       turns: numberFormat.format(input.turn),
-      users: numberFormat.format(input.stats.users),
+      users: numberFormat.format(input.score.users),
     }),
     lines,
     closing: END_REPORT_TEMPLATE.closing,

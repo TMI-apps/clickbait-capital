@@ -23,14 +23,11 @@ describe("soundsForAction", () => {
     expect(soundsForAction({ cardType: null, before, after })).toEqual(["event-choice"]);
   });
 
-  it("should add one meter loss blip when a meter falls past the threshold", () => {
+  it("should add one loss blip when a number falls past the threshold share", () => {
     const before = base();
     const after = withChanges(before, {
-      meters: {
-        ...before.meters,
-        users: before.meters.users + METER_CUE_THRESHOLD,
-        reputation: before.meters.reputation - METER_CUE_THRESHOLD,
-      },
+      users: Math.round(before.users * (1 + METER_CUE_THRESHOLD)),
+      money: Math.round(before.money * (1 - METER_CUE_THRESHOLD)),
     });
 
     expect(soundsForAction({ cardType: "viral", before, after })).toEqual([
@@ -39,10 +36,10 @@ describe("soundsForAction", () => {
     ]);
   });
 
-  it("should add a meter gain blip when a meter rises past the threshold", () => {
+  it("should add a gain blip when a number rises past the threshold share", () => {
     const before = base();
     const after = withChanges(before, {
-      meters: { ...before.meters, revenue: before.meters.revenue + METER_CUE_THRESHOLD },
+      money: Math.round(before.money * (1 + METER_CUE_THRESHOLD)),
     });
 
     expect(soundsForAction({ cardType: "ad", before, after })).toEqual(["card-ad", "meter-gain"]);
@@ -52,7 +49,7 @@ describe("soundsForAction", () => {
     const before = base();
     const after = withChanges(before, {
       status: "event",
-      meters: { ...before.meters, revenue: before.meters.revenue + 30 },
+      money: before.money * 2,
     });
 
     expect(soundsForAction({ cardType: "ad", before, after })).toEqual(["card-ad", "event-appear"]);
