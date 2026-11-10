@@ -75,7 +75,10 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
       slots={SCORE_HISTORY_POINTS}
       goalLabel={UI_COPY.board.goalLabel}
     />
-    <ul aria-label="Gebruikers en geld" className="mt-1 grid grid-cols-2 gap-2 board-desk:mt-3">
+    <ul
+      aria-label="Gebruikers en geld"
+      className="mt-1 grid grid-cols-2 gap-2 board-desk:mt-3 board-desk:grid-cols-1 board-desk:gap-3"
+    >
       {meters.map((tile) => {
         const meter = METERS[tile.key];
         return (
@@ -100,7 +103,7 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
             <div aria-hidden="true" className="flex flex-wrap items-baseline gap-x-1.5">
               <span
                 className={cn(
-                  "font-mono text-lg font-bold tabular-nums sm:text-2xl board-desk:text-3xl",
+                  "font-mono text-lg font-bold whitespace-nowrap tabular-nums sm:text-2xl board-desk:text-3xl",
                   tile.danger && "text-destructive"
                 )}
               >
