@@ -1,5 +1,7 @@
 # Development plan: Score redesign (users + money as the score, reputation as a guard rail)
 
+> **Status:** lap 0 (design + mockups) is done. The owner decided on 2026-11-10 (DECISIONS D10–D19): keep the board, use mockup C's two lines, effects land directly, scandals come from a visible chance. The momentum model, variants A and B, and the follow-up laps below are **superseded**. The build laps are in BRIEF.md § Size, and loop-plan writes their plan once the orchestrator confirms the open owner decisions (D15–D17).
+
 ## Summary
 
 - **Goal:** make the score impossible to miss: two big numbers (Gebruikers, Geld) that move gradually with a visible trend, phase goals as thresholds on those same two numbers, one end score, and reputation that is silent until it is in danger.
@@ -15,7 +17,7 @@
 | ----- | ---------------------------------------- | --------------------------------------------------------------------------- | ------- |
 | 1     | Brief, decisions, plan, precedent        | docs written                                                                | Done    |
 | 2     | Fake momentum model + test               | model test green                                                            | Pending |
-| 3     | Three HUD variants on `/mockup/score`    | type-check, lint, arch, structure, tests; no scroll at 390×844 and 1440×900 | Done |
+| 3     | Three HUD variants on `/mockup/score`    | type-check, lint, arch, structure, tests; no scroll at 390×844 and 1440×900 | Done    |
 | 4     | Screenshots + report to the orchestrator | screenshots read                                                            | Pending |
 
 ## Current system (verified in code)
