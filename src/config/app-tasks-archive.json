@@ -253,5 +253,10 @@
     "title": "Desktop layout: play column plus vertical stats panel",
     "description": "Owner request: on desktop the feed with the hand directly beneath it on the left, phase and stats stacked in a panel on the right. Phones unchanged. PR #48. Decision log § desktop-layout.",
     "status": "done"
+  },
+  {
+    "title": "Restore the top-image card for the newest feed post",
+    "description": "Owner regression report. Cause: since #38 the newest post only got its top image when the feed box was at least 384px tall, so phones showed a side thumbnail. Now always the top-image card with a capped photo height; regression test added. PR #49. Decision log § feed-top-card.",
+    "status": "done"
   }
 ]

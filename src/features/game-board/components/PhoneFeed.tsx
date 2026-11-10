@@ -15,6 +15,16 @@ import { cn } from "@/shared/utils/cn";
 /** Drop target id the draft cards are dragged onto. */
 export const FEED_DROP_ID = "feed";
 
+/**
+ * Photo height of the newest post and its drop slot (feed-top-card D1–D3): a banner cropped
+ * with object-fit: cover around the focal point. At most 12rem and never taller than 4:3 (D3);
+ * on a short feed box it shrinks so type, title and body (~7rem) still fit under it (D2); never
+ * under 4rem.
+ * `cq*` units resolve against the feed list, which is a size container.
+ */
+const NEWEST_PHOTO_HEIGHT =
+  "aspect-auto h-[max(4rem,min(12rem,calc(100cqh-7rem),calc(100cqw/var(--game-card-image-aspect))))]";
+
 /** Type label per post. Posts carry no type-coloured side bar: the card stands on its own (readable-hover D5). */
 const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }> = {
   viral: { label: "Viraal", icon: Zap },
@@ -23,16 +33,23 @@ const POST_STYLE: Record<FeedEntry["type"], { label: string; icon: LucideIcon }>
   event: { label: "Gebeurtenis", icon: Siren },
 };
 
+interface PostArtworkProps {
+  entry: FeedEntry;
+  compact: boolean;
+  /** Layout override for the image area (the newest post's photo height). */
+  className?: string;
+}
+
 /**
  * The entry's picture in the kit's card artwork (same image path as the draft: lazy, focal
  * point, ThumbnailFrame except on news, type-icon placeholder; feed-images D1). A compact row
  * drops caption, sticker and marker, which are unreadable at 64 px (D4).
  */
-const PostArtwork = ({ entry, compact }: { entry: FeedEntry; compact: boolean }) => {
+const PostArtwork = ({ entry, compact, className }: PostArtworkProps) => {
   const image = getCardImage(entry.contentId);
   const shown: GameCardImage | undefined =
     image && compact ? { ...image, thumbnail: undefined } : (image ?? undefined);
-  return <GameCardArtwork type={entry.type} image={shown} />;
+  return <GameCardArtwork type={entry.type} image={shown} className={className} />;
 };
 
 const TypeLabel = ({ type }: { type: FeedEntry["type"] }) => {
@@ -52,27 +69,23 @@ interface NewestPostProps {
 }
 
 /**
- * Newest post: photo plus type, title and body, then its follower comments as they reveal
- * (feed-comments D1, D4). The feed box is a size container (D3): the photo sits on top when the
- * box is tall enough, beside the text otherwise, so the whole post stays visible without scrolling.
+ * Newest post: a card with the photo full-width on top, then type, title and body, then its
+ * follower comments as they reveal (feed-comments D1, D4). Same card on every screen size
+ * (feed-top-card D1, replaces feed-images D3); on a short feed box the photo is cropped (D2).
  */
 const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
   <li
     data-variant="newest"
     className={cn(
-      "grid grid-cols-[45%_1fr] overflow-hidden rounded-md bg-card text-card-foreground elevation-sm [@container(min-height:24rem)]:grid-cols-1",
+      "flex flex-col overflow-hidden rounded-md bg-card text-card-foreground elevation-sm",
       FEED_ENTRANCE[entry.type]
     )}
   >
-    <div className="self-start">
-      <PostArtwork entry={entry} compact={false} />
-    </div>
+    <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
     <div className="min-w-0 p-2.5">
       <TypeLabel type={entry.type} />
       <p className="text-sm leading-snug font-bold">{entry.title}</p>
-      <p className="line-clamp-3 text-xs text-muted-foreground [@container(min-height:24rem)]:line-clamp-2">
-        {entry.body}
-      </p>
+      <p className="line-clamp-2 text-xs text-muted-foreground">{entry.body}</p>
     </div>
     {comments && (
       <PostComments
@@ -80,7 +93,7 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
         variant="full"
         shown={reveal.shown}
         reduced={reveal.reduced}
-        className="col-span-full mx-2.5 mb-2"
+        className="mx-2.5 mb-2"
       />
     )}
   </li>
@@ -110,8 +123,8 @@ const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentB
 );
 
 /**
- * Where a dragged card will land (event-juice-drop D4): a slot shaped like the newest post (same
- * grid and artwork ratio) at the top of the list, so the posts move down instead of being
+ * Where a dragged card will land (event-juice-drop D4): a slot shaped like the newest post (photo
+ * box on top, same artwork ratio) at the top of the list, so the posts move down instead of being
  * covered. Its height opens and closes through a grid-row transition on `duration-normal`
  * (instant under reduced motion). The feed keys it by the newest post, so it vanishes at once
  * when the dropped post takes its place.
@@ -129,11 +142,11 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
       <div className="pb-2">
         <div
           className={cn(
-            "grid grid-cols-[45%_1fr] items-center overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast) [@container(min-height:24rem)]:grid-cols-1",
+            "flex flex-col overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast)",
             over && "border-solid border-primary bg-primary/15"
           )}
         >
-          <div className="aspect-game-card-image" />
+          <div className={NEWEST_PHOTO_HEIGHT} />
           {/* Text cell as tall as the newest post's type, title and body lines. */}
           <p className="flex min-h-22 items-center justify-center p-2.5 text-center text-sm font-semibold text-primary">
             Laat los om te plaatsen
