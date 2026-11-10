@@ -15,7 +15,8 @@ export interface ScoreChartProps {
 /**
  * Stock-style score chart (score-redesign D10, D31, mockup C): all lines on one chart, each
  * racing to its own dashed goal line in its own colour at its own height, labelled with the goal
- * value. The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
+ * value. Strokes do not scale (`vector-effect`) and the end dots and labels are HTML, so they stay
+ * round and sharp however the SVG stretches. The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
  */
 export const ScoreChart = ({ series, slots, children, className }: ScoreChartProps) => {
   const { width, height, lines } = useScoreChart(series, slots);
@@ -48,10 +49,20 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
-              <circle cx={line.last.x} cy={line.last.y} r={3} className="fill-current" />
             </g>
           ))}
         </svg>
+        {/* End dots as HTML: the SVG stretches non-uniformly, so an SVG circle would be an oval. */}
+        {lines.map((line) => (
+          <span
+            key={`${line.key}-dot`}
+            className={cn("absolute size-2 -translate-1/2 rounded-full bg-current", line.tone)}
+            style={{
+              left: `${(line.last.x / width) * 100}%`,
+              top: `${(line.last.y / height) * 100}%`,
+            }}
+          />
+        ))}
         {lines.map((line) => (
           <span
             key={line.key}
