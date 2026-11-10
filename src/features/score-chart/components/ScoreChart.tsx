@@ -49,7 +49,7 @@ export const ScoreChart = ({ series, slots }: ScoreChartProps) => {
       {lines.map((line) => (
         <span
           key={line.key}
-          className={`absolute right-0 -translate-y-full rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums ${line.tone}`}
+          className={`absolute left-0 -translate-y-full rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums ${line.tone}`}
           style={{ top: `${(line.goalY / height) * 100}%` }}
         >
           {line.goalText}
