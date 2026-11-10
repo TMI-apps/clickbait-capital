@@ -5,7 +5,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 ## Purpose
 
 - **Event modal:** one urgent situation with three actions (A/B/C, effects hidden); after a pick the dialog reveals the chosen action and its phase-scaled meter changes, and "Verder" applies it. It must be answered.
-- **Phase transition:** a full-screen intro when a phase starts (De Zolderkamer → De Scale-Up → Wereldwijd Platform → De Beursgang): phase steps, intro, tip and the new goal.
+- **Phase transition:** a full-screen intro when a phase starts (De Zolderkamer → De Scale-Up → Wereldwijd Platform → De Beursgang): the phase's photo as hero, phase steps, intro, tip and the new goal (both goal lines, users and money, score-redesign D17).
 - **Endings:** Bankroet, the only game over since the score redesign (score-redesign D16; newspaper headline, story, lesson — the story matching the run, picked by game-content's `selectGameOverText`), and the IPO (report title and its closing question). Dramatic in tone. `RunSummary.score` holds the peak users and the final money.
 - **Results:** sober numbers: turns, phase reached, users, revenue, the end report lines (damage, misinformation, sleep, family fights, ads, factchecks, crises) and what went into the feed; "Opnieuw spelen", "Deel je resultaat" and "Naar het begin".
 - No game rules and no copy here: texts come from `@/features/game-content/api`, numbers from the run summary the board passes.
@@ -16,8 +16,8 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 | ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
 | API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `ResumeScreen`, `usePhaseIntro` |
 | Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                                       |
-| Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, entrance motion, 44px actions                    |
-| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal                                         |
+| Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, optional hero photo, entrance motion, 44px actions |
+| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal and the phase photo                     |
 | Components | `components/ResumeScreen.tsx`                                         | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4)              |
 | Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                                      |
 | Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                                         |
@@ -32,6 +32,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 - **Report on a game over (D3):** the results reuse `buildEndReport` lines for every ending except the IPO valuation; the report intro shows only after a win, and the report title and closing question form the IPO ending screen.
 - **Formatting stays in the board (D4):** the board formats the absolute stats (`statTexts`) with its nl-NL formatters and passes the raw numbers for `buildEndReport`, so no third formatter copy exists here.
 - **Motion:** entrance fades use the motion tokens (`--duration-slow`), which drop to ~0 under prefers-reduced-motion. Bigger juice belongs to the game-juice lap.
+- **Phase hero (phase-images D2, D3):** `PhaseTransitionScreen` passes card-imagery's `getPhaseImage(phaseId)` as `FlowScreen` `heroImage`. The photo fills the heading block (dots, kicker, title; `clamp(7rem, 28dvh, 15rem)` tall, full bleed on phones, rounded from `sm`), `object-fit: cover` around its focal point, with a gradient into the page background so the title stays readable. It has a Dutch alt, loads eagerly with `fetchpriority="high"` and disappears if it fails to load. At heights ≤ 480px every flow screen tightens its spacing and the hero shrinks to the text, so the intro fits without scrolling at 360×640, 390×844, 844×390 and 1440×900.
 - **Not dismissible:** the event modal passes `dismissible={false}` (game-board D5); endings have no close, only their actions.
 - **Spoken headings (screen-reader D5):** the kicker ("Fase 2", "Game over") is visually above the heading but spoken inside it (sr-only, followed by a space only when there is a kicker), since focus lands on the heading; the phase-step dots are `aria-hidden`. The results heading starts with sr-only "Je rapport." because a lost ending and its results share a title. The event modal takes `onCloseAutoFocus` so the board can return focus to the draft.
 - **Share card (game-flow D5, share-card lap):** `toShareCardContent` fills the result-share card from the run: the ending's kicker, title and headline (the IPO closing question on a win), phase reached, Hoogste bereik, Geld aan het eind (score-redesign; was Totale omzet), `shareText` and the production link (`SITE_ORIGIN`). `SHARE_RESULT_COPY` maps the share outcomes to `UI_COPY.results` status lines. The button sits between the two results actions on both outcomes.
@@ -53,7 +54,7 @@ Colocated Vitest: `services/endFlow.test.ts` (ending, results and share card vie
 
 - `@/features/game-content/api` (`PHASE_INTROS`, `selectGameOverText` for the ending story, `GAME_OVER_TEXTS` titles for the results, `buildEndReport`, `UI_COPY`).
 - `@/features/result-share/api` (`ShareResultButton`, card types) and `@/config/site` (`SITE_ORIGIN`).
-- `@/features/card-imagery/api` (`getCardImage` for the event photo).
+- `@/features/card-imagery/api` (`getCardImage` for the event photo, `getPhaseImage` for the phase hero).
 - `@/features/game-juice/api` (`EffectsJuice`, `juiceActionForEvent` for the outcome reveal).
 - Kit: `Modal`, `Button`, `GameCardArtwork`. Icons: `lucide-react`.
 - Used by `@/features/game-board` (`GameBoard`), which maps engine state to these types.

@@ -61,10 +61,35 @@ export interface CardImage {
   thumbnail?: CardImageThumbnail;
 }
 
+/**
+ * Hero photo of a phase intro screen (phase-images lap): one per phase of the run, chosen by the
+ * owner, cropped 16:9 to `public/cards/<file>` and credited on `/credits` like the card photos.
+ */
+export interface PhaseImageManifestEntry {
+  /** Phase number from the game engine (1 = De Zolderkamer … 4 = De Beursgang). */
+  phaseId: number;
+  /** File name in `public/cards/` (served at `/cards/<file>`, cached with the card images). */
+  file: string;
+  /** Dutch alt text describing the actual photo. */
+  alt: string;
+  /** Point to keep in view when the hero crops further, in percent (0–100). */
+  focalPoint: { x: number; y: number };
+  /** Unsplash photographer, from the owner's file name. */
+  author: string;
+  sourceUrl: string;
+  license: "Unsplash License";
+  licenseUrl: string;
+}
+
+/** What the phase intro shows: a card-image shape without thumbnail parts. */
+export type PhaseImage = Omit<CardImage, "thumbnail">;
+
 /** One line on the credits screen: one per distinct picture. */
 export interface CardImageCredit {
-  /** First content id that uses the picture (also the key for its thumbnail). */
+  /** First content id that uses the picture (`phase-<n>` for a phase photo); the list key. */
   contentId: string;
+  /** Served picture, shown as the credit's small thumbnail. */
+  src: string;
   /** "Foto: Author, Unsplash License" — the plain-text attribution. */
   text: string;
   author: string;

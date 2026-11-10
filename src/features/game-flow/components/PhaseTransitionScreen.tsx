@@ -1,6 +1,7 @@
 import { Flag, Lightbulb } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
+import { getPhaseImage } from "@/features/card-imagery/api";
 import { GLOSSARY, PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
 import type { FlowPhase } from "@/features/game-flow/types/gameFlow.types";
 import { cn } from "@/shared/utils/cn";
@@ -13,7 +14,8 @@ export interface PhaseTransitionScreenProps {
 
 /**
  * Phase intro when a phase starts: where you are now, what changes, and the new goal. The step
- * dots are decorative; the kicker ("Fase 2") in the focused heading says where you are.
+ * dots are decorative; the kicker ("Fase 2") in the focused heading says where you are. The
+ * phase's photo (card-imagery `getPhaseImage`) sits behind the heading as the hero.
  */
 export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScreenProps) => {
   const intro = PHASE_INTROS[phase.phaseId];
@@ -22,6 +24,7 @@ export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScre
     <FlowScreen
       kicker={intro.kicker}
       title={intro.title}
+      heroImage={getPhaseImage(phase.phaseId) ?? undefined}
       icon={
         <ol aria-hidden="true" className="flex gap-1.5">
           {steps.map((step) => (
