@@ -258,5 +258,10 @@
     "title": "Restore the top-image card for the newest feed post",
     "description": "Owner regression report. Cause: since #38 the newest post only got its top image when the feed box was at least 384px tall, so phones showed a side thumbnail. Now always the top-image card with a capped photo height; regression test added. PR #49. Decision log § feed-top-card.",
     "status": "done"
+  },
+  {
+    "title": "Phase images on the phase intro screens",
+    "description": "Owner-supplied Unsplash photos for the four phases as hero on each phase intro, credited on /credits. 1200x675 WebP via the card image pipeline. PR #52. Decision log § phase-images.",
+    "status": "done"
   }
 ]
