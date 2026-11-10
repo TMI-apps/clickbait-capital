@@ -139,6 +139,7 @@ export function toMeters(
       delta,
       deltaText: formatScoreDelta(score, delta),
       goalText: `Doel: ${formatScore(score, goal)}`,
+      goalAmountText: formatScore(score, goal),
       full: amount >= goal,
       danger: score === "money" && amount <= costPerTurn * MONEY_DANGER_TURNS,
     };

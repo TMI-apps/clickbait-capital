@@ -71,9 +71,9 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
         key: tile.key,
         shares: tile.history,
         tone: METERS[tile.key].text,
+        goalText: tile.goalAmountText,
       }))}
       slots={SCORE_HISTORY_POINTS}
-      goalLabel={UI_COPY.board.goalLabel}
     />
     <ul
       aria-label="Gebruikers en geld"
@@ -112,9 +112,6 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
               <MeterDelta key={version} delta={tile.delta} text={tile.deltaText} />
               {tile.danger && <AlertTriangle className="size-4 text-destructive" />}
             </div>
-            <p aria-hidden="true" className="text-xs text-muted-foreground tabular-nums">
-              {tile.goalText}
-            </p>
             <span
               role="meter"
               aria-label={meter.label}

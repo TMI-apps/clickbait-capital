@@ -31,8 +31,10 @@ export interface MeterView {
   delta: number;
   /** "+12.000" / "−€ 5.000"; empty when nothing changed. */
   deltaText: string;
-  /** "Doel: 100.000". */
+  /** "Doel: 100.000" (spoken; the chart shows the goal as a coloured goal line). */
   goalText: string;
+  /** The goal value alone ("100.000", "€ 150.000"): the label on the chart's goal line. */
+  goalAmountText: string;
   /** The goal line is reached. */
   full: boolean;
   /** Geld is low enough that Bankroet is near (a few turns of costs): the board warns. */
