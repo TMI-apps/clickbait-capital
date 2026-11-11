@@ -283,5 +283,10 @@
     "title": "Deck draw: mixed hands and no repeats",
     "description": "Player feedback: hands now lean to one of each type (60/35/5), seeded per-type piles put every shown card at the bottom, the last hand never repeats. Saves v6. PR #58. Decision log § deck-draw.",
     "status": "done"
+  },
+  {
+    "title": "Score chart shows the full timeline",
+    "description": "Player feedback: the chart shows the whole run from turn 0, growing left to right with a measured free area for the forecast, zero at the bottom, faded earlier phases with phase dividers and scandal/event ticks, counters in the top corners and delta labels on the forecast. PR #57. Decision log § chart-timeline.",
+    "status": "done"
   }
 ]
