@@ -17,6 +17,9 @@ export const CHART_HEIGHT = 80;
  */
 export const FORECAST_RESERVE_PX = 112;
 
+/** Height of a forecast delta label in CSS pixels: two labels closer than this are spread apart. */
+const FORECAST_LABEL_PX = 16;
+
 /** Forecast segment length in CSS pixels: from the newest point to the forecast dot. */
 const FORECAST_SEGMENT_PX = 24;
 
@@ -40,11 +43,20 @@ export const FIXED_STEPS = 12;
 export const MAX_DRAWN_POINTS = 160;
 
 /**
- * Where each series' goal line sits, as a share of the height from the top (chart-timeline D6):
- * below the counters laid over the top corners, apart per series so the goals never coincide
- * and their labels fit (score-redesign D31). Zero is the bottom edge.
+ * Where each series' goal line sits at the least, as a share of the height from the top
+ * (chart-timeline D6): apart per series so the goals never coincide (score-redesign D31). Zero is
+ * the bottom edge. `goalTops` pushes them lower when the overlay at the top needs the room.
  */
 const GOAL_TOPS = [0.38, 0.54, 0.6];
+
+/** Height of a goal label (0.65 rem text on a 16 px line) plus a little air, in CSS pixels. */
+const GOAL_LABEL_PX = 18;
+
+/** No goal line sits lower than this share of the height, however tall the overlay is. */
+const GOAL_TOP_MAX = 0.7;
+
+/** Assumed height before the chart is measured (a phone chart). */
+const DEFAULT_HEIGHT_PX = 112;
 
 /** Zero sits this far above the bottom edge, so a line at zero keeps its full stroke. */
 const ZERO_Y = CHART_HEIGHT - 1.5;
@@ -96,14 +108,13 @@ function drawnIndices(shares: readonly number[], keep: readonly number[]): numbe
 }
 
 /**
- * The y of a share for one series: zero on the bottom, its goal at its `GOAL_TOPS` height; when
+ * The y of a share for one series: zero on the bottom, its goal at `goalTop`; when
  * the run or the forecast rose past what fits above the goal, the scale shrinks so it stays inside.
  */
 function shareToY(
   values: readonly number[],
-  index: number
+  goalTop: number
 ): { goalY: number; y: (share: number) => number } {
-  const goalTop = CHART_HEIGHT * (GOAL_TOPS[index] ?? GOAL_TOPS[GOAL_TOPS.length - 1]!);
   const highest = Math.max(1, ...values);
   const perShare = Math.min(ZERO_Y - goalTop, (ZERO_Y - TOP_Y) / highest);
   return {
@@ -112,8 +123,48 @@ function shareToY(
   };
 }
 
+/**
+ * Each series' goal line in chart units (chart-timeline D6): at least its `GOAL_TOPS` share, and
+ * low enough that its label (drawn above the line) clears the overlay at the top and the label of
+ * the series before it. Never below `GOAL_TOP_MAX`.
+ */
+export function goalTops(count: number, heightPx: number, topInsetPx: number): number[] {
+  const tops: number[] = [];
+  let clear = topInsetPx;
+  for (let index = 0; index < count; index++) {
+    const share = GOAL_TOPS[index] ?? GOAL_TOPS[GOAL_TOPS.length - 1]!;
+    const px = Math.min(GOAL_TOP_MAX * heightPx, Math.max(share * heightPx, clear + GOAL_LABEL_PX));
+    tops.push((px / heightPx) * CHART_HEIGHT);
+    clear = px;
+  }
+  return tops;
+}
+
+/**
+ * Spreads the forecast delta labels apart when two dots sit closer than a label's height: the
+ * upper label moves up and the lower one down by half the overlap each (chart-timeline D7).
+ */
+function spreadForecastLabels(lines: ChartLine[], heightPx: number): ChartLine[] {
+  const shown = lines
+    .filter((line) => line.forecast?.text)
+    .sort((a, b) => a.forecast!.y - b.forecast!.y);
+  for (let index = 1; index < shown.length; index++) {
+    const upper = shown[index - 1]!.forecast!;
+    const lower = shown[index]!.forecast!;
+    const gapPx =
+      ((lower.y - upper.y) / CHART_HEIGHT) * heightPx + lower.labelShiftPx - upper.labelShiftPx;
+    if (gapPx >= FORECAST_LABEL_PX) continue;
+    const half = (FORECAST_LABEL_PX - gapPx) / 2;
+    upper.labelShiftPx -= half;
+    lower.labelShiftPx += half;
+  }
+  return lines;
+}
+
 interface LineContext {
   x: (index: number) => number;
+  /** Goal line per series, in chart units (`goalTops`). */
+  goalTops: number[];
   /** First point of the current stretch (the last divider), 0 without dividers. */
   currentFrom: number;
   dividers: number[];
@@ -128,7 +179,7 @@ function toChartLine(line: ScoreChartSeries, index: number, context: LineContext
   const shares = line.shares.length > 0 ? line.shares : [0];
   const { goalY, y } = shareToY(
     line.forecast === undefined ? shares : [...shares, line.forecast],
-    index
+    context.goalTops[index]!
   );
   const coords = drawnIndices(shares, context.dividers).map((point) => ({
     index: point,
@@ -148,7 +199,14 @@ function toChartLine(line: ScoreChartSeries, index: number, context: LineContext
     last: { x: last.x, y: last.y },
     ...(line.forecast === undefined
       ? {}
-      : { forecast: { x: context.forecastX, y: y(line.forecast), text: line.forecastText } }),
+      : {
+          forecast: {
+            x: context.forecastX,
+            y: y(line.forecast),
+            text: line.forecastText,
+            labelShiftPx: 0,
+          },
+        }),
   };
 }
 
@@ -165,7 +223,7 @@ function toMarkerMarks(
 
 /**
  * Chart geometry (score-redesign D10, D31; chart-timeline D1–D6): all series on one chart, each
- * with its own scale from zero at the bottom to its goal line at its own height (`GOAL_TOPS`).
+ * with its own scale from zero at the bottom to its goal line at its own height (`goalTops`).
  * The x axis is the whole run from turn 0 at the left edge (`timelineX`); the right part stays
  * free for the forecast, as wide as the forecast needs at the rendered width (`reserveShare`).
  * Markers are dividers (phase starts; the line before the last one is faded) and event ticks.
@@ -175,6 +233,8 @@ export function toChartGeometry({
   series,
   markers = [],
   widthPx,
+  heightPx,
+  topInsetPx = 0,
 }: ChartGeometryInput): ChartGeometry {
   const count = Math.max(1, ...series.map((line) => line.shares.length));
   const share = reserveShare(widthPx);
@@ -185,9 +245,11 @@ export function toChartGeometry({
     .filter((marker) => marker.kind === "divider" && marker.index > 0 && marker.index < count)
     .map((marker) => marker.index);
   const width = widthPx && widthPx > 0 ? widthPx : DEFAULT_WIDTH_PX;
+  const chartHeightPx = heightPx && heightPx > 0 ? heightPx : DEFAULT_HEIGHT_PX;
   const lastX = x(count - 1);
   const context: LineContext = {
     x,
+    goalTops: goalTops(series.length, chartHeightPx, topInsetPx),
     currentFrom: dividers.length > 0 ? Math.max(...dividers) : 0,
     dividers,
     forecastX: lastX + (FORECAST_SEGMENT_PX / width) * CHART_WIDTH,
@@ -197,6 +259,9 @@ export function toChartGeometry({
     height: CHART_HEIGHT,
     historyRight,
     markers: marks,
-    lines: series.map((line, index) => toChartLine(line, index, context)),
+    lines: spreadForecastLabels(
+      series.map((line, index) => toChartLine(line, index, context)),
+      chartHeightPx
+    ),
   };
 }

@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
 import { cn } from "@/shared/utils/cn";
-import { useElementWidth } from "@/features/score-chart/hooks/useElementWidth";
+import { useElementSize } from "@/features/score-chart/hooks/useElementSize";
 import { useScoreChart } from "@/features/score-chart/hooks/useScoreChart";
 import type {
   ChartLine,
@@ -14,7 +14,10 @@ export interface ScoreChartProps {
   series: ScoreChartSeries[];
   /** Dividers (phase starts) and event ticks on the time axis, by point index. */
   markers?: ChartMarker[];
-  /** Laid over the chart, e.g. the counters in its top corners (the caller makes them readable). */
+  /**
+   * Laid over the top of the chart, e.g. the counters in its corners (the caller makes them
+   * readable). The goal lines and their labels stay below it; the lines run behind it.
+   */
   children?: ReactNode;
   className?: string;
 }
@@ -133,7 +136,10 @@ const ForecastMark = ({
             "absolute ml-2 -translate-y-1/2 rounded-sm bg-card/80 px-0.5 font-mono text-[0.65rem] leading-4 font-bold whitespace-nowrap tabular-nums animate-in fade-in-0 duration-(--duration-fast)",
             line.tone
           )}
-          style={at(line.forecast, width, height)}
+          style={{
+            ...at(line.forecast, width, height),
+            marginTop: `${line.forecast.labelShiftPx}px`,
+          }}
         >
           {line.forecast.text}
         </span>
@@ -144,7 +150,7 @@ const ForecastMark = ({
 /**
  * Stock-style score chart (score-redesign D10, D31, mockup C; chart-timeline D1–D6): all lines on
  * one chart from zero at the bottom, each racing to its own dashed goal line in its own colour,
- * labelled with the goal value at the left end. The x axis is the whole run from turn 0 on the
+ * labelled with the goal value above its left end. The x axis is the whole run from turn 0 on the
  * left; the right part stays free for the forecast, sized from the measured width. Dividers mark
  * phase starts (the line before the last one is faded), event ticks mark scandals and world
  * events. Strokes do not scale (`vector-effect`) and dots and labels are HTML, so they stay round
@@ -154,8 +160,16 @@ const ForecastMark = ({
  */
 export const ScoreChart = ({ series, markers, children, className }: ScoreChartProps) => {
   const box = useRef<HTMLDivElement>(null);
-  const widthPx = useElementWidth(box);
-  const geometry = useScoreChart(series, markers, widthPx);
+  const overlay = useRef<HTMLDivElement>(null);
+  const size = useElementSize(box);
+  const overlaySize = useElementSize(overlay);
+  const geometry = useScoreChart({
+    series,
+    markers,
+    widthPx: size.width,
+    heightPx: size.height,
+    topInsetPx: overlaySize.height,
+  });
   const { width, height, lines } = geometry;
   return (
     <div ref={box} className={cn("relative", className)}>
@@ -196,14 +210,16 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
         {lines.map((line) => (
           <span
             key={line.key}
-            className={`absolute left-0 mt-px rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums ${line.tone}`}
+            className={`absolute left-0 -translate-y-full rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums ${line.tone}`}
             style={{ top: `${(line.goalY / height) * 100}%` }}
           >
             {line.goalText}
           </span>
         ))}
       </div>
-      {children}
+      <div ref={overlay} className="absolute inset-x-0 top-0">
+        {children}
+      </div>
     </div>
   );
 };

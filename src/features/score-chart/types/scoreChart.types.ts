@@ -38,7 +38,13 @@ export interface ChartLine {
   points: string;
   last: { x: number; y: number };
   /** The forecast point in the free right part of the chart, when the series has a forecast. */
-  forecast?: { x: number; y: number; text?: string };
+  forecast?: {
+    x: number;
+    y: number;
+    text?: string;
+    /** Vertical nudge of the delta label in CSS pixels, so two labels never overlap. */
+    labelShiftPx: number;
+  };
 }
 
 /** A marker placed on the x axis, in chart units. */
@@ -65,4 +71,8 @@ export interface ChartGeometryInput {
   markers?: readonly ChartMarker[];
   /** Rendered chart width in CSS pixels: sets how wide the free forecast part is. */
   widthPx?: number;
+  /** Rendered chart height in CSS pixels: places the goal lines below the top overlay. */
+  heightPx?: number;
+  /** Height of the overlay laid over the top (the counters): goal labels stay below it. */
+  topInsetPx?: number;
 }

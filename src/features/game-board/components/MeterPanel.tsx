@@ -96,10 +96,7 @@ export const MeterPanel = ({
   return (
     <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
       <ScoreChart series={series} markers={markers} className="h-28 sm:h-32 board-desk:h-56">
-        <ul
-          aria-label="Gebruikers en geld"
-          className="absolute inset-x-0 top-0 grid grid-cols-2 items-start gap-2"
-        >
+        <ul aria-label="Gebruikers en geld" className="grid grid-cols-2 items-start gap-2">
           {meters.map((tile, index) => (
             <ScoreCounter
               key={tile.key}

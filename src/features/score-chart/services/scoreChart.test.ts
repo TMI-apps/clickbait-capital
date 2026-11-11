@@ -4,6 +4,7 @@ import {
   CHART_WIDTH,
   FIXED_STEPS,
   FORECAST_RESERVE_PX,
+  goalTops,
   MAX_DRAWN_POINTS,
   reserveShare,
   toChartGeometry,
@@ -60,6 +61,23 @@ describe("toChartGeometry", () => {
   });
 });
 
+describe("goalTops", () => {
+  it("should keep the goal lines at their default heights when the overlay is short", () => {
+    const [users, money] = goalTops(2, 200, 20);
+    expect(users).toBeCloseTo(CHART_HEIGHT * 0.38);
+    expect(money).toBeCloseTo(CHART_HEIGHT * 0.54);
+  });
+
+  it("should push the goal lines down so each label clears the overlay and the label above when the overlay is tall", () => {
+    const heightPx = 224;
+    const [users, money] = goalTops(2, heightPx, 84).map((y) => (y / CHART_HEIGHT) * heightPx);
+    // A label is drawn above its line (16 px tall): it must start below the 84 px overlay.
+    expect(users! - 16).toBeGreaterThanOrEqual(84);
+    expect(money! - 16).toBeGreaterThanOrEqual(users!);
+    expect(money!).toBeLessThanOrEqual(heightPx * 0.7);
+  });
+});
+
 describe("toChartGeometry time axis", () => {
   it("should put the start of the run on the left edge when there is no history", () => {
     const { lines } = toChartGeometry({ series: [{ ...series[0]!, shares: [] }] });
@@ -84,6 +102,23 @@ describe("toChartGeometry time axis", () => {
     expect(line.forecast!.x).toBeGreaterThan(line.last.x);
     expect(line.forecast!.y).toBeLessThan(line.last.y);
     expect(line.forecast!.text).toBe("+€ 30.000");
+  });
+});
+
+describe("toChartGeometry forecast labels", () => {
+  it("should spread two delta labels apart when their forecast dots nearly coincide", () => {
+    const lines = toChartGeometry({
+      series: [
+        { ...series[0]!, shares: [0.5], forecast: 0.6, forecastText: "+1.000" },
+        { ...series[1]!, shares: [0.5], forecast: 0.9, forecastText: "+€ 1.000" },
+      ],
+      widthPx: PHONE,
+      heightPx: 112,
+      topInsetPx: 26,
+    }).lines;
+    const labelTop = (index: number): number =>
+      (lines[index]!.forecast!.y / CHART_HEIGHT) * 112 + lines[index]!.forecast!.labelShiftPx;
+    expect(Math.abs(labelTop(0) - labelTop(1))).toBeGreaterThanOrEqual(16 - 1e-9);
   });
 
   it("should advance a fixed step per turn from the left edge while the run is short", () => {
