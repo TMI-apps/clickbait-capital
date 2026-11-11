@@ -268,5 +268,10 @@
     "title": "Balancing: remove news drought, equal card-type odds",
     "description": "Owner request: Journalistieke Droogte modifier removed everywhere; each hand slot picks viral/ad/news with equal chance. Scandal ramp, max chance and fine retuned; saves v5. PR #54. Decision log § balance-cleanup.",
     "status": "done"
+  },
+  {
+    "title": "Score redesign: users and money as the score",
+    "description": "Owner request 2026-11-10: the relation between the three 0-100 bars and the score was hard to see. Users and Geld become absolute numbers on one stock-style chart with a coloured goal line each; reputation and Toxicity hidden behind a visible scandal chance with fines; Bankroet the only game over. Three laps: L1 feat/score-engine (engine, content, balance simulation, chart; PR #51), L2 feat/score-hud (hold-to-forecast on the chart, absolute amounts on cards and event outcomes, zoomed y axis; PR #53), L3 feat/score-endgame (end report, share text, how-to-play, tutorial, phase tips, glossary, DOC_GAME_DESIGN § 2/6/7). Decision log § score-redesign (D10-D33).",
+    "status": "done"
   }
 ]

@@ -26,29 +26,32 @@ export const UI_COPY = {
       "Jij bent het [[algoritme]] van een nieuwe app. Je groeit in vier fases van zolderkamer tot [[beursgang]].",
     phasesTitle: "Vier fases",
     phases:
-      "Zolderkamer, Scale-Up, Wereldwijd Platform en Beursgang. Elke fase heeft een doel. Haal je het, dan worden de kosten hoger en let de wereld beter op.",
+      "Zolderkamer, Scale-Up, Wereldwijd Platform en Beursgang. Elke fase heeft twee doellijnen: één voor gebruikers en één voor geld. Haal je ze allebei, dan ga je naar de volgende fase. Daar zijn de kosten hoger en let de wereld beter op.",
+    scoreTitle: "Gebruikers en geld",
+    score:
+      "De grafiek laat zien hoe je gebruikers en je geld groeien. Houd een kaart ingedrukt of sleep hem: een stippellijn laat zien waar je uitkomt. Elke beurt kost je app geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
     eventsTitle: "Spoed!",
     events:
-      "Soms gaat er iets mis op je app. Dan kies je uit drie opties: geld verdienen, ophef maken of eerlijk nieuws.",
+      "Soms gaat er iets mis op je app. Dan kies je uit drie opties: geld verdienen, ophef maken of eerlijk nieuws. Pas na je keuze zie je wat die doet.",
+    scandalTitle: "Schandaal dreigt",
+    scandal:
+      "Ophef en reclame zonder nieuws maken mensen boos. Dat zie je niet meteen. Staat er 'Schandaal dreigt', dan kan er elke beurt een schandaal komen. Dat kost een flinke boete. Eerlijk nieuws maakt de kans kleiner.",
     winTitle: "Winnen",
-    win: "Houd in de laatste fase je reputatie en inkomsten lang genoeg hoog. Dan gaat je app naar de [[beurs]].",
+    win: "Haal in de laatste fase 3 miljoen gebruikers en € 4 miljoen. Dan gaat je app naar de [[beurs]]. Daarna krijg je een rapport: wat kostte jouw succes de rest van de wereld?",
     startButton: "Start spel",
     backButton: "Naar het begin",
   },
   tutorial: [
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
     "Sleep één kaart naar de [[feed]]. Of tik erop: dan lees je meer en kies je 'In de feed'.",
-    "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws brengt vertrouwen.",
-    "Haal elke fase de doellijn voor gebruikers en geld. Zakt je geld onder nul, dan ben je failliet.",
+    "Houd een kaart ingedrukt: de stippellijn op de grafiek laat zien wat hij met je gebruikers en geld doet.",
+    "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws levert weinig op, maar houdt schandalen weg.",
+    "Haal elke fase de doellijn voor gebruikers én voor geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
     "Let op: je ziet niet alles meteen. Zie je 'Schandaal dreigt', dan komen je keuzes hard terug.",
   ],
   meters: {
-    revenue: { label: "Geld", description: "Geld om je app draaiende te houden." },
-    users: { label: "Gebruikers", description: "Hoeveel mensen elke dag scrollen." },
-    reputation: {
-      label: "Reputatie",
-      description: "Hoeveel mensen, bedrijven en de overheid je vertrouwen.",
-    },
+    revenue: { label: "Geld" },
+    users: { label: "Gebruikers" },
   },
   cardTypes: {
     viral: { label: "Viraal", shortLabel: "Viraal" },
@@ -59,10 +62,7 @@ export const UI_COPY = {
     phaseLabel: "Fase {phase} van 4",
     goalLabel: "Doel",
     turnLabel: "Beurt {turn}",
-    usersStatLabel: "{users} gebruikers",
-    revenueStatLabel: "{revenue} omzet",
     dragHint: "Sleep een kaart naar je feed",
-    tapHint: "Tik op een kaart om hem te kiezen",
     confirmPlay: "In de feed",
     cancelPlay: "Toch niet",
     feedLabel: "Je feed",
@@ -71,10 +71,6 @@ export const UI_COPY = {
     resumeButton: "Verder",
     quitButton: "Stoppen",
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
-    effectLabels: {
-      gain: "+{value}",
-      loss: "−{value}",
-    },
   },
   resume: {
     kicker: "Opgeslagen spel",
@@ -99,7 +95,7 @@ export const UI_COPY = {
     reportButton: "Bekijk je rapport",
     shareButton: "Deel je resultaat",
     shareText:
-      "Ik speelde Clickbait Capital en haalde fase {phase} in {turns} beurten. Kun jij het algoritme beter bespelen?",
+      "Ik speelde Clickbait Capital en haalde fase {phase} in {turns} beurten, met {users} gebruikers op mijn hoogtepunt. Kun jij het algoritme beter bespelen?",
     shareCopied: "Link gekopieerd.",
     shareDoneStatus: "Gedeeld. Benieuwd wie het algoritme beter bespeelt.",
     shareSavedAndCopiedStatus: "Afbeelding opgeslagen en link gekopieerd.",
@@ -232,6 +228,7 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
   beurs: "Een markt waar mensen stukjes van bedrijven kopen en verkopen.",
   beursgang:
     "Het moment dat iedereen stukjes van je bedrijf kan kopen. Dan ben je een heel groot bedrijf.",
+  bankroet: "Als een bedrijf zijn rekeningen niet meer kan betalen. Dan is het voorbij.",
   bot: "Een computerprogramma dat doet alsof het een mens is.",
   bron: "Waar informatie vandaan komt. Zo kun je checken of het klopt.",
   clickbait: "Een titel of plaatje dat expres overdreven is, zodat jij erop klikt.",

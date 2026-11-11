@@ -11,44 +11,36 @@
 
 ---
 
-## **2\. De Drie Kernmeters & Systeemmechanieken**
+## **2\. De Score & Systeemmechanieken**
 
-> **Herzien (score-redesign, L1):** Gebruikers en Geld zijn nu absolute getallen en vormen de score; Reputatie (en Toxicity) is verborgen. Het enige game over is Bankroet (Geld onder € 0). Onder een reputatiedrempel toont het bord een schandaalkans per beurt, en schandalen zijn de bestaande gebeurtenissen met drie opties. Bron: `documentation/jobs/temp_job_score-redesign/DECISIONS.md` D10–D28; deze paragraaf wordt in L3 herschreven.
-
-Bovenaan het scherm staan drie primaire resources. Alle meters hebben een schaal van 0 tot 100 (startwaarde: 50). Raken de meters 0, dan resulteert dit direct in een specifieke **Game Over**.
+De score bestaat uit twee absolute getallen: **Gebruikers** en **Geld**. Ze staan als twee lijnen in één grafiek (beurskoers-stijl) die elk naar hun eigen gestippelde doellijn racen, in hun eigen kleur. Reputatie en Toxicity bestaan nog, maar zijn verborgen: de speler voelt ze via schandalen, niet via een balk. Bron: `documentation/jobs/temp_job_score-redesign/DECISIONS.md` D10–D32; getallen in `src/features/game-content/services/phases.ts`.
 
 ```
-[ 💰 INKOMSTEN: 50/100 ]   [ 📈 GEBRUIKERS: 50/100 ]   [ 🛡️ REPUTATIE: 50/100 ]
-
+  100.000 - - - - - - - - - - - - - -   (doellijn Gebruikers)
+  € 150.000 - - - - - - - - - - - - -   (doellijn Geld)
+        ___/\___/‾‾‾‾\____ ┄┄○        (┄┄○ = voorspelling van de vastgehouden kaart)
+  📈 62.000 ↑+15.000          💰 € 96.000 ↓−€ 2.000
 ```
 
-### **💰 Inkomsten (Korte termijn / Direct)**
+### **📈 Gebruikers (direct)**
 
-* **Wat het representeert:** Operationeel kapitaal, advertentie-inkomsten en serverbudget.  
-* **Dynamiek:** Reageert per direct op advertentiekaarten (+). Daalt passief per beurt door server- en personeelskosten (-).  
-* **Game Over (0%):** **Bankroet.** De servers gaan offline wegens onbetaalde rekeningen; investeerders trekken de stekker eruit.
+* **Wat het representeert:** dagelijks actieve gebruikers.
+* **Dynamiek:** virale kaarten geven punten × `usersPerPoint` van de fase erbij. Verliezen zijn relatief: elk verliespunt kost `userLossPerPoint` (2 %) van de huidige gebruikers, zodat één nieuwskaart na een faseovergang niet een derde van je app wegvaagt (D26).
+* **Geen game over:** gebruikers kunnen niet onder 0 en eindigen het spel niet (D16). Het eindscherm toont het hoogste bereik (`peakUsers`).
 
-### **📈 Gebruikers (Korte termijn / Direct)**
+### **💰 Geld (direct)**
 
-* **Wat het representeert:** Dagelijks actieve gebruikers (DAU) en schermtijd/engagement.  
-* **Dynamiek:** Reageert direct op virale content (+). Daalt wanneer feeds gevuld worden met saaie artikelen of advertentie-overdaad (-).  
-* **Game Over (0%):** **Verlaten Platform.** Gebruikers lopen massaal over naar concurrerende apps; de feed sterft uit.
+* **Wat het representeert:** de kas: advertentie-inkomsten min server-, personeels- en juridische kosten.
+* **Dynamiek:** advertenties en commerciële keuzes leveren punten × `moneyPerPoint` op, maal een publieksfactor `clamp(gebruikers / audienceUsers, 0, 2)`: zonder kijkers betaalt geen adverteerder (D20). Elke beurt kost passieve kosten (fase 1: 1 punt, oplopend tot 3). Een schandaal kost bovenop de gekozen optie een boete van `finePoints` × `moneyPerPoint` (D25).
+* **Game over:** **Bankroet**, zodra Geld onder € 0 zakt. Dit is het enige game over. Het verhaal op het eindscherm past bij de run: geen inkomsten, kosten groeiden te hard, reclame zonder kijkers, of schandaal na schandaal.
 
-### **🛡️ Reputatie (Lange termijn / Vertraagde Decay & Boemerang)**
+### **🛡️ Verborgen reputatie, Toxicity en schandalen (vertraagde boemerang)**
 
-* **Wat het representeert:** Merkvertrouwen, maatschappelijke acceptatie, afwezigheid van overheidstoezicht.  
-    
-* **Mechaniek van het Boemerang-effect:**  
-    
-* **Directe feedback:** Journalistieke berichten voegen direct reputatie toe (+). Virale bagger of advertenties tasten reputatie niet altijd *meteen* zichtbaar aan.  
-    
-* **Onzichtbare Toxicity Pool:** Elke keer dat een speler virale ophef kiest of nieuws negeert, stijgt een interne meter: **Toxicity**.  
-    
-* **Passieve Reputatie-Decay:** Als de speler \$X\$ beurten achter elkaar géén nieuws selecteert, treedt er een passieve vermindering van Reputatie op (-3 per beurt).  
-    
-* **De Boemerang:** Zodra Toxicity een drempelwaarde overschrijdt, activeert het spel een geforceerde **Gebeurteniskaart** (bijv. EU-boete, consumentenboycot of hoorzitting) die in één klap zware reputatieschade en financiële straffen uitdeelt.  
-    
-* **Game Over (0%):** **Verbod & Regulering.** Het platform wordt via wetgeving verboden of gedwongen opgesplitst wegens maatschappelijke ontwrichting.
+* **Reputatie (verborgen, 0–100, start 60):** nieuws voegt reputatie toe; virale en commerciële keuzes kosten reputatie, in latere fases zwaarder (`reputationLossMultiplier` 0,5 / 1 / 1,5 / 2).
+* **Toxicity (verborgen, 0–100):** stijgt bij ophef en als nieuws genegeerd wordt. Boven 50 lekt Toxicity elke beurt reputatie weg (D21).
+* **Nieuws overslaan:** na 3 beurten zonder nieuws zakt de reputatie elke beurt met 3.
+* **Schandaalkans:** onder de drempel (reputatie 30) toont het bord "Schandaal dreigt: N% kans per beurt". De kans loopt lineair op tot maximaal 90 %. Op een kaartbeurt waarop een gebeurtenis mag vallen, trekt de seeded RNG een schandaal uit de fase (D22); nooit vóór de eerste kaart (D27).
+* **Hints in de wereld:** volgers in de reacties mopperen als de reputatie daalt, nog vóór de schandaalwaarschuwing verschijnt.
 
 ---
 
@@ -68,7 +60,7 @@ De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en inc
                             │
                             ▼
 ┌────────────────────────────────────────────────────────┐
-│ 3. Executie: Game Juice knalt; meters updaten direct   │
+│ 3. Executie: Game Juice knalt; grafiek en tellers bij │
 │    (Toxicity/Decay accumuleert op de achtergrond)     │
 └───────────────────────────┬────────────────────────────┘
                             │
@@ -150,7 +142,7 @@ Het audiovisuele design manipuleert de speler actief om dezelfde keuzes te maken
     
 * **Advertentiekaart:**  
     
-* *Visueel:* Gouden munten en dollartekens spatten fysiek vanuit de kaart naar de Inkomstenmeter, getallen tellen met een snelle slotmachine-animatie op.  
+* *Visueel:* Gouden munten en dollartekens spatten fysiek vanuit de kaart naar de Geld-teller, getallen tellen met een snelle slotmachine-animatie op.  
     
 * *Audio:* Ouderwets mechanisch kassageluid (*ka-ching\!*), rinkelend kleingeld.  
     
@@ -158,7 +150,7 @@ Het audiovisuele design manipuleert de speler actief om dezelfde keuzes te maken
     
 * **Nieuwskaart:**  
     
-* *Visueel:* Geen deeltjeseffecten. De kaart schuift met een strakke, droge animatie in de feed. Een klein, neutraal groen schild-icoontje verschijnt discreet bij de Reputatiemeter.  
+* *Visueel:* Geen deeltjeseffecten. De kaart schuift met een strakke, droge animatie in de feed. Een klein, neutraal groen schild-icoontje verschijnt discreet bij de kaart (reputatie is verborgen).  
     
 * *Audio:* Een matte, houten 'klik' of krantengeluid. Geen muziekstijging.  
     
@@ -168,41 +160,35 @@ Het audiovisuele design manipuleert de speler actief om dezelfde keuzes te maken
 
 ## **6\. Mijlpalen & Progressie (Van Zolderkamer tot Monopolie)**
 
-> **Herzien (score-redesign D17):** elke fase heeft twee doellijnen, voor Gebruikers en voor Geld (100.000 / € 150.000; 300.000 / € 600.000; 1 miljoen / € 1,2 miljoen; 3 miljoen / € 4 miljoen). Er zijn geen beurten-op-rij-doelen en fase 4 heeft geen reputatievoorwaarde meer. De fasedoelen hieronder zijn historisch; ze worden in L3 herschreven.
-
-Het spel verloopt over vier fases. Elke fase verhoogt de operationele kosten en schaalt de impact van reputatieverlies exponentieel op.
+Het spel verloopt over vier fases. Elke fase heeft twee doellijnen, één voor Gebruikers en één voor Geld. Een fase is gehaald op de beurt dat beide getallen boven hun doellijn staan (D17); na fase 4 volgt de beursgang. Elke fase maakt een punt meer waard, verhoogt de kosten en weegt reputatieverlies zwaarder. Elke fase opent met een introscherm (verhaal, tip en het doel).
 
 ```
-[ Fase 1: Zolderkamer ] ──► [ Fase 2: Scale-Up ] ──► [ Fase 3: Wereldmacht ] ──► [ Fase 4: De Beursgang ]
-  Serverkosten: Laag          Serverkosten: Medium      Serverkosten: Hoog         Winstvereiste: Maximaal
-  Regulering: Geen            Regulering: Lokaal        Regulering: Wereldwijd     Ethische Druk: Dodelijk
-
+[ Fase 1: Zolderkamer ] ──► [ Fase 2: Scale-Up ] ──► [ Fase 3: Wereldwijd ] ──► [ Fase 4: De Beursgang ]
+  100.000 / € 150.000        300.000 / € 600.000       1 mln / € 1,2 mln          3 mln / € 4 mln
+  Kosten: 1 punt/beurt       Kosten: 2 punten/beurt    Kosten: 3 punten/beurt     Kosten: 3 punten/beurt
+  Reputatieverlies × 0,5     Reputatieverlies × 1      Reputatieverlies × 1,5     Reputatieverlies × 2
 ```
 
 ### **Fase 1: De Zolderkamer (Startup)**
 
-* **Doel:** Bereik 100.000 gebruikers.  
-* **Context:** Niemand let op je. Reputatieschade heeft nauwelijks impact; advertenties leveren weinig op. De focus ligt puur op virale groei.  
-* **Systeemeigenschap:** Lage serverkosten per beurt. Geen actieve toezichthouders.
+* **Doel:** 100.000 gebruikers en € 150.000.
+* **Context:** niemand let op je. Reputatieschade weegt half en advertenties leveren half zoveel op. De focus ligt op groeien zonder door je geld heen te gaan.
 
 ### **Fase 2: De Scale-Up (Groeifase)**
 
-* **Doel:** Bereik 5.000.000 gebruikers en € 500.000 omzet.  
-* **Context:** Investeerders eisen rendement. Serverkosten stijgen hard; je móét vaker advertenties plaatsen om niet bankroet te gaan.  
-* **Systeemeigenschap:** Eerste klachten van gebruikers over advertentiedruk; concurrentie probeert gebruikers af te snoepen als engagement daalt.
+* **Doel:** 300.000 gebruikers en € 600.000.
+* **Context:** investeerders willen rendement en de servers kosten echt geld. Zonder reclame ga je bankroet; met te veel reclame lopen gebruikers weg (Ad-Fatigue).
 
 ### **Fase 3: Wereldwijd Platform (De Publieke Schandpaal)**
 
-* **Doel:** Overleef 12 beurten met minimaal 20.000.000 gebruikers.  
-* *Wijziging (balance-pass, 2026-11-04):* de orchestrator verlaagde de houdtijd van 30 naar 12 beurten voor de runlengte; met 30 beurten was fase 3 de helft van een run (~63 beurten), nu duurt een run ~45 beurten.  
-* **Context:** Overheden en traditionele media kijken mee. De Boemerang-mechaniek wordt meedogenloos: het negeren van nieuws leidt direct tot boetes en advertentieboycots.  
-* **Systeemeigenschap:** Hoge Toxicity triggert zware parlementaire onderzoeken.
+* **Doel:** 1 miljoen gebruikers en € 1,2 miljoen.
+* **Context:** overheden en media kijken mee. Reputatieverlies weegt anderhalf keer; wie het nieuws overslaat, ziet snel "Schandaal dreigt" en betaalt boetes.
 
 ### **Fase 4: De Beursgang (IPO \- Eindspel)**
 
-* **Doel:** Beursnotering succesvol afronden (Behoud Reputatie \> 60 én Inkomsten \> 80 gedurende 8 opeenvolgende beurten; was 10, verlaagd omdat een willekeurige hand niet altijd de nodige kaart biedt, shuffled-hand D4).  
-* **Dilemma:** De ultieme stresstest. Aandeelhouders eisen maximale winst (pusht naar Ads/Viraal), terwijl toezichthouders wachten op één misstap (eist Nieuws).  
-* **Overwinning:** Succesvolle IPO. De speler krijgt een eindrapport dat toont hoeveel maatschappelijke schade, desinformatie en mentale gezondheidsproblemen hun platform heeft aangericht om dit doel te bereiken.
+* **Doel:** 3 miljoen gebruikers en € 4 miljoen.
+* **Dilemma:** aandeelhouders eisen groei en winst (pusht naar Ads/Viraal), terwijl reputatieverlies dubbel weegt en elk schandaal een grote boete kost.
+* **Overwinning:** succesvolle beursgang. De speler krijgt een eindrapport met hoogste bereik en kas, en wat het platform onderweg aan schade aanrichtte (nepnieuws gedeeld, gemiste slaap, ruzies aan de keukentafel). Het resultaat is te delen als afbeelding met fase, hoogste bereik en geld aan het eind.
 
 ---
 
@@ -220,5 +206,9 @@ Om te voorkomen dat spelers gedachteloos één type kaart blijven spammen, sture
     
 * **Nieuws overslaan (Neglect):**  
     
-* Na 3 opeenvolgende beurten zonder Nieuwskaart zakt de verborgen reputatie elke beurt, en een lage reputatie geeft kans op een schandaal. (De Journalistieke Droogte, virale kaarten rood omrand na 5 beurten, is geschrapt: balance-cleanup D1.)
+* Na 3 opeenvolgende beurten zonder Nieuwskaart zakt de verborgen reputatie elke beurt met 3, en elke kaart die geen nieuws is voegt 2 Toxicity toe. Een lage reputatie geeft kans op een schandaal (§ 2). (De Journalistieke Droogte, virale kaarten rood omrand na 5 beurten, is geschrapt: balance-cleanup D1.)
+
+* **Voorspelling (Forecast):**  
+    
+* Houdt de speler een kaart vast (lang indrukken, slepen, detailvenster of toetsenbordfocus), dan tekent de grafiek per lijn een stippellijn naar waar die lijn na het spelen uitkomt. De kaart toont dezelfde absolute bedragen. Turn-modifiers (Ad-Fatigue, Echo-Chamber, passieve kosten) zitten erin, omdat de engine de zet op een kopie uitrekent (D12, D32).
 

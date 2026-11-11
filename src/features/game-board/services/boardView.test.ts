@@ -5,6 +5,7 @@ import { GAME_CONTENT } from "@/features/game-content/api";
 import {
   feedEntryForCard,
   feedEntryForEvent,
+  formatScore,
   toDraft,
   toEventView,
   toGameEnd,
@@ -168,6 +169,14 @@ describe("toEventView option order", () => {
     expect(firstKinds(7)).toEqual(firstKinds(7));
     expect(new Set(firstKinds(7)).size).toBeGreaterThan(1);
     expect(firstKinds(7)).not.toEqual(firstKinds(8));
+  });
+});
+
+describe("formatScore", () => {
+  it("should put the minus before the euro sign when money is below zero", () => {
+    expect(formatScore("money", -24_000)).toMatch(/^−€\s24\.000$/);
+    expect(formatScore("money", 150_000)).toMatch(/^€\s150\.000$/);
+    expect(formatScore("users", 2_000_000)).toBe("2.000.000");
   });
 });
 

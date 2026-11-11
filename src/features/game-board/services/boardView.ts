@@ -40,9 +40,10 @@ const MONEY_DANGER_TURNS = 3;
 
 const SCORE_LABEL: Record<ScoreKey, string> = { users: "Gebruikers", money: "Geld" };
 
-/** "120.000" for users, "€ 120.000" for money. */
+/** "120.000" for users, "€ 120.000" for money; a debt reads "−€ 24.000" like the change chips. */
 export function formatScore(key: ScoreKey, value: number): string {
-  return key === "money" ? euroFormat.format(value) : countFormat.format(value);
+  if (key !== "money") return countFormat.format(value);
+  return value < 0 ? `−${euroFormat.format(-value)}` : euroFormat.format(value);
 }
 
 /** "+12.000" / "−€ 5.000"; empty for 0. */
