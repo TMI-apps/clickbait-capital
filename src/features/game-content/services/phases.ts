@@ -94,7 +94,7 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
   3: {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
-    body: "Miljoenen mensen gebruiken je app. Regeringen, kranten en [[adverteerders|adverteerder]] kijken mee. Kies jij ophef voor de kliks, of laat je ook echt nieuws zien?",
+    body: "Mensen over de hele wereld gebruiken je app. Regeringen, kranten en [[adverteerders|adverteerder]] kijken mee. Kies jij ophef voor de kliks, of laat je ook echt nieuws zien?",
     tip: "Ophef maakt mensen nu sneller boos. Sla je het nieuws over, dan dreigt al snel een schandaal, en dat kost een boete.",
   },
   4: {
