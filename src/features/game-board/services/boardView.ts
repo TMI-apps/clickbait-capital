@@ -13,7 +13,7 @@ import {
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
-  scaleForPhase,
+  playCard,
   scandalChance,
 } from "@/features/game-engine/api";
 import type { SessionStep } from "@/features/game-session/api";
@@ -154,14 +154,6 @@ export function toScandalRisk(state: GameState, content: GameContent): ScandalRi
   return { chance, text: `Schandaal dreigt: ${Math.round(chance * 100)}% kans per beurt` };
 }
 
-/**
- * Visible effects as the engine applies them in the current phase (game-content README:
- * events show scaled numbers). Turn modifiers such as Ad-Fatigue are not previewed.
- */
-function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView[] {
-  return toCardEffects(scaleForPhase(effects, phase));
-}
-
 /** Phase name, goal text and progress: the lower of the two goal lines, capped at 1. */
 export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
   const phase = currentPhase(state, content);
@@ -195,19 +187,45 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
     return [];
   }
   const drought = isJournalismDroughtActive(state, content);
-  const phase = currentPhase(state, content);
+  const { goal } = currentPhase(state, content);
   return hand.map((card) => {
     const { type } = card;
+    // The engine is pure, so playing the card on a copy gives exactly what the play will do.
+    const next = playCard(state, content, card.id);
+    const delta = next.lastTurn?.delta ?? { users: 0, money: 0 };
     return {
       id: card.id,
       type,
       title: card.title,
       body: card.body,
       flavor: flavorOf(card),
-      effects: scaledEffects(card.effects, phase),
+      effects: forecastEffects(delta),
+      forecast: {
+        users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
+        revenue: goal.money <= 0 ? 1 : Math.max(0, next.money) / goal.money,
+      },
       droughtWarning: drought && type === "viral",
     };
   });
+}
+
+/**
+ * A card's effect on the two lines as the card face shows it (score-redesign D15): Geld and
+ * Gebruikers with the absolute change, passive costs included, so the face says what the play
+ * does to the chart. Reputation stays hidden.
+ */
+function forecastEffects(delta: Record<ScoreKey, number>): CardEffectView[] {
+  const rows: Array<[MeterKey, ScoreKey]> = [
+    ["revenue", "money"],
+    ["users", "users"],
+  ];
+  return rows
+    .filter(([, score]) => delta[score] !== 0)
+    .map(([meter, score]) => ({
+      meter,
+      delta: delta[score],
+      amountText: formatScore(score, Math.abs(delta[score])),
+    }));
 }
 
 /**

@@ -94,6 +94,18 @@ describe("boardView draft and events", () => {
     expect(draft.some((card) => card.droughtWarning)).toBe(false);
   });
 
+  it("should forecast exactly where each line lands when the card is played", () => {
+    const state: GameState = { ...fresh(), hand: ["news-klimaat", "ad-gokapp", "ad-crypto"] };
+    const goal = SEED_CONTENT.phases[0]!.goal;
+    for (const card of toDraft(state, SEED_CONTENT)) {
+      const next = playCard(state, SEED_CONTENT, card.id);
+      expect(card.forecast.users).toBeCloseTo(next.users / goal.users);
+      expect(card.forecast.revenue).toBeCloseTo(next.money / goal.money);
+      const money = card.effects.find((effect) => effect.meter === "revenue");
+      expect(money?.delta ?? 0).toBe(next.lastTurn!.delta.money);
+    }
+  });
+
   it("should flag every viral card when Journalistieke Droogte is active", () => {
     const state: GameState = {
       ...fresh(),

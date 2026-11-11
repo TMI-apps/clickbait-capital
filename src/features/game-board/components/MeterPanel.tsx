@@ -56,6 +56,8 @@ export interface MeterPanelProps {
   /** Juice of the last action per tile (game-juice): accent mark and gain / loss flash. */
   accents?: Partial<Record<MeterKey, MeterAccent>>;
   flashes?: Partial<Record<MeterKey, MeterFlash>>;
+  /** Where each line lands if the held card is played (share of its goal); drawn dashed. */
+  forecast?: Partial<Record<MeterView["key"], number>> | null;
 }
 
 /**
@@ -65,7 +67,13 @@ export interface MeterPanelProps {
  * shows a check. Screen readers hear one `role="meter"` per number, with its goal. Phone and desk
  * alike; the desk chart is just taller.
  */
-export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: MeterPanelProps) => (
+export const MeterPanel = ({
+  meters,
+  version,
+  accents = {},
+  flashes = {},
+  forecast = null,
+}: MeterPanelProps) => (
   <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
     <ScoreChart
       series={meters.map((tile) => ({
@@ -73,6 +81,7 @@ export const MeterPanel = ({ meters, version, accents = {}, flashes = {} }: Mete
         shares: tile.history,
         tone: METERS[tile.key].text,
         goalText: tile.goalAmountText,
+        forecast: forecast?.[tile.key],
       }))}
       slots={SCORE_HISTORY_POINTS}
       className="h-24 sm:h-28 board-desk:h-56"
@@ -122,7 +131,7 @@ const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterPr
       <div
         aria-hidden="true"
         className={cn(
-          "flex min-w-0 items-center gap-1 text-xs font-semibold board-desk:text-sm",
+          "hidden min-w-0 items-center gap-1 text-xs font-semibold sm:flex board-desk:text-sm",
           alignEnd && "justify-end",
           meter.text
         )}
@@ -133,8 +142,11 @@ const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterPr
       </div>
       <div
         aria-hidden="true"
-        className={cn("flex flex-wrap items-baseline gap-x-1", alignEnd && "justify-end")}
+        className={cn("flex flex-wrap items-center gap-x-1", alignEnd && "justify-end")}
       >
+        {/* Phones drop the name row so the chart keeps its height; icon and colour still tell the lines apart. */}
+        <meter.icon className={cn("size-3.5 shrink-0 sm:hidden", meter.text)} />
+        {tile.full && <Check className="size-3.5 text-success sm:hidden" />}
         <span
           className={cn(
             "font-mono text-base leading-tight font-bold whitespace-nowrap tabular-nums sm:text-lg board-desk:text-2xl",

@@ -3,7 +3,10 @@ import { CSS } from "@dnd-kit/utilities";
 import { AlertTriangle } from "lucide-react";
 import { GameCard } from "@/components/common/GameCard";
 import { getCardImage } from "@/features/card-imagery/api";
-import { useRovingFocus } from "@/features/game-board/hooks/useRovingFocus";
+import type { FocusEvent, PointerEvent } from "react";
+import type { CardPreviewSource } from "@/features/game-board/hooks/useCardForecast";
+import { useLongPress } from "@/shared/hooks/useLongPress";
+import { useRovingFocus } from "@/shared/hooks/useRovingFocus";
 import { UI_COPY } from "@/features/game-content/api";
 import type { DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { cn } from "@/shared/utils/cn";
@@ -25,19 +28,39 @@ interface DraftSlotProps {
   card: DraftCardView;
   index: number;
   onShowDetails: (card: DraftCardView) => void;
+  onPreview: (source: CardPreviewSource, cardId: string | null) => void;
 }
 
-/** One draft card: tap / Enter opens its details (with a Play button), drag drops it on the feed. */
-const DraftSlot = ({ card, index, onShowDetails }: DraftSlotProps) => {
+/**
+ * One draft card: tap / Enter opens its details (with a Play button), drag drops it on the feed,
+ * press-and-hold or keyboard focus shows its forecast on the chart. The hold handlers run beside
+ * the drag sensor's, so a hold that turns into a drag keeps working.
+ */
+const DraftSlot = ({ card, index, onShowDetails, onPreview }: DraftSlotProps) => {
   const { setNodeRef, listeners, transform, isDragging } = useDraggable({ id: card.id });
+  const press = useLongPress({
+    onHoldStart: () => onPreview("hold", card.id),
+    onHoldEnd: () => onPreview("hold", null),
+  });
+  const onPointerDown = (event: PointerEvent<HTMLElement>): void => {
+    listeners?.onPointerDown?.(event);
+    press.onPointerDown(event);
+  };
+  const onFocus = (event: FocusEvent<HTMLElement>): void => {
+    if (event.target.matches(":focus-visible")) onPreview("focus", card.id);
+  };
   return (
     <li
       ref={setNodeRef}
       data-draft-card={card.id}
       {...listeners}
+      {...press}
+      onPointerDown={onPointerDown}
+      onFocus={onFocus}
+      onBlur={() => onPreview("focus", null)}
       style={{ transform: CSS.Translate.toString(transform) }}
       className={cn(
-        "relative flex min-w-0 touch-none",
+        "relative flex min-w-0 touch-none select-none [-webkit-touch-callout:none]",
         isDragging && "z-50 opacity-90",
         card.droughtWarning &&
           "rounded-game-card ring-4 ring-destructive ring-offset-2 ring-offset-background"
@@ -89,10 +112,12 @@ export const DroughtNotice = ({ className }: { className?: string }) => (
 export interface CardDraftProps {
   cards: DraftCardView[];
   onShowDetails: (card: DraftCardView) => void;
+  /** A card is held or keyboard-focused (id) or no longer (null): the chart shows its forecast. */
+  onPreview: (source: CardPreviewSource, cardId: string | null) => void;
 }
 
 /** The 3-card draft. Arrow keys move between cards; Enter / Space opens the focused card's details. */
-export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
+export const CardDraft = ({ cards, onShowDetails, onPreview }: CardDraftProps) => {
   const { onKeyDown } = useRovingFocus(CARD_SELECTOR);
   const drought = cards.some((card) => card.droughtWarning);
   return (
@@ -112,7 +137,13 @@ export const CardDraft = ({ cards, onShowDetails }: CardDraftProps) => {
       {drought && <DroughtNotice className="board-desk:hidden" />}
       <ul className="mx-auto grid w-full grid-cols-3 gap-2 sm:gap-4" onKeyDown={onKeyDown}>
         {cards.map((card, index) => (
-          <DraftSlot key={card.id} card={card} index={index} onShowDetails={onShowDetails} />
+          <DraftSlot
+            key={card.id}
+            card={card}
+            index={index}
+            onShowDetails={onShowDetails}
+            onPreview={onPreview}
+          />
         ))}
       </ul>
     </section>

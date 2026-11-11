@@ -16,7 +16,8 @@ export interface ScoreChartProps {
  * Stock-style score chart (score-redesign D10, D31, mockup C): all lines on one chart, each
  * racing to its own dashed goal line in its own colour at its own height, labelled with the goal
  * value. Strokes do not scale (`vector-effect`) and the end dots and labels are HTML, so they stay
- * round and sharp however the SVG stretches. The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
+ * round and sharp however the SVG stretches. A series' `forecast` adds a dashed segment to a hollow
+ * dot in the reserved last slot: where the line lands if the held card is played (D12). The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
  */
 export const ScoreChart = ({ series, slots, children, className }: ScoreChartProps) => {
   const { width, height, lines } = useScoreChart(series, slots);
@@ -49,6 +50,19 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
+              {line.forecast && (
+                <line
+                  x1={line.last.x}
+                  y1={line.last.y}
+                  x2={line.forecast.x}
+                  y2={line.forecast.y}
+                  className="stroke-current"
+                  strokeWidth={2.5}
+                  strokeDasharray="4 3"
+                  strokeLinecap="round"
+                  vectorEffect="non-scaling-stroke"
+                />
+              )}
             </g>
           ))}
         </svg>
@@ -63,6 +77,23 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
             }}
           />
         ))}
+        {lines.map(
+          (line) =>
+            line.forecast && (
+              <span
+                key={`${line.key}-forecast`}
+                data-chart-forecast={line.key}
+                className={cn(
+                  "absolute size-2.5 -translate-1/2 rounded-full border-2 border-current bg-card",
+                  line.tone
+                )}
+                style={{
+                  left: `${(line.forecast.x / width) * 100}%`,
+                  top: `${(line.forecast.y / height) * 100}%`,
+                }}
+              />
+            )
+        )}
         {lines.map((line) => (
           <span
             key={line.key}

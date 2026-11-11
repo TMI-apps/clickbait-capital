@@ -7,6 +7,8 @@ export interface ScoreChartSeries {
   tone: string;
   /** The goal value as text, drawn in the line's colour at its goal line ("100.000"). */
   goalText: string;
+  /** Where the line would land after the held card, as a share of the goal; drawn dashed. */
+  forecast?: number;
 }
 
 /** One drawn line: polyline points and its newest point. */
@@ -18,6 +20,8 @@ export interface ChartLine {
   goalY: number;
   points: string;
   last: { x: number; y: number };
+  /** The forecast point in the reserved last slot, when the series has a forecast. */
+  forecast?: { x: number; y: number };
 }
 
 /** Where the lines and their goal lines sit in the chart box. */
