@@ -21,8 +21,11 @@ export interface EffectsJuiceProps {
  */
 export const EffectsJuice = ({ effects, action }: EffectsJuiceProps) => {
   const plan = useRevealPlan(action, effects);
-  const decorate = ({ meter, delta }: GameCardEffect): GameCardEffectDecoration => ({
-    amount: <CountUpNumber value={Math.abs(delta)} from={0} instant={!plan.countUp} />,
+  const decorate = ({ meter, delta, amountText }: GameCardEffect): GameCardEffectDecoration => ({
+    // A formatted amount ("€ 2.000") pops in as text; plain points count up from 0.
+    amount: amountText ?? (
+      <CountUpNumber value={Math.abs(delta)} from={0} instant={!plan.countUp} />
+    ),
     overlay: <MeterJuice accent={plan.accents[meter]} flash={plan.flashes[meter]} version={0} />,
     // Right padding keeps the accent badge (top right) clear of the counting number.
     className: "animate-juice-pop rounded-md pr-6 pl-1",

@@ -31,7 +31,8 @@ interface EffectRowProps {
 }
 
 const EffectRow = ({ effect, compact, more, extra = {} }: EffectRowProps) => {
-  const { meter, delta, overflow = 0 } = effect;
+  const { meter, delta, overflow = 0, amountText } = effect;
+  const amount = amountText ?? String(Math.abs(delta));
   const m = GAME_CARD_METERS[meter];
   const d = deltaDirection(delta);
   return (
@@ -58,10 +59,10 @@ const EffectRow = ({ effect, compact, more, extra = {} }: EffectRowProps) => {
         <d.icon aria-hidden="true" className="size-4" />
         <span aria-hidden="true">
           {d.sign}
-          {extra.amount ?? Math.abs(delta)}
+          {extra.amount ?? amount}
         </span>
         <span className="sr-only">
-          {d.spoken} {Math.abs(delta)}
+          {d.spoken} {amount}
         </span>
         {overflow > 0 && (
           <CapBadge className="ml-0.5" srText={`, ${overflow} verspild boven het maximum`} />

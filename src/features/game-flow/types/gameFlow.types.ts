@@ -13,6 +13,8 @@ type GameOverReason = "bankrupt";
 export interface FlowEffect {
   meter: MeterKey;
   delta: number;
+  /** The absolute change as text ("€ 2.000"); `delta` keeps the sign (score-redesign D15). */
+  amountText?: string;
 }
 
 /** A pending event with its three policy options and their phase-scaled effects. */

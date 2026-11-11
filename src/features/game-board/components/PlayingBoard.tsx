@@ -5,6 +5,7 @@ import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import { useCardForecast } from "@/features/game-board/hooks/useCardForecast";
 import type { CommentBatch } from "@/features/follower-comments/api";
 import { EventModal } from "@/features/game-flow/api";
 import { JuiceLayer, juiceActionForPost, useActionJuice } from "@/features/game-juice/api";
@@ -99,7 +100,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
-  const [dragging, setDragging] = useState(false);
+  const preview = useCardForecast(view.draft, detailCard);
   // Mouse, touch and pen alike: a drag starts on the first move past 6px, a tap stays a click (D3).
   const sensors = useSensors(useSensor(PointerSensor, POINTER_OPTIONS));
 
@@ -128,7 +129,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent): void => {
-    setDragging(false);
+    preview.endDrag();
     if (over?.id === FEED_DROP_ID) playCard(String(active.id));
   };
 
@@ -139,12 +140,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={() => setDragging(true)}
-      onDragCancel={() => setDragging(false)}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext sensors={sensors} {...preview.dragEvents} onDragEnd={handleDragEnd}>
       <div ref={juice.shakeRef} data-viewport-lock className={BOARD_GRID}>
         <BoardStatus phase={view.phase} onPause={withTap(() => setPaused(true))}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
@@ -154,6 +150,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
               version={juice.key}
               accents={juice.plan?.accents}
               flashes={juice.plan?.flashes}
+              forecast={preview.forecast}
             />
             {view.scandal && <ScandalWarning text={view.scandal.text} />}
           </div>
@@ -163,10 +160,14 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
             entries={view.feed}
             comments={props.comments}
             revealKey={juice.key}
-            dragging={dragging}
+            dragging={preview.dragging}
           />
           <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
-            <CardDraft cards={view.draft} onShowDetails={showDetails} />
+            <CardDraft
+              cards={view.draft}
+              onShowDetails={showDetails}
+              onPreview={preview.onPreview}
+            />
           </div>
         </div>
       </div>

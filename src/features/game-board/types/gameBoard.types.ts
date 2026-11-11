@@ -70,6 +70,8 @@ export interface PhaseProgressView {
 /** One meter change of a card, as GameCard shows it. */
 export interface CardEffectView {
   meter: MeterKey;
+  /** The absolute change as text ("12.000", "€ 2.000"); `delta` keeps the sign (score-redesign D15). */
+  amountText?: string;
   /** Authored points after phase scaling (interim until L2 shows absolute amounts, score-redesign D15). */
   delta: number;
   /** Unused since there is no meter cap (score-redesign D23); the kit still accepts it. */
@@ -85,6 +87,11 @@ export interface DraftCardView {
   /** Satirical one-liner when the content provides one (game-content `flavor`). */
   flavor?: string;
   effects: CardEffectView[];
+  /**
+   * Where each score line lands if this card is played now, as a share of its goal line
+   * (score-redesign D12): the chart's forecast point while the card is held, dragged or open.
+   */
+  forecast: Record<"users" | "revenue", number>;
 }
 
 /** One post in the phone feed (newest first in the list). */

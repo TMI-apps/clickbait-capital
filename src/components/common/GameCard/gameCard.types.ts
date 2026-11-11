@@ -34,6 +34,11 @@ export interface GameCardEffect {
    * "MAX" mark next to `delta`, which then holds only the part that still counts.
    */
   overflow?: number;
+  /**
+   * The amount as text instead of `|delta|` (e.g. "12.000" or "€ 2.000" for absolute changes).
+   * Unsigned: the arrow, sign and spoken direction still come from `delta`.
+   */
+  amountText?: string;
 }
 
 /** Card artwork. `alt` is required: describe the picture, or pass "" only if purely decorative. */

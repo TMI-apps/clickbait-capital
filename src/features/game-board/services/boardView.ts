@@ -1,6 +1,5 @@
 import type {
   CardDefinition,
-  Effects,
   EventDefinition,
   GameContent,
   GameState,
@@ -9,10 +8,10 @@ import type {
   ScoreKey,
 } from "@/features/game-engine/api";
 import {
-  eventOptionEffects,
   getHandCards,
   getPendingEvent,
-  scaleForPhase,
+  playCard,
+  resolveEvent,
   scandalChance,
 } from "@/features/game-engine/api";
 import type { SessionStep } from "@/features/game-session/api";
@@ -29,26 +28,12 @@ import type {
 import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
-/**
- * Effect rows on cards and event options (score-redesign D13, D23): Geld and Gebruikers only.
- * Reputation and Toxicity stay hidden.
- */
-export const METER_ORDER: MeterKey[] = ["revenue", "users"];
-
 const countFormat = new Intl.NumberFormat("nl-NL");
 const euroFormat = new Intl.NumberFormat("nl-NL", {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
 });
-
-/** Visible effects of a card (reputation and Toxicity stay hidden, zeros are left out). */
-export function toCardEffects(effects: Effects): CardEffectView[] {
-  return METER_ORDER.flatMap((meter) => {
-    const delta = effects[meter] ?? 0;
-    return delta === 0 ? [] : [{ meter, delta }];
-  });
-}
 
 /** Geld at or below this many turns of passive costs is in danger: Bankroet is near. */
 const MONEY_DANGER_TURNS = 3;
@@ -153,14 +138,6 @@ export function toScandalRisk(state: GameState, content: GameContent): ScandalRi
   return { chance, text: `Schandaal dreigt: ${Math.round(chance * 100)}% kans per beurt` };
 }
 
-/**
- * Visible effects as the engine applies them in the current phase (game-content README:
- * events show scaled numbers). Turn modifiers such as Ad-Fatigue are not previewed.
- */
-function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView[] {
-  return toCardEffects(scaleForPhase(effects, phase));
-}
-
 /** Phase name, goal text and progress: the lower of the two goal lines, capped at 1. */
 export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
   const phase = currentPhase(state, content);
@@ -193,15 +170,43 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
   if (!hand) {
     return [];
   }
-  const phase = currentPhase(state, content);
-  return hand.map((card) => ({
-    id: card.id,
-    type: card.type,
-    title: card.title,
-    body: card.body,
-    flavor: flavorOf(card),
-    effects: scaledEffects(card.effects, phase),
-  }));
+  const { goal } = currentPhase(state, content);
+  return hand.map((card) => {
+    // The engine is pure, so playing the card on a copy gives exactly what the play will do.
+    const next = playCard(state, content, card.id);
+    const delta = next.lastTurn?.delta ?? { users: 0, money: 0 };
+    return {
+      id: card.id,
+      type: card.type,
+      title: card.title,
+      body: card.body,
+      flavor: flavorOf(card),
+      effects: forecastEffects(delta),
+      forecast: {
+        users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
+        revenue: goal.money <= 0 ? 1 : Math.max(0, next.money) / goal.money,
+      },
+    };
+  });
+}
+
+/**
+ * A card's effect on the two lines as the card face shows it (score-redesign D15): Geld and
+ * Gebruikers with the absolute change, passive costs included, so the face says what the play
+ * does to the chart. Reputation stays hidden.
+ */
+function forecastEffects(delta: Record<ScoreKey, number>): CardEffectView[] {
+  const rows: Array<[MeterKey, ScoreKey]> = [
+    ["revenue", "money"],
+    ["users", "users"],
+  ];
+  return rows
+    .filter(([, score]) => delta[score] !== 0)
+    .map(([meter, score]) => ({
+      meter,
+      delta: delta[score],
+      amountText: formatScore(score, Math.abs(delta[score])),
+    }));
 }
 
 /**
@@ -241,7 +246,6 @@ export function toEventView(state: GameState, content: GameContent): EventView |
   if (!event) {
     return null;
   }
-  const phase = currentPhase(state, content);
   return {
     id: event.id,
     title: event.title,
@@ -250,7 +254,10 @@ export function toEventView(state: GameState, content: GameContent): EventView |
       id: option.id,
       kind: option.kind,
       label: option.label,
-      effects: toCardEffects(eventOptionEffects(option, phase)),
+      // Like the draft: what choosing it does, in absolute amounts, the scandal fine included.
+      effects: forecastEffects(
+        resolveEvent(state, content, option.id).lastTurn?.delta ?? { users: 0, money: 0 }
+      ),
     })),
   };
 }
