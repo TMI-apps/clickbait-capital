@@ -64,6 +64,12 @@ const ZERO_Y = CHART_HEIGHT - 1.5;
 /** A line above its goal never rises past this (chart units from the top), nor into the overlay. */
 const TOP_Y = CHART_HEIGHT * 0.04;
 
+/**
+ * Every line starts from the launch origin: one point at zero before turn 0, drawn in the
+ * bottom-left corner, so the lines visibly rise from zero to the start values (chart-origin D1).
+ */
+const ORIGIN_SHARE = 0;
+
 /** Air between the top overlay and the highest point, in CSS pixels. */
 const OVERLAY_GAP_PX = 6;
 
@@ -183,7 +189,7 @@ function toPoints(coords: ReadonlyArray<{ x: number; y: number }>): string {
 }
 
 function toChartLine(line: ScoreChartSeries, index: number, context: LineContext): ChartLine {
-  const shares = line.shares.length > 0 ? line.shares : [0];
+  const shares = line.shares;
   const { goalY, y } = shareToY(
     line.forecast === undefined ? shares : [...shares, line.forecast],
     context.goalTops[index]!,
@@ -225,25 +231,38 @@ function toMarkerMarks(
 ): ChartMarkerMark[] {
   return markers
     .filter((marker) => marker.index >= 0 && marker.index < count)
-    .filter((marker) => marker.kind !== "divider" || marker.index > 0)
     .map(({ index, kind, label, tone }) => ({ x: x(index), kind, label, tone }));
 }
 
 /**
  * Chart geometry (score-redesign D10, D31; chart-timeline D1–D6): all series on one chart, each
  * with its own scale from zero at the bottom to its goal line at its own height (`goalTops`).
- * The x axis is the whole run from turn 0 at the left edge (`timelineX`); the right part stays
+ * The x axis is the whole run from the launch origin (zero, chart-origin D1) in the bottom-left
+ * corner, then turn 0 one step right (`timelineX`); the right part stays
  * free for the forecast, as wide as the forecast needs at the rendered width (`reserveShare`).
  * Markers are dividers (phase starts; the line before the last one is faded) and event ticks.
  * Pure, so unit-tested.
  */
-export function toChartGeometry({
-  series,
-  markers = [],
-  widthPx,
-  heightPx,
-  topInsetPx = 0,
-}: ChartGeometryInput): ChartGeometry {
+/**
+ * The series and markers with the launch origin in front (chart-origin D1): each line gains a
+ * zero point at index 0 and every marker moves one index right. A divider on turn 0 is dropped:
+ * nothing came before it.
+ */
+function withOrigin(
+  series: readonly ScoreChartSeries[],
+  markers: readonly ChartMarker[]
+): { series: ScoreChartSeries[]; markers: ChartMarker[] } {
+  return {
+    series: series.map((line) => ({ ...line, shares: [ORIGIN_SHARE, ...line.shares] })),
+    markers: markers
+      .filter((marker) => marker.kind !== "divider" || marker.index > 0)
+      .map((marker) => ({ ...marker, index: marker.index + 1 })),
+  };
+}
+
+export function toChartGeometry(input: ChartGeometryInput): ChartGeometry {
+  const { widthPx, heightPx, topInsetPx = 0 } = input;
+  const { series, markers } = withOrigin(input.series, input.markers ?? []);
   const count = Math.max(1, ...series.map((line) => line.shares.length));
   const share = reserveShare(widthPx);
   const historyRight = CHART_WIDTH * (1 - share);

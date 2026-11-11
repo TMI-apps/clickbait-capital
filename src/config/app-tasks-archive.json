@@ -288,5 +288,10 @@
     "title": "Score chart shows the full timeline",
     "description": "Player feedback: the chart shows the whole run from turn 0, growing left to right with a measured free area for the forecast, zero at the bottom, faded earlier phases with phase dividers and scandal/event ticks, counters in the top corners and delta labels on the forecast. PR #57. Decision log § chart-timeline.",
     "status": "done"
+  },
+  {
+    "title": "Score chart lines start in the bottom-left corner",
+    "description": "Owner report: phase 1 lines did not start at the bottom left. Added a display-only zero launch point before turn 0 and let the plot reach the panel edges. PR #59. Decision log § chart-origin.",
+    "status": "done"
   }
 ]

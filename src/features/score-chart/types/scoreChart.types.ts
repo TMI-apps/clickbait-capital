@@ -1,7 +1,10 @@
 /** One line of the score chart: its values as a share of the goal line (1 = on the line, 0 = zero). */
 export interface ScoreChartSeries {
   key: string;
-  /** The whole run, oldest first: turn 0 at the left edge, the newest point on the right. */
+  /**
+   * The whole run, oldest first: turn 0 one step right of the launch origin (a zero point the chart
+   * adds in the bottom-left corner, chart-origin D1), the newest point on the right.
+   */
   shares: number[];
   /** Text colour token class that colours the line and its goal (e.g. `text-meter-users`). */
   tone: string;
