@@ -67,7 +67,7 @@ export interface MeterPanelProps {
 /**
  * The score (score-redesign D10, D31): one chart with Gebruikers and Geld racing to their own
  * coloured goal lines over the whole run, and the two counters laid over its top corners on a
- * translucent backing, so the plot uses the full height from zero at the bottom (chart-timeline D6): icon, name, absolute amount and the last change. A reached goal glows and
+ * translucent backing, so the plot uses the full panel from zero in its bottom-left corner (chart-timeline D6, chart-origin D2): icon, name, absolute amount and the last change. A reached goal glows and
  * shows a check. Screen readers hear one `role="meter"` per number, with its goal. Phone and desk
  * alike; the desk chart is just taller.
  */
@@ -94,9 +94,14 @@ export const MeterPanel = ({
     [meters, forecast, forecastText]
   );
   return (
-    <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
-      <ScoreChart series={series} markers={markers} className="h-28 sm:h-32 board-desk:h-56">
-        <ul aria-label="Gebruikers en geld" className="grid grid-cols-2 items-start gap-2">
+    // No padding on the panel: the plot reaches its inner edges, so the launch origin sits in the
+    // panel's bottom-left corner (chart-origin D2). The counters keep the inset instead.
+    <section className="overflow-hidden rounded-lg border border-border bg-card elevation-sm">
+      <ScoreChart series={series} markers={markers} className="h-31 sm:h-35 board-desk:h-62">
+        <ul
+          aria-label="Gebruikers en geld"
+          className="grid grid-cols-2 items-start gap-2 px-1.5 pt-1.5 board-desk:px-3 board-desk:pt-3"
+        >
           {meters.map((tile, index) => (
             <ScoreCounter
               key={tile.key}

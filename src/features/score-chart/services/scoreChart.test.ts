@@ -46,7 +46,7 @@ describe("toChartGeometry", () => {
       series: [{ ...series[0]!, shares: [0, 0.5] }],
       widthPx: PHONE,
     }).lines[0]!;
-    const [zero, half] = ysOf(line.points);
+    const [, zero, half] = ysOf(line.points);
     expect(zero!).toBeGreaterThan(CHART_HEIGHT * 0.95);
     expect(half!).toBeCloseTo((zero! + line.goalY) / 2);
   });
@@ -151,7 +151,7 @@ describe("toChartGeometry forecast labels", () => {
       widthPx: PHONE,
     }).lines[0]!;
     const xs = xsOf(line.points);
-    expect(xs).toHaveLength(40);
+    expect(xs).toHaveLength(41);
     expect(xs[0]).toBe(0);
     expect(line.last.x).toBeCloseTo(historyRight());
     expect(line.forecast!.x).toBeGreaterThan(historyRight());
@@ -167,7 +167,8 @@ describe("toChartGeometry forecast labels", () => {
     expect(xs.length).toBeLessThanOrEqual(MAX_DRAWN_POINTS + 2);
     expect(xs[0]).toBe(0);
     expect(line.last.x).toBeCloseTo(historyRight());
-    const xOf = (index: number): number => (index * historyRight()) / 999;
+    // Point `index` of the run is drawn at `index + 1`: the launch origin comes first.
+    const xOf = (index: number): number => ((index + 1) * historyRight()) / 1000;
     expect(xs.some((x) => Math.abs(x - xOf(500)) < 1e-9)).toBe(true);
     expect(xs.some((x) => Math.abs(x - xOf(700)) < 1e-9)).toBe(true);
   });
@@ -183,7 +184,8 @@ describe("toChartGeometry forecast labels", () => {
       widthPx: PHONE,
     });
     const line = geometry.lines[0]!;
-    expect(xsOf(line.pastPoints)).toHaveLength(8);
+    // The origin, turns 0–7: the divider of F3 at turn 7 ends the faded part.
+    expect(xsOf(line.pastPoints)).toHaveLength(9);
     expect(xsOf(line.points)).toHaveLength(3);
     // Both parts meet at the divider point, so the line stays continuous.
     const past = xsOf(line.pastPoints);
@@ -209,5 +211,41 @@ describe("toChartGeometry forecast labels", () => {
     const withForecast = toChartGeometry({ series: [{ ...series[1]!, forecast: 0.65 }] }).lines[0]!;
     expect(withForecast.last.x).toBe(without.last.x);
     expect(without.forecast).toBeUndefined();
+  });
+});
+
+describe("toChartGeometry launch origin", () => {
+  it("should start every line at zero in the bottom-left corner and rise to turn 0 one step right", () => {
+    const step = historyRight() / FIXED_STEPS;
+    const { lines } = toChartGeometry({ series, widthPx: PHONE });
+    for (const line of lines) {
+      const [originX, turn0X] = xsOf(line.points);
+      const [originY, turn0Y] = ysOf(line.points);
+      expect(originX).toBe(0);
+      expect(originY!).toBeGreaterThan(CHART_HEIGHT * 0.95);
+      expect(turn0X).toBeCloseTo(step);
+      expect(turn0Y!).toBeLessThan(originY!);
+    }
+  });
+
+  it("should move every marker one step right of its turn when the origin comes first", () => {
+    const step = historyRight() / FIXED_STEPS;
+    const geometry = toChartGeometry({
+      series: [{ ...series[0]!, shares: ramp(6) }],
+      markers: [
+        { index: 3, kind: "divider", label: "F2" },
+        { index: 0, kind: "event", tone: "text-brand" },
+      ],
+      widthPx: PHONE,
+    });
+    expect(geometry.markers.map((mark) => mark.x)).toEqual(
+      [4 * step, step].map((x) => expect.closeTo(x))
+    );
+  });
+
+  it("should draw only the origin when there is no history", () => {
+    const line = toChartGeometry({ series: [{ ...series[0]!, shares: [] }], widthPx: PHONE })
+      .lines[0]!;
+    expect(xsOf(line.points)).toEqual([0]);
   });
 });
