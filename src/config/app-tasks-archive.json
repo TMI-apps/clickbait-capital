@@ -263,5 +263,10 @@
     "title": "Phase images on the phase intro screens",
     "description": "Owner-supplied Unsplash photos for the four phases as hero on each phase intro, credited on /credits. 1200x675 WebP via the card image pipeline. PR #52. Decision log § phase-images.",
     "status": "done"
+  },
+  {
+    "title": "Balancing: remove news drought, equal card-type odds",
+    "description": "Owner request: Journalistieke Droogte modifier removed everywhere; each hand slot picks viral/ad/news with equal chance. Scandal ramp, max chance and fine retuned; saves v5. PR #54. Decision log § balance-cleanup.",
+    "status": "done"
   }
 ]

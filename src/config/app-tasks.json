@@ -6,7 +6,7 @@
   },
   {
     "title": "Move screen-reader announcement words into UI_COPY",
-    "description": "Advisory from the screen-reader lap: the turn-announcement phrases (Geplaatst, omhoog/omlaag, nu, droogte, gevaar) are hard-coded Dutch in game-board. Move them into game-content UI_COPY so all copy lives in one place (content as data). Also consider shortening the combined announcement when several events fire in a row. Size S.",
+    "description": "Advisory from the screen-reader lap: the turn-announcement phrases (Geplaatst, omhoog/omlaag, nu, gevaar) are hard-coded Dutch in game-board. Move them into game-content UI_COPY so all copy lives in one place (content as data). Also consider shortening the combined announcement when several events fire in a row. Size S.",
     "status": "to-do"
   },
   {
