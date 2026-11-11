@@ -59,7 +59,6 @@ function stateCues(game: GameState): FollowerCue[] {
     [game.toxicity >= WILD_FROM_TOXICITY, "toxic"],
     [report?.modifiers.adFatigue ?? false, "adFatigue"],
     [report?.modifiers.echoChamber ?? false, "echoChamber"],
-    [report?.modifiers.journalismDrought ?? false, "drought"],
     [game.reputation < COMPLAIN_BELOW_REPUTATION, "complain"],
     [(report?.effects.users ?? 0) >= HYPE_FROM_USERS_GAIN, "hype"],
   ];

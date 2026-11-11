@@ -39,7 +39,6 @@ describe("boardView", () => {
         modifiers: {
           adFatigue: false,
           echoChamber: false,
-          journalismDrought: false,
           reputationDecay: false,
         },
       },
@@ -83,7 +82,6 @@ describe("boardView draft and events", () => {
     const draft = toDraft(state, SEED_CONTENT);
     expect(draft.map((card) => card.id)).toEqual(["news-klimaat", "ad-gokapp", "ad-crypto"]);
     expect(draft.map((card) => card.type)).toEqual(["news", "ad", "ad"]);
-    expect(draft.some((card) => card.droughtWarning)).toBe(false);
   });
 
   it("should forecast exactly where each line lands when the card is played", () => {
@@ -96,16 +94,6 @@ describe("boardView draft and events", () => {
       const money = card.effects.find((effect) => effect.meter === "revenue");
       expect(money?.delta ?? 0).toBe(next.lastTurn!.delta.money);
     }
-  });
-
-  it("should flag every viral card when Journalistieke Droogte is active", () => {
-    const state: GameState = {
-      ...fresh(),
-      turnsWithoutNews: 5,
-      hand: ["viral-ruzie", "ad-gokapp", "viral-livestream"],
-    };
-    const flagged = toDraft(state, SEED_CONTENT).filter((card) => card.droughtWarning);
-    expect(flagged.map((card) => card.id)).toEqual(["viral-ruzie", "viral-livestream"]);
   });
 
   it("should never show a reputation row on draft cards when a card costs reputation", () => {

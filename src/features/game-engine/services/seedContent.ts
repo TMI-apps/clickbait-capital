@@ -16,7 +16,6 @@ export const SEED_CONTENT: GameContent = {
     reputationDecay: { afterTurnsWithoutNews: 3, amount: 3 },
     adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
     echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
-    journalismDrought: { afterTurnsWithoutNews: 5, viralToxicityMultiplier: 2 },
     scandal: { threshold: 30, rampPoints: 15, maxChance: 0.7, finePoints: 16 },
     eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
   },

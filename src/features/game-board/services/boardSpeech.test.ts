@@ -43,13 +43,12 @@ const snapshot = (overrides: Partial<TurnSnapshot> = {}): TurnSnapshot => ({
   meters: tiles(["45.500", "−4.500"], ["€ 114.000", "+€ 14.000"]),
   goalStats: ["Gebruikers: 45.500 / 100.000", "Geld: € 114.000 / € 150.000"],
   scandal: null,
-  drought: false,
   ...overrides,
 });
 
 describe("boardSpeech", () => {
   it("should name the post, each changed number with its new amount and the goal lines when a card is played", () => {
-    expect(describeTurn(snapshot(), null)).toBe(
+    expect(describeTurn(snapshot())).toBe(
       "Geplaatst: Pizzeria om de hoek. Gebruikers −4.500, nu 45.500. Geld +€ 14.000, nu € 114.000. Gebruikers: 45.500 / 100.000. Geld: € 114.000 / € 150.000."
     );
   });
@@ -59,8 +58,7 @@ describe("boardSpeech", () => {
       snapshot({
         latest: { type: "event", title: "Je eerste ophef", body: "Haal het weg." },
         meters: tiles(["40.000", "−6.000"], ["€ 100.000", ""]),
-      }),
-      null
+      })
     );
     expect(text).toMatch(
       /^Je eerste ophef. Gekozen: Haal het weg\. Gebruikers −6.000, nu 40.000\./
@@ -69,10 +67,7 @@ describe("boardSpeech", () => {
 
   it("should say the numbers stayed the same when nothing changed", () => {
     expect(
-      describeTurn(
-        snapshot({ meters: tiles(["50.000", ""], ["€ 100.000", ""]), goalStats: [] }),
-        null
-      )
+      describeTurn(snapshot({ meters: tiles(["50.000", ""], ["€ 100.000", ""]), goalStats: [] }))
     ).toBe("Geplaatst: Pizzeria om de hoek. Gebruikers en geld onveranderd.");
   });
 
@@ -81,23 +76,14 @@ describe("boardSpeech", () => {
       snapshot({
         meters: tiles(["50.000", ""], ["€ 4.000", "−€ 2.000"], true),
         scandal: "Schandaal dreigt: 35% kans per beurt",
-      }),
-      null
+      })
     );
     expect(text).toContain("Let op: Geld bijna op.");
     expect(text).toMatch(/Let op: Schandaal dreigt: 35% kans per beurt\.$/);
   });
 
-  it("should announce the journalism drought only on the turn it starts", () => {
-    const started = describeTurn(snapshot({ drought: true }), snapshot());
-    expect(started).toContain("Geen nieuws meer: Al vijf beurten geen nieuws.");
-    expect(describeTurn(snapshot({ drought: true }), snapshot({ drought: true }))).not.toContain(
-      "droogte"
-    );
-  });
-
   it("should return no text when nothing has been played yet", () => {
-    expect(describeTurn(snapshot({ latest: null }), null)).toBe("");
+    expect(describeTurn(snapshot({ latest: null }))).toBe("");
   });
 
   it("should phrase a change in the words the cards use", () => {

@@ -18,7 +18,6 @@ export type Hand = readonly string[];
 export interface TurnModifiers {
   adFatigue: boolean;
   echoChamber: boolean;
-  journalismDrought: boolean;
   reputationDecay: boolean;
 }
 

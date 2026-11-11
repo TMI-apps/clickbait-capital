@@ -92,8 +92,6 @@ export interface DraftCardView {
    * (score-redesign D12): the chart's forecast point while the card is held, dragged or open.
    */
   forecast: Record<"users" | "revenue", number>;
-  /** Journalistieke Droogte: viral cards get the red frame. */
-  droughtWarning: boolean;
 }
 
 /** One post in the phone feed (newest first in the list). */

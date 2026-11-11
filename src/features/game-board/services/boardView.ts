@@ -10,7 +10,6 @@ import type {
 import {
   getHandCards,
   getPendingEvent,
-  isJournalismDroughtActive,
   playCard,
   resolveEvent,
   scandalChance,
@@ -171,16 +170,14 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
   if (!hand) {
     return [];
   }
-  const drought = isJournalismDroughtActive(state, content);
   const { goal } = currentPhase(state, content);
   return hand.map((card) => {
-    const { type } = card;
     // The engine is pure, so playing the card on a copy gives exactly what the play will do.
     const next = playCard(state, content, card.id);
     const delta = next.lastTurn?.delta ?? { users: 0, money: 0 };
     return {
       id: card.id,
-      type,
+      type: card.type,
       title: card.title,
       body: card.body,
       flavor: flavorOf(card),
@@ -189,7 +186,6 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
         revenue: goal.money <= 0 ? 1 : Math.max(0, next.money) / goal.money,
       },
-      droughtWarning: drought && type === "viral",
     };
   });
 }

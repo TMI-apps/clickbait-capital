@@ -13,7 +13,7 @@ import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
-import { CardDraft, DroughtNotice, draftCardElement } from "./CardDraft";
+import { CardDraft, draftCardElement } from "./CardDraft";
 import { MeterPanel, ScandalWarning } from "./MeterPanel";
 import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
@@ -53,15 +53,13 @@ const DESK_PLAY =
 
 interface BoardStatusProps {
   phase: BoardView["phase"];
-  /** Journalistieke Droogte is on: the desk panel shows its notice (desktop-layout D2). */
-  drought: boolean;
   onPause: () => void;
   /** The meters, which carry the board's juice. */
   children: ReactNode;
 }
 
-/** Phase and goal with sound and pause controls, the meters and, on desk, the modifier notice. */
-const BoardStatus = ({ phase, drought, onPause, children }: BoardStatusProps) => (
+/** Phase and goal with sound and pause controls, and the meters. */
+const BoardStatus = ({ phase, onPause, children }: BoardStatusProps) => (
   <div className={DESK_STATUS}>
     <header className="flex shrink-0 items-start gap-2">
       <PhaseProgress phase={phase} />
@@ -77,8 +75,6 @@ const BoardStatus = ({ phase, drought, onPause, children }: BoardStatusProps) =>
       </Button>
     </header>
     {children}
-    {/* Elsewhere CardDraft shows the notice above the cards. */}
-    {drought && <DroughtNotice className="hidden board-desk:flex" />}
   </div>
 );
 
@@ -146,11 +142,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   return (
     <DndContext sensors={sensors} {...preview.dragEvents} onDragEnd={handleDragEnd}>
       <div ref={juice.shakeRef} data-viewport-lock className={BOARD_GRID}>
-        <BoardStatus
-          phase={view.phase}
-          drought={view.draft.some((card) => card.droughtWarning)}
-          onPause={withTap(() => setPaused(true))}
-        >
+        <BoardStatus phase={view.phase} onPause={withTap(() => setPaused(true))}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
           <div className="flex min-w-0 flex-col gap-2">
             <MeterPanel

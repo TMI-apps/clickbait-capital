@@ -9,7 +9,6 @@ export {
   scandalFine,
   getHandCards,
   getPendingEvent,
-  isJournalismDroughtActive,
   playCard,
   resolveEvent,
 } from "@/features/game-engine/services/gameEngine";

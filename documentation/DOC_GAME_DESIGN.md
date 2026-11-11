@@ -87,7 +87,7 @@ De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en inc
 
 ### **Type 1: De Reguliere 3-Kaarten Draft**
 
-Elke beurt krijgt de speler exact drie kaarten gepresenteerd, willekeurig getrokken uit alle kaarten van de fase, welk subtype ook: soms drie advertenties, soms twee nieuwskaarten en één virale. De volgorde is ook elke beurt anders, zodat de speler op de inhoud kiest en niet op de plek (shuffled-hand D1). Dezelfde kaart komt nooit twee keer in één hand. De subtypes:
+Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Per plek kiest het spel eerst een subtype (viraal, advertentie of nieuws, elk met een kans van 1/3) en trekt dan een kaart van dat subtype uit de fase (balance-cleanup D2): soms drie advertenties, soms twee nieuwskaarten en één virale, maar over veel beurten evenveel van elk. De volgorde is ook elke beurt anders, zodat de speler op de inhoud kiest en niet op de plek (shuffled-hand D1). Dezelfde kaart komt nooit twee keer in één hand. De subtypes:
 
 | Kaarttype | Primaire Voordelen | Primaire Nadelen / Risico's |
 | :---- | :---- | :---- |
@@ -218,7 +218,7 @@ Om te voorkomen dat spelers gedachteloos één type kaart blijven spammen, sture
     
 * 3 Virale kaarten op rij activeert een *Engagement Frenzy* (+50% bonus op Gebruikerswinst), maar verhoogt Toxicity direct met \+25.  
     
-* **Journalistieke Droogte (Neglect):**  
+* **Nieuws overslaan (Neglect):**  
     
-* Na 5 opeenvolgende beurten zonder Nieuwskaart wordt de tekst op alle volgende Virale kaarten rood omrand: het risico op directe schandalen verdubbelt.
+* Na 3 opeenvolgende beurten zonder Nieuwskaart zakt de verborgen reputatie elke beurt, en een lage reputatie geeft kans op een schandaal. (De Journalistieke Droogte, virale kaarten rood omrand na 5 beurten, is geschrapt: balance-cleanup D1.)
 
