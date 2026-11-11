@@ -61,6 +61,19 @@ describe("toChartGeometry", () => {
   });
 });
 
+describe("toChartGeometry top overlay", () => {
+  it("should keep a forecast far above the goal below the overlay when the counters cover the top", () => {
+    const heightPx = 224;
+    const line = toChartGeometry({
+      series: [{ ...series[1]!, shares: [0.5, 0.9], forecast: 3, forecastText: "+€ 600.000" }],
+      widthPx: PHONE,
+      heightPx,
+      topInsetPx: 84,
+    }).lines[0]!;
+    expect((line.forecast!.y / CHART_HEIGHT) * heightPx).toBeGreaterThanOrEqual(84);
+  });
+});
+
 describe("goalTops", () => {
   it("should keep the goal lines at their default heights when the overlay is short", () => {
     const [users, money] = goalTops(2, 200, 20);

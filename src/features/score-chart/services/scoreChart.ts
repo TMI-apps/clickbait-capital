@@ -61,8 +61,11 @@ const DEFAULT_HEIGHT_PX = 112;
 /** Zero sits this far above the bottom edge, so a line at zero keeps its full stroke. */
 const ZERO_Y = CHART_HEIGHT - 1.5;
 
-/** A line above its goal never rises past this (chart units from the top). */
+/** A line above its goal never rises past this (chart units from the top), nor into the overlay. */
 const TOP_Y = CHART_HEIGHT * 0.04;
+
+/** Air between the top overlay and the highest point, in CSS pixels. */
+const OVERLAY_GAP_PX = 6;
 
 /** Share of the width kept free for the forecast at a rendered width (chart-timeline D5). */
 export function reserveShare(widthPx: number | undefined): number {
@@ -108,15 +111,17 @@ function drawnIndices(shares: readonly number[], keep: readonly number[]): numbe
 }
 
 /**
- * The y of a share for one series: zero on the bottom, its goal at `goalTop`; when
- * the run or the forecast rose past what fits above the goal, the scale shrinks so it stays inside.
+ * The y of a share for one series: zero on the bottom, its goal at `goalTop`; when the run or the
+ * forecast rose past what fits above the goal, the scale shrinks so the highest point stays at or
+ * below `topY` (under the counters, so no point or forecast hides behind them).
  */
 function shareToY(
   values: readonly number[],
-  goalTop: number
+  goalTop: number,
+  topY: number
 ): { goalY: number; y: (share: number) => number } {
   const highest = Math.max(1, ...values);
-  const perShare = Math.min(ZERO_Y - goalTop, (ZERO_Y - TOP_Y) / highest);
+  const perShare = Math.min(ZERO_Y - goalTop, (ZERO_Y - topY) / highest);
   return {
     goalY: ZERO_Y - perShare,
     y: (share) => ZERO_Y - Math.max(0, share) * perShare,
@@ -165,6 +170,8 @@ interface LineContext {
   x: (index: number) => number;
   /** Goal line per series, in chart units (`goalTops`). */
   goalTops: number[];
+  /** Highest y a point may reach, in chart units: just below the top overlay. */
+  topY: number;
   /** First point of the current stretch (the last divider), 0 without dividers. */
   currentFrom: number;
   dividers: number[];
@@ -179,7 +186,8 @@ function toChartLine(line: ScoreChartSeries, index: number, context: LineContext
   const shares = line.shares.length > 0 ? line.shares : [0];
   const { goalY, y } = shareToY(
     line.forecast === undefined ? shares : [...shares, line.forecast],
-    context.goalTops[index]!
+    context.goalTops[index]!,
+    context.topY
   );
   const coords = drawnIndices(shares, context.dividers).map((point) => ({
     index: point,
@@ -250,6 +258,7 @@ export function toChartGeometry({
   const context: LineContext = {
     x,
     goalTops: goalTops(series.length, chartHeightPx, topInsetPx),
+    topY: Math.max(TOP_Y, ((topInsetPx + OVERLAY_GAP_PX) / chartHeightPx) * CHART_HEIGHT),
     currentFrom: dividers.length > 0 ? Math.max(...dividers) : 0,
     dividers,
     forecastX: lastX + (FORECAST_SEGMENT_PX / width) * CHART_WIDTH,
