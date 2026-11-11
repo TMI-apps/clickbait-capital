@@ -19,9 +19,9 @@ export interface MeterView {
   /** 0–100: progress to the phase's goal line. */
   value: number;
   /**
-   * The line on the score chart (score-redesign D10): this number as a share of the phase's goal
-   * line (1 = on the line) at the start of the phase and after each action in it, oldest first,
-   * at most the last 12 points.
+   * The line on the score chart (score-redesign D10, chart-timeline D1): this number as a share of
+   * the current phase's goal line (1 = on the line) at the start of the run and after every
+   * action since, oldest first.
    */
   history: number[];
   /** Absolute users or euros. */
@@ -42,9 +42,6 @@ export interface MeterView {
   /** What a screen reader hears for this tile: amount, last change, goal and warnings. */
   valueText: string;
 }
-
-/** Points the score chart shows: the start of the phase and the last actions in it. */
-export const SCORE_HISTORY_POINTS = 12;
 
 /** The visible scandal risk (score-redesign D13): only while reputation is below the threshold. */
 export interface ScandalRiskView {
@@ -92,6 +89,21 @@ export interface DraftCardView {
    * (score-redesign D12): the chart's forecast point while the card is held, dragged or open.
    */
   forecast: Record<"users" | "revenue", number>;
+  /** The same play's change as text ("+15.000", "−€ 2.000"), shown at the forecast dot (chart-timeline D7). */
+  forecastText: Record<"users" | "revenue", string>;
+}
+
+/**
+ * A mark on the score chart's time axis at a `MeterView.history` index (chart-timeline D3):
+ * a phase start (`divider`, labelled "F2") or an answered scandal or world event (`event`).
+ * Mirrors score-chart's `ChartMarker`; `MeterPanel` passes it on, so a drift fails type-check.
+ */
+export interface ScoreMarkerView {
+  index: number;
+  kind: "divider" | "event";
+  label?: string;
+  /** Text colour class of an event tick. */
+  tone?: string;
 }
 
 /** One post in the phone feed (newest first in the list). */
@@ -138,6 +150,8 @@ export interface GameEndView {
 /** Everything the board renders for one moment of the run. */
 export interface BoardView {
   meters: MeterView[];
+  /** Phase starts and events on the chart's time axis. */
+  scoreMarkers: ScoreMarkerView[];
   scandal: ScandalRiskView | null;
   phase: PhaseProgressView;
   draft: DraftCardView[];

@@ -14,6 +14,7 @@ import {
   toFeed,
   toScandalRisk,
   toScoreHistory,
+  toScoreMarkers,
 } from "@/features/game-board/services/boardView";
 
 const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
@@ -250,8 +251,28 @@ describe("toScoreHistory", () => {
       { action: { kind: "card" as const, cardId }, turn: 0, eventId: null, state: after },
     ];
     expect(toScoreHistory(after, steps, SEED_CONTENT)).toEqual([
-      { users: SEED_CONTENT.balance.startUsers, money: SEED_CONTENT.balance.startMoney },
-      { users: after.users, money: after.money },
+      { users: SEED_CONTENT.balance.startUsers, money: SEED_CONTENT.balance.startMoney, phase: 1 },
+      { users: after.users, money: after.money, phase: after.phase },
+    ]);
+  });
+
+  it("should keep every point of the run and mark the phase start when a later phase is reached", () => {
+    const start = createGame({ content: SEED_CONTENT, seed: 1 });
+    const step = (state: typeof start, users: number, phase: typeof start.phase) => ({
+      action: { kind: "card" as const, cardId: "x" },
+      turn: 0,
+      eventId: null,
+      state: { ...state, users, phase },
+    });
+    const steps = Array.from({ length: 20 }, (_, index) =>
+      step(start, 1_000 + index, index < 15 ? 1 : 2)
+    );
+    const history = toScoreHistory(steps[19]!.state, steps, SEED_CONTENT);
+    expect(history).toHaveLength(21);
+    const [users] = toMeters(steps[19]!.state, SEED_CONTENT, steps);
+    expect(users!.history).toHaveLength(21);
+    expect(toScoreMarkers(steps[19]!.state, steps, SEED_CONTENT)).toEqual([
+      { index: 16, kind: "divider", label: "F2" },
     ]);
   });
 });

@@ -1,10 +1,10 @@
+import { useMemo } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Coins, Siren, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MeterKey } from "@/features/game-engine/api";
 import { JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
 import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
-import type { MeterView } from "@/features/game-board/types/gameBoard.types";
-import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
+import type { MeterView, ScoreMarkerView } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
 import { ScoreChart } from "@/features/score-chart/api";
 import { cn } from "@/shared/utils/cn";
@@ -58,12 +58,16 @@ export interface MeterPanelProps {
   flashes?: Partial<Record<MeterKey, MeterFlash>>;
   /** Where each line lands if the held card is played (share of its goal); drawn dashed. */
   forecast?: Partial<Record<MeterView["key"], number>> | null;
+  /** The held card's change per line as text ("+15.000"), shown at the forecast dot. */
+  forecastText?: Partial<Record<MeterView["key"], string>> | null;
+  /** Phase starts and events on the chart's time axis (chart-timeline D3). */
+  markers?: ScoreMarkerView[];
 }
 
 /**
  * The score (score-redesign D10, D31): one chart with Gebruikers and Geld racing to their own
- * coloured goal lines, and the two counters side by side laid over its bottom corners on a
- * translucent backing: icon, name, absolute amount and the last change. A reached goal glows and
+ * coloured goal lines over the whole run, and the two counters laid over its top corners on a
+ * translucent backing, so the plot uses the full height from zero at the bottom (chart-timeline D6): icon, name, absolute amount and the last change. A reached goal glows and
  * shows a check. Screen readers hear one `role="meter"` per number, with its goal. Phone and desk
  * alike; the desk chart is just taller.
  */
@@ -73,37 +77,41 @@ export const MeterPanel = ({
   accents = {},
   flashes = {},
   forecast = null,
-}: MeterPanelProps) => (
-  <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
-    <ScoreChart
-      series={meters.map((tile) => ({
+  forecastText = null,
+  markers,
+}: MeterPanelProps) => {
+  // Memoised so a re-render that changes neither (juice, drag moves) doesn't rebuild a long run's path.
+  const series = useMemo(
+    () =>
+      meters.map((tile) => ({
         key: tile.key,
         shares: tile.history,
         tone: METERS[tile.key].text,
         goalText: tile.goalAmountText,
         forecast: forecast?.[tile.key],
-      }))}
-      slots={SCORE_HISTORY_POINTS}
-      className="h-24 sm:h-28 board-desk:h-56"
-    >
-      <ul
-        aria-label="Gebruikers en geld"
-        className="absolute inset-x-0 bottom-0 grid grid-cols-2 items-end gap-2"
-      >
-        {meters.map((tile, index) => (
-          <ScoreCounter
-            key={tile.key}
-            tile={tile}
-            alignEnd={index === meters.length - 1}
-            version={version}
-            accent={accents[tile.key]}
-            flash={flashes[tile.key]}
-          />
-        ))}
-      </ul>
-    </ScoreChart>
-  </section>
-);
+        forecastText: forecastText?.[tile.key],
+      })),
+    [meters, forecast, forecastText]
+  );
+  return (
+    <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
+      <ScoreChart series={series} markers={markers} className="h-28 sm:h-32 board-desk:h-56">
+        <ul aria-label="Gebruikers en geld" className="grid grid-cols-2 items-start gap-2">
+          {meters.map((tile, index) => (
+            <ScoreCounter
+              key={tile.key}
+              tile={tile}
+              alignEnd={index === meters.length - 1}
+              version={version}
+              accent={accents[tile.key]}
+              flash={flashes[tile.key]}
+            />
+          ))}
+        </ul>
+      </ScoreChart>
+    </section>
+  );
+};
 
 interface ScoreCounterProps {
   tile: MeterView;
@@ -131,7 +139,7 @@ const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterPr
       <div
         aria-hidden="true"
         className={cn(
-          "hidden min-w-0 items-center gap-1 text-xs font-semibold sm:flex board-desk:text-sm",
+          "hidden min-w-0 items-center gap-1 text-xs font-semibold board-desk:flex board-desk:text-sm",
           alignEnd && "justify-end",
           meter.text
         )}
@@ -144,9 +152,9 @@ const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterPr
         aria-hidden="true"
         className={cn("flex flex-wrap items-center gap-x-1", alignEnd && "justify-end")}
       >
-        {/* Phones drop the name row so the chart keeps its height; icon and colour still tell the lines apart. */}
-        <meter.icon className={cn("size-3.5 shrink-0 sm:hidden", meter.text)} />
-        {tile.full && <Check className="size-3.5 text-success sm:hidden" />}
+        {/* Below the desk layout the name row is dropped so the counters cover little of the chart; icon and colour still tell the lines apart. */}
+        <meter.icon className={cn("size-3.5 shrink-0 board-desk:hidden", meter.text)} />
+        {tile.full && <Check className="size-3.5 text-success board-desk:hidden" />}
         <span
           className={cn(
             "font-mono text-base leading-tight font-bold whitespace-nowrap tabular-nums sm:text-lg board-desk:text-2xl",

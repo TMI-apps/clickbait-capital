@@ -24,8 +24,8 @@ import type {
   MeterView,
   PhaseProgressView,
   ScandalRiskView,
+  ScoreMarkerView,
 } from "@/features/game-board/types/gameBoard.types";
-import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
 const countFormat = new Intl.NumberFormat("nl-NL");
@@ -79,28 +79,70 @@ function tileValueText(label: string, tile: Omit<MeterView, "key" | "valueText">
  * The two score tiles (score-redesign D23): absolute amount, the last action's change, and a
  * bar for the progress to this phase's goal line.
  */
+/** One point of the score timeline: both numbers, their phase, and the event answered there. */
+export interface ScorePoint extends Record<ScoreKey, number> {
+  phase: GameState["phase"];
+  /** The action at this point answered a scandal or a world (milestone) event. */
+  event?: "scandal" | "world";
+}
+
+/** Which kind of event a step answered, or undefined for a card play. */
+function eventKindOf(step: SessionStep, content: GameContent): ScorePoint["event"] {
+  if (step.eventId === null) return undefined;
+  const event = content.events.find((candidate) => candidate.id === step.eventId);
+  return event?.trigger.kind === "scandal" ? "scandal" : "world";
+}
+
 /**
- * Users and money at the start of the current phase and after every action in it, oldest
- * first (the chart's lines). Phase 1 starts at the balance's start values; a later phase at the
- * state of the action that entered it.
+ * Users and money over the whole run, oldest first (the chart's lines, chart-timeline D1): the
+ * balance's start values (turn 0), the state after every accepted action, and the current state
+ * when it differs from the last point. Built from the session steps, which a resumed run rebuilds
+ * by replay, so the timeline survives a reload without a save change.
  */
 export function toScoreHistory(
   state: GameState,
   steps: readonly SessionStep[],
   content: GameContent
-): Array<Record<ScoreKey, number>> {
-  const inPhase = steps
-    .filter((step) => step.state.phase === state.phase)
-    .map((step) => step.state);
-  const start =
-    state.phase === 1
-      ? [{ users: content.balance.startUsers, money: content.balance.startMoney }]
-      : [];
-  const points = [...start, ...inPhase.map(({ users, money }) => ({ users, money }))];
-  const current = { users: state.users, money: state.money };
-  const last = points[points.length - 1];
-  if (!last || last.users !== current.users || last.money !== current.money) points.push(current);
-  return points.slice(-SCORE_HISTORY_POINTS);
+): ScorePoint[] {
+  const points: ScorePoint[] = [
+    { users: content.balance.startUsers, money: content.balance.startMoney, phase: 1 },
+    ...steps.map((step): ScorePoint => {
+      const { users, money, phase } = step.state;
+      const event = eventKindOf(step, content);
+      return event ? { users, money, phase, event } : { users, money, phase };
+    }),
+  ];
+  const last = points[points.length - 1]!;
+  if (last.users !== state.users || last.money !== state.money || last.phase !== state.phase) {
+    points.push({ users: state.users, money: state.money, phase: state.phase });
+  }
+  return points;
+}
+
+/** Event tick colours (chart-timeline D3): scandals in the danger colour, world events in the brand colour. */
+const EVENT_TONES: Record<NonNullable<ScorePoint["event"]>, string> = {
+  scandal: "text-destructive",
+  world: "text-primary",
+};
+
+/**
+ * The chart's time-axis marks (chart-timeline D3): a divider labelled "F2" where each later
+ * phase began, and a tick at every answered scandal or world event.
+ */
+export function toScoreMarkers(
+  state: GameState,
+  steps: readonly SessionStep[],
+  content: GameContent
+): ScoreMarkerView[] {
+  const points = toScoreHistory(state, steps, content);
+  return points.flatMap((point, index): ScoreMarkerView[] => {
+    const marks: ScoreMarkerView[] = [];
+    if (index > 0 && point.phase !== points[index - 1]!.phase) {
+      marks.push({ index, kind: "divider", label: `F${point.phase}` });
+    }
+    if (point.event) marks.push({ index, kind: "event", tone: EVENT_TONES[point.event] });
+    return marks;
+  });
 }
 
 export function toMeters(
@@ -186,6 +228,10 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       forecast: {
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
         revenue: goal.money <= 0 ? 1 : Math.max(0, next.money) / goal.money,
+      },
+      forecastText: {
+        users: formatScoreDelta("users", delta.users) || "±0",
+        revenue: formatScoreDelta("money", delta.money) || "±0",
       },
     };
   });

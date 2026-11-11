@@ -151,6 +151,8 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
               accents={juice.plan?.accents}
               flashes={juice.plan?.flashes}
               forecast={preview.forecast}
+              forecastText={preview.forecastText}
+              markers={view.scoreMarkers}
             />
             {view.scandal && <ScandalWarning text={view.scandal.text} />}
           </div>

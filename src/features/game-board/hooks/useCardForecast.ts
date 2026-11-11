@@ -8,6 +8,8 @@ export type CardPreviewSource = "hold" | "focus";
 export interface CardForecast {
   /** Where each line lands if the previewed card is played, or null when no card is previewed. */
   forecast: DraftCardView["forecast"] | null;
+  /** The previewed play's change per line as text, or null. */
+  forecastText: DraftCardView["forecastText"] | null;
   /** A card is held or keyboard-focused (id) or no longer (null). */
   onPreview: (source: CardPreviewSource, cardId: string | null) => void;
   /** A card is being dragged (the feed shows its drop target). */
@@ -33,8 +35,10 @@ export function useCardForecast(
     focus: null,
   });
   const previewId = dragged ?? previewed.hold ?? detailCard?.id ?? previewed.focus;
+  const previewedCard = draft.find((card) => card.id === previewId);
   return {
-    forecast: draft.find((card) => card.id === previewId)?.forecast ?? null,
+    forecast: previewedCard?.forecast ?? null,
+    forecastText: previewedCard?.forecastText ?? null,
     onPreview: (source, cardId) => setPreviewed((current) => ({ ...current, [source]: cardId })),
     dragging: dragged !== null,
     dragEvents: {
