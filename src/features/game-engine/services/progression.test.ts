@@ -97,6 +97,17 @@ describe("findTriggeredEvent", () => {
     );
   });
 
+  it("should open a scandal before a due milestone when the scandal chance is at its maximum", () => {
+    const crisis = snapshot({ phase: 2, reputation: 0 });
+    expect(findTriggeredEvent(CERTAIN, crisis).event?.trigger.kind).toBe("scandal");
+  });
+
+  it("should still open the due milestone when the scandal chance is below its maximum", () => {
+    expect(findTriggeredEvent(CERTAIN, snapshot({ phase: 2, reputation: LOW })).event?.id).toBe(
+      "event-investeerders"
+    );
+  });
+
   it("should not roll for a scandal or use RNG state when reputation is safe", () => {
     const result = findTriggeredEvent(CERTAIN, snapshot({ phase: 3, firedEventIds: MILESTONES }));
     expect(result.event).toBeNull();

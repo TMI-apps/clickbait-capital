@@ -139,7 +139,7 @@ export function playCard(state: GameState, content: GameContent, cardId: string)
   const turn = computeCardTurn({ ...state, card, phase, balance: content.balance });
   const change = applyScore(state, turn.totalEffects, {
     phase,
-    userLossPerPoint: content.balance.userLossPerPoint,
+    growth: content.balance,
     gainEffects: turn.cardEffects,
   });
   const played: GameState = {
@@ -180,9 +180,9 @@ export function resolveEvent(state: GameState, content: GameContent, optionId: s
   const effects = eventOptionEffects(option, phase);
   const scored = applyScore(state, effects, {
     phase,
-    userLossPerPoint: content.balance.userLossPerPoint,
+    growth: content.balance,
   });
-  const fine = scandalFine(event, { phase, balance: content.balance });
+  const fine = scandalFine(event, { phase, balance: content.balance, users: state.users });
   const change = {
     ...scored,
     money: scored.money - fine,
@@ -211,16 +211,18 @@ export function eventOptionEffects(option: EventOption, phase: PhaseDefinition):
 }
 
 /**
- * Euros a scandal costs on top of its option (score-redesign D25): `finePoints` at the phase's
- * `moneyPerPoint`. 0 for other events.
+ * Euros a scandal costs on top of its option (score-redesign D25, exponential-growth D2):
+ * `finePoints` at the phase's `moneyPerPoint` plus what that many ad points would earn from the
+ * current users, so fines grow with the platform like real fines do. 0 for other events.
  */
 export function scandalFine(
   event: EventDefinition,
-  context: { phase: PhaseDefinition; balance: BalanceConfig }
+  context: { phase: PhaseDefinition; balance: BalanceConfig; users: number }
 ): number {
-  return event.trigger.kind === "scandal"
-    ? context.balance.scandal.finePoints * context.phase.moneyPerPoint
-    : 0;
+  if (event.trigger.kind !== "scandal") return 0;
+  const { phase, balance, users } = context;
+  const perPoint = phase.moneyPerPoint + balance.moneyPerUserPerPoint * users;
+  return Math.round(balance.scandal.finePoints * perPoint);
 }
 
 /** The draft as full card definitions in slot order, or null when no draft is open. */

@@ -29,15 +29,15 @@ export const UI_COPY = {
       "Zolderkamer, Scale-Up, Wereldwijd Platform en Beursgang. Elke fase heeft twee doellijnen: één voor gebruikers en één voor geld. Haal je ze allebei, dan ga je naar de volgende fase. Daar zijn de kosten hoger en let de wereld beter op.",
     scoreTitle: "Gebruikers en geld",
     score:
-      "De grafiek laat zien hoe je gebruikers en je geld groeien. Houd een kaart ingedrukt of sleep hem: een stippellijn laat zien waar je uitkomt. Elke beurt kost je app geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
+      "Je begint met 0 gebruikers. Hoe meer gebruikers je hebt, hoe sneller je groeit en hoe meer reclame oplevert. De grafiek laat zien hoe je gebruikers en je geld groeien. Houd een kaart ingedrukt of sleep hem: een stippellijn laat zien waar je uitkomt. Elke beurt kost je app geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
     eventsTitle: "Spoed!",
     events:
       "Soms gaat er iets mis op je app. Dan kies je uit drie opties: geld verdienen, ophef maken of eerlijk nieuws. Pas na je keuze zie je wat die doet.",
     scandalTitle: "Schandaal dreigt",
     scandal:
-      "Ophef en reclame zonder nieuws maken mensen boos. Dat zie je niet meteen. Staat er 'Schandaal dreigt', dan kan er elke beurt een schandaal komen. Dat kost een flinke boete. Eerlijk nieuws maakt de kans kleiner.",
+      "Ophef en reclame zonder nieuws maken mensen boos. Dat zie je niet meteen. Staat er 'Schandaal dreigt', dan kan er elke beurt een schandaal komen. Dat kost een boete: hoe meer gebruikers, hoe hoger. Eerlijk nieuws maakt de kans kleiner.",
     winTitle: "Winnen",
-    win: "Haal in de laatste fase 3 miljoen gebruikers en € 4 miljoen. Dan gaat je app naar de [[beurs]]. Daarna krijg je een rapport: wat kostte jouw succes de rest van de wereld?",
+    win: "Haal in de laatste fase 10 miljoen gebruikers en € 20 miljoen. Dan gaat je app naar de [[beurs]]. Daarna krijg je een rapport: wat kostte jouw succes de rest van de wereld?",
     startButton: "Start spel",
     backButton: "Naar het begin",
   },
@@ -45,7 +45,7 @@ export const UI_COPY = {
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
     "Sleep één kaart naar de [[feed]]. Of tik erop: dan lees je meer en kies je 'In de feed'.",
     "Houd een kaart ingedrukt: de stippellijn op de grafiek laat zien wat hij met je gebruikers en geld doet.",
-    "Viraal brengt gebruikers. Advertenties brengen geld. Nieuws levert weinig op, maar houdt schandalen weg.",
+    "Viraal brengt veel nieuwe gebruikers, Nieuws een paar. Advertenties maken van je gebruikers geld. Nieuws houdt schandalen weg.",
     "Haal elke fase de doellijn voor gebruikers én voor geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
     "Let op: je ziet niet alles meteen. Zie je 'Schandaal dreigt', dan komen je keuzes hard terug.",
   ],

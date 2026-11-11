@@ -129,30 +129,40 @@ export interface TriggeredEvent {
 
 /**
  * The event that opens now, or null (game-engine D10, score-redesign D22). Never a second event
- * on the turn of the previous one or within the urgent gap. A due milestone comes first; then,
- * when pacing allows a regular event (or the scandal chance is at its maximum, which is urgent),
- * the seeded RNG rolls against the scandal chance. The roll only uses RNG state when a scandal
+ * on the turn of the previous one or within the urgent gap. A due milestone comes first, unless
+ * the scandal chance is at its maximum: then the scandal roll comes first and the milestone waits
+ * when it hits (exponential-growth D3: a fast-growing toxic app cannot outrun its scandals). Else,
+ * when pacing allows a regular event, the seeded RNG rolls against the scandal chance. The roll only uses RNG state when a scandal
  * can open, so runs without scandal risk replay as before.
  */
 export function findTriggeredEvent(content: GameContent, snapshot: PacingSnapshot): TriggeredEvent {
   const { eventPacing: pacing, scandal } = content.balance;
-  const none = { event: null, rngState: snapshot.rngState };
   if (turnsSinceLastEvent(snapshot) < Math.max(1, pacing.urgentMinTurnsBetween)) {
-    return none;
-  }
-  const milestone = dueMilestone(content, snapshot);
-  if (milestone) {
-    return { event: milestone, rngState: snapshot.rngState };
+    return { event: null, rngState: snapshot.rngState };
   }
   const chance = scandalChance(snapshot.reputation, scandal);
-  if (!scandalMayOpen(snapshot, chance, scandal.maxChance)) {
-    return none;
+  const mayRoll = scandalMayOpen(snapshot, chance, scandal.maxChance);
+  const milestone = dueMilestone(content, snapshot);
+  if (milestone && !(mayRoll && chance >= scandal.maxChance)) {
+    return { event: milestone, rngState: snapshot.rngState };
   }
-  const roll = nextRandom(snapshot.rngState);
-  if (roll.value >= chance) {
-    return { event: null, rngState: roll.state };
+  if (!mayRoll) {
+    return { event: null, rngState: snapshot.rngState };
   }
-  const pick = nextRandom(roll.state);
+  return rollScandal(content, snapshot, { chance, fallback: milestone });
+}
+
+/** Rolls the scandal chance on the run's RNG; on a miss the waiting milestone (if any) opens. */
+function rollScandal(
+  content: GameContent,
+  snapshot: PacingSnapshot,
+  roll: { chance: number; fallback: EventDefinition | null }
+): TriggeredEvent {
+  const hit = nextRandom(snapshot.rngState);
+  if (hit.value >= roll.chance) {
+    return { event: roll.fallback, rngState: hit.state };
+  }
+  const pick = nextRandom(hit.state);
   return { event: pickScandal(content, snapshot, pick.value), rngState: pick.state };
 }
 

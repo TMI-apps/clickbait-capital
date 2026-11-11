@@ -26,18 +26,18 @@ describe("boardView", () => {
       ["users", SEED_CONTENT.balance.startUsers, 0],
       ["revenue", SEED_CONTENT.balance.startMoney, 0],
     ]);
-    expect(tiles[0]!.goalText).toBe("Doel: 100.000");
+    expect(tiles[0]!.goalText).toBe("Doel: 10.000");
   });
 
   it("should show the last action's absolute change and the progress to the goal line", () => {
     const state: GameState = {
       ...fresh(),
-      users: 75_000,
-      money: 30_000,
+      users: 7_500,
+      money: 4_000,
       lastTurn: {
         source: { kind: "card", cardId: "viral-ruzie" },
         effects: { revenue: -1, users: 15, reputation: -1, toxicity: 14 },
-        delta: { users: 22_500, money: -2_000 },
+        delta: { users: 2_250, money: -200 },
         modifiers: {
           adFatigue: false,
           echoChamber: false,
@@ -46,13 +46,13 @@ describe("boardView", () => {
       },
     };
     const [users, money] = toMeters(state, SEED_CONTENT);
-    expect(users).toMatchObject({ value: 75, delta: 22_500, deltaText: "+22.500", full: false });
-    expect(money!.deltaText).toMatch(/^−€\s?2\.000$/);
+    expect(users).toMatchObject({ value: 75, delta: 2_250, deltaText: "+2.250", full: false });
+    expect(money!.deltaText).toMatch(/^−€\s?200$/);
     expect(money!.value).toBe(20);
   });
 
   it("should mark the goal reached and warn when money is down to a few turns of costs", () => {
-    const state: GameState = { ...fresh(), users: 120_000, money: 4_000 };
+    const state: GameState = { ...fresh(), users: 12_000, money: 400 };
     const [users, money] = toMeters(state, SEED_CONTENT);
     expect(users).toMatchObject({ value: 100, full: true });
     expect(money!.danger).toBe(true);
@@ -65,8 +65,8 @@ describe("boardView", () => {
     const progress = toPhaseProgress(state, SEED_CONTENT);
     expect(progress.phaseName).toBe("De Scale-Up");
     expect(progress.progress).toBeCloseTo(0.25);
-    expect(progress.goalStats[0]).toBe("Gebruikers: 300.000 / 300.000");
-    expect(progress.goalStats[1]).toMatch(/^Geld: €\s?150\.000 \/ €\s?600\.000$/);
+    expect(progress.goalStats[0]).toBe("Gebruikers: 100.000 / 100.000");
+    expect(progress.goalStats[1]).toMatch(/^Geld: €\s?50\.000 \/ €\s?200\.000$/);
   });
 
   it("should show the scandal chance only while reputation is below the threshold", () => {
@@ -134,7 +134,7 @@ describe("boardView draft and events", () => {
       outcome: "lost",
       reason: "bankrupt",
       phaseId: 1,
-      statTexts: { users: "50.000", money: expect.stringMatching(/^€\s?100\.000$/) },
+      statTexts: { users: "0", money: expect.stringMatching(/^€\s?3\.000$/) },
     });
     expect(toGameEnd(fresh(), SEED_CONTENT)).toBeNull();
   });
@@ -177,7 +177,13 @@ describe("formatScore", () => {
   it("should put the minus before the euro sign when money is below zero", () => {
     expect(formatScore("money", -24_000)).toMatch(/^−€\s24\.000$/);
     expect(formatScore("money", 150_000)).toMatch(/^€\s150\.000$/);
-    expect(formatScore("users", 2_000_000)).toBe("2.000.000");
+    expect(formatScore("users", 999_999)).toBe("999.999");
+  });
+
+  it("should shorten amounts to millions when they reach a million", () => {
+    expect(formatScore("users", 2_000_000)).toBe("2 mln");
+    expect(formatScore("users", 12_345_678)).toBe("12,3 mln");
+    expect(formatScore("money", -1_250_000)).toMatch(/^−€\s1,3 mln$/);
   });
 });
 
@@ -192,7 +198,7 @@ describe("toGameEnd", () => {
     };
     const end = toGameEnd(state, SEED_CONTENT);
     expect(end?.score).toEqual({ users: 22_500_000, money: 900_000 });
-    expect(end?.statTexts.users).toBe("22.500.000");
+    expect(end?.statTexts.users).toBe("22,5 mln");
   });
 });
 

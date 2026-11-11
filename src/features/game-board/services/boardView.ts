@@ -29,21 +29,29 @@ import type {
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
 const countFormat = new Intl.NumberFormat("nl-NL");
-const euroFormat = new Intl.NumberFormat("nl-NL", {
-  style: "currency",
-  currency: "EUR",
-  maximumFractionDigits: 0,
-});
+const millionFormat = new Intl.NumberFormat("nl-NL", { maximumFractionDigits: 1 });
+const MILLION = 1_000_000;
 
 /** Geld at or below this many turns of passive costs is in danger: Bankroet is near. */
 const MONEY_DANGER_TURNS = 3;
 
 const SCORE_LABEL: Record<ScoreKey, string> = { users: "Gebruikers", money: "Geld" };
 
+/**
+ * "120.000", and from a million on "1,2 mln" so growing numbers stay short on cards and tiles
+ * (exponential-growth D4). Not negative: callers add the sign.
+ */
+function formatAmount(value: number): string {
+  return value >= MILLION
+    ? `${millionFormat.format(value / MILLION)} mln`
+    : countFormat.format(Math.round(value));
+}
+
 /** "120.000" for users, "€ 120.000" for money; a debt reads "−€ 24.000" like the change chips. */
 export function formatScore(key: ScoreKey, value: number): string {
-  if (key !== "money") return countFormat.format(value);
-  return value < 0 ? `−${euroFormat.format(-value)}` : euroFormat.format(value);
+  if (key !== "money") return formatAmount(value);
+  const euros = `€\u00a0${formatAmount(Math.abs(value))}`;
+  return value < 0 ? `−${euros}` : euros;
 }
 
 /** "+12.000" / "−€ 5.000"; empty for 0. */

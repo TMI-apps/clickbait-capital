@@ -15,8 +15,8 @@ import { GAME_CONTENT } from "@/features/game-content/services/gameContent";
 /**
  * Balance simulation: scripted strategies play the full deck through the real engine over
  * many seeds. Proves the design's intent (score-redesign: every one-sided strategy goes
- * bankrupt, a balanced one wins the IPO). Numbers are logged so balance changes show up in
- * test output.
+ * bankrupt, a balanced one wins the IPO; exponential-growth: from 0 users, each ×10 phase takes
+ * about as many turns as the last). Numbers are logged so balance changes show up in test output.
  */
 
 const SEEDS = Array.from({ length: 60 }, (_, index) => index * 7919 + 13);
@@ -52,19 +52,11 @@ const adOnly: Strategy = (state, content) =>
     ? { kind: "event", optionId: "a" }
     : preferring(state, content, ["ad", "news", "viral"]);
 
-/** Journalism first; a viral card when users run low or no news is drawn; an ad only when forced. */
-const newsHeavy: Strategy = (state, content) => {
-  if (state.status === "event") {
-    return { kind: "event", optionId: "c" };
-  }
-  return preferring(
-    state,
-    content,
-    state.users < GAME_CONTENT.balance.startUsers * 0.7
-      ? ["viral", "news", "ad"]
-      : ["news", "viral", "ad"]
-  );
-};
+/** Journalism first; a viral card when no news is drawn; an ad only when forced. */
+const newsHeavy: Strategy = (state, content) =>
+  state.status === "event"
+    ? { kind: "event", optionId: "c" }
+    : preferring(state, content, ["news", "viral", "ad"]);
 
 function phaseOf(state: GameState, content: GameContent) {
   return content.phases.find((phase) => phase.id === state.phase)!;
@@ -222,6 +214,8 @@ interface Run {
   eventTurns: number[];
   /** Every hand shown, in order (deck-draw). */
   hands: { turn: number; ids: readonly string[] }[];
+  /** Users after each card turn, turn 0 first (exponential-growth: the curve's shape). */
+  usersByTurn: number[];
 }
 
 function applyChoice(state: GameState, content: GameContent, choice: Choice): GameState {
@@ -238,6 +232,7 @@ function recordStep(
   const { before, after, choice } = step;
   if (choice.kind === "card") {
     run.phaseTurns[before.phase] = (run.phaseTurns[before.phase] ?? 0) + 1;
+    run.usersByTurn.push(after.users);
   }
   // Every step that leaves an event pending opened a new one (one event per resolution).
   if (after.status === "event") {
@@ -255,6 +250,7 @@ function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
     phaseTurns: {},
     eventTurns: state.status === "event" ? [state.turn] : [],
     hands: state.hand ? [{ turn: state.turn, ids: state.hand }] : [],
+    usersByTurn: [state.users],
   };
   for (let step = 0; step < MAX_STEPS; step++) {
     if (state.status !== "playing" && state.status !== "event") {
@@ -291,6 +287,8 @@ interface Summary {
   medianScandals: number;
   pacing: EventPacing;
   draws: HandDraws;
+  /** Users per turn of the run with the median length (exponential-growth: the curve). */
+  medianRunUsers: number[];
 }
 
 /** What the draws showed (deck-draw): the hands' type mix and how soon a card came back. */
@@ -391,6 +389,12 @@ function scandalsIn(state: GameState): number {
   return state.firedEventIds.filter((id) => SCANDAL_IDS.has(id)).length;
 }
 
+/** The run whose length is the median turn count (first such seed). */
+function medianRun(runs: Run[]): Run {
+  const turns = median(runs.map((run) => run.final.turn));
+  return runs.find((run) => run.final.turn === turns) ?? runs[0]!;
+}
+
 function summarize(strategy: Strategy): Summary {
   const runs = SEEDS.map((seed) => runGame(GAME_CONTENT, strategy, seed));
   const turns = runs.map((run) => run.final.turn);
@@ -409,11 +413,18 @@ function summarize(strategy: Strategy): Summary {
     medianScandals: median(runs.map((run) => scandalsIn(run.final))),
     pacing: measurePacing(runs),
     draws: measureDraws(runs),
+    medianRunUsers: medianRun(runs).usersByTurn,
   };
 }
 
+/** Writes the summaries to the test output so balance changes show up there. */
+function logged<T>(summaries: T): T {
+  process.stdout.write(`${JSON.stringify(summaries)}\n`);
+  return summaries;
+}
+
 describe("balance simulation", () => {
-  const results = {
+  const results = logged({
     viralOnly: summarize(viralOnly),
     adOnly: summarize(adOnly),
     newsHeavy: summarize(newsHeavy),
@@ -422,8 +433,7 @@ describe("balance simulation", () => {
     rotateFive: summarize(rotateFive),
     humanLike: summarize(humanLike),
     ruleOfThumb: summarize(ruleOfThumb),
-  };
-  process.stdout.write(`${JSON.stringify(results)}\n`);
+  });
 
   it("should end every viral-only game in Bankroet when only viral cards are played", () => {
     expect(results.viralOnly.endings).toEqual({ bankrupt: SEEDS.length });
@@ -494,6 +504,20 @@ describe("balance simulation", () => {
       expect(draws.mix.triple).toBeLessThanOrEqual(0.1);
       expect(draws.minHandGap).toBeGreaterThanOrEqual(2);
     }
+  });
+
+  describe("exponential growth", () => {
+    it("should spend about as many turns on each ×10 phase when growth compounds", () => {
+      const { medianPhaseTurns } = results.humanLike;
+      const later = [2, 3, 4].map((phase) => medianPhaseTurns[phase]!);
+      expect(Math.max(...later)).toBeLessThanOrEqual(Math.min(...later) * 1.5);
+    });
+
+    it("should multiply users at least tenfold in the last third of a median human-like run", () => {
+      const users = results.humanLike.medianRunUsers;
+      const twoThirds = users[Math.floor((users.length * 2) / 3)]!;
+      expect(users[users.length - 1]!).toBeGreaterThanOrEqual(twoThirds * 10);
+    });
   });
 
   it("should let a careful player win the IPO when they watch the hidden values", () => {

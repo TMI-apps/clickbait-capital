@@ -74,7 +74,7 @@ describe("useGameSession saving on the device", () => {
     act(() => result.current.play(card));
 
     expect(readSavedRun()).toEqual({
-      version: 6,
+      version: 7,
       seed: 3,
       actions: [{ kind: "card", cardId: card }],
     });
@@ -105,7 +105,7 @@ describe("useGameSession saving on the device", () => {
       useGameSession({
         content: SEED_CONTENT,
         seed: 3,
-        savedRun: { version: 6, seed: 3, actions: [{ kind: "card", cardId: "gone" }] },
+        savedRun: { version: 7, seed: 3, actions: [{ kind: "card", cardId: "gone" }] },
       })
     );
 
