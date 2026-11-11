@@ -115,6 +115,7 @@ export function toShareCardContent(summary: RunSummary): ShareCardContent {
     text: fillTemplate(copy.shareText, {
       phase: String(summary.phaseId),
       turns: countFormat(summary.turn),
+      users: summary.statTexts.users,
     }),
     url: `${SITE_ORIGIN}/`,
     fileName: copy.shareFileName,

@@ -9,7 +9,9 @@ const COPY = UI_COPY.howToPlay;
 
 const SECTIONS = [
   { title: COPY.phasesTitle, body: COPY.phases },
+  { title: COPY.scoreTitle, body: COPY.score },
   { title: COPY.eventsTitle, body: COPY.events },
+  { title: COPY.scandalTitle, body: COPY.scandal },
   { title: COPY.winTitle, body: COPY.win },
 ];
 

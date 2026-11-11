@@ -82,24 +82,24 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
     kicker: "Fase 1",
     title: "De Zolderkamer",
     body: "Een matras, een laptop en een nieuwe app die nog niemand kent. Jij bent het [[algoritme]]: jij kiest wat iedereen in de [[feed]] ziet.",
-    tip: "Nog niemand let op je. Laat je app groeien: haal 100.000 gebruikers en € 150.000.",
+    tip: "Nog niemand let op je. Laat je app groeien, maar houd genoeg geld over: elke beurt kost je servers geld.",
   },
   2: {
     kicker: "Fase 2",
     title: "De Scale-Up",
     body: "Je app is nu een [[scale-up]]. Je hebt een kantoor met een pingpongtafel en [[investeerders|investeerder]] die geld terug willen. De [[servers|server]] kosten nu echt geld.",
-    tip: "Zonder reclame ga je failliet. Met te veel reclame lopen je gebruikers weg.",
+    tip: "Zonder reclame ga je [[bankroet]]. Met te veel reclame lopen je gebruikers weg.",
   },
   3: {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
     body: "Miljoenen mensen kijken elke dag naar jouw feed. Regeringen, kranten en [[adverteerders|adverteerder]] letten nu goed op.",
-    tip: "Verlies je reputatie, dan telt dat nu anderhalf keer. Wie het nieuws overslaat, krijgt een schandaal.",
+    tip: "Ophef maakt mensen nu sneller boos. Sla je het nieuws over, dan dreigt al snel een schandaal, en dat kost een boete.",
   },
   4: {
     kicker: "Fase 4",
     title: "De Beursgang",
     body: "Bijna klaar voor de [[beursgang]]. [[Aandeelhouders|aandeelhouder]] willen winst. De [[toezichthouder]] wacht op één fout.",
-    tip: "Haal 3 miljoen gebruikers en € 4 miljoen. Elk verlies van reputatie telt nu dubbel. Eén schandaal kan je beursgang kosten.",
+    tip: "Ophef telt nu dubbel zo zwaar. De boetes voor een schandaal zijn groot: twee of drie kunnen je beursgang kosten.",
   },
 };

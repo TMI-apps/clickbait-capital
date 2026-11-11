@@ -111,7 +111,7 @@ export function selectGameOverText(reason: GameOverReason, run: EndReportInput):
 export const END_REPORT_TEMPLATE = {
   title: "Gefeliciteerd met je beursgang!",
   intro:
-    "In {turns} beurten groeide je app van een zolderkamer tot een groot techbedrijf op de [[beurs]], met {users} gebruikers. Dit is wat er niet in de folder voor [[investeerders|investeerder]] stond.",
+    "In {turns} beurten groeide je app van een zolderkamer tot een groot techbedrijf op de [[beurs]], met {users} gebruikers en {money} op de bank. Dit is wat er niet in de folder voor [[investeerders|investeerder]] stond.",
   lines: {
     valuation: "Wat je bedrijf waard is op dag één",
     viralPosts: "Virale posts die je bovenaan zette",
@@ -175,6 +175,7 @@ export function buildEndReport(input: EndReportInput): EndReport {
     intro: fillTemplate(END_REPORT_TEMPLATE.intro, {
       turns: numberFormat.format(input.turn),
       users: numberFormat.format(input.score.users),
+      money: euroFormat.format(Math.max(0, input.score.money)),
     }),
     lines,
     closing: END_REPORT_TEMPLATE.closing,

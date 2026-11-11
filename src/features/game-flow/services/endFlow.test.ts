@@ -94,7 +94,9 @@ describe("toShareCardContent", () => {
       { label: UI_COPY.results.usersLabel, value: "2.000.000" },
       { label: UI_COPY.results.moneyLabel, value: "€ 150.000" },
     ]);
-    expect(card.text).toContain("fase 2 in 12 beurten");
+    expect(card.text).toContain(
+      "fase 2 in 12 beurten, met 2.000.000 gebruikers op mijn hoogtepunt"
+    );
   });
 
   it("should use the report title and closing question when the IPO is won", () => {

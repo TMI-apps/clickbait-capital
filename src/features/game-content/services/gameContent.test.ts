@@ -271,7 +271,7 @@ const RICH_FIELDS = [
   /^phaseIntros\.\d\.(body|tip)$/,
   /^gameOver\.\w+\.variants\.\w+\.(body|lesson)$/,
   /^endReport\.intro$/,
-  /^ui\.howToPlay\.(intro|phases|events|win)$/,
+  /^ui\.howToPlay\.(intro|phases|score|events|scandal|win)$/,
   /^ui\.tutorial\.\d+$/,
   /^ui\.privacy\.(intro|points\.\d+|clearHint)$/,
   /^ui\.credits\.body$/,
