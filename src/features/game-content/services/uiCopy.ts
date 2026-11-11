@@ -229,6 +229,7 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
   beursgang:
     "Het moment dat iedereen stukjes van je bedrijf kan kopen. Dan ben je een heel groot bedrijf.",
   bankroet: "Als een bedrijf zijn rekeningen niet meer kan betalen. Dan is het voorbij.",
+  boost: "Een post extra vaak laten zien, zodat veel meer mensen hem zien.",
   bot: "Een computerprogramma dat doet alsof het een mens is.",
   bron: "Waar informatie vandaan komt. Zo kun je checken of het klopt.",
   clickbait: "Een titel of plaatje dat expres overdreven is, zodat jij erop klikt.",
