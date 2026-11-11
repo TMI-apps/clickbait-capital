@@ -25,7 +25,6 @@ import type {
   PhaseProgressView,
   ScandalRiskView,
 } from "@/features/game-board/types/gameBoard.types";
-import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
 const countFormat = new Intl.NumberFormat("nl-NL");
@@ -79,28 +78,38 @@ function tileValueText(label: string, tile: Omit<MeterView, "key" | "valueText">
  * The two score tiles (score-redesign D23): absolute amount, the last action's change, and a
  * bar for the progress to this phase's goal line.
  */
+/** One point of the score timeline: both numbers and the phase they were in. */
+export interface ScorePoint extends Record<ScoreKey, number> {
+  phase: GameState["phase"];
+}
+
 /**
- * Users and money at the start of the current phase and after every action in it, oldest
- * first (the chart's lines). Phase 1 starts at the balance's start values; a later phase at the
- * state of the action that entered it.
+ * Users and money over the whole run, oldest first (the chart's lines, chart-timeline D1): the
+ * balance's start values (turn 0), the state after every accepted action, and the current state
+ * when it differs from the last point. Built from the session steps, which a resumed run rebuilds
+ * by replay, so the timeline survives a reload without a save change.
  */
 export function toScoreHistory(
   state: GameState,
   steps: readonly SessionStep[],
   content: GameContent
-): Array<Record<ScoreKey, number>> {
-  const inPhase = steps
-    .filter((step) => step.state.phase === state.phase)
-    .map((step) => step.state);
-  const start =
-    state.phase === 1
-      ? [{ users: content.balance.startUsers, money: content.balance.startMoney }]
-      : [];
-  const points = [...start, ...inPhase.map(({ users, money }) => ({ users, money }))];
-  const current = { users: state.users, money: state.money };
-  const last = points[points.length - 1];
-  if (!last || last.users !== current.users || last.money !== current.money) points.push(current);
-  return points.slice(-SCORE_HISTORY_POINTS);
+): ScorePoint[] {
+  const points: ScorePoint[] = [
+    { users: content.balance.startUsers, money: content.balance.startMoney, phase: 1 },
+    ...steps.map(({ state: { users, money, phase } }) => ({ users, money, phase })),
+  ];
+  const last = points[points.length - 1]!;
+  if (last.users !== state.users || last.money !== state.money || last.phase !== state.phase) {
+    points.push({ users: state.users, money: state.money, phase: state.phase });
+  }
+  return points;
+}
+
+/** Indices of the timeline points where a new phase began (the chart's phase ticks). */
+function phaseStartsOf(points: readonly ScorePoint[]): number[] {
+  return points.flatMap((point, index) =>
+    index > 0 && point.phase !== points[index - 1]!.phase ? [index] : []
+  );
 }
 
 export function toMeters(
@@ -110,6 +119,7 @@ export function toMeters(
 ): MeterView[] {
   const phase = currentPhase(state, content);
   const history = toScoreHistory(state, steps, content);
+  const phaseStarts = phaseStartsOf(history);
   const costPerTurn = -(phase.passiveCosts.revenue ?? 0) * phase.moneyPerPoint;
   return SCORE_TILES.map(({ key, score }) => {
     const amount = state[score];
@@ -119,6 +129,7 @@ export function toMeters(
     const tile = {
       value: Math.round(Math.min(1, share(amount)) * 100),
       history: history.map((point) => share(point[score])),
+      phaseStarts,
       amount,
       amountText: formatScore(score, amount),
       delta,

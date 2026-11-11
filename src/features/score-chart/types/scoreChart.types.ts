@@ -1,7 +1,7 @@
 /** One line of the score chart: its values as a share of the goal line (1 = on the line). */
 export interface ScoreChartSeries {
   key: string;
-  /** Oldest first; the newest point is drawn on the right. */
+  /** The whole run, oldest first: turn 0 at the left edge, the newest point on the right. */
   shares: number[];
   /** Text colour token class that colours the line and its goal (e.g. `text-meter-users`). */
   tone: string;
@@ -20,7 +20,7 @@ export interface ChartLine {
   goalY: number;
   points: string;
   last: { x: number; y: number };
-  /** The forecast point in the reserved last slot, when the series has a forecast. */
+  /** The forecast point in the free right part of the chart, when the series has a forecast. */
   forecast?: { x: number; y: number };
 }
 
@@ -28,5 +28,7 @@ export interface ChartLine {
 export interface ChartGeometry {
   width: number;
   height: number;
+  /** x of each marker tick (a phase start), in chart units. */
+  markers: number[];
   lines: ChartLine[];
 }

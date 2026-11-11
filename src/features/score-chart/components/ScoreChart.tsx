@@ -5,22 +5,41 @@ import type { ScoreChartSeries } from "@/features/score-chart/types/scoreChart.t
 
 export interface ScoreChartProps {
   series: ScoreChartSeries[];
-  /** Points the x axis holds; the newest point is drawn on the right. */
-  slots: number;
+  /** Point indices that start a new stretch (phase starts): drawn as subtle vertical ticks. */
+  markers?: number[];
   /** Laid over the chart, e.g. the counters along its bottom (the caller makes them readable). */
   children?: ReactNode;
   className?: string;
 }
 
+/** Subtle dashed vertical ticks where a phase began (chart-timeline D3). */
+const MarkerTicks = ({ xs, height }: { xs: number[]; height: number }) =>
+  xs.map((x) => (
+    <line
+      key={`marker-${x}`}
+      data-chart-marker=""
+      x1={x}
+      x2={x}
+      y1={0}
+      y2={height}
+      className="stroke-muted-foreground opacity-40"
+      strokeWidth={1}
+      strokeDasharray="2 3"
+      vectorEffect="non-scaling-stroke"
+    />
+  ));
+
 /**
  * Stock-style score chart (score-redesign D10, D31, mockup C): all lines on one chart, each
  * racing to its own dashed goal line in its own colour at its own height, labelled with the goal
  * value. Strokes do not scale (`vector-effect`) and the end dots and labels are HTML, so they stay
- * round and sharp however the SVG stretches. A series' `forecast` adds a dashed segment to a hollow
- * dot in the reserved last slot: where the line lands if the held card is played (D12). The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
+ * round and sharp however the SVG stretches. The x axis is the whole run from turn 0 on the left;
+ * the right third stays free (chart-timeline D2), and `markers` show where a phase began. A
+ * series' `forecast` adds a dashed segment to a hollow dot in that free part: where the line
+ * lands if the held card is played (D12). The chart itself is `aria-hidden`; `children` (the counters) sit on top of it and speak.
  */
-export const ScoreChart = ({ series, slots, children, className }: ScoreChartProps) => {
-  const { width, height, lines } = useScoreChart(series, slots);
+export const ScoreChart = ({ series, markers, children, className }: ScoreChartProps) => {
+  const { width, height, lines, markers: markerXs } = useScoreChart(series, markers);
   return (
     <div className={cn("relative", className)}>
       <div aria-hidden="true" className="absolute inset-0">
@@ -29,6 +48,7 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
           preserveAspectRatio="none"
           className="absolute inset-0 size-full overflow-visible"
         >
+          <MarkerTicks xs={markerXs} height={height} />
           {lines.map((line) => (
             <g key={line.key} className={line.tone}>
               <line

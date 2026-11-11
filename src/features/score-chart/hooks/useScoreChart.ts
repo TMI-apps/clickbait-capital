@@ -6,6 +6,9 @@ import type {
 } from "@/features/score-chart/types/scoreChart.types";
 
 /** The chart geometry for the shown series, recomputed only when they change. */
-export function useScoreChart(series: readonly ScoreChartSeries[], slots: number): ChartGeometry {
-  return useMemo(() => toChartGeometry(series, slots), [series, slots]);
+export function useScoreChart(
+  series: readonly ScoreChartSeries[],
+  markers: readonly number[] | undefined
+): ChartGeometry {
+  return useMemo(() => toChartGeometry(series, markers), [series, markers]);
 }

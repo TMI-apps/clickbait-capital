@@ -1,10 +1,10 @@
+import { useMemo } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Coins, Siren, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { MeterKey } from "@/features/game-engine/api";
 import { JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
 import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
 import type { MeterView } from "@/features/game-board/types/gameBoard.types";
-import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
 import { ScoreChart } from "@/features/score-chart/api";
 import { cn } from "@/shared/utils/cn";
@@ -73,37 +73,45 @@ export const MeterPanel = ({
   accents = {},
   flashes = {},
   forecast = null,
-}: MeterPanelProps) => (
-  <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
-    <ScoreChart
-      series={meters.map((tile) => ({
+}: MeterPanelProps) => {
+  // Memoised so a re-render that changes neither (juice, drag moves) doesn't rebuild a long run's path.
+  const series = useMemo(
+    () =>
+      meters.map((tile) => ({
         key: tile.key,
         shares: tile.history,
         tone: METERS[tile.key].text,
         goalText: tile.goalAmountText,
         forecast: forecast?.[tile.key],
-      }))}
-      slots={SCORE_HISTORY_POINTS}
-      className="h-24 sm:h-28 board-desk:h-56"
-    >
-      <ul
-        aria-label="Gebruikers en geld"
-        className="absolute inset-x-0 bottom-0 grid grid-cols-2 items-end gap-2"
+      })),
+    [meters, forecast]
+  );
+  return (
+    <section className="rounded-lg border border-border bg-card p-1.5 elevation-sm board-desk:p-3">
+      <ScoreChart
+        series={series}
+        markers={meters[0]?.phaseStarts}
+        className="h-24 sm:h-28 board-desk:h-56"
       >
-        {meters.map((tile, index) => (
-          <ScoreCounter
-            key={tile.key}
-            tile={tile}
-            alignEnd={index === meters.length - 1}
-            version={version}
-            accent={accents[tile.key]}
-            flash={flashes[tile.key]}
-          />
-        ))}
-      </ul>
-    </ScoreChart>
-  </section>
-);
+        <ul
+          aria-label="Gebruikers en geld"
+          className="absolute inset-x-0 bottom-0 grid grid-cols-2 items-end gap-2"
+        >
+          {meters.map((tile, index) => (
+            <ScoreCounter
+              key={tile.key}
+              tile={tile}
+              alignEnd={index === meters.length - 1}
+              version={version}
+              accent={accents[tile.key]}
+              flash={flashes[tile.key]}
+            />
+          ))}
+        </ul>
+      </ScoreChart>
+    </section>
+  );
+};
 
 interface ScoreCounterProps {
   tile: MeterView;
