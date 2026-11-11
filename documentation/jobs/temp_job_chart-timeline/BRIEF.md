@@ -12,6 +12,8 @@
 - A reload keeps the full history (steps are rebuilt by replay; no save change).
 - Preview at 390x844, 360x640, 1440x900: no errors, no document scroll.
 
+**Round 2 (owner, via orchestrator).** The agent picks the forecast reserve from the room the forecast needs; zero at the bottom; earlier phases faded with labelled dividers and event ticks; the plot uses the full height behind the counters, which move to the top corners; a delta label at each forecast dot (D5–D7).
+
 **In scope.** score-chart (geometry, component, types, README), game-board (`toScoreHistory`, `MeterView`, `MeterPanel`, README), decision log.
 
 **Out of scope.** Hand drawing (feat/deck-draw), the save format, the engine.

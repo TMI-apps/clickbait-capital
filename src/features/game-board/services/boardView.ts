@@ -24,6 +24,7 @@ import type {
   MeterView,
   PhaseProgressView,
   ScandalRiskView,
+  ScoreMarkerView,
 } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
@@ -78,9 +79,18 @@ function tileValueText(label: string, tile: Omit<MeterView, "key" | "valueText">
  * The two score tiles (score-redesign D23): absolute amount, the last action's change, and a
  * bar for the progress to this phase's goal line.
  */
-/** One point of the score timeline: both numbers and the phase they were in. */
+/** One point of the score timeline: both numbers, their phase, and the event answered there. */
 export interface ScorePoint extends Record<ScoreKey, number> {
   phase: GameState["phase"];
+  /** The action at this point answered a scandal or a world (milestone) event. */
+  event?: "scandal" | "world";
+}
+
+/** Which kind of event a step answered, or undefined for a card play. */
+function eventKindOf(step: SessionStep, content: GameContent): ScorePoint["event"] {
+  if (step.eventId === null) return undefined;
+  const event = content.events.find((candidate) => candidate.id === step.eventId);
+  return event?.trigger.kind === "scandal" ? "scandal" : "world";
 }
 
 /**
@@ -96,7 +106,11 @@ export function toScoreHistory(
 ): ScorePoint[] {
   const points: ScorePoint[] = [
     { users: content.balance.startUsers, money: content.balance.startMoney, phase: 1 },
-    ...steps.map(({ state: { users, money, phase } }) => ({ users, money, phase })),
+    ...steps.map((step): ScorePoint => {
+      const { users, money, phase } = step.state;
+      const event = eventKindOf(step, content);
+      return event ? { users, money, phase, event } : { users, money, phase };
+    }),
   ];
   const last = points[points.length - 1]!;
   if (last.users !== state.users || last.money !== state.money || last.phase !== state.phase) {
@@ -105,11 +119,30 @@ export function toScoreHistory(
   return points;
 }
 
-/** Indices of the timeline points where a new phase began (the chart's phase ticks). */
-function phaseStartsOf(points: readonly ScorePoint[]): number[] {
-  return points.flatMap((point, index) =>
-    index > 0 && point.phase !== points[index - 1]!.phase ? [index] : []
-  );
+/** Event tick colours (chart-timeline D3): scandals in the danger colour, world events in the brand colour. */
+const EVENT_TONES: Record<NonNullable<ScorePoint["event"]>, string> = {
+  scandal: "text-destructive",
+  world: "text-primary",
+};
+
+/**
+ * The chart's time-axis marks (chart-timeline D3): a divider labelled "F2" where each later
+ * phase began, and a tick at every answered scandal or world event.
+ */
+export function toScoreMarkers(
+  state: GameState,
+  steps: readonly SessionStep[],
+  content: GameContent
+): ScoreMarkerView[] {
+  const points = toScoreHistory(state, steps, content);
+  return points.flatMap((point, index): ScoreMarkerView[] => {
+    const marks: ScoreMarkerView[] = [];
+    if (index > 0 && point.phase !== points[index - 1]!.phase) {
+      marks.push({ index, kind: "divider", label: `F${point.phase}` });
+    }
+    if (point.event) marks.push({ index, kind: "event", tone: EVENT_TONES[point.event] });
+    return marks;
+  });
 }
 
 export function toMeters(
@@ -119,7 +152,6 @@ export function toMeters(
 ): MeterView[] {
   const phase = currentPhase(state, content);
   const history = toScoreHistory(state, steps, content);
-  const phaseStarts = phaseStartsOf(history);
   const costPerTurn = -(phase.passiveCosts.revenue ?? 0) * phase.moneyPerPoint;
   return SCORE_TILES.map(({ key, score }) => {
     const amount = state[score];
@@ -129,7 +161,6 @@ export function toMeters(
     const tile = {
       value: Math.round(Math.min(1, share(amount)) * 100),
       history: history.map((point) => share(point[score])),
-      phaseStarts,
       amount,
       amountText: formatScore(score, amount),
       delta,
@@ -197,6 +228,10 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       forecast: {
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
         revenue: goal.money <= 0 ? 1 : Math.max(0, next.money) / goal.money,
+      },
+      forecastText: {
+        users: formatScoreDelta("users", delta.users) || "±0",
+        revenue: formatScoreDelta("money", delta.money) || "±0",
       },
     };
   });

@@ -14,6 +14,7 @@ import {
   toFeed,
   toScandalRisk,
   toScoreHistory,
+  toScoreMarkers,
 } from "@/features/game-board/services/boardView";
 
 const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
@@ -270,6 +271,8 @@ describe("toScoreHistory", () => {
     expect(history).toHaveLength(21);
     const [users] = toMeters(steps[19]!.state, SEED_CONTENT, steps);
     expect(users!.history).toHaveLength(21);
-    expect(users!.phaseStarts).toEqual([16]);
+    expect(toScoreMarkers(steps[19]!.state, steps, SEED_CONTENT)).toEqual([
+      { index: 16, kind: "divider", label: "F2" },
+    ]);
   });
 });

@@ -24,8 +24,6 @@ export interface MeterView {
    * action since, oldest first.
    */
   history: number[];
-  /** Indices into `history` where a new phase began: the chart's phase ticks (chart-timeline D3). */
-  phaseStarts: number[];
   /** Absolute users or euros. */
   amount: number;
   amountText: string;
@@ -91,6 +89,21 @@ export interface DraftCardView {
    * (score-redesign D12): the chart's forecast point while the card is held, dragged or open.
    */
   forecast: Record<"users" | "revenue", number>;
+  /** The same play's change as text ("+15.000", "−€ 2.000"), shown at the forecast dot (chart-timeline D7). */
+  forecastText: Record<"users" | "revenue", string>;
+}
+
+/**
+ * A mark on the score chart's time axis at a `MeterView.history` index (chart-timeline D3):
+ * a phase start (`divider`, labelled "F2") or an answered scandal or world event (`event`).
+ * Mirrors score-chart's `ChartMarker`; `MeterPanel` passes it on, so a drift fails type-check.
+ */
+export interface ScoreMarkerView {
+  index: number;
+  kind: "divider" | "event";
+  label?: string;
+  /** Text colour class of an event tick. */
+  tone?: string;
 }
 
 /** One post in the phone feed (newest first in the list). */
@@ -137,6 +150,8 @@ export interface GameEndView {
 /** Everything the board renders for one moment of the run. */
 export interface BoardView {
   meters: MeterView[];
+  /** Phase starts and events on the chart's time axis. */
+  scoreMarkers: ScoreMarkerView[];
   scandal: ScandalRiskView | null;
   phase: PhaseProgressView;
   draft: DraftCardView[];

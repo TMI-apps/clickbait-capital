@@ -12,6 +12,7 @@ import {
   toMeters,
   toPhaseProgress,
   toScandalRisk,
+  toScoreMarkers,
 } from "@/features/game-board/services/boardView";
 import { soundsForLastStep } from "@/features/game-board/services/boardSounds";
 import type { BoardSounds } from "@/features/game-board/services/boardSounds";
@@ -29,6 +30,7 @@ const toBoardView = (session: GameSession["session"], content: GameContent): Boa
   const { game, steps } = session;
   return {
     meters: toMeters(game, content, steps),
+    scoreMarkers: toScoreMarkers(game, steps, content),
     scandal: toScandalRisk(game, content),
     phase: toPhaseProgress(game, content),
     draft: toDraft(game, content),

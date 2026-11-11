@@ -4,4 +4,4 @@
  */
 export { ScoreChart } from "@/features/score-chart/components/ScoreChart";
 export type { ScoreChartProps } from "@/features/score-chart/components/ScoreChart";
-export type { ScoreChartSeries } from "@/features/score-chart/types/scoreChart.types";
+export type { ChartMarker, ScoreChartSeries } from "@/features/score-chart/types/scoreChart.types";
