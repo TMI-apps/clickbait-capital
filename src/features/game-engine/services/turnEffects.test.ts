@@ -53,7 +53,6 @@ describe("computeCardTurn", () => {
     expect(result.modifiers).toEqual({
       adFatigue: false,
       echoChamber: false,
-      journalismDrought: false,
       reputationDecay: false,
     });
   });
@@ -93,15 +92,8 @@ describe("computeCardTurn", () => {
     expect(result.cardEffects.toxicity).toBe(6);
   });
 
-  it("should double viral toxicity when 5 turns passed without news", () => {
-    const result = computeCardTurn({ ...base, card: viral, turnsWithoutNews: 5 });
-    expect(result.modifiers.journalismDrought).toBe(true);
-    expect(result.cardEffects.toxicity).toBe(8 + 2);
-  });
-
-  it("should not flag drought when only 4 turns passed without news", () => {
-    const result = computeCardTurn({ ...base, card: viral, turnsWithoutNews: 4 });
-    expect(result.modifiers.journalismDrought).toBe(false);
+  it("should keep viral toxicity unscaled when many turns passed without news", () => {
+    const result = computeCardTurn({ ...base, card: viral, turnsWithoutNews: 8 });
     expect(result.cardEffects.toxicity).toBe(4 + 2);
   });
 

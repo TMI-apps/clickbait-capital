@@ -60,8 +60,10 @@ const draftCards = (): HTMLElement[] =>
     .filter((button) => button.dataset.slot === "game-card");
 
 const DEFAULT_SEED = 11;
-/** First hand on `SEED_CONTENT`: viral, news, ad (seed 11 draws ad, ad, news). */
+/** First hand on `SEED_CONTENT`: viral, viral, news (seed 11 draws ad, ad, news). */
 const VIRAL_SEED = 8;
+/** First hand on `SEED_CONTENT` holds an ad, and the hand after that ad holds news. */
+const AD_THEN_NEWS_SEED = 16;
 
 /** The draft's card of a type; slots are not tied to types (shuffled-hand D1). */
 const draftCardOfType = (type: string): HTMLElement => {
@@ -287,7 +289,7 @@ describe("GameBoard juice", () => {
   });
 
   it("should fly coins with a gold accent for an ad and throw nothing for news", async () => {
-    const { user } = await renderBoard();
+    const { user } = await renderBoard(SEED_CONTENT, AD_THEN_NEWS_SEED);
     await playCard(user, draftCardOfType("ad"));
     expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
     expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
@@ -395,7 +397,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 4,
+    version: 5,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });

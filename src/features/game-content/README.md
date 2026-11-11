@@ -4,7 +4,7 @@ The full Dutch deck and all player-facing copy for Clickbait Capital, as typed d
 
 ## Purpose
 
-- Supplies `GAME_CONTENT`, a `GameContent` the engine plays: 71 cards (viral 24 and news 24: 8 for every phase plus 4 per phase; ads 23: 7 plus 4 per phase, so every draft draws 3 different cards from the phase's 35, any type; shuffled-hand D1), 16 events, the four phases and the balance constants.
+- Supplies `GAME_CONTENT`, a `GameContent` the engine plays: 71 cards (viral 24 and news 24: 8 for every phase plus 4 per phase; ads 23: 7 plus 4 per phase, so every draft draws 3 different cards from the phase's 35; each slot picks viral, ad or news with equal chance first, balance-cleanup D2), 16 events, the four phases and the balance constants.
 - Adds presentation the engine does not need: flavor text and image hints (`imageTheme`, `imageAlt`) per card and event id, phase intros, the three game-over texts, the IPO end report, all UI copy (`UI_COPY`) and the glossary of hard words (`GLOSSARY`).
 - Audience: pupils of about 11 (groep 7/8). Short sentences, everyday Dutch, situations from their world; hard words are marked and explained on tap (kids-content D1–D3).
 - No UI, no React. Board and screen laps import `@/features/game-content/api`.
@@ -35,7 +35,7 @@ The full Dutch deck and all player-facing copy for Clickbait Capital, as typed d
 
 ### Events
 
-Milestones open soon after their phase starts. Every other event is a **scandal** (score-redesign D14): while hidden reputation is below `CONTENT_BALANCE.scandal.threshold` (30), each card turn rolls against the scandal chance (0 → 70 % over 15 points) and draws a scandal of the phase, at most one event per card turn and spaced by `eventPacing` (game-engine D10): 3–6 card turns after the previous event, only 3 at the maximum chance. Each scandal also costs a fine of 16 revenue points at the phase's euro rate (D25). Scandals repeat once all of a phase's scandals have fired.
+Milestones open soon after their phase starts. Every other event is a **scandal** (score-redesign D14): while hidden reputation is below `CONTENT_BALANCE.scandal.threshold` (30), each card turn rolls against the scandal chance (0 → 90 % over 20 points) and draws a scandal of the phase, at most one event per card turn and spaced by `eventPacing` (game-engine D10): 3–6 card turns after the previous event, only 3 at the maximum chance. Each scandal also costs a fine of 18 revenue points at the phase's euro rate (D25). Scandals repeat once all of a phase's scandals have fired.
 
 | Event                              | Trigger             | Models                                  |
 | ---------------------------------- | ------------------- | --------------------------------------- |
@@ -76,18 +76,20 @@ Milestones open soon after their phase starts. Every other event is a **scandal*
 
 ## Balance simulation
 
-`balanceSimulation.test.ts` plays 60 seeds per strategy through the real engine and prints a JSON summary (`pnpm vitest run src/features/game-content --silent=false`). Results after the score-redesign lap (users and money as the score, goal lines, Bankroet only, scandal chance):
+`balanceSimulation.test.ts` plays 60 seeds per strategy through the real engine and prints a JSON summary (`pnpm vitest run src/features/game-content --silent=false`). Results after the balance-cleanup lap (equal type odds per slot, no Droogte, scandal 0 → 90 % over 20 points, fine 18):
 
 | Strategy                                  | Ending (60 seeds)       | Median turns (p10–p90) | Median turns per phase (1/2/3/4) | Scandals per run (median) |
 | ----------------------------------------- | ----------------------- | ---------------------- | -------------------------------- | ------------------------- |
-| Viral-only (events: B)                    | 60 × Bankroet           | 28 (20–40)             | 26 / 7 / 4 / 3                   | 5                         |
-| Ad-only (events: A)                       | 60 × Bankroet           | 127 (75–177)           | 127 / – / – / –                  | 0                         |
-| News-heavy, ads only when forced (C)      | 60 × Bankroet           | 59 (51–84)             | 59 / – / – / –                   | 0                         |
-| Rotate V/A/N (events: C)                  | 53 × won, 7 × Bankroet  | 59 (36–75)             | 19 / 14 / 11 / 13                | 0                         |
-| Rotate V/A/N/N/A (events: C)              | 54 × won, 6 × Bankroet  | 110 (69–193)           | 41 / 16 / 15 / 20                | 0                         |
-| Human-like, visible info only             | 59 × won, 1 × Bankroet  | 39 (25–45)             | 9 / 6 / 9 / 13                   | 1                         |
-| Rule-of-thumb, visible info, no lookahead | 35 × won, 25 × Bankroet | 47 (26–59)             | 10 / 7 / 13 / 16                 | 3                         |
-| Mixed, one-step lookahead (sees hidden)   | 59 × won, 1 × Bankroet  | 35 (25–43)             | 11 / 6 / 6 / 9                   | 1                         |
+| Viral-only (events: B)                    | 60 × Bankroet           | 25 (19–31)             | 21 / 9 / 5 / 8                   | 4                         |
+| Ad-only (events: A)                       | 60 × Bankroet           | 127 (74–173)           | 127 / – / – / –                  | 1                         |
+| News-heavy, ads only when forced (C)      | 60 × Bankroet           | 69 (51–118)            | 69 / – / – / –                   | 0                         |
+| Rotate V/A/N (events: C)                  | 51 × won, 9 × Bankroet  | 59 (43–76)             | 19 / 12 / 12 / 14                | 0                         |
+| Rotate V/A/N/N/A (events: C)              | 52 × won, 8 × Bankroet  | 115 (62–225)           | 48 / 15 / 16 / 19                | 0                         |
+| Human-like, visible info only             | 56 × won, 4 × Bankroet  | 38 (28–46)             | 9 / 5 / 10 / 13                  | 1                         |
+| Rule-of-thumb, visible info, no lookahead | 35 × won, 25 × Bankroet | 44 (22–61)             | 9 / 7 / 13 / 16                  | 3                         |
+| Mixed, one-step lookahead (sees hidden)   | 59 × won, 1 × Bankroet  | 36 (28–42)             | 10 / 5 / 7 / 12                  | 1                         |
+
+Before the balance-cleanup lap (score-redesign: any card of the pool per slot, Droogte on, scandal 0 → 70 % over 15, fine 16): viral-only 60 × Bankroet, 28 turns, 5 scandals; ad-only and news-heavy 60 × Bankroet; rotate 53 × won; V/A/N/N/A 54 × won; human-like 59 × won in 39 (25–45), 1 scandal; rule-of-thumb 35 × won in 47 (26–59), 3 scandals; mixed 59 × won in 35. Equal type odds and no Droogte alone (old scandal values): viral-only won 5 of 60, human-like 58, rule-of-thumb 40.
 
 Players now see only users, money, the goal lines and the scandal warning (reputation is hidden). The human-like lookahead weighs the visible scandal chance; the rule-of-thumb player plays news once the warning reads 20 %, an ad when money is below 6 turns of costs (12 while the warning shows), otherwise the card for the line that lags its goal. Its weak spot is a scandal fine landing while money is low; it still wins most games (asserted ≥ 50 %). Before this lap (meter model) human-like won 60 × in 44 turns and rule-of-thumb 54 × in 88.
 
@@ -125,3 +127,4 @@ Every event fires in some simulated game (asserted); the JSON output lists how o
 - **Ads need an audience (D20):** money gains scale with users / `audienceUsers` (0–1.5): ad-only loses its audience and goes bankrupt instead of piling up money forever.
 - **Toxicity drain (D21):** only Toxicity above 50 drains reputation (5 % per point): a drain on all Toxicity pinned it near 100 for every player, so the warning never went away.
 - **Scandal fine (D25):** 16 revenue points per scandal; 10 or less let viral-only win some games.
+- **Scandal tuning after Droogte (balance-cleanup D4):** scandal `rampPoints` 15 → 20, `maxChance` 0.7 → 0.9, `finePoints` 16 → 18. With equal type odds and no Droogte, viral-only won 5 of 60 (a few runs sprint through phases 3–4 at reputation 0 between milestones). A higher maximum only bites at the bottom of reputation, where only a news-neglecting player sits. Lost: stronger reputation decay, toxicity drain or a news-ignored +3 (each cut rule-of-thumb wins to 26–33 of 60 or rotate to 44–47 and still let viral-only win), a fine of 20 alone (rule-of-thumb 24–26 of 60), a weaker Echo-Chamber (no effect: the winners were not on streaks).

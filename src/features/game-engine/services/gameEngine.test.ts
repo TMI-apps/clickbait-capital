@@ -10,7 +10,6 @@ import {
   drawHand,
   getHandCards,
   getPendingEvent,
-  isJournalismDroughtActive,
   playCard,
   resolveEvent,
 } from "./gameEngine";
@@ -131,6 +130,40 @@ describe("drawHand", () => {
       const types = new Set(draws.map(({ hand }) => typesOf(hand)[slot]));
       expect([...types].sort()).toEqual(["ad", "news", "viral"]);
     }
+  });
+
+  it("should give every type about a third of the slots when the pool holds many more ads", () => {
+    const ads = SEED_CONTENT.cards.filter((card) => card.type === "ad");
+    const extraAds = Array.from({ length: 20 }, (_, index) => ({
+      ...ads[index % ads.length]!,
+      id: `ad-extra-${index}`,
+    }));
+    const content: GameContent = { ...SEED_CONTENT, cards: [...SEED_CONTENT.cards, ...extraAds] };
+    const slots = SEEDS.flatMap((seed) =>
+      drawHand(content, 1, seed).hand.map(
+        (id) => content.cards.find((card) => card.id === id)!.type
+      )
+    );
+    for (const type of ["viral", "ad", "news"]) {
+      const share = slots.filter((slotType) => slotType === type).length / slots.length;
+      expect(share).toBeGreaterThan(0.28);
+      expect(share).toBeLessThan(0.39);
+    }
+  });
+
+  it("should draw only from the other types when the phase has no card of one type", () => {
+    const content: GameContent = {
+      ...SEED_CONTENT,
+      cards: SEED_CONTENT.cards.filter((card) => card.type !== "news"),
+    };
+    const types = new Set(
+      SEEDS.flatMap((seed) =>
+        drawHand(content, 1, seed).hand.map(
+          (id) => content.cards.find((card) => card.id === id)!.type
+        )
+      )
+    );
+    expect([...types].sort()).toEqual(["ad", "viral"]);
   });
 
   it("should draw the same hand when the seed is the same", () => {
@@ -256,16 +289,6 @@ describe("playCard progression", () => {
     const content = certainScandals(100);
     const state = runGame(content, { seed: 4, policy: () => "news", maxSteps: 30 });
     expect(state.firedEventIds.filter((id) => id === "event-eu-boete")).toEqual([]);
-  });
-
-  it("should mark the viral card with drought after 5 turns without news", () => {
-    const adsThenViral: Policy = (_s, step) => (step < 5 ? "ad" : "viral");
-    const afterFour = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 4 });
-    expect(isJournalismDroughtActive(afterFour, SEED_CONTENT)).toBe(false);
-    const afterFive = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 5 });
-    expect(isJournalismDroughtActive(afterFive, SEED_CONTENT)).toBe(true);
-    const viralTurn = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 6 });
-    expect(viralTurn.lastTurn?.modifiers.journalismDrought).toBe(true);
   });
 });
 

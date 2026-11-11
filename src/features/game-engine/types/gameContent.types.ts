@@ -140,7 +140,6 @@ export interface BalanceConfig {
     userLossMultiplier: number;
   };
   echoChamber: { streak: number; userGainMultiplier: number; toxicity: number };
-  journalismDrought: { afterTurnsWithoutNews: number; viralToxicityMultiplier: number };
   scandal: ScandalConfig;
   eventPacing: EventPacingConfig;
 }

@@ -86,8 +86,7 @@ export type FollowerCue =
   /** Reputation is low: critical followers complain. */
   | "complain"
   | "adFatigue"
-  | "echoChamber"
-  | "drought";
+  | "echoChamber";
 
 /** Avatar tint of a follower; maps to a theme token in the comments component. */
 export type FollowerTone = "viral" | "ad" | "news" | "primary" | "success" | "warning";

@@ -85,8 +85,6 @@ export interface DraftCardView {
   /** Satirical one-liner when the content provides one (game-content `flavor`). */
   flavor?: string;
   effects: CardEffectView[];
-  /** Journalistieke Droogte: viral cards get the red frame. */
-  droughtWarning: boolean;
 }
 
 /** One post in the phone feed (newest first in the list). */

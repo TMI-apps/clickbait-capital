@@ -12,7 +12,6 @@ import {
   eventOptionEffects,
   getHandCards,
   getPendingEvent,
-  isJournalismDroughtActive,
   scaleForPhase,
   scandalChance,
 } from "@/features/game-engine/api";
@@ -194,20 +193,15 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
   if (!hand) {
     return [];
   }
-  const drought = isJournalismDroughtActive(state, content);
   const phase = currentPhase(state, content);
-  return hand.map((card) => {
-    const { type } = card;
-    return {
-      id: card.id,
-      type,
-      title: card.title,
-      body: card.body,
-      flavor: flavorOf(card),
-      effects: scaledEffects(card.effects, phase),
-      droughtWarning: drought && type === "viral",
-    };
-  });
+  return hand.map((card) => ({
+    id: card.id,
+    type: card.type,
+    title: card.title,
+    body: card.body,
+    flavor: flavorOf(card),
+    effects: scaledEffects(card.effects, phase),
+  }));
 }
 
 /**
