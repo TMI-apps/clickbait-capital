@@ -79,7 +79,7 @@ De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en inc
 
 ### **Type 1: De Reguliere 3-Kaarten Draft**
 
-Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Per plek kiest het spel eerst een subtype (viraal, advertentie of nieuws, elk met een kans van 1/3) en trekt dan een kaart van dat subtype uit de fase (balance-cleanup D2): soms drie advertenties, soms twee nieuwskaarten en één virale, maar over veel beurten evenveel van elk. De volgorde is ook elke beurt anders, zodat de speler op de inhoud kiest en niet op de plek (shuffled-hand D1). Dezelfde kaart komt nooit twee keer in één hand. De subtypes:
+Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Meestal is dat één kaart van elk subtype (viraal, advertentie, nieuws: ongeveer 60 % van de handen), soms twee van één subtype plus één ander (35 %) en zelden drie van hetzelfde (5 %); over veel beurten komt elk subtype even vaak (deck-draw D2). Elk subtype heeft per fase een eigen geschudde stapel: elke getoonde kaart, gespeeld of niet, gaat onderaan de stapel, dus een kaart komt pas terug als de rest van zijn subtype geweest is, en nooit in twee handen achter elkaar (deck-draw D1, D4). De volgorde is ook elke beurt anders, zodat de speler op de inhoud kiest en niet op de plek (shuffled-hand D1). Dezelfde kaart komt nooit twee keer in één hand. De subtypes:
 
 | Kaarttype | Primaire Voordelen | Primaire Nadelen / Risico's |
 | :---- | :---- | :---- |

@@ -4,7 +4,7 @@ The playable board of Clickbait Capital at `/spel`: one run of the core loop ove
 
 ## Purpose
 
-- Shows the three meters (Inkomsten, Gebruikers, Reputatie), the phase with its milestone progress, the central phone feed and the 3-card draft (cards in the engine's drawn order, any mix of types; shuffled-hand D1).
+- Shows the three meters (Inkomsten, Gebruikers, Reputatie), the phase with its milestone progress, the central phone feed and the 3-card draft (cards in the engine's drawn order, mostly one of each type, no card twice in a row; shuffled-hand D1, deck-draw D1–D4).
 - Lets the player open a card's details by tap or keyboard (arrow keys + Enter / Space) and feed it from there, or drag it onto the feed; answer pending events, see the end of a run, open card details and pause.
 - No game rules and no run state here: the run (engine state, accepted steps, device save) is game-session's `useGameSession`; `useBoardSession` derives the board view, feed, score tiles and sounds from it.
 

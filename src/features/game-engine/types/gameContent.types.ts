@@ -142,6 +142,17 @@ export interface BalanceConfig {
   echoChamber: { streak: number; userGainMultiplier: number; toxicity: number };
   scandal: ScandalConfig;
   eventPacing: EventPacingConfig;
+  handMix: HandMixConfig;
+}
+
+/**
+ * Relative weights of a hand's type mix (deck-draw D2): one of each type, a pair plus one
+ * other type, or three of one type. Any type is equally likely to be the pair or the triple.
+ */
+export interface HandMixConfig {
+  oneOfEach: number;
+  pair: number;
+  triple: number;
 }
 
 /**

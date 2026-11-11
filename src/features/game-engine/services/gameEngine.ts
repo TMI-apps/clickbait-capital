@@ -1,7 +1,6 @@
 import type {
   BalanceConfig,
   CardDefinition,
-  CardType,
   EventDefinition,
   EventOption,
   FullEffects,
@@ -9,7 +8,7 @@ import type {
   PhaseDefinition,
   PhaseId,
 } from "@/features/game-engine/types/gameContent.types";
-import type { GameState, Hand } from "@/features/game-engine/types/gameState.types";
+import type { GameState } from "@/features/game-engine/types/gameState.types";
 import {
   findTriggeredEvent,
   getGameOver,
@@ -17,7 +16,7 @@ import {
   goalReached,
   scheduleNextEvent,
 } from "@/features/game-engine/services/progression";
-import { pickRandom } from "@/features/game-engine/services/seededRandom";
+import { drawHand } from "@/features/game-engine/services/drawDeck";
 import {
   applyScore,
   computeCardTurn,
@@ -30,8 +29,6 @@ import {
  * GameState; randomness comes only from the seeded RNG state inside the game state.
  */
 
-/** Cards in every draft (design § 4 Type 1). */
-export const HAND_SIZE = 3;
 const LAST_PHASE: PhaseId = 4;
 
 /** Input for a new game. */
@@ -39,45 +36,6 @@ export interface CreateGameOptions {
   content: GameContent;
   /** Integer seed; the same seed and choices replay the same game. */
   seed: number;
-}
-
-function cardsFor(content: GameContent, phase: PhaseId): CardDefinition[] {
-  return content.cards.filter((card) => card.phases?.includes(phase) ?? true);
-}
-
-/** The card types a hand slot picks between, in a fixed order so draws replay per seed. */
-const CARD_TYPES: readonly CardType[] = ["viral", "ad", "news"];
-
-/**
- * Draws `HAND_SIZE` different cards in draw order (shuffled-hand D1, D2; balance-cleanup D2):
- * each slot first picks a card type with equal chance, then a card of that type from the
- * phase's pool, so every type is about 1/3 of the hand whatever the pool's mix. Types can
- * repeat in one hand and no slot is tied to a type. A type with no undrawn card left in the
- * pool drops out of that slot's pick (fallback: equal chance over the types that still have one).
- */
-export function drawHand(
-  content: GameContent,
-  phase: PhaseId,
-  rngState: number
-): { hand: Hand; rngState: number } {
-  let state = rngState;
-  let pool = cardsFor(content, phase);
-  if (pool.length < HAND_SIZE) {
-    throw new Error(`game-engine: phase ${phase} has fewer than ${HAND_SIZE} cards`);
-  }
-  const ids: string[] = [];
-  while (ids.length < HAND_SIZE) {
-    const types = CARD_TYPES.filter((type) => pool.some((card) => card.type === type));
-    const typePick = pickRandom(types, state);
-    const pick = pickRandom(
-      pool.filter((card) => card.type === typePick.item),
-      typePick.state
-    );
-    ids.push(pick.item.id);
-    pool = pool.filter((card) => card !== pick.item);
-    state = pick.state;
-  }
-  return { hand: ids, rngState: state };
 }
 
 /** Writes a turn's score change into the state and keeps the users peak (end screens). */
@@ -112,11 +70,12 @@ function advance(state: GameState, content: GameContent): GameState {
       firedEventIds: [...state.firedEventIds, event.id],
     };
   }
-  const draw = drawHand(content, state.phase, rngState);
+  const draw = drawHand(content, { phase: state.phase, deck: state.deck, rngState });
   return {
     ...state,
     status: "playing",
     hand: draw.hand,
+    deck: draw.deck,
     rngState: draw.rngState,
     pendingEventId: null,
   };
@@ -147,6 +106,7 @@ export function createGame({ content, seed }: CreateGameOptions): GameState {
     toxicity: 0,
     peakUsers: balance.startUsers,
     hand: null,
+    deck: null,
     pendingEventId: null,
     firedEventIds: [],
     lastEventTurn: null,

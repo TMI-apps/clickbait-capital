@@ -14,6 +14,18 @@ export type GameStatus = "playing" | "event" | "won" | "lost";
 /** The draft: different card ids in slot order, any mix of types (shuffled-hand D1). */
 export type Hand = readonly string[];
 
+/**
+ * The draw piles of the current phase (deck-draw D1, D3): per card type, card ids top first.
+ * Every shown card goes to the bottom of its pile, so it returns only after the rest of its
+ * type has been shown.
+ */
+export interface DrawDeck {
+  phase: PhaseId;
+  piles: Record<CardType, string[]>;
+  /** The last hand shown; never shown again in the next hand (D4). */
+  lastHand: string[];
+}
+
 /** Which correction rules changed the last card (for UI feedback such as red borders). */
 export interface TurnModifiers {
   adFatigue: boolean;
@@ -52,6 +64,8 @@ export interface GameState {
   /** Highest Gebruikers of the run so far: end screens report this peak, since users can fall. */
   peakUsers: number;
   hand: Hand | null;
+  /** Draw piles (deck-draw D1); null before the first hand. */
+  deck: DrawDeck | null;
   pendingEventId: string | null;
   firedEventIds: string[];
   /** Card turn on which the last event opened, or null before the first (game-engine D10). */

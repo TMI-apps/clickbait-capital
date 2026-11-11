@@ -4,7 +4,7 @@ The full Dutch deck and all player-facing copy for Clickbait Capital, as typed d
 
 ## Purpose
 
-- Supplies `GAME_CONTENT`, a `GameContent` the engine plays: 71 cards (viral 24 and news 24: 8 for every phase plus 4 per phase; ads 23: 7 plus 4 per phase, so every draft draws 3 different cards from the phase's 35; each slot picks viral, ad or news with equal chance first, balance-cleanup D2), 16 events, the four phases and the balance constants.
+- Supplies `GAME_CONTENT`, a `GameContent` the engine plays: 71 cards (viral 24 and news 24: 8 for every phase plus 4 per phase; ads 23: 7 plus 4 per phase, so every draft draws 3 different cards from the phase's 35; the hand's type mix is one roll, mostly one of each, and each type keeps its own draw pile where shown cards go to the bottom, deck-draw D1–D4), 16 events, the four phases and the balance constants.
 - Adds presentation the engine does not need: flavor text and image hints (`imageTheme`, `imageAlt`) per card and event id, phase intros, the three game-over texts, the IPO end report, all UI copy (`UI_COPY`) and the glossary of hard words (`GLOSSARY`).
 - Audience: pupils of about 11 (groep 7/8). Short sentences, everyday Dutch, situations from their world; hard words are marked and explained on tap (kids-content D1–D3).
 - No UI, no React. Board and screen laps import `@/features/game-content/api`.
@@ -76,18 +76,22 @@ Milestones open soon after their phase starts. Every other event is a **scandal*
 
 ## Balance simulation
 
-`balanceSimulation.test.ts` plays 60 seeds per strategy through the real engine and prints a JSON summary (`pnpm vitest run src/features/game-content --silent=false`). Results after the balance-cleanup lap (equal type odds per slot, no Droogte, scandal 0 → 90 % over 20 points, fine 18):
+`balanceSimulation.test.ts` plays 60 seeds per strategy through the real engine and prints a JSON summary (`pnpm vitest run src/features/game-content --silent=false`). Results after the deck-draw lap (draw piles per type, shown cards to the bottom, hand mix 60 / 35 / 5; balance values unchanged):
 
-| Strategy                                  | Ending (60 seeds)       | Median turns (p10–p90) | Median turns per phase (1/2/3/4) | Scandals per run (median) |
-| ----------------------------------------- | ----------------------- | ---------------------- | -------------------------------- | ------------------------- |
-| Viral-only (events: B)                    | 60 × Bankroet           | 25 (19–31)             | 21 / 9 / 5 / 8                   | 4                         |
-| Ad-only (events: A)                       | 60 × Bankroet           | 127 (74–173)           | 127 / – / – / –                  | 1                         |
-| News-heavy, ads only when forced (C)      | 60 × Bankroet           | 69 (51–118)            | 69 / – / – / –                   | 0                         |
-| Rotate V/A/N (events: C)                  | 51 × won, 9 × Bankroet  | 59 (43–76)             | 19 / 12 / 12 / 14                | 0                         |
-| Rotate V/A/N/N/A (events: C)              | 52 × won, 8 × Bankroet  | 115 (62–225)           | 48 / 15 / 16 / 19                | 0                         |
-| Human-like, visible info only             | 56 × won, 4 × Bankroet  | 38 (28–46)             | 9 / 5 / 10 / 13                  | 1                         |
-| Rule-of-thumb, visible info, no lookahead | 35 × won, 25 × Bankroet | 44 (22–61)             | 9 / 7 / 13 / 16                  | 3                         |
-| Mixed, one-step lookahead (sees hidden)   | 59 × won, 1 × Bankroet  | 36 (28–42)             | 10 / 5 / 7 / 12                  | 1                         |
+| Strategy                                  | Ending (60 seeds)               | Median turns (p10–p90) | Median turns per phase (1/2/3/4) | Scandals per run (median) |
+| ----------------------------------------- | ------------------------------- | ---------------------- | -------------------------------- | ------------------------- |
+| Viral-only (events: B)                    | 60 × Bankroet                   | 20 (16–25)             | 20 / 8 / 4 / –                   | 3                         |
+| Ad-only (events: A)                       | 60 × Bankroet                   | 51 (31–79)             | 51 / – / – / –                   | 3                         |
+| News-heavy, ads only when forced (C)      | 60 × Bankroet                   | 55 (51–64)             | 55 / – / – / –                   | 0                         |
+| Rotate V/A/N (events: C)                  | 58 × won, 2 × Bankroet          | 53 (44–70)             | 19 / 12 / 9 / 12                 | 0                         |
+| Rotate V/A/N/N/A (events: C)              | 58 × won, 2 × unfinished (400+) | 136 (91–251)           | 71 / 19 / 24 / 24                | 0                         |
+| Human-like, visible info only             | 60 × won                        | 37 (32–43)             | 8 / 6 / 10 / 14                  | 1                         |
+| Rule-of-thumb, visible info, no lookahead | 44 × won, 16 × Bankroet         | 44 (27–51)             | 9 / 6 / 11 / 16                  | 2                         |
+| Mixed, one-step lookahead (sees hidden)   | 60 × won                        | 36 (27–41)             | 9 / 5 / 7 / 12                   | 1                         |
+
+Draws (`draws` in the JSON; deck-draw D1–D4), the same for every strategy: 60–61 % of hands hold one card of each type, 34–36 % two of one type plus one, 4–5 % three of one type. The fewest hands between two showings of one card is 5 (6 for viral-only), the median 11–14. Asserted: one of each is the most common mix (≥ 50 %), three of one type ≤ 10 %, and no card shows in two hands in a row.
+
+Before the deck-draw lap (each slot picked its type with 1/3 chance, no memory): viral-only, ad-only and news-heavy 60 × Bankroet (25 / 127 / 69 turns); rotate 51 × won; V/A/N/N/A 52 × won; human-like 56 × won in 38 (28–46); rule-of-thumb 35 × won in 44 (22–61), 3 scandals; mixed 59 × won in 36. Mixed hands help planned play (human-like and rule-of-thumb win more often) and make one-sided play fail sooner (ad-only 127 → 51 turns: fewer ad-heavy hands); no retune needed.
 
 Before the balance-cleanup lap (score-redesign: any card of the pool per slot, Droogte on, scandal 0 → 70 % over 15, fine 16): viral-only 60 × Bankroet, 28 turns, 5 scandals; ad-only and news-heavy 60 × Bankroet; rotate 53 × won; V/A/N/N/A 54 × won; human-like 59 × won in 39 (25–45), 1 scandal; rule-of-thumb 35 × won in 47 (26–59), 3 scandals; mixed 59 × won in 35. Equal type odds and no Droogte alone (old scandal values): viral-only won 5 of 60, human-like 58, rule-of-thumb 40.
 
