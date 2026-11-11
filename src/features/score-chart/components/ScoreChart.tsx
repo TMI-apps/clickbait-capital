@@ -56,7 +56,7 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
                   y1={line.last.y}
                   x2={line.forecast.x}
                   y2={line.forecast.y}
-                  className="stroke-current"
+                  className="stroke-current animate-in fade-in-0 duration-(--duration-fast)"
                   strokeWidth={2.5}
                   strokeDasharray="4 3"
                   strokeLinecap="round"
@@ -84,7 +84,7 @@ export const ScoreChart = ({ series, slots, children, className }: ScoreChartPro
                 key={`${line.key}-forecast`}
                 data-chart-forecast={line.key}
                 className={cn(
-                  "absolute size-2.5 -translate-1/2 rounded-full border-2 border-current bg-card",
+                  "absolute size-2.5 -translate-1/2 rounded-full border-2 border-current bg-card animate-in fade-in-0 zoom-in-50 duration-(--duration-fast)",
                   line.tone
                 )}
                 style={{

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { CHART_HEIGHT, toChartGeometry } from "@/features/score-chart/services/scoreChart";
+import {
+  CHART_HEIGHT,
+  CHART_WIDTH,
+  toChartGeometry,
+} from "@/features/score-chart/services/scoreChart";
 
 const series = [
   { key: "users", shares: [0.5, 1.1], tone: "text-meter-users", goalText: "100.000" },
@@ -23,9 +27,10 @@ describe("toChartGeometry", () => {
     expect(lines[1]!.last.y).toBeGreaterThan(lines[1]!.goalY);
   });
 
-  it("should start a series with no points on the left, below its goal line", () => {
+  it("should put the first point of a phase on the right, below its goal line, when there is no history", () => {
     const { lines } = toChartGeometry([{ ...series[0]!, shares: [] }], 12);
-    expect(lines[0]!.last.x).toBe(0);
+    expect(lines[0]!.last.x).toBeGreaterThan(CHART_WIDTH / 2);
+    expect(lines[0]!.last.x).toBeLessThan(CHART_WIDTH);
     expect(lines[0]!.last.y).toBeGreaterThan(lines[0]!.goalY);
   });
 
@@ -33,9 +38,9 @@ describe("toChartGeometry", () => {
     const line = toChartGeometry([{ ...series[0]!, shares: [0.2, 0.3] }], 12).lines[0]!;
     const ys = line.points.split(" ").map((point) => Number(point.split(",")[1]));
     // Lowest point just above the counters band (bottom ~40%), the climb clearly visible.
-    expect(ys[0]!).toBeGreaterThan(CHART_HEIGHT * 0.5);
-    expect(ys[0]!).toBeLessThan(CHART_HEIGHT * 0.7);
-    expect(ys[0]! - ys[1]!).toBeGreaterThan(CHART_HEIGHT / 20);
+    expect(ys[0]!).toBeGreaterThan(CHART_HEIGHT * 0.4);
+    expect(ys[0]!).toBeLessThan(CHART_HEIGHT * 0.6);
+    expect(ys[0]! - ys[1]!).toBeGreaterThan(CHART_HEIGHT / 40);
   });
 
   it("should draw the forecast in the slot after the newest point, above it for a gain", () => {
@@ -43,6 +48,13 @@ describe("toChartGeometry", () => {
     const line = lines[0]!;
     expect(line.forecast!.x).toBeGreaterThan(line.last.x);
     expect(line.forecast!.y).toBeLessThan(line.last.y);
+  });
+
+  it("should spread a short history over the width when the phase just started", () => {
+    const line = toChartGeometry([{ ...series[0]!, shares: [0.5, 0.6, 0.7] }], 12).lines[0]!;
+    const xs = line.points.split(" ").map((point) => Number(point.split(",")[0]));
+    expect(xs[0]).toBe(0);
+    expect(xs[2]!).toBeGreaterThan(CHART_WIDTH * 0.8);
   });
 
   it("should keep the history in place whether or not a forecast is shown", () => {
