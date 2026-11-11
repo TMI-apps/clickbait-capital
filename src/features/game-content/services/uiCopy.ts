@@ -71,25 +71,6 @@ export const UI_COPY = {
     resumeButton: "Verder",
     quitButton: "Stoppen",
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
-    modifiers: {
-      journalismDrought: {
-        label: "Geen nieuws meer",
-        description: "Al vijf beurten geen nieuws. Virale kaarten zijn nu extra gevaarlijk.",
-      },
-      echoChamber: {
-        label: "Steeds hetzelfde",
-        description:
-          "Drie keer viraal achter elkaar: meer gebruikers, maar de sfeer wordt grimmig.",
-      },
-      adFatigue: {
-        label: "Reclame-moe",
-        description: "Te veel reclame: advertenties leveren minder op en mensen gaan weg.",
-      },
-      reputationDecay: {
-        label: "Vertrouwen lekt weg",
-        description: "Je feed laat geen nieuws zien. Je reputatie zakt elke beurt.",
-      },
-    },
     effectLabels: {
       gain: "+{value}",
       loss: "−{value}",

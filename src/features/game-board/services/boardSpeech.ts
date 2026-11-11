@@ -16,8 +16,6 @@ export interface TurnSnapshot {
   goalStats: PhaseProgressView["goalStats"];
   /** The scandal warning text, or null while reputation is safe (score-redesign D13). */
   scandal: string | null;
-  /** Journalistieke droogte is active on the new draft. */
-  drought: boolean;
 }
 
 /** "omhoog 8" / "omlaag 5": the same words the cards' effects use (GameCardEffects). */
@@ -43,34 +41,28 @@ function goalSentences(turn: TurnSnapshot): string[] {
   return turn.goalStats;
 }
 
-function warningSentences(turn: TurnSnapshot, previous: TurnSnapshot | null): string[] {
-  const drought = UI_COPY.board.modifiers.journalismDrought;
-  const droughtStarted = turn.drought && !previous?.drought;
+function warningSentences(turn: TurnSnapshot): string[] {
   const danger = turn.meters
     .filter((meter) => meter.danger)
     .map((meter) => `Let op: ${meterLabel(meter)} bijna op`);
   const scandal = turn.scandal ? [`Let op: ${turn.scandal}`] : [];
-  return [
-    ...(droughtStarted ? [`${drought.label}: ${drought.description}`] : []),
-    ...danger,
-    ...scandal,
-  ];
+  return [...danger, ...scandal];
 }
 
 const sentence = (text: string): string => (/[.!?]$/.test(text) ? text : `${text}.`);
 
 /**
  * The announcement for the action that produced `turn`: post or chosen policy, each changed
- * number with its new amount, the goal lines, then warnings (drought only on the turn it starts,
- * the scandal risk on every turn it shows).
+ * number with its new amount, the goal lines, then warnings (money nearly gone, the scandal risk
+ * on every turn it shows).
  */
-export function describeTurn(turn: TurnSnapshot, previous: TurnSnapshot | null): string {
+export function describeTurn(turn: TurnSnapshot): string {
   if (!turn.latest) return "";
   return [
     actionSentence(turn.latest),
     ...meterSentences(turn.meters),
     ...goalSentences(turn),
-    ...warningSentences(turn, previous),
+    ...warningSentences(turn),
   ]
     .map(sentence)
     .join(" ");

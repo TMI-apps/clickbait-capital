@@ -47,7 +47,6 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
       ],
       toxic: ["haha laat ze maar huilen 😂", "wie dit niet durft is een baby"],
       echoChamber: ["alweer zo'n challenge? 🙄", "dit is precies hetzelfde als net"],
-      drought: ["is er ook nog gewoon nieuws?"],
     },
   },
   {
@@ -95,7 +94,6 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
       toxic: ["Wat een gescheld hier… 😟", "Zo praat je toch niet tegen elkaar?"],
       complain: ["Ik vertrouw deze app niet meer zo", "Wat is hier aan de hand? 😕"],
       adFatigue: ["Alleen nog maar reclame, hè"],
-      drought: ["Waar is het nieuws gebleven?"],
     },
   },
   {
@@ -119,7 +117,6 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
       toxic: ["Al die haat hier… niet oké", "Melden, dit is pesten 🚩"],
       complain: ["Je feed klopt steeds minder 📉", "Waar zijn je bronnen?"],
       echoChamber: ["Iedereen zegt hetzelfde. Bubbel-alarm 🫧"],
-      drought: ["Al zo lang geen nieuws 😐", "Alleen nog filmpjes zonder bron"],
     },
   },
   {

@@ -8,7 +8,7 @@ export type RunAction = { kind: "card"; cardId: string } | { kind: "option"; opt
  * shuffled hand (shuffled-hand D1) draws other cards, so a v2 log no longer matches. 4: the
  * score model (score-redesign D11, D19) gives other numbers and scandal draws.
  */
-export const SAVED_RUN_VERSION = 4;
+export const SAVED_RUN_VERSION = 5;
 
 /**
  * The minimal state that reproduces a run (local-save D1): the engine is pure and seeded, so

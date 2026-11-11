@@ -1,6 +1,7 @@
 import type {
   BalanceConfig,
   CardDefinition,
+  CardType,
   EventDefinition,
   EventOption,
   FullEffects,
@@ -20,7 +21,6 @@ import { pickRandom } from "@/features/game-engine/services/seededRandom";
 import {
   applyScore,
   computeCardTurn,
-  isDroughtActive,
   scaleForPhase,
   type ScoreChange,
 } from "@/features/game-engine/services/turnEffects";
@@ -45,10 +45,15 @@ function cardsFor(content: GameContent, phase: PhaseId): CardDefinition[] {
   return content.cards.filter((card) => card.phases?.includes(phase) ?? true);
 }
 
+/** The card types a hand slot picks between, in a fixed order so draws replay per seed. */
+const CARD_TYPES: readonly CardType[] = ["viral", "ad", "news"];
+
 /**
- * Draws `HAND_SIZE` different cards from the phase's whole pool, any type, in draw order
- * (shuffled-hand D1, D2): a hand can hold three ads, and no slot is tied to a type, so the
- * player chooses on content instead of position.
+ * Draws `HAND_SIZE` different cards in draw order (shuffled-hand D1, D2; balance-cleanup D2):
+ * each slot first picks a card type with equal chance, then a card of that type from the
+ * phase's pool, so every type is about 1/3 of the hand whatever the pool's mix. Types can
+ * repeat in one hand and no slot is tied to a type. A type with no undrawn card left in the
+ * pool drops out of that slot's pick (fallback: equal chance over the types that still have one).
  */
 export function drawHand(
   content: GameContent,
@@ -62,7 +67,12 @@ export function drawHand(
   }
   const ids: string[] = [];
   while (ids.length < HAND_SIZE) {
-    const pick = pickRandom(pool, state);
+    const types = CARD_TYPES.filter((type) => pool.some((card) => card.type === type));
+    const typePick = pickRandom(types, state);
+    const pick = pickRandom(
+      pool.filter((card) => card.type === typePick.item),
+      typePick.state
+    );
     ids.push(pick.item.id);
     pool = pool.filter((card) => card !== pick.item);
     state = pick.state;
@@ -228,7 +238,6 @@ export function resolveEvent(state: GameState, content: GameContent, optionId: s
       modifiers: {
         adFatigue: false,
         echoChamber: false,
-        journalismDrought: false,
         reputationDecay: false,
       },
     },
@@ -257,9 +266,4 @@ export function scandalFine(
 /** The draft as full card definitions in slot order, or null when no draft is open. */
 export function getHandCards(state: GameState, content: GameContent): CardDefinition[] | null {
   return state.hand?.map((cardId) => findCard(content, cardId)) ?? null;
-}
-
-/** Journalistieke Droogte is active: the board marks viral cards with a red border. */
-export function isJournalismDroughtActive(state: GameState, content: GameContent): boolean {
-  return isDroughtActive(state.turnsWithoutNews, content.balance);
 }

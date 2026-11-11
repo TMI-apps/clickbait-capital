@@ -10,7 +10,7 @@ import type {
 import type { TurnModifiers } from "@/features/game-engine/types/gameState.types";
 
 /**
- * Per-turn rule math: card modifiers (Ad-Fatigue, Echo-Chamber, Journalistieke Droogte),
+ * Per-turn rule math: card modifiers (Ad-Fatigue, Echo-Chamber),
  * phase scaling, passive costs, reputation decay, toxicity drain, and how points land on the
  * absolute score (score-redesign D11, D20). Pure; no game-state shape.
  */
@@ -91,16 +91,10 @@ function isAdFatigued(playedTypes: readonly CardType[], balance: BalanceConfig):
   return recent.filter((type) => type === "ad").length >= balance.adFatigue.adsInWindow;
 }
 
-/** Journalistieke Droogte: active once enough turns passed without news. */
-export function isDroughtActive(turnsWithoutNews: number, balance: BalanceConfig): boolean {
-  return turnsWithoutNews >= balance.journalismDrought.afterTurnsWithoutNews;
-}
-
 interface ModifiedCard {
   effects: FullEffects;
   adFatigue: boolean;
   echoChamber: boolean;
-  journalismDrought: boolean;
 }
 
 function applyAdFatigue(effects: FullEffects, balance: BalanceConfig): FullEffects {
@@ -117,25 +111,20 @@ function applyViralModifiers(
   effects: FullEffects,
   viralStreak: number
 ): ModifiedCard {
-  const { echoChamber, journalismDrought } = input.balance;
+  const { echoChamber } = input.balance;
   const frenzy = viralStreak >= echoChamber.streak;
-  const drought = isDroughtActive(input.turnsWithoutNews, input.balance);
   const users = frenzy ? scaleGain(effects.users, echoChamber.userGainMultiplier) : effects.users;
-  const baseToxicity = drought
-    ? scaleGain(effects.toxicity, journalismDrought.viralToxicityMultiplier)
-    : effects.toxicity;
   const frenzyToxicity = viralStreak === echoChamber.streak ? echoChamber.toxicity : 0;
   return {
-    effects: { ...effects, users, toxicity: baseToxicity + frenzyToxicity },
+    effects: { ...effects, users, toxicity: effects.toxicity + frenzyToxicity },
     adFatigue: false,
     echoChamber: frenzy,
-    journalismDrought: drought,
   };
 }
 
 function applyCardModifiers(input: CardTurnInput, viralStreak: number): ModifiedCard {
   const effects = toFullEffects(input.card.effects);
-  const none = { effects, adFatigue: false, echoChamber: false, journalismDrought: false };
+  const none = { effects, adFatigue: false, echoChamber: false };
   if (input.card.type === "viral") {
     return applyViralModifiers(input, effects, viralStreak);
   }
@@ -174,7 +163,6 @@ export function computeCardTurn(input: CardTurnInput): CardTurnResult {
     modifiers: {
       adFatigue: modified.adFatigue,
       echoChamber: modified.echoChamber,
-      journalismDrought: modified.journalismDrought,
       reputationDecay,
     },
     viralStreak,

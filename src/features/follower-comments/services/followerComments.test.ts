@@ -16,7 +16,6 @@ const content = GAME_CONTENT;
 const NO_MODIFIERS = {
   adFatigue: false,
   echoChamber: false,
-  journalismDrought: false,
   reputationDecay: false,
 };
 

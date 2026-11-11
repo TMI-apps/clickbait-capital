@@ -21,7 +21,6 @@ function toSnapshot(view: BoardView): TurnSnapshot {
     meters: view.meters,
     goalStats: view.phase.goalStats,
     scandal: view.scandal?.text ?? null,
-    drought: view.draft.some((card) => card.droughtWarning),
   };
 }
 
@@ -40,18 +39,14 @@ function useTurnAnnouncement(
   resumed: boolean
 ): { text: string; key: number } {
   const key = view.feed.length;
-  const snapshot = toSnapshot(view);
-  // The last action's snapshot (for "drought started") and the texts not yet spoken.
-  const [turns, setTurns] = useState<{ key: number; current: TurnSnapshot; pending: string[] }>(
-    () => ({
-      key,
-      current: snapshot,
-      pending: resumed ? [describeResume(view.phase, view.meters)] : [],
-    })
-  );
+  // The last action's key and the texts not yet spoken.
+  const [turns, setTurns] = useState<{ key: number; pending: string[] }>(() => ({
+    key,
+    pending: resumed ? [describeResume(view.phase, view.meters)] : [],
+  }));
   if (turns.key !== key) {
-    const text = describeTurn(snapshot, turns.current);
-    setTurns({ key, current: snapshot, pending: [...turns.pending, text] });
+    const text = describeTurn(toSnapshot(view));
+    setTurns({ key, pending: [...turns.pending, text] });
   }
   const [spoken, setSpoken] = useState({ text: "", key: 0 });
 
