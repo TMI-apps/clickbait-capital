@@ -18,6 +18,7 @@ export const SEED_CONTENT: GameContent = {
     echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
     scandal: { threshold: 30, rampPoints: 15, maxChance: 0.7, finePoints: 16 },
     eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
+    handMix: { oneOfEach: 0.6, pair: 0.35, triple: 0.05 },
   },
   phases: [
     {

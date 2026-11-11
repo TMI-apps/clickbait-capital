@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { nextRandom, pickRandom } from "./seededRandom";
+import { nextRandom, pickRandom } from "@/shared/utils/seededRandom";
 
 describe("seededRandom", () => {
   it("should return the same sequence when started from the same state", () => {

@@ -1,5 +1,5 @@
 import type { CardType, EventOptionKind, GameContent, GameState } from "@/features/game-engine/api";
-import { nextRandom } from "@/features/game-engine/api";
+import { nextRandom } from "@/shared/utils/seededRandom";
 import { fillTemplate, FOLLOWERS, UI_COPY } from "@/features/game-content/api";
 import type { FollowerCue, FollowerPersona } from "@/features/game-content/api";
 import type { SessionState } from "@/features/game-session/api";

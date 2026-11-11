@@ -4,7 +4,6 @@
  */
 export {
   createGame,
-  drawHand,
   eventOptionEffects,
   scandalFine,
   getHandCards,
@@ -12,8 +11,7 @@ export {
   playCard,
   resolveEvent,
 } from "@/features/game-engine/services/gameEngine";
-export { nextRandom } from "@/features/game-engine/services/seededRandom";
-export type { RandomStep } from "@/features/game-engine/services/seededRandom";
+export { drawHand, HAND_SIZE } from "@/features/game-engine/services/drawDeck";
 export {
   applyScore,
   audienceFactor,

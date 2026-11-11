@@ -220,6 +220,8 @@ interface Run {
   phaseTurns: Record<number, number>;
   /** Card turn on which each event opened, in order (event pacing). */
   eventTurns: number[];
+  /** Every hand shown, in order (deck-draw). */
+  hands: { turn: number; ids: readonly string[] }[];
 }
 
 function applyChoice(state: GameState, content: GameContent, choice: Choice): GameState {
@@ -241,6 +243,9 @@ function recordStep(
   if (after.status === "event") {
     run.eventTurns.push(after.turn);
   }
+  if (after.status === "playing" && after.hand) {
+    run.hands.push({ turn: after.turn, ids: after.hand });
+  }
 }
 
 function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
@@ -249,6 +254,7 @@ function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
     final: state,
     phaseTurns: {},
     eventTurns: state.status === "event" ? [state.turn] : [],
+    hands: state.hand ? [{ turn: state.turn, ids: state.hand }] : [],
   };
   for (let step = 0; step < MAX_STEPS; step++) {
     if (state.status !== "playing" && state.status !== "event") {
@@ -284,6 +290,48 @@ interface Summary {
   /** Median scandals per run (scandal events opened, repeats included). */
   medianScandals: number;
   pacing: EventPacing;
+  draws: HandDraws;
+}
+
+/** What the draws showed (deck-draw): the hands' type mix and how soon a card came back. */
+interface HandDraws {
+  /** Share of hands with one card of each type, two of one type plus one, three of one type. */
+  mix: { oneOfEach: number; pair: number; triple: number };
+  /** Fewest hands between two showings of one card in a run. */
+  minHandGap: number;
+  /** Median hands between two showings of one card. */
+  medianHandGap: number;
+}
+
+const TYPE_OF = new Map(GAME_CONTENT.cards.map((card) => [card.id, card.type]));
+
+/** Hands between consecutive showings of each card of a run. */
+function repeatGaps(run: Run): number[] {
+  const lastSeen = new Map<string, number>();
+  const gaps: number[] = [];
+  run.hands.forEach(({ ids }, index) => {
+    for (const id of ids) {
+      const seen = lastSeen.get(id);
+      if (seen !== undefined) gaps.push(index - seen);
+      lastSeen.set(id, index);
+    }
+  });
+  return gaps;
+}
+
+function measureDraws(runs: Run[]): HandDraws {
+  const hands = runs.flatMap((run) => run.hands);
+  const distinct = hands.map(({ ids }) => new Set(ids.map((id) => TYPE_OF.get(id))).size);
+  const gaps = runs.flatMap(repeatGaps);
+  return {
+    mix: {
+      oneOfEach: rate(distinct.filter((size) => size === 3).length, hands.length),
+      pair: rate(distinct.filter((size) => size === 2).length, hands.length),
+      triple: rate(distinct.filter((size) => size === 1).length, hands.length),
+    },
+    minHandGap: Math.min(...gaps),
+    medianHandGap: median(gaps),
+  };
 }
 
 /** How events are spread over the runs (event-pacing lap). */
@@ -360,6 +408,7 @@ function summarize(strategy: Strategy): Summary {
     medianPhaseTurns,
     medianScandals: median(runs.map((run) => scandalsIn(run.final))),
     pacing: measurePacing(runs),
+    draws: measureDraws(runs),
   };
 }
 
@@ -435,6 +484,15 @@ describe("balance simulation", () => {
   it("should spread events at least three turns apart on median when a human-like player plays", () => {
     for (const summary of [results.humanLike, results.ruleOfThumb, results.mixed]) {
       expect(summary.pacing.medianGap).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it("should mostly show one of each type, rarely three of one, and never a card in two hands in a row when any strategy plays", () => {
+    for (const { draws } of Object.values(results)) {
+      expect(draws.mix.oneOfEach).toBeGreaterThan(draws.mix.pair);
+      expect(draws.mix.oneOfEach).toBeGreaterThanOrEqual(0.5);
+      expect(draws.mix.triple).toBeLessThanOrEqual(0.1);
+      expect(draws.minHandGap).toBeGreaterThanOrEqual(2);
     }
   });
 
