@@ -1,4 +1,4 @@
-import { Ban, Gavel, ServerOff, TrendingUp, UserX } from "lucide-react";
+import { ServerOff, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
@@ -10,8 +10,6 @@ import { FlowScreen } from "./FlowScreen";
 /** One icon per ending, so the screen never relies on colour alone. */
 const ENDING_ICON: Record<NonNullable<EndingView["reason"]> | "won", LucideIcon> = {
   bankrupt: ServerOff,
-  abandoned: UserX,
-  banned: Gavel,
   won: TrendingUp,
 };
 
@@ -37,9 +35,6 @@ export const EndingScreen = ({ ending, onContinue }: EndingScreenProps) => {
           )}
         >
           <Icon aria-hidden="true" className="size-8" />
-          {ending.reason === "banned" && (
-            <Ban aria-hidden="true" className="absolute size-14 opacity-40" />
-          )}
         </span>
       }
       actions={

@@ -60,7 +60,7 @@ function stateCues(game: GameState): FollowerCue[] {
     [report?.modifiers.adFatigue ?? false, "adFatigue"],
     [report?.modifiers.echoChamber ?? false, "echoChamber"],
     [report?.modifiers.journalismDrought ?? false, "drought"],
-    [game.meters.reputation < COMPLAIN_BELOW_REPUTATION, "complain"],
+    [game.reputation < COMPLAIN_BELOW_REPUTATION, "complain"],
     [(report?.effects.users ?? 0) >= HYPE_FROM_USERS_GAIN, "hype"],
   ];
   return cues.filter(([active]) => active).map(([, cue]) => cue);
@@ -74,7 +74,7 @@ export function commentContext(game: GameState, content: GameContent): CommentCo
     topic,
     cues: stateCues(game),
     pace: paceOf(game.toxicity),
-    criticsLeft: game.meters.reputation < LEAVE_BELOW_REPUTATION,
+    criticsLeft: game.reputation < LEAVE_BELOW_REPUTATION,
   };
 }
 
@@ -214,7 +214,7 @@ export function commentsForSession(
       step: index,
       game: step.state,
       content,
-      previousReputation: index > 0 ? steps[index - 1].state.meters.reputation : null,
+      previousReputation: index > 0 ? steps[index - 1].state.reputation : null,
     })
   );
 }

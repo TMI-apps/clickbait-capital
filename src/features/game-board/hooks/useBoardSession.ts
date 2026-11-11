@@ -11,6 +11,7 @@ import {
   toGameEnd,
   toMeters,
   toPhaseProgress,
+  toScandalRisk,
 } from "@/features/game-board/services/boardView";
 import { soundsForLastStep } from "@/features/game-board/services/boardSounds";
 import type { BoardSounds } from "@/features/game-board/services/boardSounds";
@@ -25,9 +26,10 @@ export interface BoardSession extends Omit<GameSession, "session"> {
 }
 
 const toBoardView = (session: GameSession["session"], content: GameContent): BoardView => {
-  const { game, previousGame, steps } = session;
+  const { game, steps } = session;
   return {
-    meters: toMeters(game, previousGame?.meters ?? null),
+    meters: toMeters(game, content, steps),
+    scandal: toScandalRisk(game, content),
     phase: toPhaseProgress(game, content),
     draft: toDraft(game, content),
     feed: toFeed(steps, content),

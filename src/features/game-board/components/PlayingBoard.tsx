@@ -13,7 +13,7 @@ import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
 import { CardDetailDialog } from "./CardDetailDialog";
 import { CardDraft, DroughtNotice, draftCardElement } from "./CardDraft";
-import { MeterPanel } from "./MeterPanel";
+import { MeterPanel, ScandalWarning } from "./MeterPanel";
 import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
 import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
@@ -155,13 +155,16 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           drought={view.draft.some((card) => card.droughtWarning)}
           onPause={withTap(() => setPaused(true))}
         >
-          <MeterPanel
-            meters={juice.meters}
-            version={juice.key}
-            accents={juice.plan?.accents}
-            flashes={juice.plan?.flashes}
-            countUp={juice.plan?.countUp ?? true}
-          />
+          {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
+          <div className="flex min-w-0 flex-col gap-2">
+            <MeterPanel
+              meters={juice.meters}
+              version={juice.key}
+              accents={juice.plan?.accents}
+              flashes={juice.plan?.flashes}
+            />
+            {view.scandal && <ScandalWarning text={view.scandal.text} />}
+          </div>
         </BoardStatus>
         <div className={DESK_PLAY}>
           <PhoneFeed

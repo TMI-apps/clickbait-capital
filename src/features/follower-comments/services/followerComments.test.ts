@@ -33,6 +33,7 @@ const afterPlay = (type: "viral" | "ad" | "news", seed = 7): GameState => {
     lastTurn: {
       source: { kind: "card", cardId: card.id },
       effects: { revenue: 0, users: 2, reputation: 0, toxicity: 0 },
+      delta: { users: 3_000, money: 0 },
       modifiers: NO_MODIFIERS,
     },
   };
@@ -77,7 +78,7 @@ describe("commentsForStep", () => {
 
   it("should let the critics leave once and keep them quiet when reputation drops very low", () => {
     const base = afterPlay("viral");
-    const game = { ...base, meters: { ...base.meters, reputation: LEAVE_BELOW_REPUTATION - 5 } };
+    const game = { ...base, reputation: LEAVE_BELOW_REPUTATION - 5 };
     const crossing = commentsForStep({ seed: 7, step: 4, game, content, previousReputation: 40 });
     const left = crossing?.comments.filter((comment) => comment.kind === "leave") ?? [];
     expect(left.map((comment) => comment.followerId).sort()).toEqual([...critics].sort());
@@ -148,7 +149,7 @@ describe("commentsForSession", () => {
 
   it("should let the critics leave on the step that crossed the line when reputation dropped earlier in the run", () => {
     const high = afterPlay("viral");
-    const low = { ...high, meters: { ...high.meters, reputation: LEAVE_BELOW_REPUTATION - 5 } };
+    const low = { ...high, reputation: LEAVE_BELOW_REPUTATION - 5 };
     const steps = [high, low, low].map((state, turn) => ({
       action: { kind: "card" as const, cardId: "x" },
       turn,

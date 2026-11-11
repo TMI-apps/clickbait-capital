@@ -7,7 +7,7 @@ import { renderWithProviders } from "tests/test-utils";
 const phase = {
   phaseId: 2,
   phaseCount: 4,
-  goalDescription: "Bereik 1 miljoen gebruikers.",
+  goalDescription: "Haal 300.000 gebruikers en € 600.000.",
 } as const;
 
 describe("PhaseTransitionScreen", () => {

@@ -5,6 +5,7 @@ import {
   getPendingEvent,
   playCard,
   resolveEvent,
+  scandalChance,
   type CardType,
   type GameContent,
   type GameState,
@@ -13,8 +14,9 @@ import { GAME_CONTENT } from "@/features/game-content/services/gameContent";
 
 /**
  * Balance simulation: scripted strategies play the full deck through the real engine over
- * many seeds. Proves the design's intent (each one-sided strategy fails for its own reason,
- * a balanced one gets far). Numbers are logged so balance changes show up in test output.
+ * many seeds. Proves the design's intent (score-redesign: every one-sided strategy goes
+ * bankrupt, a balanced one wins the IPO). Numbers are logged so balance changes show up in
+ * test output.
  */
 
 const SEEDS = Array.from({ length: 60 }, (_, index) => index * 7919 + 13);
@@ -58,52 +60,70 @@ const newsHeavy: Strategy = (state, content) => {
   return preferring(
     state,
     content,
-    state.meters.users < 35 ? ["viral", "news", "ad"] : ["news", "viral", "ad"]
+    state.users < GAME_CONTENT.balance.startUsers * 0.7
+      ? ["viral", "news", "ad"]
+      : ["news", "viral", "ad"]
   );
 };
 
-/** Turns without news after which a human reacts: reputation decay shows from 3, the drought border at 5. */
-const HUMAN_NEWS_REFLEX = 4;
+function phaseOf(state: GameState, content: GameContent) {
+  return content.phases.find((phase) => phase.id === state.phase)!;
+}
+
+/** 0–2: how far both numbers are to the phase's goal lines. */
+function goalProgress(state: GameState, content: GameContent): { users: number; money: number } {
+  const { goal } = phaseOf(state, content);
+  return {
+    users: Math.min(1, state.users / goal.users),
+    money: Math.min(1, Math.max(0, state.money) / goal.money),
+  };
+}
+
+/** Euros one turn of passive costs takes in the current phase. */
+function costPerTurn(state: GameState, content: GameContent): number {
+  const phase = phaseOf(state, content);
+  return -(phase.passiveCosts.revenue ?? 0) * phase.moneyPerPoint;
+}
+
+/** The scandal chance the board shows (visible to every player). */
+function visibleChance(state: GameState, content: GameContent): number {
+  return scandalChance(state.reputation, content.balance.scandal);
+}
 
 /** How a lookahead player weighs a position; the two players differ only in what they can see. */
 interface ScoreWeights {
-  goalStreak: number;
-  /** Penalty per point of hidden Toxicity (0 = the player cannot see it). */
-  toxicity: number;
-  /** Penalty once `HUMAN_NEWS_REFLEX` turns passed without news (the visible stand-in for Toxicity). */
-  newsDue: number;
+  /** Weight of hidden reputation and toxicity (0 = the player cannot see them). */
+  hidden: number;
+  /** Weight of the visible scandal chance. */
+  chance: number;
 }
 
-/** Sees hidden Toxicity: an upper bound for any human. */
-const ALL_SEEING: ScoreWeights = { goalStreak: 20, toxicity: 0.4, newsDue: 0 };
+/** Sees hidden reputation and toxicity: an upper bound for any human. */
+const ALL_SEEING: ScoreWeights = { hidden: 1, chance: 300 };
 
-/** Sees only the board: meters, stats, phase, goal streak, card and event effects. */
-const BOARD_ONLY: ScoreWeights = { goalStreak: 60, toxicity: 0, newsDue: 15 };
+/** Sees only the board: users, money, goals and the scandal chance. */
+const BOARD_ONLY: ScoreWeights = { hidden: 0, chance: 600 };
 
 /**
- * Higher is better: progress first, then the weakest meter. A pending event has not changed
- * the meters yet, so scoring a card never peeks at the event it triggers.
+ * Higher is better: progress to the goal lines first, then a money buffer, minus scandal risk.
+ * A pending event has not changed the score yet, so scoring a card never peeks at the event.
  */
-function scoreState(state: GameState, weights: ScoreWeights): number {
+function scoreState(state: GameState, content: GameContent, weights: ScoreWeights): number {
   if (state.status === "lost") {
     return -100_000;
   }
   if (state.status === "won") {
     return 100_000;
   }
-  const { revenue, users, reputation } = state.meters;
-  const weakest = Math.min(revenue, users, reputation);
-  const ipoPush = state.phase === 4 ? Math.min(revenue, 90) + Math.min(reputation, 70) : 0;
-  const newsDue = state.turnsWithoutNews >= HUMAN_NEWS_REFLEX ? weights.newsDue : 0;
+  const progress = goalProgress(state, content);
+  const buffer = Math.min(6, state.money / Math.max(1, costPerTurn(state, content)));
   return (
     state.phase * 1_000 +
-    state.goalStreak * weights.goalStreak +
-    Math.log10(state.stats.users + 1) * 40 +
-    weakest * 3 +
-    (revenue + users + reputation) * 0.5 +
-    ipoPush -
-    state.toxicity * weights.toxicity -
-    newsDue
+    (progress.users + progress.money) * 300 +
+    Math.min(progress.users, progress.money) * 300 +
+    buffer * 25 -
+    visibleChance(state, content) * weights.chance +
+    weights.hidden * (state.reputation * 2 - state.toxicity)
   );
 }
 
@@ -115,7 +135,7 @@ function lookahead(weights: ScoreWeights): Strategy {
       const best = options
         .map((option) => ({
           id: option.id,
-          score: scoreState(resolveEvent(state, content, option.id), weights),
+          score: scoreState(resolveEvent(state, content, option.id), content, weights),
         }))
         .sort((a, b) => b.score - a.score)[0];
       return { kind: "event", optionId: best?.id ?? "c" };
@@ -123,93 +143,58 @@ function lookahead(weights: ScoreWeights): Strategy {
     const best = state
       .hand!.map((cardId) => ({
         cardId,
-        score: scoreState(playCard(state, content, cardId), weights),
+        score: scoreState(playCard(state, content, cardId), content, weights),
       }))
       .sort((a, b) => b.score - a.score)[0]!;
     return { kind: "card", cardId: best.cardId };
   };
 }
 
-/** A "balanced" player that reads hidden Toxicity. */
+/** A "balanced" player that reads hidden reputation and toxicity. */
 const mixed = lookahead(ALL_SEEING);
 
-/**
- * Human-like player: the same lookahead on board-visible information only. Instead of
- * reading Toxicity it follows the visible warnings: news once reputation starts to decay,
- * before the drought border.
- */
+/** Human-like player: the same lookahead on board-visible information only. */
 const humanLike = lookahead(BOARD_ONLY);
-
-/** The card type that raises each meter, and the event option kind that does. */
-const METER_CARD = { revenue: "ad", users: "viral", reputation: "news" } as const;
-const METER_OPTION = { revenue: "a", users: "b", reputation: "c" } as const;
-type Meter = keyof typeof METER_CARD;
-
-function weakestMeter(state: GameState): [Meter, number] {
-  return (Object.entries(state.meters) as [Meter, number][]).sort((a, b) => a[1] - b[1])[0]!;
-}
 
 /** Ad-Fatigue is shown on the board once it hits; a player who saw it avoids a third ad in four. */
 function adIsFresh(state: GameState): boolean {
   return state.playedTypes.slice(-3).filter((type) => type === "ad").length < 2;
 }
 
-/** IPO: Inkomsten above 80 and Reputatie above 60 with a margin, users kept alive. */
-function ipoCard(state: GameState): CardType {
-  const { revenue, reputation, users } = state.meters;
-  if (revenue <= 90 && adIsFresh(state)) {
-    return "ad";
-  }
-  if (reputation <= 75) {
-    return "news";
-  }
-  return users < 50 ? "viral" : "news";
-}
-
-/** Phases 1–3: grow users, top up money when it runs low, never three virals in a row. */
-function growthCard(state: GameState): CardType {
-  const { revenue } = state.meters;
-  const moneyFloor = state.phase === 2 ? 60 : state.phase === 3 ? 45 : 0;
-  if (revenue < moneyFloor) {
-    return adIsFresh(state) ? "ad" : "news";
-  }
-  if (state.viralStreak < 2) {
-    return "viral";
-  }
-  return revenue < 70 && adIsFresh(state) ? "ad" : "news";
-}
-
-/** The wanted type, then the types that raise the meters from weakest to strongest. */
-function wantedThenWeakest(state: GameState, wanted: CardType): CardType[] {
-  const byNeed = (Object.entries(state.meters) as [Meter, number][])
-    .sort((a, b) => a[1] - b[1])
-    .map(([meter]) => METER_CARD[meter]);
-  return [wanted, ...byNeed.filter((type) => type !== wanted)];
-}
-
 /** The type a rule-of-thumb player wants this turn (before looking at what the hand holds). */
-function ruleOfThumbType(state: GameState): CardType {
-  const [meter, value] = weakestMeter(state);
-  if (value < 35) {
-    return METER_CARD[meter];
+/** A rule-of-thumb player turns to news once the board's scandal warning reads this chance. */
+const RULE_NEWS_FROM_CHANCE = 0.2;
+
+function ruleOfThumbOrder(state: GameState, content: GameContent): CardType[] {
+  const order: CardType[] = [];
+  if (visibleChance(state, content) >= RULE_NEWS_FROM_CHANCE) {
+    order.push("news");
   }
-  if (state.turnsWithoutNews >= 3) {
-    return "news";
+  // While the warning shows a scandal can cost a lot of money, so keep a bigger buffer.
+  const bufferTurns = visibleChance(state, content) > 0 ? 12 : 6;
+  if (state.money < costPerTurn(state, content) * bufferTurns && adIsFresh(state)) {
+    order.push("ad");
   }
-  return state.phase === 4 ? ipoCard(state) : growthCard(state);
+  const progress = goalProgress(state, content);
+  const lagging: CardType[] =
+    progress.users <= progress.money && state.viralStreak < 2 ? ["viral", "ad"] : ["ad", "viral"];
+  return [...new Set<CardType>([...order, ...lagging, "news"])];
 }
 
 /**
- * Rule-of-thumb player: no lookahead, only the board. Rescue a meter under 35, news after
- * three turns without it, then play toward the phase goal; without the wanted type, the card
- * for the weakest meter. Events fix the weakest meter. The browser play-test script uses the
- * same rules.
+ * Rule-of-thumb player: no lookahead, only the board (reputation is hidden, so only the scandal
+ * warning tells it to play news). News once the warning reads 20 %, an ad when money runs low,
+ * then the line furthest from its goal. Events: journalism while the warning reads 20 % or more, else the lagging line.
  */
 const ruleOfThumb: Strategy = (state, content) => {
   if (state.status === "event") {
-    return { kind: "event", optionId: METER_OPTION[weakestMeter(state)[0]] };
+    if (visibleChance(state, content) >= RULE_NEWS_FROM_CHANCE) {
+      return { kind: "event", optionId: "c" };
+    }
+    const progress = goalProgress(state, content);
+    return { kind: "event", optionId: progress.money < progress.users ? "a" : "b" };
   }
-  return preferring(state, content, wantedThenWeakest(state, ruleOfThumbType(state)));
+  return preferring(state, content, ruleOfThumbOrder(state, content));
 };
 
 /** Plays the rotation's type for this turn, else the next types of the rotation. */
@@ -233,19 +218,8 @@ interface Run {
   final: GameState;
   /** Card turns played in each phase. */
   phaseTurns: Record<number, number>;
-  /** Phases whose users goal already held on the turn the game entered them. */
-  usersGoalMetOnEntry: number[];
   /** Card turn on which each event opened, in order (event pacing). */
   eventTurns: number[];
-}
-
-/** True when the phase's users condition (if any) holds in this state. */
-function usersGoalHolds(state: GameState, content: GameContent): boolean {
-  const phase = content.phases.find((candidate) => candidate.id === state.phase);
-  const condition = phase?.goal.conditions.find(
-    (candidate) => candidate.kind === "stat" && candidate.stat === "users"
-  );
-  return condition?.kind === "stat" && state.stats.users >= condition.atLeast;
 }
 
 function applyChoice(state: GameState, content: GameContent, choice: Choice): GameState {
@@ -259,12 +233,9 @@ function recordStep(
   run: Run,
   step: { before: GameState; after: GameState; choice: Choice; content: GameContent }
 ): void {
-  const { before, after, choice, content } = step;
+  const { before, after, choice } = step;
   if (choice.kind === "card") {
     run.phaseTurns[before.phase] = (run.phaseTurns[before.phase] ?? 0) + 1;
-  }
-  if (after.phase !== before.phase && usersGoalHolds(after, content)) {
-    run.usersGoalMetOnEntry.push(after.phase);
   }
   // Every step that leaves an event pending opened a new one (one event per resolution).
   if (after.status === "event") {
@@ -277,7 +248,6 @@ function runGame(content: GameContent, strategy: Strategy, seed: number): Run {
   const run: Run = {
     final: state,
     phaseTurns: {},
-    usersGoalMetOnEntry: [],
     eventTurns: state.status === "event" ? [state.turn] : [],
   };
   for (let step = 0; step < MAX_STEPS; step++) {
@@ -311,8 +281,8 @@ interface Summary {
   medianPhaseTurns: Record<number, number>;
   /** In how many games each event fired. */
   eventFires: Record<string, number>;
-  /** Per phase: in how many games its users goal already held on entry (goal decided by the previous phase). */
-  usersGoalMetOnEntry: Record<number, number>;
+  /** Median scandals per run (scandal events opened, repeats included). */
+  medianScandals: number;
   pacing: EventPacing;
 }
 
@@ -351,22 +321,26 @@ function countInto(counts: Record<string, number>, key: string | number): void {
 }
 
 /** Endings, furthest phase, event fires and goals met on entry, counted over the runs. */
-function countOutcomes(
-  runs: Run[]
-): Pick<Summary, "endings" | "maxPhase" | "eventFires" | "usersGoalMetOnEntry"> {
+function countOutcomes(runs: Run[]): Pick<Summary, "endings" | "maxPhase" | "eventFires"> {
   const counts = {
     endings: {} as Record<string, number>,
     maxPhase: {} as Record<number, number>,
     eventFires: {} as Record<string, number>,
-    usersGoalMetOnEntry: {} as Record<number, number>,
   };
-  for (const { final, usersGoalMetOnEntry } of runs) {
+  for (const { final } of runs) {
     countInto(counts.endings, final.status === "won" ? "won" : (final.gameOver ?? "unfinished"));
     countInto(counts.maxPhase, final.phase);
-    final.firedEventIds.forEach((id) => countInto(counts.eventFires, id));
-    usersGoalMetOnEntry.forEach((phase) => countInto(counts.usersGoalMetOnEntry, phase));
+    new Set(final.firedEventIds).forEach((id) => countInto(counts.eventFires, id));
   }
   return counts;
+}
+
+const SCANDAL_IDS = new Set(
+  GAME_CONTENT.events.filter((event) => event.trigger.kind === "scandal").map((event) => event.id)
+);
+
+function scandalsIn(state: GameState): number {
+  return state.firedEventIds.filter((id) => SCANDAL_IDS.has(id)).length;
 }
 
 function summarize(strategy: Strategy): Summary {
@@ -384,6 +358,7 @@ function summarize(strategy: Strategy): Summary {
     medianTurns: median(turns),
     turnsP10P90: [percentile(turns, 0.1), percentile(turns, 0.9)],
     medianPhaseTurns,
+    medianScandals: median(runs.map((run) => scandalsIn(run.final))),
     pacing: measurePacing(runs),
   };
 }
@@ -401,16 +376,20 @@ describe("balance simulation", () => {
   };
   process.stdout.write(`${JSON.stringify(results)}\n`);
 
-  it("should end every viral-only game in Verbod & Regulering when only viral cards are played", () => {
-    expect(results.viralOnly.endings).toEqual({ banned: SEEDS.length });
+  it("should end every viral-only game in Bankroet when only viral cards are played", () => {
+    expect(results.viralOnly.endings).toEqual({ bankrupt: SEEDS.length });
   });
 
-  it("should end every ad-only game in Verlaten Platform when only ads are played", () => {
-    expect(results.adOnly.endings).toEqual({ abandoned: SEEDS.length });
+  it("should end every ad-only game in Bankroet when the ads drive the audience away", () => {
+    expect(results.adOnly.endings).toEqual({ bankrupt: SEEDS.length });
   });
 
   it("should end every news-heavy game in Bankroet when ads are never played", () => {
     expect(results.newsHeavy.endings).toEqual({ bankrupt: SEEDS.length });
+  });
+
+  it("should bring scandals to a viral-only player when reputation sinks", () => {
+    expect(results.viralOnly.medianScandals).toBeGreaterThanOrEqual(1);
   });
 
   it("should reach phase 3 or later in most games when the player balances all three types", () => {
@@ -459,7 +438,7 @@ describe("balance simulation", () => {
     }
   });
 
-  it("should let a careful player win the IPO when they react to every meter", () => {
+  it("should let a careful player win the IPO when they watch the hidden values", () => {
     expect(results.mixed.endings.won ?? 0).toBeGreaterThan(0);
   });
 });

@@ -61,7 +61,7 @@ function statRows(summary: RunSummary): ResultRow[] {
       value: `${summary.phaseId}: ${summary.phaseName}`,
     },
     { id: "users", label: copy.usersLabel, value: summary.statTexts.users },
-    { id: "revenue", label: copy.revenueLabel, value: summary.statTexts.revenue },
+    { id: "money", label: copy.moneyLabel, value: summary.statTexts.money },
   ];
 }
 
@@ -92,8 +92,8 @@ export function toResultsView(summary: RunSummary): ResultsView {
   };
 }
 
-/** Stat rows the share card repeats from the results (task: phase, reach, revenue). */
-const SHARE_STAT_IDS = new Set(["phase", "users", "revenue"]);
+/** Stat rows the share card repeats from the results (phase, users, money). */
+const SHARE_STAT_IDS = new Set(["phase", "users", "money"]);
 
 /**
  * The share card of a run: the ending's title and headline (the punchy line), phase reached,

@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
-import { SEED_CONTENT, createGame, meterForUsers } from "@/features/game-engine/api";
+import { SEED_CONTENT, createGame, playCard } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import {
-  capEffects,
   feedEntryForCard,
   feedEntryForEvent,
   toCardEffects,
@@ -13,53 +12,80 @@ import {
   toMeters,
   toPhaseProgress,
   toFeed,
+  toScandalRisk,
+  toScoreHistory,
 } from "@/features/game-board/services/boardView";
 
 const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
 
 describe("boardView", () => {
-  it("should list only visible non-zero meter effects in meter order when a card has toxicity", () => {
-    expect(toCardEffects({ toxicity: 8, users: 12, revenue: -3, reputation: 0 })).toEqual([
+  it("should list only Geld and Gebruikers effects in board order when a card has hidden effects", () => {
+    expect(toCardEffects({ toxicity: 8, users: 12, revenue: -3, reputation: -2 })).toEqual([
       { meter: "revenue", delta: -3 },
       { meter: "users", delta: 12 },
     ]);
   });
 
-  it("should report zero deltas when there is no previous action", () => {
-    expect(toMeters(fresh(), null).map((meter) => meter.delta)).toEqual([0, 0, 0]);
+  it("should show users and money with zero change when there is no previous action", () => {
+    const tiles = toMeters(fresh(), SEED_CONTENT);
+    expect(tiles.map((tile) => [tile.key, tile.amount, tile.delta])).toEqual([
+      ["users", SEED_CONTENT.balance.startUsers, 0],
+      ["revenue", SEED_CONTENT.balance.startMoney, 0],
+    ]);
+    expect(tiles[0]!.goalText).toBe("Doel: 100.000");
   });
 
-  it("should report the change against the previous meters when there is one", () => {
-    const state = { ...fresh(), meters: { revenue: 40, users: 62, reputation: 50 } };
-    const deltas = toMeters(state, { revenue: 50, users: 50, reputation: 50 });
-    expect(deltas.map((meter) => meter.delta)).toEqual([-10, 12, 0]);
-  });
-
-  it("should use the weakest goal condition as progress when the phase has two conditions", () => {
+  it("should show the last action's absolute change and the progress to the goal line", () => {
     const state: GameState = {
       ...fresh(),
-      phase: 2,
-      stats: { users: 2_500_000, revenue: 400_000 },
+      users: 75_000,
+      money: 30_000,
+      lastTurn: {
+        source: { kind: "card", cardId: "viral-ruzie" },
+        effects: { revenue: -1, users: 15, reputation: -1, toxicity: 14 },
+        delta: { users: 22_500, money: -2_000 },
+        modifiers: {
+          adFatigue: false,
+          echoChamber: false,
+          journalismDrought: false,
+          reputationDecay: false,
+        },
+      },
     };
+    const [users, money] = toMeters(state, SEED_CONTENT);
+    expect(users).toMatchObject({ value: 75, delta: 22_500, deltaText: "+22.500", full: false });
+    expect(money!.deltaText).toMatch(/^−€\s?2\.000$/);
+    expect(money!.value).toBe(20);
+  });
+
+  it("should mark the goal reached and warn when money is down to a few turns of costs", () => {
+    const state: GameState = { ...fresh(), users: 120_000, money: 4_000 };
+    const [users, money] = toMeters(state, SEED_CONTENT);
+    expect(users).toMatchObject({ value: 100, full: true });
+    expect(money!.danger).toBe(true);
+    expect(money!.valueText).toContain("bijna bankroet");
+  });
+
+  it("should use the lower goal line as progress and list both lines", () => {
+    const { goal } = SEED_CONTENT.phases[1]!;
+    const state: GameState = { ...fresh(), phase: 2, users: goal.users, money: goal.money / 4 };
     const progress = toPhaseProgress(state, SEED_CONTENT);
     expect(progress.phaseName).toBe("De Scale-Up");
-    expect(progress.progress).toBeCloseTo(0.5);
-    expect(progress.streak).toBeNull();
-    const phase2 = SEED_CONTENT.phases[1]!;
-    expect(progress.goalStats[0]).toBe(
-      `Bereik: 2.500.000 / 5.000.000 (Gebruikers ≥ ${meterForUsers(5_000_000, phase2)})`
-    );
-    expect(progress.goalStats[1]).toMatch(/^Omzet: €\s?400\.000 \/ €\s?500\.000$/);
+    expect(progress.progress).toBeCloseTo(0.25);
+    expect(progress.goalStats[0]).toBe("Gebruikers: 300.000 / 300.000");
+    expect(progress.goalStats[1]).toMatch(/^Geld: €\s?150\.000 \/ €\s?600\.000$/);
   });
 
-  it("should show the turn streak when the goal needs turns in a row", () => {
-    const state: GameState = { ...fresh(), phase: 4, goalStreak: 3 };
-    const progress = toPhaseProgress(state, SEED_CONTENT);
-    expect(progress.streak).toEqual({ current: 3, required: 10 });
-    // Phase 4's goal reads meters only, so no absolute stats are shown.
-    expect(progress.goalStats).toEqual([]);
+  it("should show the scandal chance only while reputation is below the threshold", () => {
+    const { threshold, rampPoints, maxChance } = SEED_CONTENT.balance.scandal;
+    expect(toScandalRisk({ ...fresh(), reputation: threshold }, SEED_CONTENT)).toBeNull();
+    const risk = toScandalRisk({ ...fresh(), reputation: threshold - rampPoints }, SEED_CONTENT);
+    expect(risk?.chance).toBe(maxChance);
+    expect(risk?.text).toBe(`Schandaal dreigt: ${Math.round(maxChance * 100)}% kans per beurt`);
   });
+});
 
+describe("boardView draft and events", () => {
   it("should show the hand's cards in drawn order when a draft is open", () => {
     const state: GameState = { ...fresh(), hand: ["news-klimaat", "ad-gokapp", "ad-crypto"] };
     const draft = toDraft(state, SEED_CONTENT);
@@ -78,15 +104,10 @@ describe("boardView", () => {
     expect(flagged.map((card) => card.id)).toEqual(["viral-ruzie", "viral-livestream"]);
   });
 
-  it("should show phase-scaled effects on draft cards when reputation loss is multiplied", () => {
-    // viral-ruzie: reputation −2 raw; phase 3 doubles reputation loss.
-    const state: GameState = {
-      ...fresh(),
-      phase: 3,
-      hand: ["ad-gokapp", "viral-ruzie", "news-klimaat"],
-    };
-    const viral = toDraft(state, SEED_CONTENT).find((card) => card.type === "viral");
-    expect(viral?.effects).toContainEqual({ meter: "reputation", delta: -4 });
+  it("should never show a reputation row on draft cards when a card costs reputation", () => {
+    const state: GameState = { ...fresh(), hand: ["ad-gokapp", "viral-ruzie", "news-klimaat"] };
+    const effects = toDraft(state, SEED_CONTENT).flatMap((card) => card.effects);
+    expect(effects.some((effect) => effect.meter === "reputation")).toBe(false);
   });
 
   it("should show phase-scaled effects on event options when the phase halves revenue gains", () => {
@@ -121,7 +142,7 @@ describe("boardView", () => {
       outcome: "lost",
       reason: "bankrupt",
       phaseId: 1,
-      statTexts: { users: "70.000", revenue: expect.stringMatching(/^€\s0$/) },
+      statTexts: { users: "50.000", money: expect.stringMatching(/^€\s?100\.000$/) },
     });
     expect(toGameEnd(fresh(), SEED_CONTENT)).toBeNull();
   });
@@ -143,62 +164,6 @@ describe("boardView", () => {
   });
 });
 
-describe("capEffects", () => {
-  it("should split a gain into the part that counts and the wasted rest when it passes 100", () => {
-    const meters = { revenue: 96, users: 100, reputation: 40 };
-    expect(
-      capEffects(
-        [
-          { meter: "revenue", delta: 12 },
-          { meter: "users", delta: 5 },
-          { meter: "reputation", delta: -6 },
-        ],
-        meters
-      )
-    ).toEqual([
-      { meter: "revenue", delta: 4, overflow: 8 },
-      { meter: "users", delta: 0, overflow: 5 },
-      { meter: "reputation", delta: -6 },
-    ]);
-  });
-
-  it("should leave gains untouched when the meter has room for them", () => {
-    expect(
-      capEffects([{ meter: "users", delta: 10 }], { revenue: 50, users: 90, reputation: 50 })
-    ).toEqual([{ meter: "users", delta: 10 }]);
-  });
-
-  it("should mark the wasted part on draft cards when a meter is full", () => {
-    const state: GameState = {
-      ...fresh(),
-      meters: { revenue: 100, users: 100, reputation: 100 },
-    };
-    const gains = toDraft(state, SEED_CONTENT).flatMap((card) =>
-      card.effects.filter((effect) => (effect.overflow ?? 0) > 0)
-    );
-    expect(gains.length).toBeGreaterThan(0);
-    expect(gains.every((effect) => effect.delta === 0)).toBe(true);
-  });
-
-  it("should cap event option gains when the meter is near full", () => {
-    const state: GameState = {
-      ...createGame({ content: SEED_CONTENT, seed: 1 }),
-      status: "event",
-      pendingEventId: "event-investeerders",
-      meters: { revenue: 97, users: 50, reputation: 50 },
-    };
-    // Commercial option: revenue +8 after phase 1 scaling; only 3 fit under 100.
-    const commercial = toEventView(state, SEED_CONTENT)?.options.find(
-      (option) => option.kind === "commercial"
-    );
-    expect(commercial?.effects).toContainEqual({
-      meter: "revenue",
-      delta: 3,
-      overflow: 5,
-    });
-  });
-});
-
 describe("toEventView option order", () => {
   it("should keep one option order per run and event and not always lead with the money option when events are shown", () => {
     const firstKinds = (seed: number): string[] =>
@@ -217,15 +182,16 @@ describe("toEventView option order", () => {
 });
 
 describe("toGameEnd", () => {
-  it("should report the run's peak reach when the game ends below it", () => {
+  it("should report the run's peak users when the game ends below it", () => {
     const state: GameState = {
       ...fresh(),
       status: "won",
-      stats: { users: 11_400_000, revenue: 900_000 },
+      users: 11_400_000,
+      money: 900_000,
       peakUsers: 22_500_000,
     };
     const end = toGameEnd(state, SEED_CONTENT);
-    expect(end?.stats.users).toBe(22_500_000);
+    expect(end?.score).toEqual({ users: 22_500_000, money: 900_000 });
     expect(end?.statTexts.users).toBe("22.500.000");
   });
 });
@@ -272,6 +238,21 @@ describe("toFeed", () => {
         title: card.title,
         body: card.body,
       },
+    ]);
+  });
+});
+
+describe("toScoreHistory", () => {
+  it("should start phase 1 at the start values and add the state after every action", () => {
+    const start = createGame({ content: SEED_CONTENT, seed: 1 });
+    const cardId = start.hand![0]!;
+    const after = playCard(start, SEED_CONTENT, cardId);
+    const steps = [
+      { action: { kind: "card" as const, cardId }, turn: 0, eventId: null, state: after },
+    ];
+    expect(toScoreHistory(after, steps, SEED_CONTENT)).toEqual([
+      { users: SEED_CONTENT.balance.startUsers, money: SEED_CONTENT.balance.startMoney },
+      { users: after.users, money: after.money },
     ]);
   });
 });

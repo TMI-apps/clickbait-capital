@@ -36,20 +36,19 @@ const playUntilEnd = (
   return steps;
 };
 
-/** Same scoring as game-content's balance simulation "mixed" player (one-step lookahead). */
+/** A simplified balance-simulation "mixed" player (one-step lookahead on the score). */
 function scoreState(state: GameState): number {
   if (state.status === "lost") return -100_000;
   if (state.status === "won") return 100_000;
-  const { revenue, users, reputation } = state.meters;
-  const ipoPush = state.phase === 4 ? Math.min(revenue, 90) + Math.min(reputation, 70) : 0;
+  const phase = GAME_CONTENT.phases.find((candidate) => candidate.id === state.phase)!;
+  const users = Math.min(1, state.users / phase.goal.users);
+  const money = Math.min(1, Math.max(0, state.money) / phase.goal.money);
   return (
     state.phase * 1_000 +
-    state.goalStreak * 20 +
-    Math.log10(state.stats.users + 1) * 40 +
-    Math.min(revenue, users, reputation) * 3 +
-    (revenue + users + reputation) * 0.5 +
-    ipoPush -
-    state.toxicity * 0.4
+    (users + money) * 300 +
+    Math.min(users, money) * 300 +
+    state.reputation * 2 -
+    state.toxicity
   );
 }
 
@@ -112,7 +111,10 @@ describe("useBoardSession", () => {
       expect(result.current.status).toBe("playing");
       expect(result.current.view.feed).toEqual([]);
       expect(result.current.view.draft).toHaveLength(3);
-      expect(result.current.view.meters.map((meter) => meter.value)).toEqual([50, 50, 50]);
+      expect(result.current.view.meters.map((meter) => meter.amount)).toEqual([
+        SEED_CONTENT.balance.startUsers,
+        SEED_CONTENT.balance.startMoney,
+      ]);
     });
   });
 
@@ -135,7 +137,7 @@ describe("useBoardSession", () => {
     expect(result.current.view.phase.phaseId).toBe(4);
   });
 
-  it("should put the played card on top of the feed and report meter deltas when a card is played", () => {
+  it("should put the played card on top of the feed and report the money change when a card is played", () => {
     const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     const ad = result.current.view.draft.find((card) => card.type === "ad");
     expect(ad).toBeDefined();
@@ -145,7 +147,7 @@ describe("useBoardSession", () => {
     const { view } = result.current;
     expect(view.feed[0]).toMatchObject({ type: "ad", title: ad?.title });
     const revenue = view.meters.find((meter) => meter.key === "revenue");
-    expect(revenue?.delta).toBe((revenue?.value ?? 0) - 50);
+    expect(revenue?.delta).toBe((revenue?.amount ?? 0) - SEED_CONTENT.balance.startMoney);
     expect(revenue?.delta).not.toBe(0);
   });
 

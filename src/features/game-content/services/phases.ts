@@ -2,55 +2,46 @@ import type { BalanceConfig, PhaseDefinition, PhaseId } from "@/features/game-en
 import type { PhaseIntro } from "@/features/game-content/types/contentPresentation.types";
 
 /**
- * Balance constants and the four phases for the full deck. Goals and rule constants follow
- * the design (§ 6, § 7); tuning against the card pool is proven by
+ * Balance constants and the four phases for the full deck (score-redesign D11–D22). Effects
+ * stay authored in points; each phase sets what a point is worth in users and euros, and
+ * every goal is two goal lines. Tuning against the card pool is proven by
  * `balanceSimulation.test.ts`. Changes here change difficulty: rerun the simulation.
  */
 export const CONTENT_BALANCE: BalanceConfig = {
-  startMeter: 50,
-  startRevenue: 0,
+  startUsers: 50_000,
+  startMoney: 100_000,
+  userLossPerPoint: 0.02,
+  startReputation: 60,
   newsIgnoredToxicity: 2,
+  toxicityDrain: { from: 50, perPoint: 0.05 },
   reputationDecay: { afterTurnsWithoutNews: 3, amount: 3 },
   adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
   echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
   journalismDrought: { afterTurnsWithoutNews: 5, viralToxicityMultiplier: 2 },
-  eventPacing: {
-    minTurnsBetween: 3,
-    randomExtraTurns: 3,
-    urgentMinTurnsBetween: 2,
-    crisisToxicity: 70,
-  },
+  scandal: { threshold: 30, rampPoints: 15, maxChance: 0.7, finePoints: 16 },
+  eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
 };
 
 export const CONTENT_PHASES: PhaseDefinition[] = [
   {
     id: 1,
     name: "De Zolderkamer",
-    goal: {
-      description: "Bereik 100.000 gebruikers.",
-      conditions: [{ kind: "stat", stat: "users", atLeast: 100_000 }],
-      consecutiveTurns: 1,
-    },
+    goal: { description: "Haal 100.000 gebruikers en € 150.000.", users: 100_000, money: 150_000 },
     passiveCosts: { revenue: -1 },
-    usersAtFullMeter: 115_000,
-    revenuePerPoint: 5_000,
+    usersPerPoint: 1_500,
+    moneyPerPoint: 2_000,
+    audienceUsers: 60_000,
     reputationLossMultiplier: 0.5,
     revenueGainMultiplier: 0.5,
   },
   {
     id: 2,
     name: "De Scale-Up",
-    goal: {
-      description: "Bereik 5.000.000 gebruikers en € 500.000 omzet.",
-      conditions: [
-        { kind: "stat", stat: "users", atLeast: 5_000_000 },
-        { kind: "stat", stat: "revenue", atLeast: 500_000 },
-      ],
-      consecutiveTurns: 1,
-    },
-    passiveCosts: { revenue: -3 },
-    usersAtFullMeter: 5_300_000,
-    revenuePerPoint: 10_000,
+    goal: { description: "Haal 300.000 gebruikers en € 600.000.", users: 300_000, money: 600_000 },
+    passiveCosts: { revenue: -2 },
+    usersPerPoint: 8_000,
+    moneyPerPoint: 10_000,
+    audienceUsers: 150_000,
     reputationLossMultiplier: 1,
     revenueGainMultiplier: 1,
   },
@@ -58,31 +49,30 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
     id: 3,
     name: "Wereldwijd Platform",
     goal: {
-      description: "Houd 12 beurten op rij minstens 20.000.000 gebruikers.",
-      conditions: [{ kind: "stat", stat: "users", atLeast: 20_000_000 }],
-      consecutiveTurns: 12,
+      description: "Haal 1 miljoen gebruikers en € 1,2 miljoen.",
+      users: 1_000_000,
+      money: 1_200_000,
     },
-    passiveCosts: { revenue: -6 },
-    usersAtFullMeter: 22_500_000,
-    revenuePerPoint: 50_000,
-    reputationLossMultiplier: 2,
+    passiveCosts: { revenue: -3 },
+    usersPerPoint: 25_000,
+    moneyPerPoint: 25_000,
+    audienceUsers: 500_000,
+    reputationLossMultiplier: 1.5,
     revenueGainMultiplier: 1,
   },
   {
     id: 4,
     name: "De Beursgang",
     goal: {
-      description: "Houd Reputatie boven 60 en Inkomsten boven 80, 8 beurten op rij.",
-      conditions: [
-        { kind: "meter", meter: "reputation", above: 60 },
-        { kind: "meter", meter: "revenue", above: 80 },
-      ],
-      consecutiveTurns: 8,
+      description: "Haal 3 miljoen gebruikers en € 4 miljoen.",
+      users: 3_000_000,
+      money: 4_000_000,
     },
-    passiveCosts: { revenue: -6 },
-    usersAtFullMeter: 30_000_000,
-    revenuePerPoint: 100_000,
-    reputationLossMultiplier: 2.5,
+    passiveCosts: { revenue: -3 },
+    usersPerPoint: 75_000,
+    moneyPerPoint: 60_000,
+    audienceUsers: 1_500_000,
+    reputationLossMultiplier: 2,
     revenueGainMultiplier: 1,
   },
 ];
@@ -93,7 +83,7 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
     kicker: "Fase 1",
     title: "De Zolderkamer",
     body: "Een matras, een laptop en een nieuwe app die nog niemand kent. Jij bent het [[algoritme]]: jij kiest wat iedereen in de [[feed]] ziet.",
-    tip: "Nog niemand let op je. Zorg dat je app groeit: haal 100.000 gebruikers.",
+    tip: "Nog niemand let op je. Laat je app groeien: haal 100.000 gebruikers en € 150.000.",
   },
   2: {
     kicker: "Fase 2",
@@ -105,12 +95,12 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
     body: "Miljoenen mensen kijken elke dag naar jouw feed. Regeringen, kranten en [[adverteerders|adverteerder]] letten nu goed op.",
-    tip: "Verlies je reputatie, dan telt dat nu dubbel. Wie het nieuws overslaat, krijgt dat terug.",
+    tip: "Verlies je reputatie, dan telt dat nu anderhalf keer. Wie het nieuws overslaat, krijgt een schandaal.",
   },
   4: {
     kicker: "Fase 4",
     title: "De Beursgang",
     body: "Bijna klaar voor de [[beursgang]]. [[Aandeelhouders|aandeelhouder]] willen winst. De [[toezichthouder]] wacht op één fout.",
-    tip: "Houd Reputatie boven 60 en Inkomsten boven 80, acht beurten op rij. Elk verlies van reputatie telt nu tweeënhalf keer.",
+    tip: "Haal 3 miljoen gebruikers en € 4 miljoen. Elk verlies van reputatie telt nu dubbel. Eén schandaal kan je beursgang kosten.",
   },
 };

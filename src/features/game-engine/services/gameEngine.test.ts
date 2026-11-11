@@ -14,6 +14,7 @@ import {
   playCard,
   resolveEvent,
 } from "./gameEngine";
+import { scandalChance } from "./progression";
 import { SEED_CONTENT } from "./seedContent";
 
 type Policy = (state: GameState, step: number) => CardType;
@@ -47,40 +48,6 @@ function runGame(
 
 const cycle: Policy = (_state, step) => (["viral", "ad", "news"] as const)[step % 3]!;
 
-interface Visited {
-  phases: Set<number>;
-  events: number;
-  lost: number;
-}
-
-/** The users stat as the meter shows it: Gebruikers × the phase market (game-engine D1). */
-function expectUsersReadOffMeter(state: GameState): void {
-  const phase = SEED_CONTENT.phases.find((candidate) => candidate.id === state.phase)!;
-  expect(state.stats.users).toBe(Math.round((state.meters.users * phase.usersAtFullMeter) / 100));
-  expect(state.stats.users > 0).toBe(state.meters.users > 0);
-}
-
-/** Plays one seeded game, checking the users stat in every state and recording what it reached. */
-function playCheckingUsersStat(policy: Policy, visited: Visited): void {
-  let state = createGame({ content: SEED_CONTENT, seed: 11 });
-  for (
-    let step = 0;
-    step < 120 && (state.status === "event" || state.status === "playing");
-    step++
-  ) {
-    expectUsersReadOffMeter(state);
-    visited.phases.add(state.phase);
-    if (state.status === "event") {
-      visited.events += 1;
-      state = resolveEvent(state, SEED_CONTENT, "b");
-    } else {
-      state = playCard(state, SEED_CONTENT, cardOfType(state, SEED_CONTENT, policy(state, step)));
-    }
-  }
-  expectUsersReadOffMeter(state);
-  visited.lost += state.status === "lost" ? 1 : 0;
-}
-
 function withPhases(
   content: GameContent,
   patch: (phase: PhaseDefinition) => PhaseDefinition
@@ -88,33 +55,42 @@ function withPhases(
   return { ...content, phases: content.phases.map(patch) };
 }
 
-/** Phases 1–3 pass instantly and phase 4 keeps the design IPO goal, so a run reaches the IPO. */
-function ipoContent(): GameContent {
+/** Every goal line at 0 and no events: each card turn ends a phase, the fourth wins. */
+function instantGoals(): GameContent {
   return {
-    ...withPhases(SEED_CONTENT, (phase) =>
-      phase.id === 4
-        ? { ...phase, passiveCosts: {}, reputationLossMultiplier: 1 }
-        : {
-            ...phase,
-            passiveCosts: {},
-            goal: { description: "", conditions: [], consecutiveTurns: 1 },
-          }
-    ),
+    ...withPhases(SEED_CONTENT, (phase) => ({
+      ...phase,
+      passiveCosts: {},
+      goal: { description: "", users: 0, money: 0 },
+    })),
     events: [],
-    cards: [
-      { id: "v", type: "viral", title: "", body: "", effects: { users: 10, revenue: -30 } },
-      { id: "a", type: "ad", title: "", body: "", effects: { revenue: 20 } },
-      { id: "n", type: "news", title: "", body: "", effects: { reputation: 10, toxicity: -10 } },
-    ],
+  };
+}
+
+/** Seed content where any reputation below the threshold makes a scandal certain. */
+function certainScandals(startReputation: number): GameContent {
+  return {
+    ...SEED_CONTENT,
+    balance: {
+      ...SEED_CONTENT.balance,
+      startReputation,
+      scandal: { threshold: 40, rampPoints: 1, maxChance: 1, finePoints: 0 },
+    },
   };
 }
 
 describe("createGame", () => {
-  it("should start in phase 1 with meters at 50, toxicity 0 and a hand of three cards", () => {
+  it("should start in phase 1 with the start users, money and reputation and a hand of three cards", () => {
     const state = createGame({ content: SEED_CONTENT, seed: 1 });
+    const { balance } = SEED_CONTENT;
     expect(state.phase).toBe(1);
-    expect(state.meters).toEqual({ revenue: 50, users: 50, reputation: 50 });
-    expect(state.toxicity).toBe(0);
+    expect(state).toMatchObject({
+      users: balance.startUsers,
+      money: balance.startMoney,
+      reputation: balance.startReputation,
+      toxicity: 0,
+      peakUsers: balance.startUsers,
+    });
     expect(getHandCards(state, SEED_CONTENT)).toHaveLength(3);
   });
 
@@ -173,29 +149,44 @@ describe("playCard", () => {
     expect(() => playCard(state, SEED_CONTENT, "no-such-card")).toThrow();
   });
 
-  it("should apply the card, the phase passive cost and count the turn", () => {
+  it("should land the card and the passive cost on users and money and count the turn", () => {
     const state = createGame({ content: SEED_CONTENT, seed: 1 });
+    const phase = SEED_CONTENT.phases[0]!;
     const card = getHandCards(state, SEED_CONTENT)!.find((candidate) => candidate.type === "news")!;
     const next = playCard(state, SEED_CONTENT, card.id);
+    const usersDelta = -Math.round(
+      state.users * -card.effects.users! * SEED_CONTENT.balance.userLossPerPoint
+    );
+    const moneyDelta = phase.passiveCosts.revenue! * phase.moneyPerPoint;
     expect(next.turn).toBe(1);
-    expect(next.meters.revenue).toBe(50 - 1);
-    expect(next.meters.reputation).toBe(50 + card.effects.reputation!);
-    expect(next.lastTurn?.source).toEqual({ kind: "card", cardId: card.id });
+    expect(next.users).toBe(state.users + usersDelta);
+    expect(next.money).toBe(state.money + moneyDelta);
+    expect(next.reputation).toBe(state.reputation + card.effects.reputation!);
+    expect(next.lastTurn).toMatchObject({
+      source: { kind: "card", cardId: card.id },
+      delta: { users: usersDelta, money: moneyDelta },
+    });
   });
 
-  it("should read the users stat off the Gebruikers meter and the phase market when any action is taken", () => {
-    const visited: Visited = { phases: new Set(), events: 0, lost: 0 };
-    for (const policy of [cycle, () => "viral", () => "ad", () => "news"] satisfies Policy[]) {
-      playCheckingUsersStat(policy, visited);
-    }
-    expect(visited.phases.size).toBeGreaterThanOrEqual(2);
-    expect(visited.events).toBeGreaterThan(0);
-    expect(visited.lost).toBeGreaterThan(0);
+  it("should pay an ad by the audience when users are below the phase audience", () => {
+    const content = instantGoals();
+    const phase = { ...content.phases[0]!, goal: { description: "", users: 1e12, money: 0 } };
+    const half: GameContent = {
+      ...content,
+      phases: [phase, ...content.phases.slice(1)],
+      balance: { ...content.balance, startUsers: phase.audienceUsers / 2 },
+    };
+    const state = createGame({ content: half, seed: 1 });
+    const ad = getHandCards(state, half)!.find((card) => card.type === "ad");
+    if (!ad) return;
+    const next = playCard(state, half, ad.id);
+    const gain = Math.round(ad.effects.revenue! * phase.revenueGainMultiplier);
+    expect(next.lastTurn!.delta.money).toBe(Math.round(gain * phase.moneyPerPoint * 0.5));
   });
 
-  it("should keep the highest users stat of the run when the meter falls again", () => {
+  it("should keep the highest users of the run when users fall again", () => {
     let state = createGame({ content: SEED_CONTENT, seed: 11 });
-    let peak = state.stats.users;
+    let peak = state.users;
     let fell = false;
     for (let step = 0; step < 60 && state.status !== "lost" && state.status !== "won"; step++) {
       state =
@@ -204,39 +195,67 @@ describe("playCard", () => {
           : playCard(
               state,
               SEED_CONTENT,
-              cardOfType(state, SEED_CONTENT, step < 3 ? "viral" : "ad")
+              cardOfType(state, SEED_CONTENT, step < 2 ? "viral" : "news")
             );
-      fell ||= state.stats.users < peak;
-      peak = Math.max(peak, state.stats.users);
+      fell ||= state.users < peak;
+      peak = Math.max(peak, state.users);
       expect(state.peakUsers).toBe(peak);
     }
     expect(fell).toBe(true);
   });
+});
 
-  it("should move to phase 2 and open its milestone event when 100k users are reached", () => {
-    const state = runGame(SEED_CONTENT, { seed: 3, policy: () => "viral", maxSteps: 2 });
-    expect(state.stats.users).toBeGreaterThanOrEqual(100_000);
-    expect(state.phase).toBe(2);
-    expect(state.status).toBe("event");
-    expect(getPendingEvent(state, SEED_CONTENT)?.id).toBe("event-investeerders");
-  });
-
-  it("should open a toxicity event from playCard when toxicity passes the threshold", () => {
+describe("playCard progression", () => {
+  it("should move to phase 2 and open its milestone event when both goal lines are reached", () => {
     const content: GameContent = {
       ...SEED_CONTENT,
-      cards: SEED_CONTENT.cards.map((card) =>
-        card.type === "viral" ? { ...card, effects: { users: 1, toxicity: 40 } } : card
-      ),
-      events: SEED_CONTENT.events.map((event) =>
-        event.id === "event-eu-boete"
-          ? { ...event, trigger: { kind: "toxicity", threshold: 75 } }
-          : event
+      phases: SEED_CONTENT.phases.map((phase) =>
+        phase.id === 1 ? { ...phase, goal: { description: "", users: 1, money: 1 } } : phase
       ),
     };
-    const state = runGame(content, { seed: 4, policy: () => "viral", maxSteps: 2 });
-    expect(state.toxicity).toBeGreaterThan(75);
+    const state = runGame(content, { seed: 3, policy: () => "news", maxSteps: 1 });
+    expect(state.phase).toBe(2);
     expect(state.status).toBe("event");
-    expect(state.pendingEventId).toBe("event-eu-boete");
+    expect(getPendingEvent(state, content)?.id).toBe("event-investeerders");
+  });
+
+  it("should stay in the phase when only the users goal line is reached", () => {
+    const content: GameContent = {
+      ...SEED_CONTENT,
+      phases: SEED_CONTENT.phases.map((phase) =>
+        phase.id === 1 ? { ...phase, goal: { description: "", users: 1, money: 1e12 } } : phase
+      ),
+    };
+    const state = runGame(content, { seed: 3, policy: () => "viral", maxSteps: 3 });
+    expect(state.phase).toBe(1);
+  });
+
+  it("should open a scandal from playCard when reputation is below the scandal threshold", () => {
+    const content = certainScandals(10);
+    const atPhase2: GameContent = {
+      ...content,
+      phases: content.phases.map((phase) =>
+        phase.id === 1 ? { ...phase, goal: { description: "", users: 1, money: 1 } } : phase
+      ),
+    };
+    let state = runGame(atPhase2, { seed: 4, policy: () => "viral", maxSteps: 1 });
+    state = resolveEvent(state, atPhase2, "b");
+    const opened: string[] = [];
+    for (let step = 0; step < 12 && state.status !== "lost"; step++) {
+      if (state.status === "event") {
+        opened.push(state.pendingEventId!);
+        state = resolveEvent(state, atPhase2, "b");
+      } else {
+        state = playCard(state, atPhase2, cardOfType(state, atPhase2, "viral"));
+      }
+    }
+    expect(opened).toContain("event-eu-boete");
+  });
+
+  it("should never open a scandal when reputation stays at or above the threshold", () => {
+    const content = certainScandals(100);
+    const state = runGame(content, { seed: 4, policy: () => "news", maxSteps: 30 });
+    expect(state.firedEventIds.filter((id) => id === "event-eu-boete")).toEqual([]);
   });
 
   it("should mark the viral card with drought after 5 turns without news", () => {
@@ -248,28 +267,26 @@ describe("playCard", () => {
     const viralTurn = runGame(SEED_CONTENT, { seed: 3, policy: adsThenViral, maxSteps: 6 });
     expect(viralTurn.lastTurn?.modifiers.journalismDrought).toBe(true);
   });
-
-  it("should reset the IPO streak when a condition breaks in phase 4", () => {
-    const content = ipoContent();
-    const policy: Policy = (_s, step) => (step === 8 ? "viral" : step % 2 ? "news" : "ad");
-    const before = runGame(content, { seed: 9, policy, maxSteps: 8 });
-    expect(before.phase).toBe(4);
-    expect(before.goalStreak).toBeGreaterThan(0);
-    const broken = playCard(before, content, cardOfType(before, content, "viral"));
-    expect(broken.meters.revenue).toBeLessThanOrEqual(80);
-    expect(broken.goalStreak).toBe(0);
-  });
 });
 
 describe("resolveEvent", () => {
   it("should apply the option effects, mark the event fired and open a new draft", () => {
-    const atEvent = runGame(SEED_CONTENT, { seed: 3, policy: () => "viral", maxSteps: 2 });
-    const resolved = resolveEvent(atEvent, SEED_CONTENT, "c");
+    const content: GameContent = {
+      ...SEED_CONTENT,
+      balance: { ...SEED_CONTENT.balance, startMoney: 1_000_000 },
+      phases: SEED_CONTENT.phases.map((phase) =>
+        phase.id === 1 ? { ...phase, goal: { description: "", users: 1, money: 1 } } : phase
+      ),
+    };
+    const atEvent = runGame(content, { seed: 3, policy: () => "news", maxSteps: 1 });
+    const phase2 = content.phases[1]!;
+    const resolved = resolveEvent(atEvent, content, "c");
     expect(resolved.status).toBe("playing");
     expect(resolved.hand).not.toBeNull();
     expect(resolved.firedEventIds).toContain("event-investeerders");
-    expect(resolved.meters.reputation).toBe(atEvent.meters.reputation + 10);
-    expect(resolved.meters.revenue).toBe(atEvent.meters.revenue - 10);
+    expect(resolved.reputation).toBe(atEvent.reputation + 10);
+    expect(resolved.money).toBe(atEvent.money - 10 * phase2.moneyPerPoint);
+    expect(resolved.lastTurn?.delta).toEqual({ users: 0, money: -10 * phase2.moneyPerPoint });
     expect(resolved.turn).toBe(atEvent.turn);
   });
 
@@ -291,45 +308,39 @@ describe("game engine acceptance", () => {
     expect(new Set(firstHands.map((hand) => JSON.stringify(hand))).size).toBeGreaterThan(1);
   });
 
-  it("should end with Verlaten Platform when only news is played", () => {
-    const state = runGame(SEED_CONTENT, { seed: 5, policy: () => "news" });
+  it("should keep playing while users fall and end in Bankroet only once money is below 0", () => {
+    let state = createGame({ content: SEED_CONTENT, seed: 5 });
+    let lowest = state.users;
+    for (let step = 0; step < 300 && state.status !== "lost"; step++) {
+      state =
+        state.status === "event"
+          ? resolveEvent(state, SEED_CONTENT, "c")
+          : playCard(state, SEED_CONTENT, cardOfType(state, SEED_CONTENT, "news"));
+      if (state.status !== "lost") lowest = Math.min(lowest, state.users);
+    }
+    expect(lowest).toBeLessThan(SEED_CONTENT.balance.startUsers / 2);
     expect(state.status).toBe("lost");
-    expect(state.gameOver).toBe("abandoned");
-    expect(state.meters.users).toBe(0);
-  });
-
-  it("should end with Bankroet when passive costs drain revenue", () => {
-    const content = withPhases(SEED_CONTENT, (phase) => ({
-      ...phase,
-      passiveCosts: { revenue: -10 },
-    }));
-    const state = runGame(content, { seed: 5, policy: () => "news" });
     expect(state.gameOver).toBe("bankrupt");
-    // 50 revenue / 10 per turn; an ad in a hand without news can only delay it.
-    expect(state.turn).toBeGreaterThanOrEqual(5);
+    expect(state.money).toBeLessThan(0);
   });
 
-  it("should end with Verbod & Regulering when reputation decays without news", () => {
+  it("should never end the game when reputation reaches 0", () => {
     const content: GameContent = {
       ...SEED_CONTENT,
-      balance: {
-        ...SEED_CONTENT.balance,
-        reputationDecay: { afterTurnsWithoutNews: 3, amount: 20 },
-      },
+      events: [],
+      balance: { ...SEED_CONTENT.balance, startReputation: 0, startMoney: 1e12 },
     };
-    const state = runGame(content, { seed: 5, policy: () => "viral", eventOption: "b" });
-    expect(state.gameOver).toBe("banned");
-    expect(state.meters.reputation).toBe(0);
+    const state = runGame(content, { seed: 5, policy: () => "viral", maxSteps: 30 });
+    expect(state.reputation).toBe(0);
+    expect(state.status).not.toBe("lost");
   });
 
-  it("should win the IPO after 10 consecutive turns with reputation > 60 and revenue > 80", () => {
-    const content = ipoContent();
-    const state = runGame(content, { seed: 9, policy: (_s, step) => (step % 2 ? "news" : "ad") });
+  it("should win after phase 4 when every goal line is reached", () => {
+    const content = instantGoals();
+    const state = runGame(content, { seed: 9, policy: cycle });
     expect(state.status).toBe("won");
     expect(state.phase).toBe(4);
-    expect(state.goalStreak).toBe(10);
-    expect(state.meters.reputation).toBeGreaterThan(60);
-    expect(state.meters.revenue).toBeGreaterThan(80);
+    expect(state.turn).toBe(4);
   });
 });
 
@@ -341,7 +352,7 @@ interface EventOpening {
 
 /** Plays a toxic, random-ish run and records each event as it opens, with the phases reached. */
 function recordEventOpenings(seed: number): { openings: EventOpening[]; phases: Set<number> } {
-  const { crisisToxicity } = SEED_CONTENT.balance.eventPacing;
+  const { scandal } = SEED_CONTENT.balance;
   const policy: Policy = (_state, step) => (["viral", "viral", "ad", "news"] as const)[step % 4]!;
   const openings: EventOpening[] = [];
   const phases = new Set<number>();
@@ -350,7 +361,9 @@ function recordEventOpenings(seed: number): { openings: EventOpening[]; phases: 
     phases.add(state.phase);
     if (state.status === "event") {
       const event = getPendingEvent(state, SEED_CONTENT)!;
-      const urgent = event.trigger.kind === "milestone" || state.toxicity >= crisisToxicity;
+      const urgent =
+        event.trigger.kind === "milestone" ||
+        scandalChance(state.reputation, scandal) >= scandal.maxChance;
       openings.push({ id: event.id, turn: state.turn, urgent });
       state = resolveEvent(state, SEED_CONTENT, "b");
     } else if (state.status === "playing" && state.hand) {

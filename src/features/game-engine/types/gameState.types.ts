@@ -1,13 +1,12 @@
 import type {
   CardType,
   FullEffects,
-  MeterKey,
   PhaseId,
-  StatKey,
+  ScoreKey,
 } from "@/features/game-engine/types/gameContent.types";
 
-/** Why a game ended: Bankroet (revenue 0), Verlaten Platform (users 0), Verbod & Regulering (reputation 0). */
-export type GameOverReason = "bankrupt" | "abandoned" | "banned";
+/** Why a game ended: only Bankroet, Geld below € 0 (score-redesign D16). */
+export type GameOverReason = "bankrupt";
 
 /** `event`: a draft is interrupted until `resolveEvent` is called. */
 export type GameStatus = "playing" | "event" | "won" | "lost";
@@ -26,7 +25,10 @@ export interface TurnModifiers {
 /** What the last card or event option did, after all modifiers, before clamping. */
 export interface TurnReport {
   source: { kind: "card"; cardId: string } | { kind: "event"; eventId: string; optionId: string };
+  /** Authored points after modifiers, phase scaling, costs and drain. */
   effects: FullEffects;
+  /** What actually changed on the score this turn, in users and euros. */
+  delta: Record<ScoreKey, number>;
   modifiers: TurnModifiers;
 }
 
@@ -40,14 +42,15 @@ export interface GameState {
   /** Card turns completed. Event resolutions are not turns. */
   turn: number;
   phase: PhaseId;
-  meters: Record<MeterKey, number>;
-  /** Hidden from the player; drives toxicity events. */
+  /** Gebruikers, absolute; never below 0 (score-redesign D11, D16). */
+  users: number;
+  /** Geld in euros; below 0 is Bankroet. */
+  money: number;
+  /** Hidden 0–100; below the scandal threshold it sets the scandal chance (D13). */
+  reputation: number;
+  /** Hidden 0–100; drains reputation every card turn (D21). */
   toxicity: number;
-  stats: Record<StatKey, number>;
-  /**
-   * Highest users stat of the run so far (game-engine D1). The stat follows the meter and
-   * can fall, so end screens report this peak instead of the last value.
-   */
+  /** Highest Gebruikers of the run so far: end screens report this peak, since users can fall. */
   peakUsers: number;
   hand: Hand | null;
   pendingEventId: string | null;
@@ -60,8 +63,6 @@ export interface GameState {
   playedTypes: CardType[];
   turnsWithoutNews: number;
   viralStreak: number;
-  /** Consecutive turns the current phase goal has held. */
-  goalStreak: number;
   status: GameStatus;
   gameOver: GameOverReason | null;
   lastTurn: TurnReport | null;

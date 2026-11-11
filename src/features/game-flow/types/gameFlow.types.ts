@@ -7,7 +7,7 @@ type MeterKey = "revenue" | "users" | "reputation";
 type CardType = "viral" | "ad" | "news";
 type PhaseId = 1 | 2 | 3 | 4;
 type EventOptionKind = "commercial" | "engagement" | "journalism";
-type GameOverReason = "bankrupt" | "abandoned" | "banned";
+type GameOverReason = "bankrupt";
 
 /** One meter change as the kit's `GameCardEffects` shows it. */
 export interface FlowEffect {
@@ -38,10 +38,10 @@ export interface RunSummary {
   turn: number;
   phaseId: PhaseId;
   phaseName: string;
-  /** Raw absolute stats (input for the end report). */
-  stats: { users: number; revenue: number };
-  /** The same stats formatted for display ("12.500.000", "€ 2.400.000"). */
-  statTexts: { users: string; revenue: string };
+  /** Peak users and final money of the run (input for the end report). */
+  score: { users: number; money: number };
+  /** The same numbers formatted for display ("12.500.000", "€ 2.400.000"). */
+  statTexts: { users: string; money: string };
   playedTypes: readonly CardType[];
   firedEventIds: readonly string[];
 }

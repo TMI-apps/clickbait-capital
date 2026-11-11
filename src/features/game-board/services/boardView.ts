@@ -4,20 +4,19 @@ import type {
   EventDefinition,
   GameContent,
   GameState,
-  GoalCondition,
   MeterKey,
   PhaseDefinition,
-  StatKey,
+  ScoreKey,
 } from "@/features/game-engine/api";
 import {
+  eventOptionEffects,
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
-  meterForUsers,
   scaleForPhase,
+  scandalChance,
 } from "@/features/game-engine/api";
 import type { SessionStep } from "@/features/game-session/api";
-import { meterValueText } from "@/features/game-board/services/boardSpeech";
 import type {
   CardEffectView,
   DraftCardView,
@@ -26,11 +25,16 @@ import type {
   GameEndView,
   MeterView,
   PhaseProgressView,
+  ScandalRiskView,
 } from "@/features/game-board/types/gameBoard.types";
+import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
-/** Meter order on the board and on cards (design § 2). */
-export const METER_ORDER: MeterKey[] = ["revenue", "users", "reputation"];
+/**
+ * Effect rows on cards and event options (score-redesign D13, D23): Geld and Gebruikers only.
+ * Reputation and Toxicity stay hidden.
+ */
+export const METER_ORDER: MeterKey[] = ["revenue", "users"];
 
 const countFormat = new Intl.NumberFormat("nl-NL");
 const euroFormat = new Intl.NumberFormat("nl-NL", {
@@ -39,7 +43,7 @@ const euroFormat = new Intl.NumberFormat("nl-NL", {
   maximumFractionDigits: 0,
 });
 
-/** Visible meter effects of a card (Toxicity stays hidden, zeros are left out). */
+/** Visible effects of a card (reputation and Toxicity stay hidden, zeros are left out). */
 export function toCardEffects(effects: Effects): CardEffectView[] {
   return METER_ORDER.flatMap((meter) => {
     const delta = effects[meter] ?? 0;
@@ -47,34 +51,20 @@ export function toCardEffects(effects: Effects): CardEffectView[] {
   });
 }
 
-/**
- * Meters cap at 100; gains past it are wasted. Second copy: the engine clamps with
- * `METER_MAX` in `src/features/game-engine/services/turnEffects.ts` (not exported); export it
- * from the engine api and use it here when a third consumer appears (code-style § Naming F2).
- */
-const METER_CAP = 100;
+/** Geld at or below this many turns of passive costs is in danger: Bankroet is near. */
+const MONEY_DANGER_TURNS = 3;
 
-/** At or below this a meter is in danger (game over at 0); the board and the turn announcement say so. */
-const METER_DANGER_AT = 20;
+const SCORE_LABEL: Record<ScoreKey, string> = { users: "Gebruikers", money: "Geld" };
 
-/** The three meters with their change against the meters before the last action. */
-export function toMeters(state: GameState, previous: Record<MeterKey, number> | null): MeterView[] {
-  return METER_ORDER.map((key) => {
-    const meter = {
-      value: state.meters[key],
-      delta: previous ? state.meters[key] - previous[key] : 0,
-      full: state.meters[key] >= METER_CAP,
-      danger: state.meters[key] <= METER_DANGER_AT,
-    };
-    return { key, ...meter, valueText: meterValueText(meter) };
-  });
+/** "120.000" for users, "€ 120.000" for money. */
+export function formatScore(key: ScoreKey, value: number): string {
+  return key === "money" ? euroFormat.format(value) : countFormat.format(value);
 }
 
-function conditionRatio(condition: GoalCondition, state: GameState): number {
-  if (condition.kind === "stat") {
-    return condition.atLeast <= 0 ? 1 : state.stats[condition.stat] / condition.atLeast;
-  }
-  return condition.above <= 0 ? 1 : state.meters[condition.meter] / condition.above;
+/** "+12.000" / "−€ 5.000"; empty for 0. */
+function formatScoreDelta(key: ScoreKey, delta: number): string {
+  if (delta === 0) return "";
+  return `${delta > 0 ? "+" : "−"}${formatScore(key, Math.abs(delta))}`;
 }
 
 function currentPhase(state: GameState, content: GameContent): PhaseDefinition {
@@ -85,74 +75,109 @@ function currentPhase(state: GameState, content: GameContent): PhaseDefinition {
   return phase;
 }
 
+/** The tile key (juice keeps the meter keys) for each score number. */
+const SCORE_TILES: Array<{ key: MeterView["key"]; score: ScoreKey }> = [
+  { key: "users", score: "users" },
+  { key: "revenue", score: "money" },
+];
+
+function tileValueText(label: string, tile: Omit<MeterView, "key" | "valueText">): string {
+  const parts = [`${label} ${tile.amountText}`];
+  if (tile.deltaText) parts.push(tile.deltaText);
+  parts.push(tile.goalText);
+  if (tile.full) parts.push("doel gehaald");
+  if (tile.danger) parts.push("bijna bankroet");
+  return parts.join(", ");
+}
+
 /**
- * Splits gains at the meter cap (game-juice D5): `delta` keeps the part that still counts and
- * `overflow` the wasted rest, so the card shows "+4 MAX" instead of "+12" at a meter of 96.
- * Card effects only: passive costs and turn modifiers are not previewed (D10).
+ * The two score tiles (score-redesign D23): absolute amount, the last action's change, and a
+ * bar for the progress to this phase's goal line.
  */
-export function capEffects(
-  effects: CardEffectView[],
-  meters: Record<MeterKey, number>
-): CardEffectView[] {
-  return effects.map((effect) => {
-    const room = Math.max(0, METER_CAP - meters[effect.meter]);
-    if (effect.delta <= room) return effect;
-    return { ...effect, delta: room, overflow: effect.delta - room };
+/**
+ * Users and money at the start of the current phase and after every action in it, oldest
+ * first (the chart's lines). Phase 1 starts at the balance's start values; a later phase at the
+ * state of the action that entered it.
+ */
+export function toScoreHistory(
+  state: GameState,
+  steps: readonly SessionStep[],
+  content: GameContent
+): Array<Record<ScoreKey, number>> {
+  const inPhase = steps
+    .filter((step) => step.state.phase === state.phase)
+    .map((step) => step.state);
+  const start =
+    state.phase === 1
+      ? [{ users: content.balance.startUsers, money: content.balance.startMoney }]
+      : [];
+  const points = [...start, ...inPhase.map(({ users, money }) => ({ users, money }))];
+  const current = { users: state.users, money: state.money };
+  const last = points[points.length - 1];
+  if (!last || last.users !== current.users || last.money !== current.money) points.push(current);
+  return points.slice(-SCORE_HISTORY_POINTS);
+}
+
+export function toMeters(
+  state: GameState,
+  content: GameContent,
+  steps: readonly SessionStep[] = []
+): MeterView[] {
+  const phase = currentPhase(state, content);
+  const history = toScoreHistory(state, steps, content);
+  const costPerTurn = -(phase.passiveCosts.revenue ?? 0) * phase.moneyPerPoint;
+  return SCORE_TILES.map(({ key, score }) => {
+    const amount = state[score];
+    const goal = phase.goal[score];
+    const delta = state.lastTurn?.delta[score] ?? 0;
+    const share = (value: number): number => (goal <= 0 ? 1 : Math.max(0, value) / goal);
+    const tile = {
+      value: Math.round(Math.min(1, share(amount)) * 100),
+      history: history.map((point) => share(point[score])),
+      amount,
+      amountText: formatScore(score, amount),
+      delta,
+      deltaText: formatScoreDelta(score, delta),
+      goalText: `Doel: ${formatScore(score, goal)}`,
+      goalAmountText: formatScore(score, goal),
+      full: amount >= goal,
+      danger: score === "money" && amount <= costPerTurn * MONEY_DANGER_TURNS,
+    };
+    return { key, ...tile, valueText: tileValueText(SCORE_LABEL[score], tile) };
   });
+}
+
+/** The scandal warning while reputation is below the threshold (score-redesign D13), else null. */
+export function toScandalRisk(state: GameState, content: GameContent): ScandalRiskView | null {
+  const chance = scandalChance(state.reputation, content.balance.scandal);
+  if (chance <= 0) return null;
+  return { chance, text: `Schandaal dreigt: ${Math.round(chance * 100)}% kans per beurt` };
 }
 
 /**
  * Visible effects as the engine applies them in the current phase (game-content README:
- * events show scaled numbers), capped at the meters' room. Turn modifiers such as Ad-Fatigue
- * are not previewed.
+ * events show scaled numbers). Turn modifiers such as Ad-Fatigue are not previewed.
  */
-function scaledEffects(
-  effects: Effects,
-  phase: PhaseDefinition,
-  state: GameState
-): CardEffectView[] {
-  return capEffects(toCardEffects(scaleForPhase(effects, phase)), state.meters);
+function scaledEffects(effects: Effects, phase: PhaseDefinition): CardEffectView[] {
+  return toCardEffects(scaleForPhase(effects, phase));
 }
 
-/** Labels for the absolute stats; "Bereik" is the number behind the Gebruikers meter (engine D1). */
-const STAT_LABEL: Record<StatKey, string> = { users: "Bereik", revenue: "Omzet" };
-
-function formatStat(stat: StatKey, value: number): string {
-  return stat === "revenue" ? euroFormat.format(value) : countFormat.format(value);
-}
-
-/**
- * "Bereik: x / doel (Gebruikers ≥ N)": the users stat is read off the Gebruikers meter
- * (game-engine D1), so the line names the meter level that reaches the goal in this phase.
- */
-function goalStatText(
-  condition: Extract<GoalCondition, { kind: "stat" }>,
-  state: GameState,
-  phase: PhaseDefinition
-): string {
-  const { stat, atLeast } = condition;
-  const text = `${STAT_LABEL[stat]}: ${formatStat(stat, state.stats[stat])} / ${formatStat(stat, atLeast)}`;
-  return stat === "users" ? `${text} (Gebruikers ≥ ${meterForUsers(atLeast, phase)})` : text;
-}
-
-/** Phase name, goal text and progress. Progress is the weakest goal condition, capped at 1. */
+/** Phase name, goal text and progress: the lower of the two goal lines, capped at 1. */
 export function toPhaseProgress(state: GameState, content: GameContent): PhaseProgressView {
   const phase = currentPhase(state, content);
-  const { conditions, consecutiveTurns, description } = phase.goal;
-  const ratios = conditions.map((condition) => conditionRatio(condition, state));
-  const progress = Math.max(0, Math.min(1, ...ratios));
+  const { goal } = phase;
+  const ratio = (score: ScoreKey): number =>
+    goal[score] <= 0 ? 1 : Math.max(0, state[score]) / goal[score];
   return {
     phaseId: phase.id,
     phaseName: phase.name,
     phaseCount: content.phases.length,
-    goalDescription: description,
-    progress,
-    streak: consecutiveTurns > 1 ? { current: state.goalStreak, required: consecutiveTurns } : null,
-    goalStats: conditions.flatMap((condition) =>
-      condition.kind === "stat" ? [goalStatText(condition, state, phase)] : []
+    goalDescription: goal.description,
+    progress: Math.max(0, Math.min(1, ratio("users"), ratio("money"))),
+    goalStats: (["users", "money"] as const).map(
+      (score) =>
+        `${SCORE_LABEL[score]}: ${formatScore(score, state[score])} / ${formatScore(score, goal[score])}`
     ),
-    usersText: `${STAT_LABEL.users}: ${formatStat("users", state.stats.users)}`,
-    revenueText: `${STAT_LABEL.revenue}: ${formatStat("revenue", state.stats.revenue)}`,
     turn: state.turn,
   };
 }
@@ -179,7 +204,7 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       title: card.title,
       body: card.body,
       flavor: flavorOf(card),
-      effects: scaledEffects(card.effects, phase, state),
+      effects: scaledEffects(card.effects, phase),
       droughtWarning: drought && type === "viral",
     };
   });
@@ -227,14 +252,12 @@ export function toEventView(state: GameState, content: GameContent): EventView |
     id: event.id,
     title: event.title,
     body: event.body,
-    options: seededOrder(event.options, `${state.seed}:${event.id}`).map(
-      ({ id, kind, label, effects }) => ({
-        id,
-        kind,
-        label,
-        effects: scaledEffects(effects, phase, state),
-      })
-    ),
+    options: seededOrder(event.options, `${state.seed}:${event.id}`).map((option) => ({
+      id: option.id,
+      kind: option.kind,
+      label: option.label,
+      effects: toCardEffects(eventOptionEffects(option, phase)),
+    })),
   };
 }
 
@@ -250,12 +273,11 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
     turn: state.turn,
     phaseId: state.phase,
     phaseName: currentPhase(state, content).name,
-    // End screens report the run's peak reach (game-board D11): the users stat follows the
-    // meter and can end below a goal the player already held.
-    stats: { ...state.stats, users: state.peakUsers },
+    // End screens report the run's peak users (game-board D11): users can fall again.
+    score: { users: state.peakUsers, money: state.money },
     statTexts: {
-      users: formatStat("users", state.peakUsers),
-      revenue: formatStat("revenue", state.stats.revenue),
+      users: formatScore("users", state.peakUsers),
+      money: formatScore("money", state.money),
     },
     playedTypes: [...state.playedTypes],
     firedEventIds: [...state.firedEventIds],

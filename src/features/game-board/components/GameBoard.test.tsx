@@ -13,16 +13,18 @@ import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 import { renderWithProviders } from "tests/test-utils";
 
 /**
- * Seed content where the first viral card (Toxicity > 0) triggers the first event: pacing lets
- * a regular event open from turn 1 (game-engine D10).
+ * Seed content where the first card opens a scandal: reputation starts at 0, so the scandal
+ * chance is certain, and pacing lets an event open from turn 1 (game-engine D10).
  */
 const EVENT_NOW: GameContent = {
   ...SEED_CONTENT,
   balance: {
     ...SEED_CONTENT.balance,
+    startReputation: 0,
+    scandal: { ...SEED_CONTENT.balance.scandal, maxChance: 1 },
     eventPacing: { ...SEED_CONTENT.balance.eventPacing, minTurnsBetween: 1 },
   },
-  events: [{ ...SEED_CONTENT.events[0], trigger: { kind: "toxicity", threshold: 0 } }],
+  events: [{ ...SEED_CONTENT.events[0], trigger: { kind: "scandal" } }],
 };
 
 /** Seed content where the passive costs bankrupt the platform on the first card. */
@@ -37,9 +39,7 @@ const MILESTONE_NOW: GameContent = {
   ...SEED_CONTENT,
   events: [],
   phases: SEED_CONTENT.phases.map((phase) =>
-    phase.id === 1
-      ? { ...phase, goal: { ...phase.goal, conditions: [], consecutiveTurns: 1 } }
-      : phase
+    phase.id === 1 ? { ...phase, goal: { ...phase.goal, users: 0, money: 0 } } : phase
   ),
 };
 
@@ -49,7 +49,8 @@ const WIN_FAST: GameContent = {
   events: [],
   phases: SEED_CONTENT.phases.map((phase) => ({
     ...phase,
-    goal: { ...phase.goal, conditions: [], consecutiveTurns: 1 },
+    passiveCosts: {},
+    goal: { ...phase.goal, users: 0, money: 0 },
   })),
 };
 
@@ -99,12 +100,15 @@ const renderBoard = async (content: GameContent = SEED_CONTENT, seed = DEFAULT_S
 };
 
 describe("GameBoard", () => {
-  it("should show three meters at 50 and a three-card draft when a run starts", async () => {
+  it("should show users and money with their progress to the goal lines and a three-card draft when a run starts", async () => {
     await renderBoard();
+    expect(screen.getAllByRole("meter").map((m) => m.getAttribute("aria-label"))).toEqual([
+      "Gebruikers",
+      "Geld",
+    ]);
     expect(screen.getAllByRole("meter").map((m) => m.getAttribute("aria-valuenow"))).toEqual([
       "50",
-      "50",
-      "50",
+      "67",
     ]);
     expect(draftCards()).toHaveLength(3);
     expect(screen.getByText("De Zolderkamer")).toBeInTheDocument();
@@ -279,18 +283,18 @@ describe("GameBoard juice", () => {
     await playCard(user, draftCardOfType("viral"));
 
     expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
-    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+    expect(screen.getByRole("list", { name: "Gebruikers en geld" }).textContent).toContain("🔥");
   });
 
-  it("should fly coins with a gold accent for an ad and only show a shield for news", async () => {
+  it("should fly coins with a gold accent for an ad and throw nothing for news", async () => {
     const { user } = await renderBoard();
     await playCard(user, draftCardOfType("ad"));
     expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
     expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
 
     await playCard(user, draftCardOfType("news"));
+    // News stays dull; its shield accent has no tile since reputation is hidden (score-redesign D23).
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
-    expect(document.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
   });
 
   it("should give the board the card juice of the chosen option's kind when an event is answered", async () => {
@@ -302,7 +306,7 @@ describe("GameBoard juice", () => {
 
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
-    const meters = screen.getByRole("list", { name: "Meters" });
+    const meters = screen.getByRole("list", { name: "Gebruikers en geld" });
     expect(meters.querySelector('[data-juice-accent="flames"]')).not.toBeNull();
     expect(meters.querySelector('[data-juice-flash="gain"]')).not.toBeNull();
   });
@@ -314,7 +318,7 @@ describe("GameBoard juice", () => {
     await playCard(user, draftCardOfType("viral"));
 
     expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
-    expect(screen.getByRole("list", { name: "Meters" }).textContent).toContain("🔥");
+    expect(screen.getByRole("list", { name: "Gebruikers en geld" }).textContent).toContain("🔥");
     expect(posts()).toHaveLength(1);
   });
 });
@@ -364,7 +368,9 @@ describe("GameBoard with a screen reader", () => {
 
     const live = document.querySelector(BOARD_LIVE_REGION);
     await waitFor(() => expect(live?.textContent).not.toBe(""));
-    expect(live?.textContent).toMatch(/^Geplaatst: .+\. Inkomsten omhoog \d+, nu \d+\..*Bereik: /);
+    expect(live?.textContent).toMatch(
+      /^Geplaatst: .+\. (Gebruikers|Geld) [+−].+, nu .+\..*Gebruikers: /
+    );
     expect(draftCards()[slot]).toHaveFocus();
   });
 
@@ -389,7 +395,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 3,
+    version: 4,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });

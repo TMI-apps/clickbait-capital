@@ -1,4 +1,3 @@
-import { Flag } from "lucide-react";
 import { BOARD_HEADING_ID } from "@/features/game-board/hooks/useBoardScreenReader";
 import { UI_COPY, fillTemplate } from "@/features/game-content/api";
 import type { PhaseProgressView } from "@/features/game-board/types/gameBoard.types";
@@ -7,52 +6,25 @@ export interface PhaseProgressProps {
   phase: PhaseProgressView;
 }
 
-/** Phase name, goal text, progress bar and the absolute stats the goal reads. */
-export const PhaseProgress = ({ phase }: PhaseProgressProps) => {
-  const percent = Math.round(phase.progress * 100);
-  return (
-    <section aria-label="Fase en mijlpaal" className="min-w-0 flex-1">
-      <h1
-        id={BOARD_HEADING_ID}
-        tabIndex={-1}
-        className="flex items-baseline gap-2 font-heading outline-none text-base leading-tight font-bold sm:text-lg"
-      >
-        <span className="shrink-0 text-xs font-semibold text-muted-foreground uppercase">
-          {fillTemplate(UI_COPY.board.phaseLabel, { phase: String(phase.phaseId) })}
-        </span>
-        <span className="truncate text-primary">{phase.phaseName}</span>
-      </h1>
-      <p className="flex items-center gap-1 text-xs text-muted-foreground">
-        <Flag aria-hidden="true" className="size-3.5 shrink-0" />
-        <span className="min-w-0">{phase.goalDescription}</span>
-      </p>
-      <div
-        role="progressbar"
-        aria-label="Voortgang mijlpaal"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={percent}
-        className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"
-      >
-        <div
-          className="h-full rounded-full bg-primary transition-[width] duration-(--duration-slow) ease-(--ease-standard)"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-      <p className="mt-0.5 flex flex-wrap gap-x-2 text-xs text-muted-foreground tabular-nums">
-        {phase.goalStats.map((text) => (
-          <span key={text}>{text}</span>
-        ))}
-        {phase.streak && (
-          <span>
-            {fillTemplate(UI_COPY.board.goalStreakLabel, {
-              streak: String(phase.streak.current),
-              needed: String(phase.streak.required),
-            })}
-          </span>
-        )}
-        <span>{fillTemplate(UI_COPY.board.turnLabel, { turn: String(phase.turn) })}</span>
-      </p>
-    </section>
-  );
-};
+/**
+ * Phase name and turn. The goal lives only in the score chart as two coloured goal lines
+ * (score-redesign D30); screen readers hear it in the goal summary and in each number's text.
+ */
+export const PhaseProgress = ({ phase }: PhaseProgressProps) => (
+  <section aria-label="Fase" className="min-w-0 flex-1">
+    <h1
+      id={BOARD_HEADING_ID}
+      tabIndex={-1}
+      className="flex items-baseline gap-2 font-heading outline-none text-base leading-tight font-bold sm:text-lg"
+    >
+      <span className="shrink-0 text-xs font-semibold text-muted-foreground uppercase">
+        {fillTemplate(UI_COPY.board.phaseLabel, { phase: String(phase.phaseId) })}
+      </span>
+      <span className="truncate text-primary">{phase.phaseName}</span>
+    </h1>
+    <p className="text-xs text-muted-foreground tabular-nums">
+      {fillTemplate(UI_COPY.board.turnLabel, { turn: String(phase.turn) })}
+    </p>
+    <p className="sr-only">{phase.goalDescription}</p>
+  </section>
+);
