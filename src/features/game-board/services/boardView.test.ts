@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
-import { SEED_CONTENT, createGame, playCard } from "@/features/game-engine/api";
+import { SEED_CONTENT, createGame, playCard, resolveEvent } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import {
   feedEntryForCard,
   feedEntryForEvent,
-  toCardEffects,
   toDraft,
   toEventView,
   toGameEnd,
@@ -19,13 +18,6 @@ import {
 const fresh = (): GameState => createGame({ content: SEED_CONTENT, seed: 1 });
 
 describe("boardView", () => {
-  it("should list only Geld and Gebruikers effects in board order when a card has hidden effects", () => {
-    expect(toCardEffects({ toxicity: 8, users: 12, revenue: -3, reputation: -2 })).toEqual([
-      { meter: "revenue", delta: -3 },
-      { meter: "users", delta: 12 },
-    ]);
-  });
-
   it("should show users and money with zero change when there is no previous action", () => {
     const tiles = toMeters(fresh(), SEED_CONTENT);
     expect(tiles.map((tile) => [tile.key, tile.amount, tile.delta])).toEqual([
@@ -122,20 +114,18 @@ describe("boardView draft and events", () => {
     expect(effects.some((effect) => effect.meter === "reputation")).toBe(false);
   });
 
-  it("should show phase-scaled effects on event options when the phase halves revenue gains", () => {
+  it("should show what each event option does in absolute amounts when an event is pending", () => {
     const state: GameState = {
       ...fresh(),
       status: "event",
       pendingEventId: "event-investeerders",
     };
-    const commercial = toEventView(state, SEED_CONTENT)?.options.find(
-      (option) => option.kind === "commercial"
-    );
-    // Phase 1 halves positive revenue (+15 raw); users loss is not scaled.
-    expect(commercial?.effects).toEqual([
-      { meter: "revenue", delta: 8 },
-      { meter: "users", delta: -5 },
-    ]);
+    for (const option of toEventView(state, SEED_CONTENT)?.options ?? []) {
+      const delta = resolveEvent(state, SEED_CONTENT, option.id).lastTurn!.delta;
+      const money = option.effects.find((effect) => effect.meter === "revenue");
+      expect(money?.delta ?? 0).toBe(delta.money);
+      expect(option.effects.every((effect) => effect.amountText !== undefined)).toBe(true);
+    }
   });
 
   it("should hide the draft and show the event when an event is pending", () => {

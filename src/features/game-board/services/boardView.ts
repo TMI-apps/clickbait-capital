@@ -1,6 +1,5 @@
 import type {
   CardDefinition,
-  Effects,
   EventDefinition,
   GameContent,
   GameState,
@@ -9,11 +8,11 @@ import type {
   ScoreKey,
 } from "@/features/game-engine/api";
 import {
-  eventOptionEffects,
   getHandCards,
   getPendingEvent,
   isJournalismDroughtActive,
   playCard,
+  resolveEvent,
   scandalChance,
 } from "@/features/game-engine/api";
 import type { SessionStep } from "@/features/game-session/api";
@@ -30,26 +29,12 @@ import type {
 import { SCORE_HISTORY_POINTS } from "@/features/game-board/types/gameBoard.types";
 import { stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 
-/**
- * Effect rows on cards and event options (score-redesign D13, D23): Geld and Gebruikers only.
- * Reputation and Toxicity stay hidden.
- */
-export const METER_ORDER: MeterKey[] = ["revenue", "users"];
-
 const countFormat = new Intl.NumberFormat("nl-NL");
 const euroFormat = new Intl.NumberFormat("nl-NL", {
   style: "currency",
   currency: "EUR",
   maximumFractionDigits: 0,
 });
-
-/** Visible effects of a card (reputation and Toxicity stay hidden, zeros are left out). */
-export function toCardEffects(effects: Effects): CardEffectView[] {
-  return METER_ORDER.flatMap((meter) => {
-    const delta = effects[meter] ?? 0;
-    return delta === 0 ? [] : [{ meter, delta }];
-  });
-}
 
 /** Geld at or below this many turns of passive costs is in danger: Bankroet is near. */
 const MONEY_DANGER_TURNS = 3;
@@ -265,7 +250,6 @@ export function toEventView(state: GameState, content: GameContent): EventView |
   if (!event) {
     return null;
   }
-  const phase = currentPhase(state, content);
   return {
     id: event.id,
     title: event.title,
@@ -274,7 +258,10 @@ export function toEventView(state: GameState, content: GameContent): EventView |
       id: option.id,
       kind: option.kind,
       label: option.label,
-      effects: toCardEffects(eventOptionEffects(option, phase)),
+      // Like the draft: what choosing it does, in absolute amounts, the scandal fine included.
+      effects: forecastEffects(
+        resolveEvent(state, content, option.id).lastTurn?.delta ?? { users: 0, money: 0 }
+      ),
     })),
   };
 }
