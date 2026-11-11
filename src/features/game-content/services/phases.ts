@@ -19,6 +19,7 @@ export const CONTENT_BALANCE: BalanceConfig = {
   echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
   scandal: { threshold: 30, rampPoints: 20, maxChance: 0.9, finePoints: 18 },
   eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
+  handMix: { oneOfEach: 0.6, pair: 0.35, triple: 0.05 },
 };
 
 export const CONTENT_PHASES: PhaseDefinition[] = [

@@ -8,7 +8,7 @@ import type {
   ScandalConfig,
 } from "@/features/game-engine/types/gameContent.types";
 import type { GameOverReason } from "@/features/game-engine/types/gameState.types";
-import { nextRandom } from "@/features/game-engine/services/seededRandom";
+import { nextRandom } from "@/shared/utils/seededRandom";
 
 /**
  * Progression rules: phase goals (two goal lines), the one game over, event triggers, the

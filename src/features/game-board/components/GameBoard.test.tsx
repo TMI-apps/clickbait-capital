@@ -60,7 +60,7 @@ const draftCards = (): HTMLElement[] =>
     .filter((button) => button.dataset.slot === "game-card");
 
 const DEFAULT_SEED = 11;
-/** First hand on `SEED_CONTENT`: viral, viral, news (seed 11 draws ad, ad, news). */
+/** First hand on `SEED_CONTENT` holds a viral card (seed 8 draws ad, ad, viral). */
 const VIRAL_SEED = 8;
 /** First hand on `SEED_CONTENT` holds an ad, and the hand after that ad holds news. */
 const AD_THEN_NEWS_SEED = 16;
@@ -71,6 +71,9 @@ const draftCardOfType = (type: string): HTMLElement => {
   if (!card) throw new Error(`this seed draws no ${type} card here`);
   return card;
 };
+
+/** The feed's type label per card type (game-content `UI_COPY.cardTypes`). */
+const TYPE_LABELS = { viral: "Viraal", ad: "Advertentie", news: "Nieuws" } as const;
 
 const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
 /** The feed's posts, without the comment lists nested in them. */
@@ -126,7 +129,8 @@ describe("GameBoard", () => {
     await user.keyboard("{Enter}");
     await confirmPlay(user);
 
-    expect(within(feed()).getByText("Advertentie")).toBeInTheDocument();
+    const label = TYPE_LABELS[second!.dataset.type as keyof typeof TYPE_LABELS];
+    expect(within(feed()).getByText(label)).toBeInTheDocument();
   });
 
   it("should require an option when an event interrupts the draft", async () => {
@@ -397,7 +401,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 5,
+    version: 6,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });

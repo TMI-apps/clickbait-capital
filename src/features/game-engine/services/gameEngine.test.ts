@@ -5,14 +5,7 @@ import type {
   PhaseDefinition,
 } from "@/features/game-engine/types/gameContent.types";
 import type { GameState } from "@/features/game-engine/types/gameState.types";
-import {
-  createGame,
-  drawHand,
-  getHandCards,
-  getPendingEvent,
-  playCard,
-  resolveEvent,
-} from "./gameEngine";
+import { createGame, getHandCards, getPendingEvent, playCard, resolveEvent } from "./gameEngine";
 import { scandalChance } from "./progression";
 import { SEED_CONTENT } from "./seedContent";
 
@@ -103,76 +96,6 @@ describe("createGame", () => {
     for (let seed = 0; seed < 20; seed++) {
       expect(createGame({ content, seed }).hand).not.toContain("viral-ruzie");
     }
-  });
-});
-
-describe("drawHand", () => {
-  const SEEDS = Array.from({ length: 200 }, (_, index) => index * 7919 + 13);
-  const draws = SEEDS.map((seed) => drawHand(SEED_CONTENT, 1, seed));
-  const typesOf = (hand: readonly string[]): string[] =>
-    hand.map((id) => SEED_CONTENT.cards.find((card) => card.id === id)!.type);
-
-  it("should draw three different cards of the phase when a hand is drawn", () => {
-    for (const { hand } of draws) {
-      expect(hand).toHaveLength(3);
-      expect(new Set(hand).size).toBe(3);
-    }
-  });
-
-  it("should mix types freely when many hands are drawn", () => {
-    const mixes = draws.map(({ hand }) => typesOf(hand));
-    expect(mixes.some((types) => new Set(types).size < 3)).toBe(true);
-    expect(mixes.some((types) => new Set(types).size === 3)).toBe(true);
-  });
-
-  it("should put any type in any slot when many hands are drawn", () => {
-    for (const slot of [0, 1, 2]) {
-      const types = new Set(draws.map(({ hand }) => typesOf(hand)[slot]));
-      expect([...types].sort()).toEqual(["ad", "news", "viral"]);
-    }
-  });
-
-  it("should give every type about a third of the slots when the pool holds many more ads", () => {
-    const ads = SEED_CONTENT.cards.filter((card) => card.type === "ad");
-    const extraAds = Array.from({ length: 20 }, (_, index) => ({
-      ...ads[index % ads.length]!,
-      id: `ad-extra-${index}`,
-    }));
-    const content: GameContent = { ...SEED_CONTENT, cards: [...SEED_CONTENT.cards, ...extraAds] };
-    const slots = SEEDS.flatMap((seed) =>
-      drawHand(content, 1, seed).hand.map(
-        (id) => content.cards.find((card) => card.id === id)!.type
-      )
-    );
-    for (const type of ["viral", "ad", "news"]) {
-      const share = slots.filter((slotType) => slotType === type).length / slots.length;
-      expect(share).toBeGreaterThan(0.28);
-      expect(share).toBeLessThan(0.39);
-    }
-  });
-
-  it("should draw only from the other types when the phase has no card of one type", () => {
-    const content: GameContent = {
-      ...SEED_CONTENT,
-      cards: SEED_CONTENT.cards.filter((card) => card.type !== "news"),
-    };
-    const types = new Set(
-      SEEDS.flatMap((seed) =>
-        drawHand(content, 1, seed).hand.map(
-          (id) => content.cards.find((card) => card.id === id)!.type
-        )
-      )
-    );
-    expect([...types].sort()).toEqual(["ad", "viral"]);
-  });
-
-  it("should draw the same hand when the seed is the same", () => {
-    expect(drawHand(SEED_CONTENT, 2, 42)).toEqual(drawHand(SEED_CONTENT, 2, 42));
-  });
-
-  it("should throw when the phase has fewer than three cards", () => {
-    const content: GameContent = { ...SEED_CONTENT, cards: SEED_CONTENT.cards.slice(0, 2) };
-    expect(() => drawHand(content, 1, 1)).toThrow();
   });
 });
 

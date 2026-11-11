@@ -278,5 +278,10 @@
     "title": "More vivid phase intro texts",
     "description": "Owner request: phase intros rewritten in a vivid second-person scene style ending in a dilemma question; boost added to the glossary. Owner approved the four texts in chat. PR #56.",
     "status": "done"
+  },
+  {
+    "title": "Deck draw: mixed hands and no repeats",
+    "description": "Player feedback: hands now lean to one of each type (60/35/5), seeded per-type piles put every shown card at the bottom, the last hand never repeats. Saves v6. PR #58. Decision log § deck-draw.",
+    "status": "done"
   }
 ]
