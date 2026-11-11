@@ -97,15 +97,16 @@ export interface PhaseDefinition {
   goal: PhaseGoal;
   /** Applied after every card turn (server and staff costs). */
   passiveCosts: Effects;
-  /** Gebruikers one authored users point of gain adds in this phase (score-redesign D11). */
-  usersPerPoint: number;
-  /** Euros per authored revenue point in this phase (gains and passive costs alike). */
-  moneyPerPoint: number;
   /**
-   * Users at which ads and commercial options pay their full amount (score-redesign D20): money
-   * gains scale with users / audienceUsers, between 0 and 1.5.
+   * Fixed Gebruikers one users point of gain adds in this phase, on top of the compounding share
+   * (`BalanceConfig.userGrowthPerPoint`), so an app with 0 users can start (exponential-growth D1).
    */
-  audienceUsers: number;
+  usersPerPoint: number;
+  /**
+   * Euros per revenue point of loss in this phase: passive costs, fines and paid event options.
+   * Money gains scale with users instead (`BalanceConfig.moneyPerUserPerPoint`).
+   */
+  moneyPerPoint: number;
   /** Multiplies negative reputation effects of cards, events and decay (reputation loss scales per phase). */
   reputationLossMultiplier: number;
   /** Multiplies positive revenue effects of cards and events (ads pay little in phase 1). */
@@ -120,11 +121,17 @@ export interface BalanceConfig {
   /** Hidden reputation at the start (0–100). */
   startReputation: number;
   /**
-   * Share of the current users one point of users loss removes (score-redesign D26): losses are
-   * relative, so a news card right after a phase change never wipes the users out; gains stay
-   * per phase (usersPerPoint), so growth does not compound.
+   * Share of the current users one point of users gain adds, on top of the phase's fixed
+   * `usersPerPoint` (exponential-growth D1): gains compound, so the users line curves upward.
    */
+  userGrowthPerPoint: number;
+  /** Share of the current users one point of users loss removes (score-redesign D26). */
   userLossPerPoint: number;
+  /**
+   * Euros one revenue point of gain pays per current user (exponential-growth D1): ads and
+   * commercial options turn the audience into money, so money grows with the users.
+   */
+  moneyPerUserPerPoint: number;
   /** Toxicity added when any non-news card is played ("nieuws negeren"). */
   newsIgnoredToxicity: number;
   /**

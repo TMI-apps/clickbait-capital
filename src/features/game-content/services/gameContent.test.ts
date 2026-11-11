@@ -68,6 +68,11 @@ describe("GAME_CONTENT integrity", () => {
   });
 
   it("should follow the design's card profile when effects are read per type", () => {
+    const viralUsers = GAME_CONTENT.cards
+      .filter((card) => card.type === "viral")
+      .map((card) => card.effects.users ?? 0);
+    // News grows the audience a little, always less than any viral card (exponential-growth D1).
+    const smallGrowth = (users: number): boolean => users > 0 && users < Math.min(...viralUsers);
     for (const card of GAME_CONTENT.cards) {
       const { revenue = 0, users = 0, reputation = 0, toxicity = 0 } = card.effects;
       if (card.type === "viral") {
@@ -75,7 +80,7 @@ describe("GAME_CONTENT integrity", () => {
       } else if (card.type === "ad") {
         expect([revenue > 0, users < 0, reputation <= 0], card.id).toEqual([true, true, true]);
       } else {
-        expect([reputation > 0, toxicity < 0, users < 0, revenue === 0], card.id).toEqual([
+        expect([reputation > 0, toxicity < 0, smallGrowth(users), revenue === 0], card.id).toEqual([
           true,
           true,
           true,

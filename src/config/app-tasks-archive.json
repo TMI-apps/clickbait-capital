@@ -293,5 +293,10 @@
     "title": "Score chart lines start in the bottom-left corner",
     "description": "Owner report: phase 1 lines did not start at the bottom left. Added a display-only zero launch point before turn 0 and let the plot reach the panel edges. PR #59. Decision log § chart-origin.",
     "status": "done"
+  },
+  {
+    "title": "Exponential growth: start at 0 users, compounding effects",
+    "description": "Owner request: runs start at 0 users and € 3.000; user gains are a phase base plus 6% of current users per point, ads pay per user, goals x10 per phase (10k/€20k to 10 mln/€20 mln), fines grow with users. Saves v7. PR #60. Decision log § exponential-growth.",
+    "status": "done"
   }
 ]

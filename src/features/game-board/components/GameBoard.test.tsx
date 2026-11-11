@@ -21,6 +21,8 @@ const EVENT_NOW: GameContent = {
   balance: {
     ...SEED_CONTENT.balance,
     startReputation: 0,
+    // Enough runway that the scandal fine and a paid option never end the run here.
+    startMoney: 100_000,
     scandal: { ...SEED_CONTENT.balance.scandal, maxChance: 1 },
     eventPacing: { ...SEED_CONTENT.balance.eventPacing, minTurnsBetween: 1 },
   },
@@ -112,8 +114,8 @@ describe("GameBoard", () => {
       "Geld",
     ]);
     expect(screen.getAllByRole("meter").map((m) => m.getAttribute("aria-valuenow"))).toEqual([
-      "50",
-      "67",
+      "0",
+      "15",
     ]);
     expect(draftCards()).toHaveLength(3);
     expect(screen.getByText("De Zolderkamer")).toBeInTheDocument();
@@ -401,7 +403,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 6,
+    version: 7,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });

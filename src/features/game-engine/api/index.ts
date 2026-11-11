@@ -14,10 +14,14 @@ export {
 export { drawHand, HAND_SIZE } from "@/features/game-engine/services/drawDeck";
 export {
   applyScore,
-  audienceFactor,
   scaleForPhase,
+  usersChange,
 } from "@/features/game-engine/services/turnEffects";
-export type { ScoreChange, ScoreSnapshot } from "@/features/game-engine/services/turnEffects";
+export type {
+  GrowthConfig,
+  ScoreChange,
+  ScoreSnapshot,
+} from "@/features/game-engine/services/turnEffects";
 export { goalReached, scandalChance } from "@/features/game-engine/services/progression";
 export type { CreateGameOptions } from "@/features/game-engine/services/gameEngine";
 export { SEED_CONTENT } from "@/features/game-engine/services/seedContent";

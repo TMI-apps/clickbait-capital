@@ -12,7 +12,7 @@ import type { TurnModifiers } from "@/features/game-engine/types/gameState.types
 /**
  * Per-turn rule math: card modifiers (Ad-Fatigue, Echo-Chamber),
  * phase scaling, passive costs, reputation decay, toxicity drain, and how points land on the
- * absolute score (score-redesign D11, D20). Pure; no game-state shape.
+ * absolute score (exponential-growth D1). Pure; no game-state shape.
  */
 
 const METER_MIN = 0;
@@ -33,7 +33,7 @@ export interface CardTurnInput {
 
 /** The outcome of one card turn, plus the updated streak counters. */
 export interface CardTurnResult {
-  /** The card's own effect after modifiers and phase scaling (its gain is scaled by the audience). */
+  /** The card's own effect after modifiers and phase scaling (its money gain scales with users). */
   cardEffects: FullEffects;
   /** Card effects plus passive costs, reputation decay and toxicity drain. */
   totalEffects: FullEffects;
@@ -174,16 +174,6 @@ function clamp(value: number): number {
   return Math.min(METER_MAX, Math.max(METER_MIN, value));
 }
 
-const AUDIENCE_MAX = 1.5;
-
-/** How much ads pay at this many users: users / audienceUsers, 0–1.5 (score-redesign D20). */
-export function audienceFactor(users: number, phase: PhaseDefinition): number {
-  if (!(phase.audienceUsers > 0)) {
-    throw new Error(`game-engine: phase ${phase.id} needs a positive audienceUsers`);
-  }
-  return Math.min(AUDIENCE_MAX, Math.max(0, users / phase.audienceUsers));
-}
-
 /** The score and hidden values one turn changes. */
 export interface ScoreSnapshot {
   users: number;
@@ -197,27 +187,48 @@ export interface ScoreChange extends ScoreSnapshot {
   delta: Record<ScoreKey, number>;
 }
 
+/** The balance values that turn points into users and euros (exponential-growth D1). */
+export type GrowthConfig = Pick<
+  BalanceConfig,
+  "userGrowthPerPoint" | "userLossPerPoint" | "moneyPerUserPerPoint"
+>;
+
 /**
- * Lands one turn on the score (score-redesign D11, D20, D26): users gains × `usersPerPoint`,
- * users losses take `userLossPerPoint` of the current users per point; money: the gain part of `gainEffects` scaled by the audience before the turn,
- * the rest of `effects.revenue` (losses, passive costs) at full price. Reputation and Toxicity
- * clamp to 0–100. `gainEffects` defaults to `effects` (events have no costs).
+ * Users one turn adds or removes (exponential-growth D1): a gain point adds the phase's fixed
+ * `usersPerPoint` (so an app with 0 users can grow) plus `userGrowthPerPoint` of the current
+ * users, so growth compounds; a loss point takes `userLossPerPoint` of the current users.
+ */
+export function usersChange(
+  users: number,
+  points: number,
+  context: { phase: PhaseDefinition; growth: GrowthConfig }
+): number {
+  const { phase, growth } = context;
+  if (points >= 0) {
+    return Math.round(points * (phase.usersPerPoint + growth.userGrowthPerPoint * users));
+  }
+  return -Math.round(users * Math.min(1, -points * growth.userLossPerPoint));
+}
+
+/**
+ * Lands one turn on the score (exponential-growth D1): users per `usersChange`; money gains (the
+ * gain part of `gainEffects`) pay `moneyPerUserPerPoint` euros per current user and point, so ads
+ * turn the audience into money; the rest of `effects.revenue` (losses, passive costs) costs the
+ * phase's `moneyPerPoint` euros per point. Reputation and Toxicity clamp to 0–100.
+ * `gainEffects` defaults to `effects` (events have no costs).
  */
 export function applyScore(
   current: ScoreSnapshot,
   effects: FullEffects,
-  context: { phase: PhaseDefinition; userLossPerPoint: number; gainEffects?: FullEffects }
+  context: { phase: PhaseDefinition; growth: GrowthConfig; gainEffects?: FullEffects }
 ): ScoreChange {
-  const { phase } = context;
+  const { phase, growth } = context;
   const gain = Math.max(0, (context.gainEffects ?? effects).revenue);
   const rest = effects.revenue - gain;
   const moneyDelta = Math.round(
-    gain * phase.moneyPerPoint * audienceFactor(current.users, phase) + rest * phase.moneyPerPoint
+    gain * growth.moneyPerUserPerPoint * current.users + rest * phase.moneyPerPoint
   );
-  const usersDelta =
-    effects.users >= 0
-      ? Math.round(effects.users * phase.usersPerPoint)
-      : -Math.round(current.users * Math.min(1, -effects.users * context.userLossPerPoint));
+  const usersDelta = usersChange(current.users, effects.users, { phase, growth });
   const users = Math.max(0, current.users + usersDelta);
   const money = current.money + moneyDelta;
   return {

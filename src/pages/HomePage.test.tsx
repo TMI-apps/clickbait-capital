@@ -49,7 +49,7 @@ describe("HomePage", () => {
   });
 
   it("should offer to continue or start a new game when a run is saved", () => {
-    writeSavedRun({ version: 6, seed: 1, actions: [{ kind: "card", cardId: "x" }] });
+    writeSavedRun({ version: 7, seed: 1, actions: [{ kind: "card", cardId: "x" }] });
 
     renderWithProviders(<HomePage />);
 
