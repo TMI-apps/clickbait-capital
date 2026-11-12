@@ -1,3 +1,4 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import type { JuiceAction } from "@/features/game-juice/types/juice.types";
 
 /**

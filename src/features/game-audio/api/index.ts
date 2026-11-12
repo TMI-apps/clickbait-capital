@@ -15,4 +15,5 @@ export { SOUND_EFFECT_IDS } from "@/features/game-audio/types/soundEffect.types"
 export type {
   SoundEffectId,
   SoundManifestEntry,
+  SoundPlayOptions,
 } from "@/features/game-audio/types/soundEffect.types";

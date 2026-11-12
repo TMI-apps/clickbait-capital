@@ -5,6 +5,7 @@ import { SOUND_EFFECT_IDS } from "@/features/game-audio/types/soundEffect.types"
 
 const createFakeContext = () => {
   const started: number[] = [];
+  const rates: number[] = [];
   const gains: number[] = [];
   const context = {
     state: "suspended",
@@ -17,6 +18,11 @@ const createFakeContext = () => {
       () =>
         ({
           buffer: null,
+          playbackRate: {
+            set value(rate: number) {
+              rates.push(rate);
+            },
+          },
           connect: vi.fn(),
           start: vi.fn(() => started.push(1)),
         }) as unknown as AudioBufferSourceNode
@@ -27,7 +33,7 @@ const createFakeContext = () => {
       return node as unknown as GainNode;
     }),
   };
-  return { context: context as AudioContextLike & typeof context, started, gains };
+  return { context: context as AudioContextLike & typeof context, started, gains, rates };
 };
 
 const setup = (initialMuted = false) => {
@@ -71,6 +77,17 @@ describe("createSoundPlayer", () => {
 
     expect(fake.started).toHaveLength(1);
     expect(fake.gains).toEqual([SOUND_MANIFEST["card-news"].volume]);
+  });
+
+  it("should scale the manifest volume and set the pitch when play options are given", async () => {
+    const { player, fake } = setup();
+    await player.unlock();
+
+    player.play("card-viral", { volume: 0.5, rate: 1.2 });
+    await Promise.resolve();
+
+    expect(fake.gains).toEqual([SOUND_MANIFEST["card-viral"].volume * 0.5]);
+    expect(fake.rates).toEqual([1.2]);
   });
 
   it("should not play when muted and should remember the choice", async () => {

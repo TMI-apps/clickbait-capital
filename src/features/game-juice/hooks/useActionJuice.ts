@@ -1,8 +1,13 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
+import { useReducedMotion } from "@/features/game-settings/api";
 import { useShake } from "@/features/game-juice/hooks/useShake";
-import { planJuice, WIN_PARTICLE_COUNT } from "@/features/game-juice/services/juicePlan";
-import { particlePaths } from "@/features/game-juice/services/particlePaths";
+import {
+  PARTICLE_GLYPHS,
+  planJuice,
+  WIN_PARTICLE_COUNT,
+} from "@/features/game-juice/services/juicePlan";
+import { particlePaths, type ParticlePath } from "@/features/juice-effects/api";
 import type {
   JuiceAction,
   JuiceMeter,
@@ -10,7 +15,6 @@ import type {
   JuiceMeterDelta,
   JuicePlan,
   ParticleKind,
-  ParticlePath,
   ScreenPoint,
 } from "@/features/game-juice/types/juice.types";
 
@@ -60,7 +64,7 @@ export function useParticleBurst({
   getOrigin,
   target,
 }: UseParticleBurstOptions): ParticleBurst | null {
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
   const [burst, setBurst] = useState<ParticleBurst | null>(null);
 
   useLayoutEffect(() => {
@@ -71,7 +75,7 @@ export function useParticleBurst({
     const viewport = viewportSize();
     const start = getOrigin() ?? { x: viewport.x / 2, y: viewport.y * 0.6 };
     const paths = particlePaths({
-      kind,
+      glyphs: PARTICLE_GLYPHS[kind],
       count,
       origin: start,
       target: meterCenter(target),
@@ -140,7 +144,7 @@ export function useActionJuice<M extends JuiceMeterInput>({
   ...current
 }: UseActionJuiceOptions<M>): ActionJuice<M> {
   const { action, meters, key } = useShownAction(current, hold);
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
   const [mountKey] = useState(key);
   const origin = useRef<ScreenPoint | null>(null);
   const shakeRef = useRef<HTMLDivElement>(null);

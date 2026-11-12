@@ -35,12 +35,19 @@ const HowToPlayPage = lazy(() =>
 const PrivacyPage = lazy(() =>
   import("@/pages/PrivacyPage").then((m) => ({ default: m.PrivacyPage }))
 );
+const JuiceInspectorPage = lazy(() =>
+  import("@/pages/JuiceInspectorPage").then((m) => ({ default: m.JuiceInspectorPage }))
+);
+/** The game's juice host (stage + director): its own chunk, so the main bundle stays small. */
+const GameJuiceRoot = lazy(() =>
+  import("@/features/game-juice/api/root").then((m) => ({ default: m.GameJuiceRoot }))
+);
 const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
 
 /** Routes that fill the screen without the Topbar (the game has its own pause menu). */
-const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel"]);
+const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel", "/juice"]);
 
 const reportRenderError = (error: Error): void => reportError(error, "react");
 
@@ -71,12 +78,17 @@ function AppContent() {
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/spel" element={<GamePage />} />
+                {/* Dev tool: hidden and unlinked, not a public path (juice-core D6). */}
+                <Route path="/juice" element={<JuiceInspectorPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </Suspense>
           </BrowserSupportGate>
         </QueryErrorBoundary>
       </div>
+      <Suspense fallback={null}>
+        <GameJuiceRoot />
+      </Suspense>
       <OfflineBanner />
       <UpdatePrompt />
       <DevTasksFab />

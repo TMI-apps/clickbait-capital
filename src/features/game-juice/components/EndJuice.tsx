@@ -1,6 +1,7 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import type { ReactNode } from "react";
 import { useEndBurst } from "@/features/game-juice/hooks/useActionJuice";
-import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
+import { useReducedMotion } from "@/features/game-settings/api";
 import { JuiceLayer } from "./JuiceLayer";
 
 export interface EndJuiceProps {
@@ -14,7 +15,7 @@ export interface EndJuiceProps {
  * motion shows the screen at once with no particles or flash.
  */
 export const EndJuice = ({ outcome, children }: EndJuiceProps) => {
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
   const burst = useEndBurst(outcome);
   const flash = outcome === "won" ? "win" : "loss";
   return (

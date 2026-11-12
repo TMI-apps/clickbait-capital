@@ -1,3 +1,4 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import type { CardType, GameContent, GameState, ScoreKey } from "@/features/game-engine/api";
 import type { SoundEffectId } from "@/features/game-audio/api";
 import type { SessionState } from "@/features/game-session/api";

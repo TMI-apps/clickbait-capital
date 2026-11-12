@@ -24,3 +24,24 @@ export type {
   MeterAccent,
   MeterFlash,
 } from "@/features/game-juice/types/juice.types";
+export {
+  GAME_JUICE_BOOK,
+  GAME_JUICE_STORAGE_KEY,
+  createGameJuiceEffects,
+  emitJuice,
+  gameJuiceBus,
+  getGameJuiceTuning,
+} from "@/features/game-juice/services/gameJuiceRuntime";
+export type { GameJuiceEvents } from "@/features/game-juice/services/gameJuiceRuntime";
+export { GAME_JUICE_RECIPES } from "@/features/game-juice/services/gameJuiceRecipes";
+export type {
+  GameJuiceRecipe,
+  GameJuiceRecipeBook,
+} from "@/features/game-juice/services/gameJuiceRecipes";
+export type {
+  GameJuiceCatalog,
+  GameJuiceEventName,
+  JuiceCardVariant,
+  JuiceMeterKey,
+  JuiceOptionVariant,
+} from "@/features/game-juice/types/gameJuiceEvents.types";
