@@ -16,6 +16,7 @@ Updated: 2026-11-12
 | D7 | Comment anchor | closed | `PostComments` gets an optional `latestRef` (presentational: the ref of the newest shown comment); the board passes the juice anchor `comment:latest` | loop-plan | lost: querying the DOM from the board |
 
 | D8 | Goal callout over the chart | closed | "Doel gehaald!" pops in the chart's centre, not on the tile: on the tile it covered the new amount and its floater (seen on the desktop play-test); the tile keeps its glow and particles | loop-check (play-test) | |
+| D9 | No moments on the last action | closed | `goal.reached` / `money.danger` can't stack on `run.won` / `run.lost`: on `view.end` `GameBoard` renders the end flow instead of `PlayingBoard`, so the reveal never plays; a reduced-motion batch (comments revealed at once) pops once (`comment.arrived` cooldown 60 ms, under the fastest 200 ms pace) | loop-check (review) | |
 
 ## Open
 

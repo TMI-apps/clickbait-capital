@@ -96,7 +96,7 @@ describe("useScandalWarningJuice", () => {
 });
 
 describe("useCommentArrivals", () => {
-  it("should pop each new comment but not the comments shown at mount", () => {
+  it("should pop each new comment when shown grows but stay quiet when the batch was shown at mount", () => {
     const { rerender } = renderHook(({ key, shown }) => useCommentArrivals(key, shown), {
       initialProps: { key: 1 as number | null, shown: 3 },
     });

@@ -147,8 +147,10 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     cooldownMs: 400,
     steps: [{ effect: "glow", target: "chart", color: "primary", times: 1, duration: 420 }],
   },
-  // Plays 2–4 times in a row: quiet, varied, no vibration.
+  // Plays 2–4 times in a row: quiet, varied, no vibration. The cooldown merges the pops of a
+  // batch revealed at once (reduced motion); the fastest pace is 200 ms apart, so it keeps those.
   "comment.arrived": {
+    cooldownMs: 60,
     steps: [
       { effect: "sound", id: "comment-pop", rateJitter: 0.08 },
       { effect: "pop", target: "comment:latest", scale: 1.04, duration: 200 },
