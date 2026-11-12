@@ -68,6 +68,7 @@ Name any new symbol per `.claude/rules/code-style.md` § Naming.
 - State: feature slices `features/*/store/`, composition `store/index.ts`, cross-feature `shared/context/`.
 - Route guards → `routes/guards/`, using `src/features/auth/hooks/useAuth.ts` (no second auth hook in `shared/hooks/`).
 - Notifications/toasts → one `features/notifications/`, not split across common + shared.
+- Feedback / juice (motion, particles, sounds, vibration on a moment) → emit a game-juice event (`emitJuice`) at the moment; recipes live in `features/game-juice/`; never call effects or sounds from gameplay or UI.
 - Error boundaries → `components/common/ErrorBoundary/`; reporting service → `shared/services/`.
 - Keyboard shortcuts: global → one hook in `shared/hooks/`; feature → `features/*/hooks/`.
 - Cross-feature transforms: the consumer owns it; 2+ consumers → `shared/utils/transformers/`.

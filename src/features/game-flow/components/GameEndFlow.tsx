@@ -11,12 +11,14 @@ export interface GameEndFlowProps {
 
 /** End of a run: the dramatic ending first, then the sober results with the report. */
 export const GameEndFlow = ({ summary, onRestart, onQuit }: GameEndFlowProps) => {
-  const { ending, results, share, shareCopy, showResults, openResults } = useGameEndFlow(summary);
+  const { ending, results, share, shareCopy, showResults, openResults, onShareOutcome } =
+    useGameEndFlow(summary);
   return showResults ? (
     <ResultsScreen
       results={results}
       share={share}
       shareCopy={shareCopy}
+      onShareOutcome={onShareOutcome}
       onRestart={onRestart}
       onQuit={onQuit}
     />

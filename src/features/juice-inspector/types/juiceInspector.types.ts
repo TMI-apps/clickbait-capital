@@ -28,4 +28,11 @@ export interface InspectorAnchorNames {
   outcomes: readonly string[];
   /** The end-of-run screen. */
   endScreen: string;
+  /** The ending's icon (bell / server) inside the end screen. */
+  endingIcon: string;
+  /** The event dialog panel. */
+  eventDialog: string;
+  /** The phase intro's current step dot and goal box. */
+  phaseStep: string;
+  phaseGoal: string;
 }

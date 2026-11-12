@@ -12,7 +12,8 @@ export interface EventPadProps {
 export const EventPad = ({ entries, selected, onTrigger }: EventPadProps) => {
   const domains = [...new Set(entries.map((entry) => entry.domain))];
   return (
-    <section aria-labelledby="juice-events" className="flex flex-col gap-3">
+    // Each trigger plays its own event, not the press tap on top.
+    <section aria-labelledby="juice-events" data-juice-press="off" className="flex flex-col gap-3">
       <h2 id="juice-events" className="text-base font-semibold">
         Events
       </h2>

@@ -17,10 +17,17 @@ const MOCK_ANCHORS = new Set<string>([
   INSPECTOR_ANCHORS.comment,
   INSPECTOR_ANCHORS.button,
   INSPECTOR_ANCHORS.endScreen,
+  INSPECTOR_ANCHORS.endingIcon,
+  INSPECTOR_ANCHORS.eventDialog,
+  INSPECTOR_ANCHORS.phaseStep,
+  INSPECTOR_ANCHORS.phaseGoal,
   INSPECTOR_ANCHORS.scandal,
   ...INSPECTOR_ANCHORS.meters,
   ...INSPECTOR_ANCHORS.outcomes,
 ]);
+
+/** Targets the engine or the app shell provide: the viewport, the payload's origin, the page. */
+const APP_TARGETS = new Set(["screen", "origin", "page"]);
 
 describe("inspectorEntries", () => {
   it("should list every event and every variant when built from the game's recipes", () => {
@@ -40,7 +47,7 @@ describe("inspectorEntries", () => {
           .map((key) => step[key])
           .filter((ref): ref is string => typeof ref === "string")
           .map((ref) => fillJuiceTemplate(ref, payload.vars))
-          .filter((ref) => ref !== "screen" && ref !== "origin" && !MOCK_ANCHORS.has(ref))
+          .filter((ref) => !APP_TARGETS.has(ref) && !MOCK_ANCHORS.has(ref))
       );
     });
     expect(missing).toEqual([]);

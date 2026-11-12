@@ -1,6 +1,7 @@
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { getPhaseImage } from "@/features/card-imagery/api";
+import { gameJuiceBus } from "@/features/game-juice/api";
 import { PhaseTransitionScreen } from "@/features/game-flow/components/PhaseTransitionScreen";
 import { renderWithProviders } from "tests/test-utils";
 
@@ -24,5 +25,29 @@ describe("PhaseTransitionScreen", () => {
     fireEvent.error(screen.getByRole("img"));
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
+  });
+
+  it("should stop the phase intro when the player leaves the screen before it played", () => {
+    const stopped: string[] = [];
+    const stop = gameJuiceBus.listenStop((tag) => stopped.push(tag));
+    const { unmount } = renderWithProviders(
+      <PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />
+    );
+    unmount();
+    stop();
+    expect(stopped).toEqual(["phase-intro"]);
+  });
+
+  it("should play the phase intro of its phase once when the screen opens", () => {
+    const heard: string[] = [];
+    const stop = gameJuiceBus.listen((name, payload) => heard.push(`${name}:${payload.variant}`));
+    // The bus holds events emitted while nothing listened (the tests above); drop those.
+    heard.length = 0;
+    const { rerender } = renderWithProviders(
+      <PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />
+    );
+    rerender(<PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />);
+    stop();
+    expect(heard).toEqual(["phase.intro:2"]);
   });
 });

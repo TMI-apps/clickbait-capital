@@ -4,6 +4,7 @@ import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import type { EndingView } from "@/features/game-flow/types/gameFlow.types";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { cn } from "@/shared/utils/cn";
 import { FlowScreen } from "./FlowScreen";
 
@@ -22,6 +23,8 @@ export interface EndingScreenProps {
 export const EndingScreen = ({ ending, onContinue }: EndingScreenProps) => {
   const lost = ending.outcome === "lost";
   const Icon = ENDING_ICON[ending.reason ?? "won"];
+  // `run.won` rings the bell (pop + gold glow), `run.lost` shakes the dead server.
+  const iconAnchor = useJuiceAnchor("ending:icon");
   return (
     <FlowScreen
       tone="dramatic"
@@ -29,6 +32,7 @@ export const EndingScreen = ({ ending, onContinue }: EndingScreenProps) => {
       title={ending.title}
       icon={
         <span
+          ref={iconAnchor}
           className={cn(
             "relative inline-flex size-16 items-center justify-center rounded-full",
             lost ? "bg-destructive/15 text-destructive" : "bg-primary/15 text-primary"

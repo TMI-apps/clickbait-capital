@@ -28,6 +28,12 @@ const AnchorName = ({ children }: { children: ReactNode }) => (
   <span className="block truncate font-mono text-xs text-muted-foreground">{children}</span>
 );
 
+/** The phase intro's current step dot (`phase:step`), inside the goal box. */
+const StepDot = ({ name }: { name: string }) => {
+  const ref = useJuiceAnchor(name);
+  return <span ref={ref} aria-hidden="true" className="block h-1.5 w-8 rounded-full bg-primary" />;
+};
+
 const COUNTER_LABELS: Record<string, string> = {
   "meter:users": "Gebruikers",
   "meter:revenue": "Geld",
@@ -36,8 +42,9 @@ const COUNTER_LABELS: Record<string, string> = {
 /**
  * A small mock of the board with every anchor the game's recipes target, laid out like the
  * real one: the score chart with its two counters and the scandal warning, an event outcome's
- * rows, the drop slot, the newest post with a comment, a card (the event origin) and a button,
- * all inside the end screen
+ * rows, the drop slot, the newest post with a comment, a card (the event origin), a button,
+ * the event dialog, the phase intro's step dot and goal, and the ending icon, all inside the end
+ * screen
  * anchor. Labels show the anchor names that recipe steps use.
  */
 export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) => (
@@ -83,6 +90,20 @@ export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) =
         </Anchor>
         <Anchor name={anchors.button} className="px-4">
           <span className="font-semibold">Knop</span>
+        </Anchor>
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        <Anchor name={anchors.eventDialog} className="py-1">
+          <span className="block font-semibold">Dialoog</span>
+          <AnchorName>{anchors.eventDialog}</AnchorName>
+        </Anchor>
+        <Anchor name={anchors.phaseGoal} className="flex flex-col gap-1 py-1">
+          <StepDot name={anchors.phaseStep} />
+          <AnchorName>{anchors.phaseGoal}</AnchorName>
+        </Anchor>
+        <Anchor name={anchors.endingIcon} className="py-1 text-center">
+          <span className="block font-semibold">🔔</span>
+          <AnchorName>{anchors.endingIcon}</AnchorName>
         </Anchor>
       </div>
     </Anchor>

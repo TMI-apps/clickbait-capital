@@ -37,7 +37,8 @@ export const CardDetailDialog = ({
             <Button variant="outline" className="min-h-11" onClick={onClose}>
               {UI_COPY.board.cancelPlay}
             </Button>
-            <Button className="min-h-11" onClick={() => onPlay(card.id)}>
+            {/* The play has its own juice (`card.played`), not the press tap. */}
+            <Button className="min-h-11" data-juice-press="off" onClick={() => onPlay(card.id)}>
               {UI_COPY.board.confirmPlay}
             </Button>
           </>

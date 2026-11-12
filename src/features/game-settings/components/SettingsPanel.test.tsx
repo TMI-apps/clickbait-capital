@@ -1,17 +1,41 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithProviders } from "tests/test-utils";
 import { SettingsPanel } from "./SettingsPanel";
 
 /** Mirrors the stored keys (components may not import services). */
 const MUTE_KEY = "clickbait-capital:audio-muted";
 const MOTION_KEY = "clickbait-capital:motion";
+const HAPTICS_KEY = "clickbait-capital:haptics";
 
 const group = (name: string): HTMLElement => screen.getByRole("group", { name });
 
 describe("SettingsPanel", () => {
-  afterEach(() => window.localStorage.clear());
+  afterEach(() => {
+    window.localStorage.clear();
+    vi.unstubAllGlobals();
+  });
+
+  it("should hide Trillen when the browser cannot vibrate", () => {
+    vi.stubGlobal("navigator", { ...navigator, vibrate: undefined });
+    renderWithProviders(<SettingsPanel />);
+    expect(screen.queryByRole("group", { name: "Trillen" })).not.toBeInTheDocument();
+  });
+
+  it("should store Trillen off when Uit is pressed on a phone that can vibrate", async () => {
+    vi.stubGlobal("navigator", { ...navigator, vibrate: vi.fn() });
+    const user = userEvent.setup();
+    renderWithProviders(<SettingsPanel />);
+
+    expect(within(group("Trillen")).getByRole("button", { name: "Aan" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    await user.click(within(group("Trillen")).getByRole("button", { name: "Uit" }));
+    expect(window.localStorage.getItem(HAPTICS_KEY)).toBe("off");
+    await user.click(within(group("Trillen")).getByRole("button", { name: "Aan" }));
+  });
 
   it("should switch sound off through the shared mute state when Uit is pressed", async () => {
     const user = userEvent.setup();

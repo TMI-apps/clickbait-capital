@@ -24,6 +24,7 @@ export type {
 export {
   EVENT_OUTCOME_TAG,
   SCANDAL_WARNING_TAG,
+  PHASE_INTRO_TAG,
   GAME_JUICE_RECIPES,
 } from "@/features/game-juice/services/gameJuiceRecipes";
 export type {
@@ -36,5 +37,6 @@ export type {
   JuiceCardVariant,
   JuiceMeterKey,
   JuiceOptionVariant,
+  JuicePhaseVariant,
   JuiceScandalLevel,
 } from "@/features/game-juice/types/gameJuiceEvents.types";

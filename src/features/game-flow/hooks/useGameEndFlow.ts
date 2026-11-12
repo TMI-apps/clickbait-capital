@@ -1,7 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import type { ShareCardContent, ShareResultCopy } from "@/features/result-share/api";
+import { emitJuice } from "@/features/game-juice/api";
+import type { ShareCardContent, ShareOutcome, ShareResultCopy } from "@/features/result-share/api";
 import {
   SHARE_RESULT_COPY,
+  shareJuiceVariant,
   toEndingView,
   toResultsView,
   toShareCardContent,
@@ -21,7 +23,14 @@ export interface GameEndFlowState {
   /** False while the ending shows, true once the player opened the results. */
   showResults: boolean;
   openResults: () => void;
+  /** A share finished: its juice starts on the share button (`share.done`). */
+  onShareOutcome: (outcome: ShareOutcome, button: Element | null) => void;
 }
+
+const onShareOutcome = (outcome: ShareOutcome, button: Element | null): void => {
+  const variant = shareJuiceVariant(outcome);
+  if (variant) emitJuice("share.done", { variant, origin: button });
+};
 
 /** Ending → results step of a finished run, with both views derived from the run summary. */
 export function useGameEndFlow(summary: RunSummary): GameEndFlowState {
@@ -30,5 +39,13 @@ export function useGameEndFlow(summary: RunSummary): GameEndFlowState {
   const results = useMemo(() => toResultsView(summary), [summary]);
   const share = useMemo(() => toShareCardContent(summary), [summary]);
   const openResults = useCallback(() => setShowResults(true), []);
-  return { ending, results, share, shareCopy: SHARE_RESULT_COPY, showResults, openResults };
+  return {
+    ending,
+    results,
+    share,
+    shareCopy: SHARE_RESULT_COPY,
+    showResults,
+    openResults,
+    onShareOutcome,
+  };
 }

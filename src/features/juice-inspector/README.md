@@ -42,6 +42,7 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 
 - **D1 — Hidden route, all builds (juice-core D6).** The owner tunes on previews. The route is lazy, so players pay nothing for it.
 - **D2 — Real bus, real director (A11).** The inspector emits on `gameJuiceBus`, and the director mounted by `GameJuiceRoot` plays the event. What you see is what the game does. The controls come from the effects' `params`, so a new primitive is editable as soon as it is registered.
+- **D5 — Flow anchors and the press tap (juice-wiring-flow).** The mock board also has the event dialog, the phase intro's step dot and goal, and the ending icon; `page` is the app's own content wrapper (`[data-juice-page]`, around the inspector too), so `page.opened` plays on the real page. The event pad is `data-juice-press="off"`: a trigger plays only its event, not the tap on top. Tests render the root inside a router (it plays the page entrance).
 - **D4 — The mock board mirrors the anchors (juice-wiring-board).** Every recipe target has a block on the mock board (`INSPECTOR_ANCHORS`, test-enforced), incl. the drop slot `feed:drop` and the newest comment `comment:latest`; events with vars get sample vars (`goal.reached` → Gebruikers).
 - **D3 — The real Beweging setting.** "Preview reduced motion" changes the actual setting, the same way the settings screen does. No separate gate is invented for the inspector.
 
