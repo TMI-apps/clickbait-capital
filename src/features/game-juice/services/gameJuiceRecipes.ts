@@ -17,6 +17,9 @@ export interface GameJuiceRecipe<K extends GameJuiceEventName> {
   tag?: string;
 }
 
+/** Tag of the outcome recipes: their marks sit on the dialog's rows and end when it closes. */
+export const EVENT_OUTCOME_TAG = "event-outcome";
+
 export type GameJuiceRecipeBook = { [K in GameJuiceEventName]: GameJuiceRecipe<K> };
 
 /*
@@ -116,6 +119,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     },
   },
   "event.outcome": {
+    tag: EVENT_OUTCOME_TAG,
     variants: {
       engagement: [
         { effect: "glow", target: "outcome:users", color: "type-viral", times: 2, duration: 760 },
@@ -130,6 +134,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
   },
   // Outcome rows pop in together, so the flash and the count-up stay in step (event-juice-drop D2).
   "outcome.row": {
+    tag: EVENT_OUTCOME_TAG,
     variants: {
       gain: [
         { effect: "enter", target: "{row}", dy: -12, scale: 0.9, duration: 420 },
@@ -178,7 +183,14 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       { effect: "enter", target: "end-screen", dy: 0, scale: 0.92, duration: 760 },
       { effect: "haptic", pattern: "30 60 30 60 50" },
       { effect: "flash", target: "screen", color: "type-ad", opacity: 0.25, duration: 760 },
-      { effect: "particles", from: "screen", glyphs: "🎉💸🚀✨", count: 14, duration: 760 },
+      {
+        effect: "particles",
+        from: "screen",
+        glyphs: "🎉💸🚀✨",
+        count: 14,
+        duration: 760,
+        glow: "type-ad",
+      },
     ],
   },
   "run.lost": {

@@ -43,7 +43,7 @@ describe("juice motion CSS", () => {
     }
   });
 
-  it("should keep no CSS keyframes for juice that moved to the recipes", () => {
+  it("should keep no CSS keyframes when that juice moved to the recipes", () => {
     for (const name of [
       "juice-particle",
       "juice-pop",

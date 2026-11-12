@@ -4,7 +4,7 @@ The game-agnostic runtime of the juice system: gameplay **emits semantic events*
 
 ## Purpose
 
-- `createJuiceBus<Events>()` — typed `emit(name, payload)` / `listen(listener)`. A failing listener never breaks gameplay. Events emitted before anything listens (the lazy host still loading) wait, up to 16, and reach the first listener if they are at most 1 s old; older ones are dropped (juice is never load-bearing).
+- `createJuiceBus<Events>()` — typed `emit(name, payload)` / `listen(listener)`, plus `stop(tag)` / `listenStop(listener)` to end tagged recipes (wired to `director.stop` by `useJuiceDirector`). A failing listener never breaks gameplay. Events emitted before anything listens (the lazy host still loading) wait, up to 16, and reach the first listener if they are at most 1 s old; older ones are dropped (juice is never load-bearing).
 - `createJuiceDirector(...)` — plays a recipe: shared `steps`, then `variants[payload.variant]`; each step after `at` × motion scale; gated per channel; scaled by intensity × payload `strength`; flash guard, concurrency cap, cooldowns, `stop(tag)`, `cancelAll()`.
 - `createJuiceTuning(...)` — the one place juice is adjusted: shipped recipes ⊕ per-step overrides, global knobs (intensity, motion scale, volume, haptics), persisted (debounced), JSON export, `reload` for other tabs.
 - `defineJuiceEffect(...)` — declares an effect primitive: id, channel, reduced-motion behaviour, tunable params (unit, range, optional `default` for params a step may leave out), `run`. The inspector draws its controls from these params.

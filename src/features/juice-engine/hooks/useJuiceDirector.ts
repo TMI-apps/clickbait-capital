@@ -10,6 +10,8 @@ import type {
 export interface UseJuiceDirectorOptions {
   /** The bus's `listen`. */
   listen: (listener: JuiceListener) => () => void;
+  /** The bus's `listenStop` (tagged stops), if the caller wants them. */
+  listenStop?: (listener: (tag: string) => void) => () => void;
   effects: JuiceEffectRegistry;
   tuning: JuiceTuningStore;
   /** The player's settings right now; read when each event plays. */
@@ -23,6 +25,7 @@ export interface UseJuiceDirectorOptions {
  */
 export function useJuiceDirector({
   listen,
+  listenStop,
   effects,
   tuning,
   gates,
@@ -40,12 +43,14 @@ export function useJuiceDirector({
       getGates: () => gatesRef.current,
     });
     const unlisten = listen(director.play);
+    const unlistenStop = listenStop?.(director.stop);
     const onStorage = (): void => tuning.reload();
     window.addEventListener("storage", onStorage);
     return () => {
       unlisten();
+      unlistenStop?.();
       window.removeEventListener("storage", onStorage);
       director.cancelAll();
     };
-  }, [listen, effects, tuning]);
+  }, [listen, listenStop, effects, tuning]);
 }

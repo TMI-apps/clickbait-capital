@@ -9,7 +9,12 @@ import { useCardForecast } from "@/features/game-board/hooks/useCardForecast";
 import { useBoardReveal } from "@/features/game-board/hooks/useBoardJuice";
 import type { CommentBatch } from "@/features/follower-comments/api";
 import { EventModal } from "@/features/game-flow/api";
-import { emitJuice, type GameJuiceEmit } from "@/features/game-juice/api";
+import {
+  EVENT_OUTCOME_TAG,
+  emitJuice,
+  stopJuice,
+  type GameJuiceEmit,
+} from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -195,6 +200,8 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
         open={view.event !== null}
         event={shownEvent}
         onChoose={(optionId) => {
+          // The outcome's marks sit on the dialog's rows; they leave with the dialog.
+          stopJuice(EVENT_OUTCOME_TAG);
           emitJuice("event.choice");
           chooseOption(optionId);
         }}

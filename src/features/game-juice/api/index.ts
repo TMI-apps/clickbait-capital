@@ -14,13 +14,17 @@ export {
   emitJuice,
   emitJuiceEvent,
   gameJuiceBus,
+  stopJuice,
   getGameJuiceTuning,
 } from "@/features/game-juice/services/gameJuiceRuntime";
 export type {
   GameJuiceEmit,
   GameJuiceEvents,
 } from "@/features/game-juice/services/gameJuiceRuntime";
-export { GAME_JUICE_RECIPES } from "@/features/game-juice/services/gameJuiceRecipes";
+export {
+  EVENT_OUTCOME_TAG,
+  GAME_JUICE_RECIPES,
+} from "@/features/game-juice/services/gameJuiceRecipes";
 export type {
   GameJuiceRecipe,
   GameJuiceRecipeBook,

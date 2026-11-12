@@ -48,6 +48,9 @@ export const gameJuiceBus = createJuiceBus<GameJuiceEvents>();
  */
 export const emitJuice = gameJuiceBus.emit;
 
+/** Ends the running recipes with this tag, e.g. `stopJuice(EVENT_OUTCOME_TAG)` when its dialog closes. */
+export const stopJuice = gameJuiceBus.stop;
+
 /** Emits a collected event (see `GameJuiceEmit`). */
 export function emitJuiceEvent({ name, payload }: GameJuiceEmit): void {
   (gameJuiceBus.emit as (event: string, data: JuicePayload) => void)(name, payload);

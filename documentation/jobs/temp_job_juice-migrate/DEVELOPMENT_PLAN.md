@@ -17,7 +17,7 @@
 | 1 | `enter` primitive; catalog + recipes for the new events and anchors; inspector anchors; `GameJuiceEmit` | effects, recipes, inspector tests | Done |
 | 2a | Acceptance tests rewritten (GameBoard juice, EventModal outcome), failing on assertions (A1) | red on assertions | Done |
 | 2 | Board: `boardJuice.ts` + `useBoardJuice.ts`; handlers emit; anchors; delete the old path; `EffectsJuice` / `EventModal` | acceptance tests green; full suite | Done |
-| 3 | CSS cleanup, docs, check | tooling gate; Playwright `/spel` phone + desk + reduced | Pending |
+| 3 | CSS cleanup, docs, check | tooling gate; Playwright `/spel` phone + desk + reduced | Done |
 
 ## Design
 
@@ -142,6 +142,39 @@ Layout effects let the feed post's `enter` start before the first paint.
 - Phase 2a: the acceptance tests were rewritten right after the wiring rather than strictly before it. The Phase 1 contract (recipes and anchors) was already in place, so they were checked against the recipe SSOT.
 - Play-test found that the concurrency cap cut a second card's particle burst mid-flight. Older runs counted toward the cap for 3 s, so a quick second play evicted the newest burst. Fix in juice-engine: cap eviction drops only pending steps, and effects already playing finish; `stop(tag)` and `cancelAll` still end everything (test added). Pooled particle nodes also detach their old flight's handlers on release.
 - `useRetainedValue` (+ test) moved to `src/shared/hooks/` to keep game-board within its 25-file budget (precedent: `useLongPress`, `useRovingFocus`).
+
+## Check summary
+
+**Check (impl):** 0 blockers · 4 warnings fixed · 6 advisory items listed below.
+
+**Warnings fixed:**
+- The outcome rows didn't enter: the anchor was an empty span, and is now the row itself.
+- An event post blinked after its dialog closed: it now enters at once.
+- Particle release was not idempotent.
+- Five test titles lacked "when", the `enter` row was missing from the effects README, and D10 wasn't written into any README.
+
+**Fixed from the play-test:**
+- A second card's particle burst was cut mid-flight: cap eviction now drops only pending steps.
+- An outcome mark floated over the feed: the outcome recipes carry a tag, and answering stops it (D11).
+- The win confetti had lost its gold glow: restored.
+
+**Verified:**
+- type-check, lint (no new warnings), 678 Vitest tests and 150 node tests;
+- arch, structure, feature-size, strict feature-docs and format checks; bundle 139.8 / 150 KiB;
+- Playwright on a production build at 390×844 and 1440×900, plus reduced motion:
+  - viral throws 12 particles on every play, ads throw 10 coins to Geld, news throws none and doesn't flash;
+  - the event outcome shows the kind's glow and mark on the row, the board gets the reveal after "Verder", and no stray marks remain;
+  - no console errors and no horizontal scroll.
+
+**Not verified:** sound timing by ear; real phones; a full run to the IPO in the browser (the end path is covered by unit tests and the recipe).
+
+**Advisory (not fixed):**
+- Chained events reveal only the last event's juice (inherited from before).
+- The news mark has no board tile, so news shows its mark only in outcome dialogs.
+- The reduced-motion glow ring is gone; the static mark stays.
+- `ui.press` has a 60 ms cooldown.
+- All juice, sounds included, is skipped while the tab is hidden.
+- The event post's entrance has no rotation.
 
 ## Decisions made
 

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { GameCardEffects } from "@/components/common/GameCard";
 import type { GameCardEffect, GameCardEffectDecoration } from "@/components/common/GameCard";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
@@ -11,10 +12,17 @@ export interface EffectsJuiceProps {
   kind?: JuiceOptionVariant;
 }
 
-/** Covers one row so the juice can target it; decorative. */
+/**
+ * Registers its row (the parent the kit renders it in) as the juice anchor `outcome:<meter>`,
+ * so the entrance moves the row itself and flashes cover it; renders nothing visible.
+ */
 const RowAnchor = ({ meter }: { meter: GameCardEffect["meter"] }) => {
-  const ref = useJuiceAnchor(outcomeRowAnchor(meter));
-  return <span ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0" />;
+  const register = useJuiceAnchor(outcomeRowAnchor(meter));
+  const ref = useCallback(
+    (marker: HTMLSpanElement | null) => register(marker?.parentElement ?? null),
+    [register]
+  );
+  return <span ref={ref} aria-hidden="true" hidden />;
 };
 
 /**

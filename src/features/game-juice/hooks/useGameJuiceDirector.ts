@@ -29,5 +29,11 @@ export function useGameJuiceDirector(): void {
     return createGameJuiceEffects(sound);
   }, [play]);
   const gates = useMemo<JuiceGates>(() => ({ reducedMotion, haptics: false }), [reducedMotion]);
-  useJuiceDirector({ listen: gameJuiceBus.listen, effects, tuning: getGameJuiceTuning(), gates });
+  useJuiceDirector({
+    listen: gameJuiceBus.listen,
+    listenStop: gameJuiceBus.listenStop,
+    effects,
+    tuning: getGameJuiceTuning(),
+    gates,
+  });
 }

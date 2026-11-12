@@ -99,14 +99,16 @@ export function juiceForAction(action: BoardJuiceAction): Omit<BoardJuice, "key"
   const resolved: GameJuiceEmit[] = optionKind
     ? [{ name: "event.resolved", payload: { variant: optionKind } }]
     : [];
-  return {
-    followUp: followUp ? [followUp] : [],
-    reveal: [
-      ...resolved,
-      ...meterChanges(meters, { dull, quiet: followUp !== null }),
-      { name: "feed.landed", payload: { variant: cardType ?? "event" } },
-    ],
-  };
+  const landed: GameJuiceEmit = { name: "feed.landed", payload: { variant: cardType ?? "event" } };
+  const meterJuice = meterChanges(meters, { dull, quiet: followUp !== null });
+  // An event post appears behind its closing dialog, so it enters at once (as the old CSS did);
+  // replaying its entrance after the dialog would blink a post that is already visible.
+  if (optionKind)
+    return {
+      followUp: [landed, ...(followUp ? [followUp] : [])],
+      reveal: [...resolved, ...meterJuice],
+    };
+  return { followUp: followUp ? [followUp] : [], reveal: [...meterJuice, landed] };
 }
 
 /** The kind of the option a step chose, or null. */

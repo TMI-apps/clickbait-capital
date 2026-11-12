@@ -105,11 +105,9 @@ describe("juiceForAction", () => {
     expect(meterVariants(journalism.reveal)).toEqual(["dull"]);
   });
 
-  it("should reveal the option's kind and an event post when an event is answered", () => {
+  it("should land the event post at once and reveal the option's kind later when an event is answered", () => {
     const juice = juiceForAction(action({ cardType: null, optionKind: "engagement" }));
-    expect(juice.reveal).toEqual([
-      { name: "event.resolved", payload: { variant: "engagement" } },
-      { name: "feed.landed", payload: { variant: "event" } },
-    ]);
+    expect(juice.followUp).toEqual([{ name: "feed.landed", payload: { variant: "event" } }]);
+    expect(juice.reveal).toEqual([{ name: "event.resolved", payload: { variant: "engagement" } }]);
   });
 });

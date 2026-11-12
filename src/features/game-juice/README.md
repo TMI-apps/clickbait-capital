@@ -62,6 +62,8 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 - **D8 — Outcome reveal (event-juice-drop D2, juice-migrate D8).** `EffectsJuice` anchors each row (`outcome:<meter>`) through the kit's `overlay` slot; `useOutcomeJuice` emits once; numbers count up from 0, at once for journalism.
 - **D9 — Sound timing (juice-migrate D2, D3).** Milestone sounds wait 250 ms after the action's sound inside the recipe; the meter blip plays with the reveal (after an event: once its dialog closed).
 - **D10 — Vibration off until its setting (juice-migrate D9).** The game passes `haptics: false` until the "Trillen" setting (juice-core D10) lands; the inspector's knob is ready.
+- **D12 — Pitch variation (juice-migrate D10).** Card sounds vary their pitch by up to ±4 % (`rateJitter`), so a sound heard twenty times a run doesn't grate.
+- **D13 — Outcome marks leave with their dialog.** `event.outcome` / `outcome.row` carry the tag `EVENT_OUTCOME_TAG`; answering the event calls `stopJuice(EVENT_OUTCOME_TAG)`, so no mark floats over the board after the dialog closes. An event post enters at once (behind the closing dialog), not after it.
 - **D11 — Event-driven juice system (juice-core D1–D13).** Adding juice = a catalog entry and a recipe; adjusting = recipe values or `/juice`.
 
 ## Testing

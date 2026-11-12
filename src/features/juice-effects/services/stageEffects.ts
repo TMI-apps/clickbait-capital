@@ -124,7 +124,11 @@ function flyParticle(
   }
   // Detach this flight from the node before it goes back to the pool: a stale finish or cancel
   // of an earlier flight must never release the node while a later burst uses it.
+  let released = false;
   const release = (): void => {
+    // Once only: a late cancel must never pull the node from a newer burst that reused it.
+    if (released) return;
+    released = true;
     animation.onfinish = null;
     animation.oncancel = null;
     animation.cancel();

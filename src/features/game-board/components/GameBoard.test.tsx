@@ -363,7 +363,7 @@ describe("GameBoard juice", () => {
     expect(newsMeters.every((event) => event.variant === "dull")).toBe(true);
   });
 
-  it("should play the option kind's juice on the board only after the event dialog has closed", async () => {
+  it("should play the option kind's juice on the board when the event dialog has closed", async () => {
     const { user } = await renderJuicedBoard(EVENT_NOW);
     await playCard(user, draftCards()[0]);
     const dialog = screen.getByRole("dialog");

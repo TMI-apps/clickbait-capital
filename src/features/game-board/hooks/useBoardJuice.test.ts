@@ -18,7 +18,7 @@ const PHASE: GameJuiceEmit = { name: "phase.up", payload: {} };
 const meters = (amount: number): MeterView[] => [{ key: "users", amount } as MeterView];
 
 describe("useBoardFollowUp", () => {
-  it("should emit the follow-up once per new key and never for the key present at mount", () => {
+  it("should emit the follow-up once when a new key arrives but not for the key present at mount", () => {
     const { rerender } = renderHook((juice: BoardJuice) => useBoardFollowUp(juice), {
       initialProps: { key: 3, followUp: [PHASE], reveal: [] },
     });
@@ -30,7 +30,7 @@ describe("useBoardFollowUp", () => {
 });
 
 describe("useBoardReveal", () => {
-  it("should hold the previous meters and wait with the reveal while the dialog closes", () => {
+  it("should hold the previous meters and wait with the reveal when the dialog is closing", () => {
     const { result, rerender } = renderHook((props) => useBoardReveal(props), {
       initialProps: { key: 1, reveal: [LANDED], meters: meters(10), hold: false },
     });
