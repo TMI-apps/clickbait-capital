@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { getMotionStore } from "@/features/game-settings/api";
 import {
   GAME_JUICE_RECIPES,
@@ -38,10 +39,11 @@ afterEach(() => {
 
 const renderInspector = () =>
   render(
-    <>
+    // GameJuiceRoot plays the page entrance on navigation, so it needs the router.
+    <MemoryRouter>
       <GameJuiceRoot />
       <JuiceInspector />
-    </>
+    </MemoryRouter>
   );
 
 const particleCount = (): number => document.querySelectorAll("[data-juice-particle]").length;

@@ -115,6 +115,7 @@ export const UI_COPY = {
     sound: "Geluid",
     music: "Muziek",
     vibration: "Trillen",
+    vibrationHint: "Een korte tik bij grote momenten, zoals een schandaal of je doel halen.",
     reducedMotion: "Minder beweging",
     reducedMotionHint: "Geen trillend scherm of vliegende emoji.",
     resetProgress: "Voortgang wissen",
@@ -129,7 +130,8 @@ export const UI_COPY = {
     motionOptions: { system: "Systeem", reduced: "Verminderd", full: "Volledig" },
     colorMode: "Weergave",
     colorModeOptions: { light: "Licht", dark: "Donker", system: "Systeem" },
-    resetHint: "Wist je keuzes voor geluid en beweging en een bewaard spel op dit apparaat.",
+    resetHint:
+      "Wist je keuzes voor geluid, trillen en beweging en een bewaard spel op dit apparaat.",
     resetConfirmButton: "Ja, wissen",
     resetCancelButton: "Annuleren",
     resetDone: "Voortgang gewist.",
@@ -154,7 +156,7 @@ export const UI_COPY = {
     points: [
       "Geen account en geen inlog. We vragen nooit je naam of e-mailadres.",
       "Geen cookies, geen reclame, geen bezoekerstellers en geen [[trackers|tracker]].",
-      "Je instellingen (weergave, geluid en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
+      "Je instellingen (weergave, geluid, trillen en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
       "Je browser bewaart de bestanden van het spel en de kaartfoto's op dit apparaat. Zo kun je ook zonder internet spelen.",
       "De site draait bij Cloudflare. Zoals bij elke website ziet die [[server]] je [[IP-adres]], anders kan hij de pagina niet sturen. Wij gebruiken dat niet om je te volgen.",
     ],

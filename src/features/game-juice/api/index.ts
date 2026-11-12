@@ -36,5 +36,6 @@ export type {
   JuiceCardVariant,
   JuiceMeterKey,
   JuiceOptionVariant,
+  JuicePhaseVariant,
   JuiceScandalLevel,
 } from "@/features/game-juice/types/gameJuiceEvents.types";

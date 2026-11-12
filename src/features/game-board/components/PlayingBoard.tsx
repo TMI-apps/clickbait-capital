@@ -97,8 +97,6 @@ export interface PlayingBoardProps {
   play: (cardId: string) => void;
   chooseOption: (optionId: string) => void;
   onQuit: () => void;
-  /** Wraps a main-button action with the UI tap sound. */
-  withTap: (action: () => void) => () => void;
 }
 
 /**
@@ -106,7 +104,7 @@ export interface PlayingBoardProps {
  * the event modal, card detail and pause dialogs, and the drag context.
  */
 export const PlayingBoard = (props: PlayingBoardProps) => {
-  const { view, play, chooseOption, onQuit, withTap } = props;
+  const { view, play, chooseOption, onQuit } = props;
   const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
@@ -158,7 +156,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       onDragEnd={(event) => preview.endDrag(event) && playCard(String(event.active.id))}
     >
       <div ref={shown.boardRef} data-viewport-lock className={BOARD_GRID}>
-        <BoardStatus phase={view.phase} onPause={withTap(() => setPaused(true))}>
+        <BoardStatus phase={view.phase} onPause={() => setPaused(true)}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
           <div className="flex min-w-0 flex-col gap-2">
             <MeterPanel
@@ -214,11 +212,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           setEventDialogMounted(false);
         }}
       />
-      <PauseMenu
-        open={paused}
-        onResume={withTap(() => setPaused(false))}
-        onQuit={withTap(onQuit)}
-      />
+      <PauseMenu open={paused} onResume={() => setPaused(false)} onQuit={onQuit} />
     </DndContext>
   );
 };

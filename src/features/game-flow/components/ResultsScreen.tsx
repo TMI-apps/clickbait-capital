@@ -5,6 +5,7 @@ import type { ResultRow, ResultsView } from "@/features/game-flow/types/gameFlow
 import {
   type ShareCardContent,
   ShareResultButton,
+  type ShareResultButtonProps,
   type ShareResultCopy,
 } from "@/features/result-share/api";
 import { FlowScreen } from "./FlowScreen";
@@ -14,6 +15,8 @@ export interface ResultsScreenProps {
   /** Share card of the run (both outcomes). */
   share: ShareCardContent;
   shareCopy: ShareResultCopy;
+  /** A share finished (its juice). */
+  onShareOutcome?: ShareResultButtonProps["onOutcome"];
   onRestart: () => void;
   onQuit: () => void;
 }
@@ -34,6 +37,7 @@ export const ResultsScreen = ({
   results,
   share,
   shareCopy,
+  onShareOutcome,
   onRestart,
   onQuit,
 }: ResultsScreenProps) => (
@@ -49,7 +53,7 @@ export const ResultsScreen = ({
         <Button variant="outline" className="min-h-11" onClick={onQuit}>
           {UI_COPY.results.backToStartButton}
         </Button>
-        <ShareResultButton content={share} copy={shareCopy} />
+        <ShareResultButton content={share} copy={shareCopy} onOutcome={onShareOutcome} />
         <Button className="min-h-11" onClick={onRestart}>
           {UI_COPY.results.playAgainButton}
         </Button>

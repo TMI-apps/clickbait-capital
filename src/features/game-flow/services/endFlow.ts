@@ -6,7 +6,7 @@ import {
   selectGameOverText,
   UI_COPY,
 } from "@/features/game-content/api";
-import type { ShareCardContent, ShareResultCopy } from "@/features/result-share/api";
+import type { ShareCardContent, ShareOutcome, ShareResultCopy } from "@/features/result-share/api";
 import type {
   EndingView,
   ResultRow,
@@ -135,3 +135,12 @@ export const SHARE_RESULT_COPY: ShareResultCopy = {
     failed: UI_COPY.results.shareFailedStatus,
   },
 };
+
+/**
+ * The juice of a finished share (juice-wiring-flow D6): a celebration when something went out
+ * (shared, saved or copied), a shake when it failed, nothing when the player closed the sheet.
+ */
+export function shareJuiceVariant(outcome: ShareOutcome): "shared" | "failed" | null {
+  if (outcome === "cancelled") return null;
+  return outcome === "failed" ? "failed" : "shared";
+}

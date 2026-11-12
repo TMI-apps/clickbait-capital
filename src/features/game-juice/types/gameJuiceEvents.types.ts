@@ -14,24 +14,33 @@ export type JuiceCardVariant = "viral" | "ad" | "news";
 /** An event option's kind (mirrors the engine's `EventOptionKind`). */
 export type JuiceOptionVariant = "engagement" | "commercial" | "journalism";
 
+/** A phase number as a variant (`phase.intro`). */
+export type JuicePhaseVariant = "1" | "2" | "3" | "4";
+
 /** A meter tile the juice targets (`meter:<key>` anchors). */
 export type JuiceMeterKey = "users" | "revenue" | "reputation";
 
 /** How loud the scandal warning is: 1 under 25 % risk per turn, 2 under 50 %, else 3. */
 export type JuiceScandalLevel = "1" | "2" | "3";
 
-/** Variant and vars per event name; `{}` means the event takes neither. */
+/** An event without variant or vars (it may still carry the engine's `origin` / `strength`). */
+export interface JuiceNoFields {
+  variant?: never;
+  vars?: never;
+}
+
+/** Variant and vars per event name; `JuiceNoFields` means the event takes neither. */
 export interface GameJuiceCatalog {
   /** A draft card was lifted: a drag started or a press turned into a hold; origin = the card. */
   "card.pickup": { variant: JuiceCardVariant };
   /** The dragged card moved over the feed's drop slot (`feed:drop`). */
-  "card.over-feed": Record<string, never>;
+  "card.over-feed": JuiceNoFields;
   /** A drag ended without a play (dropped outside the feed, or Escape). */
-  "card.cancel": Record<string, never>;
+  "card.cancel": JuiceNoFields;
   /** The chart started showing a card's forecast (held, dragged, opened or focused). */
-  "forecast.shown": Record<string, never>;
+  "forecast.shown": JuiceNoFields;
   /** A follower comment appeared under the newest post (`comment:latest`). */
-  "comment.arrived": Record<string, never>;
+  "comment.arrived": JuiceNoFields;
   /** A card was played (from the draft or dropped on the feed); origin = the card. */
   "card.played": { variant: JuiceCardVariant };
   /** An answered event's consequences land on the board (after its dialog closed). */
@@ -54,25 +63,31 @@ export interface GameJuiceCatalog {
   /** A post landed at the top of the feed. */
   "feed.landed": { variant: JuiceCardVariant | "event" };
   /** An event interrupts play. */
-  "event.appeared": Record<string, never>;
+  "event.appeared": JuiceNoFields;
   /** The player chose an event option (the outcome shows next). */
-  "event.choice": Record<string, never>;
+  "event.choice": JuiceNoFields;
   /** The next phase was reached. */
-  "phase.up": Record<string, never>;
+  "phase.up": JuiceNoFields;
   /** The run ended in the IPO. */
-  "run.won": Record<string, never>;
+  "run.won": JuiceNoFields;
   /** The run ended in a loss (bankrupt, abandoned, banned). */
-  "run.lost": Record<string, never>;
+  "run.lost": JuiceNoFields;
   /** Gebruikers or Geld reached its phase goal line; `vars.meter` names the tile. */
   "goal.reached": { vars: { meter: JuiceMeterKey } };
   /** Geld dropped into the danger zone (Bankroet is a few turns away). */
-  "money.danger": Record<string, never>;
+  "money.danger": JuiceNoFields;
   /** The scandal warning appeared or rose a level (never when it falls). */
   "scandal.warning": { variant: JuiceScandalLevel };
   /** A scandal struck: the event an action opened is a scandal. Replaces `event.appeared`. */
-  "scandal.hit": Record<string, never>;
-  /** A main button was pressed. */
-  "ui.press": Record<string, never>;
+  "scandal.hit": JuiceNoFields;
+  /** Any button or link was pressed (delegated app-wide); origin = the control. */
+  "ui.press": JuiceNoFields;
+  /** A page opened by navigation (not the first page load): its entrance. */
+  "page.opened": JuiceNoFields;
+  /** A phase intro screen opened; variant = the phase. */
+  "phase.intro": { variant: JuicePhaseVariant };
+  /** The share of a result finished; variant = how it went. */
+  "share.done": { variant: "shared" | "failed" };
 }
 
 /** Every juice event name. */

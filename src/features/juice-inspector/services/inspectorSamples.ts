@@ -15,6 +15,10 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
   button: "button",
   outcomes: ["outcome:users", "outcome:revenue"],
   endScreen: "end-screen",
+  endingIcon: "ending:icon",
+  eventDialog: "event-dialog",
+  phaseStep: "phase:step",
+  phaseGoal: "phase:goal",
   meters: ["meter:users", "meter:revenue"],
   scandal: "scandal",
 };

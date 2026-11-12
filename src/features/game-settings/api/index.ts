@@ -15,3 +15,8 @@ export type {
   MotionPreference,
   MotionStore,
 } from "@/features/game-settings/types/motionPreference.types";
+export { useHapticsPreference } from "@/features/game-settings/hooks/useHapticsPreference";
+export type { UseHapticsPreferenceResult } from "@/features/game-settings/hooks/useHapticsPreference";
+export { canVibrate, getHapticsStore } from "@/features/game-settings/services/hapticsPreference";
+export type { HapticsStore } from "@/features/game-settings/services/hapticsPreference";
+export { onGameStorageCleared } from "@/features/game-settings/services/gameStorage";

@@ -298,5 +298,10 @@
     "title": "Exponential growth: start at 0 users, compounding effects",
     "description": "Owner request: runs start at 0 users and € 3.000; user gains are a phase base plus 6% of current users per point, ads pay per user, goals x10 per phase (10k/€20k to 10 mln/€20 mln), fines grow with users. Saves v7. PR #60. Decision log § exponential-growth.",
     "status": "done"
+  },
+  {
+    "title": "Full game juice system",
+    "description": "Owner request: a deep, modular, event-driven juice system wired through the whole app, easy to extend and tune. Four laps (size M each): juice-core (engine, effect library, recipes, /juice inspector), juice-migrate (the board's juice and sounds through juice events), juice-wiring-board (moment-to-moment board juice, six new ElevenLabs sounds) and juice-wiring-flow (app-wide press tap, page entrance, phase intro, dialog, endings, share, the Trillen setting, the architecture rule line). Result: merged in PRs #61, #62, #63 and the juice-wiring-flow PR.",
+    "status": "done"
   }
 ]

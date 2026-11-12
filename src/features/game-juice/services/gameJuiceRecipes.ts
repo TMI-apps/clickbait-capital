@@ -267,6 +267,14 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     steps: [
       { effect: "sound", at: 250, id: "event-appear" },
       { effect: "haptic", pattern: "10 30 10" },
+      {
+        effect: "glow",
+        at: 150,
+        target: "event-dialog",
+        color: "primary",
+        times: 1,
+        duration: 760,
+      },
     ],
   },
   "event.choice": { steps: [{ effect: "sound", id: "event-choice" }] },
@@ -275,6 +283,9 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     steps: [
       { effect: "sound", at: 250, id: "ipo-win" },
       { effect: "enter", target: "end-screen", dy: 0, scale: 0.92, duration: 760 },
+      // The bell rings: the ending's icon pops and glows gold.
+      { effect: "pop", at: 250, target: "ending:icon", scale: 1.3, duration: 420 },
+      { effect: "glow", at: 250, target: "ending:icon", color: "type-ad", times: 2, duration: 760 },
       { effect: "haptic", pattern: "30 60 30 60 50" },
       { effect: "flash", target: "screen", color: "type-ad", opacity: 0.25, duration: 760 },
       {
@@ -291,6 +302,8 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     steps: [
       { effect: "sound", at: 250, id: "game-over" },
       { effect: "enter", target: "end-screen", dy: 0, scale: 0.92, duration: 760 },
+      // The server dies: the ending's icon shudders.
+      { effect: "shake", at: 250, target: "ending:icon", strength: 6, duration: 360 },
       { effect: "haptic", pattern: "60 40 60" },
       { effect: "flash", target: "screen", color: "destructive", opacity: 0.25, duration: 760 },
     ],
@@ -338,13 +351,61 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       { effect: "shake", target: "board", strength: 8, duration: 360 },
       { effect: "tint", target: "screen", color: "destructive", opacity: 0.25, duration: 760 },
       { effect: "particles", from: "screen", glyphs: "🚨😡📰", count: 12, duration: 760 },
+      {
+        effect: "glow",
+        at: 150,
+        target: "event-dialog",
+        color: "destructive",
+        times: 2,
+        duration: 900,
+      },
     ],
   },
+  // Every button and link in the app (delegated, game-juice D15): a tap and a tiny squash.
   "ui.press": {
     cooldownMs: 60,
     steps: [
       { effect: "sound", id: "ui-tap" },
       { effect: "haptic", pattern: "6" },
+      { effect: "pop", target: "origin", scale: 1.04, duration: 160 },
     ],
+  },
+  // Navigation: the new page settles in (the tap already sounded on the link).
+  "page.opened": {
+    steps: [{ effect: "enter", target: "page", dy: 8, scale: 1, duration: 240 }],
+  },
+  // The phase's step dot lights up, then the goal box. Phase 1 starts a run, so it also gets
+  // the fanfare, softly; later phases heard it with the action that reached them.
+  "phase.intro": {
+    steps: [
+      { effect: "pop", at: 300, target: "phase:step", scale: 1.4, duration: 420 },
+      {
+        effect: "particles",
+        at: 300,
+        from: "phase:step",
+        glyphs: "✨🚀",
+        count: 8,
+        duration: 760,
+        glow: "primary",
+      },
+      { effect: "glow", at: 550, target: "phase:goal", color: "primary", times: 1, duration: 760 },
+    ],
+    variants: {
+      "1": [{ effect: "sound", at: 300, id: "phase-up", volume: 0.5 }],
+      "2": [],
+      "3": [],
+      "4": [],
+    },
+  },
+  "share.done": {
+    variants: {
+      shared: [
+        { effect: "sound", id: "goal-reached", volume: 0.5, rate: 1.15 },
+        { effect: "haptic", pattern: "10 30 10" },
+        { effect: "pop", target: "origin", scale: 1.1, duration: 300 },
+        { effect: "particles", from: "origin", glyphs: "📣💬✨", count: 10, duration: 760 },
+      ],
+      failed: [{ effect: "shake", target: "origin", strength: 4, duration: 360 }],
+    },
   },
 };

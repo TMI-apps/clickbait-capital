@@ -61,7 +61,9 @@ function AppContent() {
       {/* React 19 hoists this into <head>; one per public route, none on hidden routes. */}
       {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
       {!isFullscreen && <Topbar />}
-      <div className={isFullscreen ? undefined : "pt-toolbar"}>
+      {/* The page area: game-juice's lazy root makes it the `page` juice anchor (page entrance),
+          so the main chunk carries no juice code. */}
+      <div data-juice-page className={isFullscreen ? undefined : "pt-toolbar"}>
         <QueryErrorBoundary onError={reportRenderError} fallback={<AppErrorFallback />}>
           <BrowserSupportGate>
             <Suspense fallback={<PageLoadingState />}>

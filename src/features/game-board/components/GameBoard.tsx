@@ -3,7 +3,6 @@ import type { SavedRun } from "@/features/game-save/api";
 import { useBoardFollowUp } from "@/features/game-board/hooks/useBoardJuice";
 import { useBoardSession } from "@/features/game-board/hooks/useBoardSession";
 import { GameEndFlow, PhaseTransitionScreen, usePhaseIntro } from "@/features/game-flow/api";
-import { emitJuice } from "@/features/game-juice/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { PlayingBoard } from "./PlayingBoard";
 
@@ -34,12 +33,6 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
   const phaseIntro = usePhaseIntro(view.phase.phaseId, seenPhase);
   const endScreen = useJuiceAnchor("end-screen");
 
-  /** Main buttons give a soft tap (`ui.press`); card plays and event answers have their own juice. */
-  const withTap = (action: () => void) => (): void => {
-    emitJuice("ui.press");
-    action();
-  };
-
   const restartRun = (): void => {
     phaseIntro.reset();
     restart();
@@ -49,12 +42,12 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
     return (
       // The end screen's entrance, confetti and flash are `run.won` / `run.lost` recipes.
       <div ref={endScreen}>
-        <GameEndFlow summary={view.end} onRestart={withTap(restartRun)} onQuit={withTap(onQuit)} />
+        <GameEndFlow summary={view.end} onRestart={restartRun} onQuit={onQuit} />
       </div>
     );
   }
   if (phaseIntro.pendingPhase !== null) {
-    return <PhaseTransitionScreen phase={view.phase} onContinue={withTap(phaseIntro.dismiss)} />;
+    return <PhaseTransitionScreen phase={view.phase} onContinue={phaseIntro.dismiss} />;
   }
   return (
     <PlayingBoard
@@ -65,7 +58,6 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
       play={play}
       chooseOption={chooseOption}
       onQuit={onQuit}
-      withTap={withTap}
     />
   );
 };

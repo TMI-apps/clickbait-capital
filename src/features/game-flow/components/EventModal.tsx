@@ -7,6 +7,7 @@ import { Modal } from "@/components/common/Modal";
 import { getCardImage } from "@/features/card-imagery/api";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
 import { EffectsJuice } from "@/features/game-juice/api";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
 
 type EventOption = FlowEvent["options"][number];
@@ -114,18 +115,28 @@ const EventAnswer = ({ event, onChoose }: { event: FlowEvent; onChoose: (id: str
  * surprise until the player picks one. It must be answered (no close button, Escape and overlay
  * ignored); the choice reaches the engine when the player continues past the outcome.
  */
-export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventModalProps) => (
-  <Modal
-    onCloseAutoFocus={onCloseAutoFocus}
-    open={open}
-    dismissible={false}
-    className="gap-3 p-4"
-    title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}
-    media={event && <EventPicture key={event.id} eventId={event.id} />}
-    description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
-  >
-    {/* Keyed by event: events reuse option ids, so the next event gets fresh buttons and a
-        fresh outcome state, and its first option takes focus (readable-hover D3). */}
-    {event && <EventAnswer key={event.id} event={event} onChoose={onChoose} />}
-  </Modal>
-);
+export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventModalProps) => {
+  // `event.appeared` / `scandal.hit` glow around the dialog as it arrives.
+  const anchor = useJuiceAnchor("event-dialog");
+  return (
+    <Modal
+      contentRef={anchor}
+      onCloseAutoFocus={onCloseAutoFocus}
+      open={open}
+      dismissible={false}
+      className="gap-3 p-4"
+      title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}
+      media={event && <EventPicture key={event.id} eventId={event.id} />}
+      description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
+    >
+      {/* Keyed by event: events reuse option ids, so the next event gets fresh buttons and a
+          fresh outcome state, and its first option takes focus (readable-hover D3). Answering
+          has its own juice (outcome, `event.choice`), not the press tap. */}
+      {event && (
+        <div data-juice-press="off">
+          <EventAnswer key={event.id} event={event} onChoose={onChoose} />
+        </div>
+      )}
+    </Modal>
+  );
+};

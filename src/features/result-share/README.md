@@ -29,7 +29,7 @@ Turns a finished Clickbait Capital run into something a player can send: a gener
 - **Theme colors (D4):** read from the computed tokens when the results screen opens (the pre-render), so the card follows the theme active at that moment; no hex values in the renderer.
 - **Link (D5):** the caller passes the production link (`SITE_ORIGIN`), also from previews.
 - **Bundle:** `shareCardImage.ts` is reached only through `import()` in the hook, so it stays out of the main chunk and the board chunk (`pnpm validate:bundle-size`).
-- **Motion:** nothing animates; the status line has no transition.
+- **Motion:** nothing animates here; the status line has no transition. `onOutcome` reports each finished attempt with the button, so the caller can play feedback on it (game-flow plays `share.done`, juice-wiring-flow D6) without this feature knowing about juice.
 - **Busy state:** `aria-disabled` plus a guard in the hook, not `disabled`, so keyboard focus stays on the button while the share sheet is open.
 - **Old browsers:** without `ctx.roundRect` the stats panel is square; if rendering fails entirely, text and link are still shared.
 

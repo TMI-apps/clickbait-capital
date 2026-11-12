@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { SITE_ORIGIN } from "@/config/site";
 import { buildEndReport, GAME_OVER_TEXTS, UI_COPY } from "@/features/game-content/api";
 import {
+  shareJuiceVariant,
   toEndingView,
   toResultsView,
   toShareCardContent,
@@ -107,5 +108,18 @@ describe("toShareCardContent", () => {
       title: report.title,
       line: report.closing,
     });
+  });
+});
+
+describe("shareJuiceVariant", () => {
+  it("should celebrate anything that went out and shake on a failure when a share finishes", () => {
+    expect(shareJuiceVariant("shared")).toBe("shared");
+    expect(shareJuiceVariant("downloaded-and-copied")).toBe("shared");
+    expect(shareJuiceVariant("copied")).toBe("shared");
+    expect(shareJuiceVariant("failed")).toBe("failed");
+  });
+
+  it("should play nothing when the player closed the share sheet", () => {
+    expect(shareJuiceVariant("cancelled")).toBeNull();
   });
 });

@@ -1,6 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { SOUND_EFFECT_IDS, useSoundEffects, type SoundEffectId } from "@/features/game-audio/api";
-import { useReducedMotion } from "@/features/game-settings/api";
+import {
+  onGameStorageCleared,
+  useHapticsPreference,
+  useReducedMotion,
+} from "@/features/game-settings/api";
 import { useJuiceDirector, type JuiceGates } from "@/features/juice-engine/api";
 import type { SoundPort } from "@/features/juice-effects/api";
 import {
@@ -15,9 +19,8 @@ const isSoundEffectId = (id: string): id is SoundEffectId =>
 /**
  * Plays the game's juice while mounted: every `emitJuice` event runs its recipe with the
  * inspector's tuning, sounds through game-audio (mute and unlock stay there), motion gated by
- * the Beweging setting (game-juice D3). Vibration stays off until the player's "Trillen"
- * setting lands in lap 4 (juice-core D10, juice-migrate D9): nobody gets vibration without an
- * off switch.
+ * the Beweging setting (game-juice D3), vibration by the Trillen setting (default on,
+ * juice-core D10). "Voortgang wissen" also drops the inspector's tuning kept in memory.
  */
 export function useGameJuiceDirector(): void {
   const reducedMotion = useReducedMotion();
@@ -28,12 +31,15 @@ export function useGameJuiceDirector(): void {
     };
     return createGameJuiceEffects(sound);
   }, [play]);
-  const gates = useMemo<JuiceGates>(() => ({ reducedMotion, haptics: false }), [reducedMotion]);
+  const { enabled: haptics } = useHapticsPreference();
+  const gates = useMemo<JuiceGates>(() => ({ reducedMotion, haptics }), [reducedMotion, haptics]);
+  const tuning = getGameJuiceTuning();
+  useEffect(() => onGameStorageCleared(tuning.reload), [tuning]);
   useJuiceDirector({
     listen: gameJuiceBus.listen,
     listenStop: gameJuiceBus.listenStop,
     effects,
-    tuning: getGameJuiceTuning(),
+    tuning,
     gates,
   });
 }

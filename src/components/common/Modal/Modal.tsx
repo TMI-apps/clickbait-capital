@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useRef, type ReactNode, type Ref } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { X } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
@@ -26,6 +26,8 @@ export interface ModalProps {
    * yourself (e.g. when the element that opened the dialog is gone).
    */
   onCloseAutoFocus?: (event: Event) => void;
+  /** Ref for the dialog panel itself (e.g. to anchor an effect around it). */
+  contentRef?: Ref<HTMLDivElement>;
 }
 
 const TABBABLE =
@@ -47,6 +49,7 @@ export const Modal = ({
   dismissible = true,
   closeLabel = "Close",
   onCloseAutoFocus,
+  contentRef,
 }: ModalProps) => {
   const descriptionRef = useRef<HTMLParagraphElement>(null);
   const blockDismiss = (event: Event): void => {
@@ -68,6 +71,7 @@ export const Modal = ({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
         <DialogPrimitive.Content
+          ref={contentRef}
           {...(!description && { "aria-describedby": undefined })}
           onOpenAutoFocus={focusFirstControl}
           onCloseAutoFocus={onCloseAutoFocus}
