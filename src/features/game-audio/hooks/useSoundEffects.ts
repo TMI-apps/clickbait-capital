@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { getSoundPlayer } from "@/features/game-audio/services/soundPlayer";
-import type { SoundEffectId, SoundPlayer } from "@/features/game-audio/types/soundEffect.types";
+import type {
+  SoundEffectId,
+  SoundPlayOptions,
+  SoundPlayer,
+} from "@/features/game-audio/types/soundEffect.types";
 
 const UNLOCK_EVENTS = ["pointerdown", "keydown", "touchend"] as const;
 
 export interface UseSoundEffectsResult {
   /** Plays a sound by id; silent while muted or before the first user gesture. */
-  play: (id: SoundEffectId) => void;
+  play: (id: SoundEffectId, options?: SoundPlayOptions) => void;
   muted: boolean;
   setMuted: (muted: boolean) => void;
   toggleMuted: () => void;
@@ -29,7 +33,10 @@ export const useSoundEffects = (player: SoundPlayer = getSoundPlayer()): UseSoun
     return () => UNLOCK_EVENTS.forEach((type) => window.removeEventListener(type, onGesture));
   }, [player]);
 
-  const play = useCallback((id: SoundEffectId) => player.play(id), [player]);
+  const play = useCallback(
+    (id: SoundEffectId, options?: SoundPlayOptions) => player.play(id, options),
+    [player]
+  );
   const setMuted = useCallback((next: boolean) => player.setMuted(next), [player]);
   const toggleMuted = useCallback(() => player.setMuted(!player.isMuted()), [player]);
 

@@ -24,9 +24,12 @@ Action feedback for Clickbait Capital: the asymmetric "juice" of `documentation/
 | Hooks      | `hooks/useShake.ts`, `hooks/useCountUp.ts`             | Web Animations shake; rAF count-up that writes text through a ref                                                                                                                     |
 | Services   | `services/juicePlan.ts`                                | `planJuice(action, meters)`: the feedback matrix as data; particle budgets                                                                                                            |
 | Services   | `services/eventJuice.ts`                               | `juiceActionForEvent(kind)` / `juiceActionForPost(post)`: the card juice an event option earns                                                                                        |
-| Services   | `services/particlePaths.ts`                            | Deterministic particle paths (burst fan or toward a meter)                                                                                                                            |
-| Services   | `services/motionTokens.ts`, `services/feedEntrance.ts` | Read duration tokens in JS; feed entrance class per type                                                                                                                              |
+| Services   | `services/feedEntrance.ts`                             | Feed entrance class per type                                                                                                                                                          |
 | Types      | `types/juice.types.ts`                                 | `JuiceAction`, `JuicePlan`, `MeterAccent`, …                                                                                                                                          |
+
+## Juice system migration (juice-core)
+
+The event-driven juice system (`juice-engine`, `juice-effects`, this feature's catalog and recipes) replaces the one-off path below. Until juice-core lap 2 rewires the board, `juicePlan`, `useActionJuice`, `useShake`, `JuiceLayer`, `MeterJuice`, `EndJuice`, `feedEntrance` and game-board's `boardSounds` carry a "Second copy" marker naming the recipes as their replacement. `particlePaths` moved to `@/features/juice-effects/api` (glyph sets are passed in: `PARTICLE_GLYPHS` in `juicePlan.ts`) and `motionTokens` to `@/features/juice-engine/api`.
 
 ## Decisions
 

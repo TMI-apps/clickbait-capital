@@ -1,6 +1,6 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
-import { readDurationToken } from "@/features/game-juice/services/motionTokens";
+import { readDurationToken } from "@/features/juice-engine/api";
 
 const easeOut = (t: number): number => 1 - (1 - t) ** 3;
 

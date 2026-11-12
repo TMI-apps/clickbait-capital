@@ -1,5 +1,6 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import { useEffect, type RefObject } from "react";
-import { readDurationToken } from "@/features/game-juice/services/motionTokens";
+import { readDurationToken } from "@/features/juice-engine/api";
 
 /** A light horizontal shake; small offsets so text stays readable (design § 5: "licht"). */
 const SHAKE_FRAMES: Keyframe[] = [

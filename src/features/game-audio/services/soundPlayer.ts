@@ -3,6 +3,7 @@ import { SOUND_MANIFEST } from "@/features/game-audio/services/soundManifest";
 import {
   SOUND_EFFECT_IDS,
   type SoundEffectId,
+  type SoundPlayOptions,
   type SoundPlayer,
 } from "@/features/game-audio/types/soundEffect.types";
 
@@ -35,6 +36,9 @@ const defaultFetchBytes = async (url: string): Promise<ArrayBuffer> => {
   if (!response.ok) throw new Error(`Sound ${url} failed to load (${response.status})`);
   return response.arrayBuffer();
 };
+
+const clamp = (value: number, min: number, max: number): number =>
+  Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 
 const DEFAULT_DEPS: SoundPlayerDeps = {
   createContext: defaultCreateContext,
@@ -79,13 +83,15 @@ export const createSoundPlayer = (overrides: Partial<SoundPlayerDeps> = {}): Sou
     await Promise.all(SOUND_EFFECT_IDS.map((id) => loadOne(ctx, id)));
   };
 
-  const play = (id: SoundEffectId): void => {
+  const play = (id: SoundEffectId, { volume = 1, rate = 1 }: SoundPlayOptions = {}): void => {
     const buffer = buffers.get(id);
     if (muted || !unlocked || !context || !buffer) return;
     const source = context.createBufferSource();
     const gain = context.createGain();
     source.buffer = buffer;
-    gain.gain.value = SOUND_MANIFEST[id].volume;
+    gain.gain.value = SOUND_MANIFEST[id].volume * clamp(volume, 0, 1);
+    // Older engines may lack a rate param; the sound then plays at its own pitch.
+    if (source.playbackRate) source.playbackRate.value = clamp(rate, 0.5, 2);
     source.connect(gain);
     gain.connect(context.destination);
     source.start();

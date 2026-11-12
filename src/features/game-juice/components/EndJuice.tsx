@@ -1,3 +1,4 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import type { ReactNode } from "react";
 import { useEndBurst } from "@/features/game-juice/hooks/useActionJuice";
 import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";

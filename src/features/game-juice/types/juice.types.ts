@@ -50,17 +50,6 @@ export interface JuicePlan {
   countUp: boolean;
 }
 
-/** One particle's path, relative to its origin, in px; delays and spin for variety. */
-export interface ParticlePath {
-  glyph: string;
-  dx: number;
-  dy: number;
-  rotate: number;
-  delayMs: number;
-  /** Percentage of the full particle duration this particle takes (spread the landing). */
-  durationScale: number;
-}
-
 /** A point on screen in viewport px. */
 export interface ScreenPoint {
   x: number;

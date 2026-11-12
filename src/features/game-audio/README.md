@@ -4,7 +4,7 @@ Sound effects and the mute toggle for Clickbait Capital. Juice rules: `documenta
 
 ## Purpose
 
-- Plays short sound effects by id: `const { play } = useSoundEffects(); play("card-viral")`.
+- Plays short sound effects by id: `const { play } = useSoundEffects(); play("card-viral")`. Optional per-play `{ volume, rate }` (0–1 × the manifest volume; playback rate 0.5–2 for pitch variation) — the juice recipes use it.
 - Muted until the first user gesture (browser autoplay rules): the first `pointerdown`, `keydown` or `touchend` anywhere on the page unlocks audio and loads the sounds.
 - One mute switch for the whole page, remembered in `localStorage` (`clickbait-capital:audio-muted`; a blocked storage only loses the memory).
 - `MuteToggle`: 48 px button, `aria-pressed` (true = sound on), icon plus Dutch label; `compact` gives a 44 px icon-only outline square for toolbars.

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 import type { AuthContextValue } from "@/features/auth/types/auth.types";
+import type { JuiceEffectContext, JuiceResolvedTarget } from "@/features/juice-engine/api";
 import { ColorModeProvider } from "@/shared/context/ColorModeContext";
 
 /**
@@ -179,4 +180,100 @@ export function installMatchMediaMock(prefersDark = false): MatchMediaController
     },
     listenerCount: () => listeners.size,
   };
+}
+
+/** One animation the Web Animations stub started, with what it was asked to play. */
+export interface StubAnimation {
+  element: Element;
+  keyframes: Keyframe[];
+  options: KeyframeAnimationOptions;
+  animation: Animation;
+}
+
+export interface AnimateStubController {
+  calls: StubAnimation[];
+  /** Runs every started animation's `onfinish` (as if they all played to the end). */
+  finishAll: () => void;
+  restore: () => void;
+}
+
+/**
+ * Installs `Element.prototype.animate` (jsdom has no Web Animations): every call is recorded
+ * and returns a fake running animation; nothing finishes until `finishAll`.
+ */
+export function installAnimateStub(): AnimateStubController {
+  const original = Element.prototype.animate;
+  const calls: StubAnimation[] = [];
+  Element.prototype.animate = function animate(
+    this: Element,
+    keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+    options?: number | KeyframeAnimationOptions
+  ): Animation {
+    const animation = {
+      playState: "running",
+      playbackRate: 1,
+      onfinish: null,
+      cancel: vi.fn(function cancel(this: { playState: string }) {
+        this.playState = "idle";
+      }),
+      updatePlaybackRate: vi.fn(function update(this: { playbackRate: number }, rate: number) {
+        this.playbackRate = rate;
+      }),
+    } as unknown as Animation;
+    calls.push({
+      element: this,
+      keyframes: (keyframes ?? []) as Keyframe[],
+      options: typeof options === "object" ? options : {},
+      animation,
+    });
+    return animation;
+  };
+  return {
+    calls,
+    finishAll: () =>
+      calls.forEach(({ animation }) => {
+        const done = animation.onfinish as ((event: AnimationPlaybackEvent) => void) | null;
+        (animation as { playState: string }).playState = "finished";
+        done?.({} as AnimationPlaybackEvent);
+      }),
+    restore: () => {
+      Element.prototype.animate = original;
+    },
+  };
+}
+
+/**
+ * A juice effect context for unit tests: a stage in the document, anchors by name, intensity 1
+ * and a fixed random value; override any field.
+ */
+export function createJuiceTestContext(
+  options: {
+    anchors?: Record<string, Element>;
+    overrides?: Partial<JuiceEffectContext>;
+  } = {}
+): JuiceEffectContext & { stage: HTMLElement } {
+  const stage = document.createElement("div");
+  document.body.appendChild(stage);
+  const tracked: Animation[] = [];
+  const resolve = (ref: string): JuiceResolvedTarget | null => {
+    if (ref === "screen")
+      return { element: null, rect: { x: 0, y: 0, width: 390, height: 844 }, isScreen: true };
+    const element = options.anchors?.[ref];
+    return element
+      ? { element, rect: { x: 10, y: 20, width: 100, height: 40 }, isScreen: false }
+      : null;
+  };
+  return {
+    resolve,
+    stage,
+    intensity: 1,
+    motionScale: 1,
+    volume: 1,
+    reduced: false,
+    random: () => 0.5,
+    fill: (template) => template,
+    track: (animation) => tracked.push(animation),
+    animations: () => tracked.filter((animation) => animation.playState === "running"),
+    ...options.overrides,
+  } as JuiceEffectContext & { stage: HTMLElement };
 }

@@ -16,18 +16,18 @@ Updated: 2026-11-12
 | D7 | Particles package | closed | Keep the custom DOM emoji particles (moved into juice-effects); no new dependency | loop-plan (spec-reuse-package) | canvas-confetti (ISC, ~5 KB gz) draws shapes on canvas; emoji glyphs are the look (design § 5); tsParticles is far heavier |
 | D8 | Accessibility | closed | Reduced motion (Beweging) skips motion steps and shows "static" steps (badge, callout, floater) without movement; screen flashes capped at 3/s and 30 % opacity (WCAG 2.3.1); stage is `aria-hidden`, `pointer-events: none`; announcements stay in the board's live regions | loop-refine | carries game-juice D3 / D9 |
 | D9 | Lap order | closed | Core + inspector first with recipes mirroring today's juice; migration next lap deletes the old path; new moments in laps 3–4 | loop-refine | the old path stays live for one lap (no player-visible change) |
+| D10 | Haptics setting | closed | A: vibrate on key moments + "Trillen" Aan/Uit setting in Instellingen, default Aan (lap 4); core ships the haptic gate | owner via orchestrator | iOS browsers cannot vibrate (Android only) |
+| D11 | New sounds | closed | B: ~6 new ElevenLabs sounds; the orchestrator generates them from an exact list (id, 1-line description, length, format/loudness matching game-audio) sent when lap 3 needs them | owner via orchestrator | uses owner credits |
+| D12 | Player intensity setting | closed | A: none; intensity stays an inspector tuning knob | owner via orchestrator | Beweging Verminderd already calms |
+| D13 | Agent pointer | closed | A: one line in `.claude/rules/architecture.md` § Edge-case placement in lap 4 (owner consent for exactly that line) | owner via orchestrator | protected file |
 
 ## Open
 
-| id | topic | status | options briefly | blocked phase |
-|----|-------|--------|-----------------|---------------|
-| D10 | Haptics setting | open | A (rec) vibrate on key moments + "Trillen" Aan/Uit setting · B follow Beweging only · C no haptics | lap 4 (core ships the gate, default on) |
-| D11 | New sounds | open | A (rec) reuse 11 sounds with pitch/volume variation · B generate ~6 new ElevenLabs sounds (credits) | lap 3 |
-| D12 | Player intensity setting | open | A (rec) none (Beweging calms; intensity is a tuning knob) · B "Effecten: Vol / Rustig" | lap 4 |
-| D13 | Agent pointer | open | A (rec) one line in `.claude/rules/architecture.md` § Edge-case placement · B README only | lap 4 |
+(none)
 
 ## Log
 
 - 2026-11-12 — D1–D6, D8, D9 closed via loop-refine (clear-winner)
 - 2026-11-12 — D7 closed via loop-plan (spec-reuse-package)
 - 2026-11-12 — D10–D13 opened; sent to the orchestrator with the plan summary
+- 2026-11-12 — D10–D13 closed via owner answers (orchestrator)

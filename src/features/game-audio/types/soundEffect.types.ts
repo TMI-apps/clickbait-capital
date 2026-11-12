@@ -35,10 +35,18 @@ export interface SoundManifestEntry {
   license: string;
 }
 
+/** Per-play mix tweaks (the juice recipes vary volume and pitch). */
+export interface SoundPlayOptions {
+  /** 0–1, multiplies the manifest volume (default 1). */
+  volume?: number;
+  /** Playback rate 0.5–2: pitch and speed (default 1). */
+  rate?: number;
+}
+
 /** Plays sounds and owns the mute state; one instance per page (`getSoundPlayer`). */
 export interface SoundPlayer {
   /** Plays a sound; silent while muted, before the first user gesture, or before it loaded. */
-  play: (id: SoundEffectId) => void;
+  play: (id: SoundEffectId, options?: SoundPlayOptions) => void;
   /** Creates/resumes the audio context; call from a user gesture (browser autoplay rules). */
   unlock: () => Promise<void>;
   isUnlocked: () => boolean;

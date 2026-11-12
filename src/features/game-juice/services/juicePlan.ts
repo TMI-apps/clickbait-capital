@@ -1,3 +1,4 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import type {
   JuiceAction,
   JuiceMeter,
@@ -17,6 +18,13 @@ export const PARTICLE_COUNTS: Record<JuiceAction, number> = {
   ad: 10,
   news: 0,
   event: 0,
+};
+
+/** Glyphs per particle look (design § 5: 🔥😱😡 for viral). */
+export const PARTICLE_GLYPHS: Record<ParticleKind, readonly string[]> = {
+  emoji: ["🔥", "😱", "😡"],
+  coin: ["🪙", "💰", "💶"],
+  confetti: ["🎉", "💸", "🚀", "✨"],
 };
 
 /** Particles thrown when a run is won (the IPO); a loss gets none. */

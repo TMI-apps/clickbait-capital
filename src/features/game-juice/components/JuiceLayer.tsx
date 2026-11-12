@@ -1,3 +1,4 @@
+// Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import { useState, type CSSProperties } from "react";
 import type { ParticleBurst } from "@/features/game-juice/hooks/useActionJuice";
 import { cn } from "@/shared/utils/cn";
