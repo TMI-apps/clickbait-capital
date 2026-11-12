@@ -1,10 +1,10 @@
 import type { GameContent } from "@/features/game-engine/api";
 import type { SavedRun } from "@/features/game-save/api";
-import { useSoundEffects } from "@/features/game-audio/api";
-import { useBoardSounds } from "@/features/game-board/hooks/useBoardSounds";
+import { useBoardFollowUp } from "@/features/game-board/hooks/useBoardJuice";
 import { useBoardSession } from "@/features/game-board/hooks/useBoardSession";
 import { GameEndFlow, PhaseTransitionScreen, usePhaseIntro } from "@/features/game-flow/api";
-import { EndJuice } from "@/features/game-juice/api";
+import { emitJuice } from "@/features/game-juice/api";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { PlayingBoard } from "./PlayingBoard";
 
 export interface GameBoardProps {
@@ -24,19 +24,19 @@ export interface GameBoardProps {
  * comes from the game-session run, as the board sees it (`useBoardSession`).
  */
 export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) => {
-  const { view, play, chooseOption, restart, sounds, comments, resumed, seenPhase } =
+  const { view, play, chooseOption, restart, juice, comments, resumed, seenPhase } =
     useBoardSession({
       content,
       seed,
       savedRun,
     });
-  const { play: playSound } = useSoundEffects();
-  useBoardSounds(sounds);
+  useBoardFollowUp(juice);
   const phaseIntro = usePhaseIntro(view.phase.phaseId, seenPhase);
+  const endScreen = useJuiceAnchor("end-screen");
 
-  /** Main buttons give a soft tap; card plays and event answers have their own sounds. */
+  /** Main buttons give a soft tap (`ui.press`); card plays and event answers have their own juice. */
   const withTap = (action: () => void) => (): void => {
-    playSound("ui-tap");
+    emitJuice("ui.press");
     action();
   };
 
@@ -47,9 +47,10 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
 
   if (view.end) {
     return (
-      <EndJuice outcome={view.end.outcome}>
+      // The end screen's entrance, confetti and flash are `run.won` / `run.lost` recipes.
+      <div ref={endScreen}>
         <GameEndFlow summary={view.end} onRestart={withTap(restartRun)} onQuit={withTap(onQuit)} />
-      </EndJuice>
+      </div>
     );
   }
   if (phaseIntro.pendingPhase !== null) {
@@ -58,6 +59,7 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
   return (
     <PlayingBoard
       view={view}
+      reveal={juice.reveal}
       comments={comments}
       resumed={resumed}
       play={play}

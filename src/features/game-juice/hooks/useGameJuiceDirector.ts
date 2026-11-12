@@ -15,8 +15,9 @@ const isSoundEffectId = (id: string): id is SoundEffectId =>
 /**
  * Plays the game's juice while mounted: every `emitJuice` event runs its recipe with the
  * inspector's tuning, sounds through game-audio (mute and unlock stay there), motion gated by
- * the Beweging setting (game-juice D3). Haptics are on until the player's "Trillen" setting
- * lands (juice-core D10).
+ * the Beweging setting (game-juice D3). Vibration stays off until the player's "Trillen"
+ * setting lands in lap 4 (juice-core D10, juice-migrate D9): nobody gets vibration without an
+ * off switch.
  */
 export function useGameJuiceDirector(): void {
   const reducedMotion = useReducedMotion();
@@ -27,6 +28,6 @@ export function useGameJuiceDirector(): void {
     };
     return createGameJuiceEffects(sound);
   }, [play]);
-  const gates = useMemo<JuiceGates>(() => ({ reducedMotion, haptics: true }), [reducedMotion]);
+  const gates = useMemo<JuiceGates>(() => ({ reducedMotion, haptics: false }), [reducedMotion]);
   useJuiceDirector({ listen: gameJuiceBus.listen, effects, tuning: getGameJuiceTuning(), gates });
 }

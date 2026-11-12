@@ -1,9 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { GAME_JUICE_RECIPES, gameJuiceBus } from "@/features/game-juice/api";
+import { GameJuiceRoot } from "@/features/game-juice/api/root";
 import userEvent from "@testing-library/user-event";
 import { EventModal } from "@/features/game-flow/components/EventModal";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
-import { renderWithProviders } from "tests/test-utils";
+import {
+  installAnimateStub,
+  renderWithProviders,
+  type AnimateStubController,
+} from "tests/test-utils";
 
 const EVENT: FlowEvent = {
   id: "event-test",
@@ -30,6 +37,42 @@ const EVENT: FlowEvent = {
     },
   ],
 };
+
+/** The marks an option kind's outcome shows, from the recipe (testing.md SSOT). */
+const badgesOf = (kind: "engagement" | "commercial" | "journalism"): string[] =>
+  (GAME_JUICE_RECIPES["event.outcome"].variants?.[kind] ?? []).flatMap((step) =>
+    step.effect === "badge" ? [step.glyph] : []
+  );
+
+let stub: AnimateStubController;
+let stopListening: () => void = () => undefined;
+beforeEach(() => {
+  stub = installAnimateStub();
+});
+afterEach(() => {
+  stopListening();
+  stub.finishAll();
+  stub.restore();
+});
+
+/** Renders with the game's juice host and records the emitted events. */
+function renderWithJuice(ui: ReactElement) {
+  const events: Array<{ name: string; variant?: string }> = [];
+  stopListening = gameJuiceBus.listen((name, payload) =>
+    events.push({ name, variant: payload.variant })
+  );
+  renderWithProviders(
+    <>
+      <GameJuiceRoot />
+      {ui}
+    </>
+  );
+  const badges = (): string[] =>
+    [...document.querySelectorAll("[data-juice-badge]")].map(
+      (node) => node.getAttribute("data-juice-badge") ?? ""
+    );
+  return { events, badges };
+}
 
 describe("EventModal", () => {
   it("should offer three actions without their effects and stay open on Escape when an event fires", async () => {
@@ -76,27 +119,29 @@ describe("EventModal", () => {
     expect(onChoose).toHaveBeenCalledExactlyOnceWith("c");
   });
 
-  it("should play the card juice of the option's kind on the outcome rows when an option is picked", async () => {
-    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
+  it("should play the option kind's accent and the gain flash on the outcome rows when an option is picked", async () => {
+    const juice = renderWithJuice(<EventModal open event={EVENT} onChoose={vi.fn()} />);
     const user = userEvent.setup();
     const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
 
     await user.click(within(dialog).getByRole("button", { name: /woeden/ }));
 
-    expect(dialog.querySelector('[data-juice-accent="flames"]')).not.toBeNull();
-    expect(dialog.querySelector('[data-juice-flash="gain"]')).not.toBeNull();
+    expect(juice.events).toContainEqual({ name: "event.outcome", variant: "engagement" });
+    expect(juice.events).toContainEqual({ name: "outcome.row", variant: "gain" });
+    expect(juice.badges()).toEqual(badgesOf("engagement"));
+    expect(document.querySelector('[data-juice-flash="success"]')).not.toBeNull();
   });
 
-  it("should show the shield and a loss flash but no flames when a journalism option is picked", async () => {
-    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
+  it("should show the shield but no flash when a journalism option is picked", async () => {
+    const juice = renderWithJuice(<EventModal open event={EVENT} onChoose={vi.fn()} />);
     const user = userEvent.setup();
     const dialog = screen.getByRole("dialog", { name: /Verkiezingen/ });
 
     await user.click(within(dialog).getByRole("button", { name: /factcheckers/ }));
 
-    expect(dialog.querySelector('[data-juice-accent="shield"]')).not.toBeNull();
-    expect(dialog.querySelector('[data-juice-accent="flames"]')).toBeNull();
-    expect(dialog.querySelector("[data-juice-flash]")).toBeNull();
+    expect(juice.events).toContainEqual({ name: "outcome.row", variant: "dull" });
+    expect(juice.badges()).toEqual(badgesOf("journalism"));
+    expect(document.querySelector("[data-juice-flash]")).toBeNull();
   });
 
   it("should start the next event with fresh options and focus on the first when events follow each other", async () => {

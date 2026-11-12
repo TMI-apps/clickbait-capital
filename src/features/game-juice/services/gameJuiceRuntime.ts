@@ -11,6 +11,7 @@ import {
   badgeEffect,
   calloutEffect,
   createSoundEffect,
+  enterEffect,
   flashEffect,
   floaterEffect,
   glowEffect,
@@ -33,6 +34,11 @@ export type GameJuiceEvents = {
   [K in keyof GameJuiceCatalog]: Omit<JuicePayload, "variant" | "vars"> & GameJuiceCatalog[K];
 };
 
+/** One event with its payload, for code that collects several before emitting (the board). */
+export type GameJuiceEmit = {
+  [K in keyof GameJuiceEvents]: { name: K; payload: GameJuiceEvents[K] };
+}[keyof GameJuiceEvents];
+
 /** The page's juice bus: gameplay and UI announce moments here. */
 export const gameJuiceBus = createJuiceBus<GameJuiceEvents>();
 
@@ -41,6 +47,11 @@ export const gameJuiceBus = createJuiceBus<GameJuiceEvents>();
  * Never throws; with no `GameJuiceRoot` mounted it does nothing.
  */
 export const emitJuice = gameJuiceBus.emit;
+
+/** Emits a collected event (see `GameJuiceEmit`). */
+export function emitJuiceEvent({ name, payload }: GameJuiceEmit): void {
+  (gameJuiceBus.emit as (event: string, data: JuicePayload) => void)(name, payload);
+}
 
 /** Where the inspector's overrides persist; the game prefix lets "Voortgang wissen" clear them. */
 export const GAME_JUICE_STORAGE_KEY = `${GAME_STORAGE_PREFIX}juice-tuning`;
@@ -73,6 +84,7 @@ export function createGameJuiceEffects(sound: SoundPort): JuiceEffectRegistry {
     popEffect,
     pulseEffect,
     zoomEffect,
+    enterEffect,
     timeWarpEffect,
     flashEffect,
     glowEffect,

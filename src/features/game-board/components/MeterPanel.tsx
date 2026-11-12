@@ -1,9 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Coins, Siren, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { MeterKey } from "@/features/game-engine/api";
-import { JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
-import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import type { MeterView, ScoreMarkerView } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
 import { ScoreChart } from "@/features/score-chart/api";
@@ -51,11 +49,8 @@ const MeterDelta = ({ delta, text }: { delta: number; text: string }) => {
 
 export interface MeterPanelProps {
   meters: MeterView[];
-  /** Changes on every action so the delta chips and juice animate again. */
+  /** Changes on every action so the delta chips animate again. */
   version: number;
-  /** Juice of the last action per tile (game-juice): accent mark and gain / loss flash. */
-  accents?: Partial<Record<MeterKey, MeterAccent>>;
-  flashes?: Partial<Record<MeterKey, MeterFlash>>;
   /** Where each line lands if the held card is played (share of its goal); drawn dashed. */
   forecast?: Partial<Record<MeterView["key"], number>> | null;
   /** The held card's change per line as text ("+15.000"), shown at the forecast dot. */
@@ -74,8 +69,6 @@ export interface MeterPanelProps {
 export const MeterPanel = ({
   meters,
   version,
-  accents = {},
-  flashes = {},
   forecast = null,
   forecastText = null,
   markers,
@@ -108,8 +101,6 @@ export const MeterPanel = ({
               tile={tile}
               alignEnd={index === meters.length - 1}
               version={version}
-              accent={accents[tile.key]}
-              flash={flashes[tile.key]}
             />
           ))}
         </ul>
@@ -123,23 +114,24 @@ interface ScoreCounterProps {
   /** The right-hand counter aligns to the chart's right edge. */
   alignEnd: boolean;
   version: number;
-  accent?: MeterAccent;
-  flash?: MeterFlash;
 }
 
-/** One counter over the chart: a translucent backing keeps it readable over the lines. */
-const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterProps) => {
+/**
+ * One counter over the chart: a translucent backing keeps it readable over the lines. It is the
+ * juice anchor `meter:<key>` (flash, glow and mark of `card.played` / `meter.changed`).
+ */
+const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
   const meter = METERS[tile.key];
+  const anchor = useJuiceAnchor(`meter:${tile.key}`);
   return (
     <li
-      {...{ [JUICE_METER_ATTR]: tile.key }}
+      ref={anchor}
       className={cn(
         "relative min-w-0 rounded-md bg-card/80 px-1.5 py-0.5 backdrop-blur-[2px]",
         alignEnd && "justify-self-end text-right",
         tile.full && meter.capGlow
       )}
     >
-      <MeterJuice accent={accent} flash={flash} version={version} />
       {/* Visual readout; the meter below speaks amount, change and goal once (screen-reader D3). */}
       <div
         aria-hidden="true"

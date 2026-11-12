@@ -35,30 +35,39 @@ const METER_LABELS: Record<string, string> = {
  * game. Labels show the anchor names that recipe steps use.
  */
 export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) => (
-  <Anchor name={anchors.board} className="flex flex-col gap-2 bg-background p-3">
-    <div className="grid grid-cols-3 gap-2">
-      {anchors.meters.map((meter) => (
-        <Anchor key={meter} name={meter}>
-          <span className="block truncate font-semibold">{METER_LABELS[meter] ?? meter}</span>
-          <span className="block truncate font-mono text-xs text-muted-foreground">{meter}</span>
+  <Anchor name={anchors.endScreen} className="border-0 bg-transparent p-0">
+    <Anchor name={anchors.board} className="flex flex-col gap-2 bg-background p-3">
+      <div className="grid grid-cols-3 gap-2">
+        {anchors.meters.map((meter) => (
+          <Anchor key={meter} name={meter}>
+            <span className="block truncate font-semibold">{METER_LABELS[meter] ?? meter}</span>
+            <span className="block truncate font-mono text-xs text-muted-foreground">{meter}</span>
+          </Anchor>
+        ))}
+      </div>
+      <Anchor name={anchors.chart} className="h-14">
+        <span className="font-mono text-xs text-muted-foreground">chart</span>
+      </Anchor>
+      <div className="grid grid-cols-2 gap-2">
+        {anchors.outcomes.map((row) => (
+          <Anchor key={row} name={row} className="h-9 py-1">
+            <span className="block truncate font-mono text-xs text-muted-foreground">{row}</span>
+          </Anchor>
+        ))}
+      </div>
+      <Anchor name={anchors.feed} className="h-14">
+        <span className="block font-semibold">Nieuwste post</span>
+        <span className="font-mono text-xs text-muted-foreground">feed:newest</span>
+      </Anchor>
+      <div className="flex items-end justify-between gap-2">
+        <Anchor name={anchors.card} className="h-20 w-16 text-center">
+          <span className="block font-semibold">Kaart</span>
+          <span className="font-mono text-xs text-muted-foreground">origin</span>
         </Anchor>
-      ))}
-    </div>
-    <Anchor name={anchors.chart} className="h-14">
-      <span className="font-mono text-xs text-muted-foreground">chart</span>
+        <Anchor name={anchors.button} className="px-4">
+          <span className="font-semibold">Knop</span>
+        </Anchor>
+      </div>
     </Anchor>
-    <Anchor name={anchors.feed} className="h-14">
-      <span className="block font-semibold">Nieuwste post</span>
-      <span className="font-mono text-xs text-muted-foreground">feed:newest</span>
-    </Anchor>
-    <div className="flex items-end justify-between gap-2">
-      <Anchor name={anchors.card} className="h-20 w-16 text-center">
-        <span className="block font-semibold">Kaart</span>
-        <span className="font-mono text-xs text-muted-foreground">origin</span>
-      </Anchor>
-      <Anchor name={anchors.button} className="px-4">
-        <span className="font-semibold">Knop</span>
-      </Anchor>
-    </div>
   </Anchor>
 );

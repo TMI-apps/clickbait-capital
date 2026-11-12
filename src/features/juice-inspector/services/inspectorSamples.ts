@@ -11,12 +11,15 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
   chart: "chart",
   feed: "feed:newest",
   button: "button",
+  outcomes: ["outcome:users", "outcome:revenue", "outcome:reputation"],
+  endScreen: "end-screen",
   meters: ["meter:users", "meter:revenue", "meter:reputation"],
 };
 
 /** Template vars a sample event carries, so templated targets and texts resolve on the mock board. */
 const SAMPLE_VARS: Record<string, Record<string, string | number>> = {
   "meter.changed": { meter: "users", text: "+1.250" },
+  "outcome.row": { row: "outcome:users" },
 };
 
 /** Every event and variant in the recipe book, in book order (new recipes appear by themselves). */

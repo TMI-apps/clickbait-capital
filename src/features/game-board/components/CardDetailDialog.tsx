@@ -1,4 +1,4 @@
-import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import { useRetainedValue } from "@/shared/hooks/useRetainedValue";
 import { Button } from "@/components/common/Button";
 import { GameCard } from "@/components/common/GameCard";
 import { GlossaryText } from "@/components/common/GlossaryTerm";

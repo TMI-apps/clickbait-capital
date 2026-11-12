@@ -54,7 +54,7 @@ Durations are ms before the motion scale. Intensity (tuning × payload strength)
 - **D2 — No game words (A4).** Colours are theme token names (`tokenColor("type-viral")` → `var(--type-viral)`), so the game decides which colour means what.
 - **D3 — Screen-safety ceilings live in the effect (A6).** Screen opacity ≤ 0.3, ≤ 48 live particles, vibration pulses ≤ 60 ms, time warp ≤ 300 ms, callouts ≥ 1.5 s — applied after intensity and overrides, so no tuning can pass them.
 - **D4 — Time warp touches only juice animations (A7).** It never slows the app's own UI transitions. Overlapping warps share one restore: every animation gets its pre-warp rate back when the last warp ends.
-- **D5 — Screen-level overlays.** A flash, glow or tint on `screen`, or on any target covering ≥ 25 % of the viewport, is capped at 0.3 opacity and spends a screen-flash token; a screen-level glow beats once, ≥ 400 ms. Nodes clean up on finish and on cancel (`oncancel`).
+- **D5 — Screen-level overlays.** A flash, glow or tint on `screen`, or on any target covering ≥ 25 % of the viewport, is capped at 0.3 opacity and spends a screen-flash token; a screen-level glow beats once, ≥ 400 ms. Nodes clean up on finish and on cancel (`oncancel`); a pooled particle node detaches its old flight's handlers before reuse.
 - **D6 — Haptics are fire-and-forget.** `navigator.vibrate(0)` would also stop a newer buzz, so a vibration is never cancelled; pulses are ≤ 60 ms.
 
 ## Testing

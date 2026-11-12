@@ -17,4 +17,8 @@ export interface InspectorAnchorNames {
   feed: string;
   button: string;
   meters: readonly string[];
+  /** Rows of an event's outcome (in the game: the event dialog). */
+  outcomes: readonly string[];
+  /** The end-of-run screen. */
+  endScreen: string;
 }

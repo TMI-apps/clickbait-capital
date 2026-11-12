@@ -4,7 +4,7 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 
 ## Purpose
 
-- **Trigger:** one button per catalog event and variant, grouped by domain. Each button emits the event on the game's real bus, so the real director plays it on a mock board that has every anchor the recipes target: `board`, `meter:users`, `meter:revenue`, `meter:reputation`, `chart`, `feed:newest`, a card as the origin, and a button.
+- **Trigger:** one button per catalog event and variant, grouped by domain. Each button emits the event on the game's real bus, so the real director plays it on a mock board that has every anchor the recipes target: `board`, `meter:users`, `meter:revenue`, `meter:reputation`, `chart`, `feed:newest`, the outcome rows `outcome:users` / `outcome:revenue` / `outcome:reputation`, `end-screen` around the board, a card as the origin, and a button.
 - **Tune:**
   - Global knobs: intensity, tempo (× every duration), volume and vibration.
   - The real Beweging setting, so reduced motion can be previewed.

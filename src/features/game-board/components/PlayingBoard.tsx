@@ -4,11 +4,12 @@ import { Pause } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
-import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import { useRetainedValue } from "@/shared/hooks/useRetainedValue";
 import { useCardForecast } from "@/features/game-board/hooks/useCardForecast";
+import { useBoardReveal } from "@/features/game-board/hooks/useBoardJuice";
 import type { CommentBatch } from "@/features/follower-comments/api";
 import { EventModal } from "@/features/game-flow/api";
-import { JuiceLayer, juiceActionForPost, useActionJuice } from "@/features/game-juice/api";
+import { emitJuice, type GameJuiceEmit } from "@/features/game-juice/api";
 import { UI_COPY } from "@/features/game-content/api";
 import { cn } from "@/shared/utils/cn";
 import type { BoardView, DraftCardView } from "@/features/game-board/types/gameBoard.types";
@@ -80,6 +81,8 @@ const BoardStatus = ({ phase, onPause, children }: BoardStatusProps) => (
 
 export interface PlayingBoardProps {
   view: BoardView;
+  /** The last action's reveal juice (outcome, meters, new post), played once its dialog closed. */
+  reveal: GameJuiceEmit[];
   /** The followers' comments per session step: shown under each feed post, the newest revealed with the juice (feed-comments D1). */
   comments: Array<CommentBatch | null>;
   /** The run continues a save: the board announces where the player is (local-save D5). */
@@ -110,21 +113,26 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const dialogOpen = view.event !== null || eventDialogMounted;
   const screenReader = useBoardScreenReader(view, dialogOpen, props.resumed);
 
-  // An event post plays its option kind's card juice once the event dialog has closed, so the
-  // meters count, flash and throw particles in sight, not behind the overlay (event-juice-drop D1, D3).
-  const juice = useActionJuice({
-    action: juiceActionForPost(view.feed[0]),
-    meters: view.meters,
+  // An answered event's juice plays once its dialog has closed, so the meters flash and the
+  // particles fly in sight, not behind the overlay (event-juice-drop D1, D3).
+  const shown = useBoardReveal({
     key: view.feed.length,
+    reveal: props.reveal,
+    meters: view.meters,
     hold: view.feed[0]?.type === "event" && eventDialogMounted,
   });
 
-  /** Particles start where the card was (or was dropped), so mark it before it leaves. */
-  /** From a drag or the detail dialog's "In de feed" (closing the dialog is a no-op after a drag). */
+  /**
+   * From a drag or the detail dialog's "In de feed" (closing the dialog is a no-op after a drag).
+   * The card's juice starts on the card itself, while it is still on screen (juice-migrate D1);
+   * a card no longer in the draft (a double drop) plays nothing.
+   */
   const playCard = (cardId: string): void => {
     setDetailCard(null);
-    screenReader.rememberSlot(view.draft.findIndex((card) => card.id === cardId));
-    juice.markOrigin(draftCardElement(cardId));
+    const slot = view.draft.findIndex((card) => card.id === cardId);
+    if (slot < 0) return;
+    screenReader.rememberSlot(slot);
+    emitJuice("card.played", { variant: view.draft[slot].type, origin: draftCardElement(cardId) });
     play(cardId);
   };
 
@@ -141,15 +149,13 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
 
   return (
     <DndContext sensors={sensors} {...preview.dragEvents} onDragEnd={handleDragEnd}>
-      <div ref={juice.shakeRef} data-viewport-lock className={BOARD_GRID}>
+      <div ref={shown.boardRef} data-viewport-lock className={BOARD_GRID}>
         <BoardStatus phase={view.phase} onPause={withTap(() => setPaused(true))}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
           <div className="flex min-w-0 flex-col gap-2">
             <MeterPanel
-              meters={juice.meters}
-              version={juice.key}
-              accents={juice.plan?.accents}
-              flashes={juice.plan?.flashes}
+              meters={shown.meters}
+              version={shown.revealKey}
               forecast={preview.forecast}
               forecastText={preview.forecastText}
               markers={view.scoreMarkers}
@@ -161,7 +167,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           <PhoneFeed
             entries={view.feed}
             comments={props.comments}
-            revealKey={juice.key}
+            revealKey={shown.revealKey}
             dragging={preview.dragging}
           />
           <div className="board-split:col-start-2 board-split:row-span-3 board-split:row-start-1 board-split:flex board-split:min-h-0 board-split:flex-col board-split:justify-center">
@@ -173,7 +179,6 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           </div>
         </div>
       </div>
-      <JuiceLayer burst={juice.burst} />
       <p aria-live="polite" className="sr-only">
         <span key={screenReader.announcement.key}>{screenReader.announcement.text}</span>
       </p>
@@ -189,7 +194,10 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       <EventModal
         open={view.event !== null}
         event={shownEvent}
-        onChoose={chooseOption}
+        onChoose={(optionId) => {
+          emitJuice("event.choice");
+          chooseOption(optionId);
+        }}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           screenReader.focusDraftSlot();

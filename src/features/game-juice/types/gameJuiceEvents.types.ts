@@ -31,6 +31,13 @@ export interface GameJuiceCatalog {
     variant: "gain" | "loss" | "gain-big" | "loss-big" | "dull";
     vars: { meter: JuiceMeterKey; text?: string };
   };
+  /** An event's outcome shows in its dialog: the accent of the chosen option's kind. */
+  "event.outcome": { variant: JuiceOptionVariant };
+  /**
+   * One change row of an event's outcome appears: its entrance and gain / loss flash
+   * (`dull` for a journalism answer). `vars.row` names the row anchor, e.g. `outcome:users`.
+   */
+  "outcome.row": { variant: "gain" | "loss" | "dull"; vars: { row: string } };
   /** A post landed at the top of the feed. */
   "feed.landed": { variant: JuiceCardVariant | "event" };
   /** An event interrupts play. */

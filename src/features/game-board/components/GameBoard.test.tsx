@@ -1,4 +1,4 @@
-import { describe, expect, it, onTestFinished, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from "vitest";
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DndContext } from "@dnd-kit/core";
@@ -7,10 +7,16 @@ import { SEED_CONTENT, createGame } from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import type { SavedRun } from "@/features/game-save/api";
 import { getMotionStore } from "@/features/game-settings/api";
+import { GAME_JUICE_RECIPES, gameJuiceBus } from "@/features/game-juice/api";
+import { GameJuiceRoot } from "@/features/game-juice/api/root";
 import { GameBoard } from "@/features/game-board/components/GameBoard";
 import { PhoneFeed } from "@/features/game-board/components/PhoneFeed";
 import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
-import { renderWithProviders } from "tests/test-utils";
+import {
+  installAnimateStub,
+  renderWithProviders,
+  type AnimateStubController,
+} from "tests/test-utils";
 
 /**
  * Seed content where the first card opens a scandal: reputation starts at 0, so the scandal
@@ -286,47 +292,105 @@ describe("GameBoard card details", () => {
 });
 
 describe("GameBoard juice", () => {
-  it("should throw emoji and put flames on Gebruikers when a viral card is played", async () => {
-    const { user } = await renderBoard(SEED_CONTENT, VIRAL_SEED);
+  /** Recipe steps of a card type: expectations come from the recipes (testing.md SSOT). */
+  const cardSteps = (type: "viral" | "ad" | "news") =>
+    GAME_JUICE_RECIPES["card.played"].variants?.[type] ?? [];
+  const particleCountOf = (type: "viral" | "ad" | "news"): number =>
+    cardSteps(type).reduce((sum, step) => sum + (step.effect === "particles" ? step.count : 0), 0);
+  const badgesOf = (type: "viral" | "ad" | "news"): string[] =>
+    cardSteps(type).flatMap((step) => (step.effect === "badge" ? [step.glyph] : []));
+
+  let stub: AnimateStubController;
+  let events: Array<{ name: string; variant?: string; dialogOpen: boolean }>;
+  beforeEach(() => {
+    stub = installAnimateStub();
+    events = [];
+    const stop = gameJuiceBus.listen((name, payload) =>
+      events.push({
+        name,
+        variant: payload.variant,
+        dialogOpen: document.querySelector('[role="dialog"]') !== null,
+      })
+    );
+    onTestFinished(stop);
+  });
+  afterEach(() => {
+    stub.finishAll();
+    stub.restore();
+  });
+
+  const renderJuicedBoard = async (content: GameContent = SEED_CONTENT, seed = DEFAULT_SEED) => {
+    renderWithProviders(
+      <>
+        <GameJuiceRoot />
+        <GameBoard content={content} onQuit={vi.fn()} seed={seed} />
+      </>
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "Aan de slag" }));
+    return { user };
+  };
+
+  const particles = (): number => document.querySelectorAll("[data-juice-particle]").length;
+  const badges = (): string[] =>
+    [...document.querySelectorAll("[data-juice-badge]")].map(
+      (node) => node.getAttribute("data-juice-badge") ?? ""
+    );
+
+  it("should play the viral recipe from the card when a viral card is played", async () => {
+    const { user } = await renderJuicedBoard(SEED_CONTENT, VIRAL_SEED);
     await playCard(user, draftCardOfType("viral"));
 
-    expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
-    expect(screen.getByRole("list", { name: "Gebruikers en geld" }).textContent).toContain("🔥");
+    expect(events).toContainEqual({ name: "card.played", variant: "viral", dialogOpen: false });
+    expect(particles()).toBe(particleCountOf("viral"));
+    expect(badges()).toEqual(badgesOf("viral"));
+    const board = document.querySelector("[data-viewport-lock]");
+    expect(stub.calls.some((call) => call.element === board)).toBe(true);
   });
 
-  it("should fly coins with a gold accent for an ad and throw nothing for news", async () => {
-    const { user } = await renderBoard(SEED_CONTENT, AD_THEN_NEWS_SEED);
+  it("should fly coins for an ad and keep news dull when those cards are played", async () => {
+    const { user } = await renderJuicedBoard(SEED_CONTENT, AD_THEN_NEWS_SEED);
     await playCard(user, draftCardOfType("ad"));
-    expect(document.querySelectorAll('[data-juice-particle="coin"]').length).toBeGreaterThan(0);
-    expect(document.querySelector('[data-juice-accent="gold"]')).not.toBeNull();
+    expect(particles()).toBe(particleCountOf("ad"));
 
+    stub.finishAll();
     await playCard(user, draftCardOfType("news"));
-    // News stays dull; its shield accent has no tile since reputation is hidden (score-redesign D23).
-    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
+    expect(particleCountOf("news")).toBe(0);
+    expect(particles()).toBe(0);
+    const newsPlay = events.findIndex((event) => event.variant === "news");
+    const newsMeters = events.slice(newsPlay).filter((event) => event.name === "meter.changed");
+    expect(newsMeters.length).toBeGreaterThan(0);
+    expect(newsMeters.every((event) => event.variant === "dull")).toBe(true);
   });
 
-  it("should give the board the card juice of the chosen option's kind when an event is answered", async () => {
-    const { user } = await renderBoard(EVENT_NOW);
+  it("should play the option kind's juice on the board only after the event dialog has closed", async () => {
+    const { user } = await renderJuicedBoard(EVENT_NOW);
     await playCard(user, draftCards()[0]);
     const dialog = screen.getByRole("dialog");
     await user.click(within(dialog).getByRole("button", { name: /groei/ }));
     await user.click(within(dialog).getByRole("button", { name: "Verder" }));
-
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
-    expect(document.querySelectorAll('[data-juice-particle="emoji"]').length).toBeGreaterThan(0);
-    const meters = screen.getByRole("list", { name: "Gebruikers en geld" });
-    expect(meters.querySelector('[data-juice-accent="flames"]')).not.toBeNull();
-    expect(meters.querySelector('[data-juice-flash="gain"]')).not.toBeNull();
+
+    const choice = events.findIndex((event) => event.name === "event.choice");
+    const resolved = events.findIndex((event) => event.name === "event.resolved");
+    expect(choice).toBeGreaterThanOrEqual(0);
+    expect(resolved).toBeGreaterThan(choice);
+    expect(events[resolved]).toEqual({
+      name: "event.resolved",
+      variant: "engagement",
+      dialogOpen: false,
+    });
+    expect(particles()).toBeGreaterThan(0);
   });
 
-  it("should throw no particles but keep the state change when the player chooses Verminderd", async () => {
+  it("should throw no particles but keep the marks and the post when the player chooses Verminderd", async () => {
     act(() => getMotionStore().setPreference("reduced"));
     onTestFinished(() => act(() => getMotionStore().reset()));
-    const { user } = await renderBoard(SEED_CONTENT, VIRAL_SEED);
+    const { user } = await renderJuicedBoard(SEED_CONTENT, VIRAL_SEED);
     await playCard(user, draftCardOfType("viral"));
 
-    expect(document.querySelectorAll("[data-juice-particle]")).toHaveLength(0);
-    expect(screen.getByRole("list", { name: "Gebruikers en geld" }).textContent).toContain("🔥");
+    expect(particles()).toBe(0);
+    expect(badges()).toEqual(badgesOf("viral"));
     expect(posts()).toHaveLength(1);
   });
 });

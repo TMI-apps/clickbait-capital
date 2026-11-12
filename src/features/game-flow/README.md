@@ -12,18 +12,18 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 
 ## Structure
 
-| Layer      | Path                                                                  | Purpose                                                                               |
-| ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `ResumeScreen`, `usePhaseIntro` |
-| Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                                       |
+| Layer      | Path                                                                  | Purpose                                                                                 |
+| ---------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                                                        | `EventModal`, `PhaseTransitionScreen`, `GameEndFlow`, `ResumeScreen`, `usePhaseIntro`   |
+| Components | `components/EventModal.tsx`                                           | Non-dismissible event dialog on the `Modal` kit                                         |
 | Components | `components/FlowScreen.tsx`                                           | Full-screen layout: focused heading, optional hero photo, entrance motion, 44px actions |
-| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal and the phase photo                     |
-| Components | `components/ResumeScreen.tsx`                                         | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4)              |
-| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                                      |
-| Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                                         |
-| Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                                   |
-| Services   | `services/endFlow.ts`                                                 | Pure run summary → ending, results and share card (`buildEndReport`)                  |
-| Types      | `types/gameFlow.types.ts`                                             | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`                   |
+| Components | `components/PhaseTransitionScreen.tsx`                                | Phase intro from `PHASE_INTROS` plus the goal and the phase photo                       |
+| Components | `components/ResumeScreen.tsx`                                         | `/spel` with a saved run: "Verder spelen" / "Nieuw spel" (local-save D4)                |
+| Components | `components/GameEndFlow.tsx`, `EndingScreen.tsx`, `ResultsScreen.tsx` | Ending → results                                                                        |
+| Hooks      | `hooks/usePhaseIntro.ts`                                              | Which phase intro is still unseen in this run                                           |
+| Hooks      | `hooks/useGameEndFlow.ts`                                             | Ending/results step and their views                                                     |
+| Services   | `services/endFlow.ts`                                                 | Pure run summary → ending, results and share card (`buildEndReport`)                    |
+| Types      | `types/gameFlow.types.ts`                                             | `FlowEvent`, `FlowPhase`, `RunSummary`, `EndingView`, `ResultsView`                     |
 
 ## Decisions
 
@@ -55,6 +55,6 @@ Colocated Vitest: `services/endFlow.test.ts` (ending, results and share card vie
 - `@/features/game-content/api` (`PHASE_INTROS`, `selectGameOverText` for the ending story, `GAME_OVER_TEXTS` titles for the results, `buildEndReport`, `UI_COPY`).
 - `@/features/result-share/api` (`ShareResultButton`, card types) and `@/config/site` (`SITE_ORIGIN`).
 - `@/features/card-imagery/api` (`getCardImage` for the event photo, `getPhaseImage` for the phase hero).
-- `@/features/game-juice/api` (`EffectsJuice`, `juiceActionForEvent` for the outcome reveal).
+- `@/features/game-juice/api` (`EffectsJuice` for the outcome reveal: the option kind's juice, `event.outcome` / `outcome.row` recipes).
 - Kit: `Modal`, `Button`, `GameCardArtwork`. Icons: `lucide-react`.
 - Used by `@/features/game-board` (`GameBoard`), which maps engine state to these types.

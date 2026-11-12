@@ -14,14 +14,14 @@ import {
   toScandalRisk,
   toScoreMarkers,
 } from "@/features/game-board/services/boardView";
-import { soundsForLastStep } from "@/features/game-board/services/boardSounds";
-import type { BoardSounds } from "@/features/game-board/services/boardSounds";
+import { juiceForLastStep } from "@/features/game-board/services/boardJuice";
+import type { BoardJuice } from "@/features/game-board/services/boardJuice";
 import type { BoardView } from "@/features/game-board/types/gameBoard.types";
 
 export interface BoardSession extends Omit<GameSession, "session"> {
   view: BoardView;
-  /** Sounds earned by the last action; `key` changes once per action (`useBoardSounds`). */
-  sounds: BoardSounds;
+  /** Juice earned by the last action; `key` changes once per action (`useBoardJuice`). */
+  juice: BoardJuice;
   /** The followers' comments under each post, indexed by session step (`FeedEntry.step`, feed-comments D1). */
   comments: Array<CommentBatch | null>;
 }
@@ -42,13 +42,16 @@ const toBoardView = (session: GameSession["session"], content: GameContent): Boa
 
 /**
  * The run as the board shows it: the game-session run (`useGameSession`) plus the board
- * view and the last action's sounds, both derived from the session (game-session-split D1).
+ * view and the last action's juice, both derived from the session (game-session-split D1).
  */
 export function useBoardSession(options: UseGameSessionOptions): BoardSession {
   const { session, ...run } = useGameSession(options);
   const { content } = options;
   const view = useMemo(() => toBoardView(session, content), [session, content]);
-  const sounds = useMemo(() => soundsForLastStep(session, content), [session, content]);
+  const juice = useMemo(
+    () => juiceForLastStep(session, { content, meters: view.meters }),
+    [session, content, view.meters]
+  );
   const comments = useMemo(() => commentsForSession(session, content), [session, content]);
-  return { ...run, view, sounds, comments };
+  return { ...run, view, juice, comments };
 }

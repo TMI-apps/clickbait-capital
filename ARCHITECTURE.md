@@ -21,7 +21,7 @@ src/
 │   │   ├── services/    # Pure functions, API calls
 │   │   └── types/       # TypeScript types for feature
 │   ├── game-engine/     # Pure game rules + content schema; public API in api/index.ts
-│   ├── game-juice/      # The game's juice: event catalog, recipes, emitJuice, GameJuiceRoot (lazy, api/root.ts); old one-off juice until lap 2
+│   ├── game-juice/      # The game's juice: event catalog, recipes, emitJuice, GameJuiceRoot (lazy, api/root.ts), outcome reveal
 │   ├── juice-effects/   # Juice primitives (shake, pop, flash, particles, floater, callout, sound port, haptic, …)
 │   ├── juice-engine/    # Game-agnostic juice runtime: event bus, recipe director, tuning store, anchors, stage
 │   ├── juice-inspector/ # Dev tool at /juice (hidden): trigger and tune every juice event

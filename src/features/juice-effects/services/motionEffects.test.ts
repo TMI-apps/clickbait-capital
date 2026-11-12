@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { JUICE_LIMITS } from "@/features/juice-engine/api";
 import {
+  enterEffect,
   popEffect,
   shakeEffect,
   timeWarpEffect,
@@ -86,5 +87,18 @@ describe("motion effects", () => {
     expect(animation.playbackRate).toBe(0);
     vi.advanceTimersByTime(JUICE_LIMITS.timeWarpMs);
     expect(animation.playbackRate).toBe(1);
+  });
+
+  it("should start the entrance from the step's offset and scale when it plays", () => {
+    const post = document.createElement("div");
+    enterEffect.run(
+      { effect: "enter", target: "post", dy: -12, scale: 0.9, duration: 420, easing: "linear" },
+      createJuiceTestContext({ anchors: { post } })
+    );
+    expect(stub.calls[0].keyframes[0]).toEqual({
+      opacity: 0,
+      transform: "translateY(-12px) scale(0.9)",
+    });
+    expect(stub.calls[0].options).toMatchObject({ easing: "linear", fill: "backwards" });
   });
 });

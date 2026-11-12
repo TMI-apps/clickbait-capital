@@ -118,17 +118,21 @@ function flyParticle(
     },
     context
   );
-  const release = (): void => releaseParticleNode(node);
   if (!animation) {
-    release();
-    return release;
+    releaseParticleNode(node);
+    return () => undefined;
   }
+  // Detach this flight from the node before it goes back to the pool: a stale finish or cancel
+  // of an earlier flight must never release the node while a later burst uses it.
+  const release = (): void => {
+    animation.onfinish = null;
+    animation.oncancel = null;
+    animation.cancel();
+    releaseParticleNode(node);
+  };
   animation.onfinish = release;
   animation.oncancel = release;
-  return () => {
-    animation.cancel();
-    release();
-  };
+  return release;
 }
 
 /** Glyphs that burst out or fly to a target (emoji, coins, confetti); never past the live cap. */
