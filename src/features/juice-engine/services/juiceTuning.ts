@@ -60,6 +60,7 @@ export interface JuiceTuningOptions {
 export const juiceStepKey = (event: string, branch: string, index: number): string =>
   `${event}/${branch}/${index}`;
 
+/** Second copy: game-save `savedRunStorage.ts` has the same guard; extract to `src/shared/utils/` at a third. */
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 

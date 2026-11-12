@@ -16,8 +16,10 @@ import type {
 } from "@/features/juice-engine/types/juiceEngine.types";
 
 /** How long a run counts toward the concurrency cap after its last step started, ms. */
-const RUN_TAIL_MS = 1500;
+const RUN_TAIL_MS = 3000;
 const FLASH_WINDOW_MS = 1000;
+/** Tracked animations above which finished ones are pruned on the next track. */
+const TRACKER_PRUNE_AT = 64;
 
 export interface JuiceDirectorOptions {
   effects: JuiceEffectRegistry;
@@ -146,6 +148,8 @@ function createAnimationTracker() {
   };
   return {
     track: (animation: Animation): void => {
+      // Prune as we go, so a long session never piles up finished animations and their nodes.
+      if (tracked.size >= TRACKER_PRUNE_AT) running();
       tracked.add(animation);
     },
     running,
@@ -154,6 +158,36 @@ function createAnimationTracker() {
       tracked.clear();
     },
   };
+}
+
+/** The step with its `{var}` target filled, so the flash guard sees where it really plays. */
+function filledTarget(step: JuiceStepData, payload: JuicePayload): JuiceStepData {
+  return typeof step.target === "string"
+    ? { ...step, target: fillJuiceTemplate(step.target, payload.vars) }
+    : step;
+}
+
+interface PlanInput {
+  steps: JuiceStepData[];
+  effects: JuiceEffectRegistry;
+  tuning: JuiceTuning;
+  gates: JuiceGates;
+  random: () => number;
+}
+
+/** The steps that play right now, with their effect, form and delay (× motion scale). */
+function planJuiceSteps({ steps, effects, tuning, gates, random }: PlanInput): StepPlan[] {
+  return steps.flatMap((step) => {
+    const effect = effects[step.effect];
+    if (!effect) {
+      if (import.meta.env.DEV) console.warn(`[juice] unknown effect "${step.effect}"`);
+      return [];
+    }
+    const gate = gateJuiceStep({ step, effect, tuning, gates, random });
+    if (!gate) return [];
+    const delay = Math.max(0, (step.at ?? 0) * tuning.motionScale);
+    return [{ step, effect, reduced: gate.reduced, delay }];
+  });
 }
 
 interface GateInput {
@@ -198,6 +232,7 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
     viewport = defaultViewport,
   } = options;
   const runs: Run[] = [];
+  const retireTimers = new Set<JuiceCancel>();
   const lastStart = new Map<string, number>();
   const takeFlash = createFlashGuard(now);
   const tracker = createAnimationTracker();
@@ -225,6 +260,7 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
       reduced,
       random,
       fill: (template) => fillJuiceTemplate(template, payload.vars),
+      claimScreenFlash: takeFlash,
       track: tracker.track,
       animations: tracker.running,
     };
@@ -232,30 +268,18 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
 
   const fire = (run: Run, plan: StepPlan, payload: JuicePayload): void => {
     if (isHidden()) return;
-    if (plan.effect.flashes(plan.step) && !takeFlash()) return;
+    if (plan.effect.flashes(filledTarget(plan.step, payload)) && !takeFlash()) return;
     const cancel = plan.effect.run(plan.step, contextFor(payload, plan.reduced));
     if (cancel) run.cancels.add(cancel);
   };
 
-  const planSteps = (steps: JuiceStepData[]): StepPlan[] => {
-    const tuning = getTuning();
-    const gates = getGates();
-    return steps.flatMap((step) => {
-      const effect = effects[step.effect];
-      if (!effect) {
-        if (import.meta.env.DEV) console.warn(`[juice] unknown effect "${step.effect}"`);
-        return [];
-      }
-      const gate = gateJuiceStep({ step, effect, tuning, gates, random });
-      if (!gate) return [];
-      const delay = Math.max(0, (step.at ?? 0) * tuning.motionScale);
-      return [{ step, effect, reduced: gate.reduced, delay }];
-    });
-  };
+  const planSteps = (steps: JuiceStepData[]): StepPlan[] =>
+    planJuiceSteps({ steps, effects, tuning: getTuning(), gates: getGates(), random });
 
-  const start = (name: string, recipe: JuiceRecipe, payload: JuicePayload): void => {
+  /** Starts a run; false when every step was gated out (nothing plays, no cooldown). */
+  const start = (name: string, recipe: JuiceRecipe, payload: JuicePayload): boolean => {
     const plans = planSteps(juiceRecipeSteps(recipe, payload.variant));
-    if (plans.length === 0) return;
+    if (plans.length === 0) return false;
     const run: Run = { name, tag: recipe.tag, cancels: new Set() };
     runs.push(run);
     while (runs.length > JUICE_LIMITS.concurrentRuns) cancelRun(runs[0]);
@@ -265,7 +289,12 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
       if (plan.delay === 0) fire(run, plan, payload);
       else run.cancels.add(schedule(() => fire(run, plan, payload), plan.delay));
     }
-    schedule(() => retire(run), last + RUN_TAIL_MS);
+    const stopRetire = schedule(() => {
+      retireTimers.delete(stopRetire);
+      retire(run);
+    }, last + RUN_TAIL_MS);
+    retireTimers.add(stopRetire);
+    return true;
   };
 
   const play = (name: string, payload: JuicePayload): void => {
@@ -274,8 +303,7 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
     const time = now();
     const previous = lastStart.get(name);
     if (recipe.cooldownMs && previous !== undefined && time - previous < recipe.cooldownMs) return;
-    lastStart.set(name, time);
-    start(name, recipe, payload);
+    if (start(name, recipe, payload)) lastStart.set(name, time);
   };
 
   return {
@@ -284,6 +312,8 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
     cancelAll: () => {
       [...runs].forEach(cancelRun);
       tracker.cancelAll();
+      retireTimers.forEach((stopTimer) => stopTimer());
+      retireTimers.clear();
     },
   };
 }

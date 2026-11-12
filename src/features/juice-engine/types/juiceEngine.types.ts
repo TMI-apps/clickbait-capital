@@ -132,6 +132,11 @@ export interface JuiceEffectContext {
   track: (animation: Animation) => void;
   /** The juice's own animations that are still running. */
   animations: () => Animation[];
+  /**
+   * Spends one screen-flash token (≤ 3 per second, WCAG 2.3.1); false = skip. Overlay effects call
+   * it when a non-`screen` target is large enough to count as a screen flash.
+   */
+  claimScreenFlash: () => boolean;
 }
 
 /** Range and unit of one numeric effect parameter; the inspector draws its control from it. */

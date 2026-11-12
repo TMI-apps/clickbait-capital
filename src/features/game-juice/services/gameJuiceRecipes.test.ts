@@ -64,7 +64,7 @@ describe("GAME_JUICE_RECIPES", () => {
     }
   });
 
-  it("should give an answered event the same visuals as the card of its kind", () => {
+  it("should give an answered event the same visuals as the card of its kind when it resolves", () => {
     const cards = GAME_JUICE_RECIPES["card.played"].variants;
     const events = GAME_JUICE_RECIPES["event.resolved"].variants;
     const visuals = (steps: JuiceEffectStep[] = []) =>
@@ -74,14 +74,14 @@ describe("GAME_JUICE_RECIPES", () => {
     expect(events?.journalism).toEqual(visuals(cards?.news));
   });
 
-  it("should never ask for more particles than the stage keeps alive", () => {
+  it("should never ask for more particles than the stage keeps alive when a recipe throws them", () => {
     const counts = ALL_STEPS.filter((step) => step.effect === "particles").map((step) =>
       Number(step.count)
     );
     expect(Math.max(...counts)).toBeLessThanOrEqual(JUICE_LIMITS.liveParticles);
   });
 
-  it("should keep every screen flash within the screen opacity limit", () => {
+  it("should keep every screen flash within the screen opacity limit when a recipe flashes", () => {
     const screen = ALL_STEPS.filter(
       (step) => EFFECTS[step.effect]?.flashes(step) && typeof step.opacity === "number"
     );

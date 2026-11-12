@@ -29,6 +29,7 @@ beforeEach(() => {
   play.mockClear();
 });
 afterEach(() => {
+  vi.useRealTimers();
   stub.finishAll();
   stub.restore();
   getMotionStore().reset();
@@ -47,6 +48,16 @@ const particleCount = (): number => document.querySelectorAll("[data-juice-parti
 
 const triggerViral = (): void => {
   fireEvent.click(screen.getByRole("button", { name: "card.played · viral" }));
+};
+
+/** Selects viral (playing it once) and types a new particle count into its step editor. */
+const setViralParticleCount = (value: string): void => {
+  triggerViral();
+  stub.finishAll();
+  const step = screen.getByRole("group", { name: `Stap ${viralParticleIndex + 1}: particles` });
+  fireEvent.change(within(step).getByRole("spinbutton", { name: "Aantal" }), {
+    target: { value },
+  });
 };
 
 describe("JuiceInspector", () => {
@@ -68,17 +79,15 @@ describe("JuiceInspector", () => {
     expect(document.querySelector("[data-juice-badge]")).not.toBeNull();
   });
 
-  it("should apply an edited step value on the next run and keep it after a remount", async () => {
+  it("should apply an edited step value on the next run and keep it when the page reloads", () => {
+    vi.useFakeTimers();
     const { unmount } = renderInspector();
-    fireEvent.click(screen.getByRole("button", { name: "card.played · viral" }));
-    stub.finishAll();
-    const step = screen.getByRole("group", { name: `Stap ${viralParticleIndex + 1}: particles` });
-    fireEvent.change(within(step).getByRole("spinbutton", { name: "Aantal" }), {
-      target: { value: "4" },
-    });
+    setViralParticleCount("4");
     triggerViral();
     expect(particleCount()).toBe(4);
-    await act(() => new Promise((resolve) => setTimeout(resolve, 300)));
+    act(() => {
+      vi.runOnlyPendingTimers();
+    });
     expect(window.localStorage.getItem(GAME_JUICE_STORAGE_KEY)).toContain('"count":4');
     unmount();
     stub.finishAll();

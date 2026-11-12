@@ -18,7 +18,7 @@ const MOCK_ANCHORS = new Set<string>([
 ]);
 
 describe("inspectorEntries", () => {
-  it("should list every event and every variant of the game's recipes", () => {
+  it("should list every event and every variant when built from the game's recipes", () => {
     for (const [event, recipe] of Object.entries(GAME_JUICE_BOOK)) {
       const variants = Object.keys(recipe.variants ?? {});
       const listed = entries.filter((entry) => entry.event === event).map((entry) => entry.variant);

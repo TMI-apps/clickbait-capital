@@ -58,4 +58,4 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 - `@/features/game-juice/api`: bus, tuning store, effect registry, recipes.
 - `@/features/juice-engine/api`: anchors, tuning hook, types.
 - `@/features/game-settings/api`: the Beweging setting.
-- Kit: `Button`, `Input`, `SegmentedControl`, `Textarea`.
+- Kit: `Button`, `Input`, `SegmentedControl`, `Textarea`. The sliders are native `<input type="range">`: the kit has no slider, and this dev tool alone doesn't justify adding one (add a kit `Slider` when a player-facing screen needs one).

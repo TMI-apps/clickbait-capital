@@ -153,9 +153,29 @@ function setRate(animation: Animation, rate: number): void {
   else animation.playbackRate = rate;
 }
 
+/** Warps running now; animations keep their pre-warp rate until the last warp ends. */
+let activeWarps = 0;
+const originalRates = new Map<Animation, number>();
+
+function beginWarp(animations: Animation[], rate: number): void {
+  activeWarps += 1;
+  animations.forEach((animation) => {
+    if (!originalRates.has(animation)) originalRates.set(animation, animation.playbackRate);
+    setRate(animation, rate);
+  });
+}
+
+function endWarp(): void {
+  activeWarps = Math.max(0, activeWarps - 1);
+  if (activeWarps > 0) return;
+  originalRates.forEach((rate, animation) => setRate(animation, rate));
+  originalRates.clear();
+}
+
 /**
  * Hit-stop (rate 0) or slow-mo: slows only the animations the juice itself started, never the
- * app's UI, for at most `JUICE_LIMITS.timeWarpMs`, and restores them on time or on cancel.
+ * app's UI, for at most `JUICE_LIMITS.timeWarpMs`. Overlapping warps share one restore: every
+ * animation gets its pre-warp rate back when the last warp ends or is cancelled.
  */
 export const timeWarpEffect = defineJuiceEffect<TimeWarpStep>({
   id: "timeWarp",
@@ -168,19 +188,17 @@ export const timeWarpEffect = defineJuiceEffect<TimeWarpStep>({
   run: (step, context) => {
     const animations = context.animations();
     if (animations.length === 0) return;
-    const rate = clampJuice(step.rate, 0, 1);
-    const previous = animations.map((animation) => animation.playbackRate);
-    animations.forEach((animation) => setRate(animation, rate));
-    let restored = false;
-    const restore = (): void => {
-      if (restored) return;
-      restored = true;
-      animations.forEach((animation, index) => setRate(animation, previous[index]));
+    beginWarp(animations, clampJuice(step.rate, 0, 1));
+    let ended = false;
+    const end = (): void => {
+      if (ended) return;
+      ended = true;
+      endWarp();
     };
-    const timer = setTimeout(restore, clampJuice(step.duration, 0, JUICE_LIMITS.timeWarpMs));
+    const timer = setTimeout(end, clampJuice(step.duration, 0, JUICE_LIMITS.timeWarpMs));
     return () => {
       clearTimeout(timer);
-      restore();
+      end();
     };
   },
 });

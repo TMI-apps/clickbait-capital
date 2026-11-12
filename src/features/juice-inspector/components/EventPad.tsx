@@ -27,11 +27,11 @@ export const EventPad = ({ entries, selected, onTrigger }: EventPadProps) => {
                   key={entry.label}
                   variant={selected?.label === entry.label ? "secondary" : "outline"}
                   size="sm"
-                  className="min-h-11 font-mono text-xs"
+                  className="min-h-11"
                   aria-pressed={selected?.label === entry.label}
                   onClick={() => onTrigger(entry)}
                 >
-                  {entry.label}
+                  <span className="font-mono text-xs">{entry.label}</span>
                 </Button>
               ))}
           </div>

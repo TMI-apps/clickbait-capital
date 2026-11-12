@@ -28,11 +28,18 @@ export const JUICE_LIMITS = {
   timeWarpMs: 300,
   /** Shortest time a text callout stays readable, ms (11-year-old readers). */
   minReadMs: 1500,
+  /** Share of the viewport above which an overlay counts as a screen flash. */
+  screenAreaShare: 0.25,
+  /** Shortest beat of a screen-wide glow, ms (one beat per guard token). */
+  screenBeatMs: 400,
   /** Highest intensity after tuning × strength. */
   maxIntensity: 3,
 } as const;
 
-/** Clamps `value` into `[min, max]`; non-finite values become `min`. */
+/**
+ * Clamps `value` into `[min, max]`; non-finite values become `min`.
+ * Second copy: game-audio `soundPlayer.ts` has the same `clamp`; extract to `src/shared/utils/` at a third.
+ */
 export function clampJuice(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));

@@ -27,6 +27,21 @@ const offsets = (): number[] =>
   );
 
 describe("motion effects", () => {
+  it("should restore the original rate when two time warps overlap", () => {
+    vi.useFakeTimers();
+    const card = document.createElement("div");
+    const context = createJuiceTestContext({ anchors: { card } });
+    popEffect.run({ effect: "pop", target: "card", scale: 1.2, duration: 300 }, context);
+    const animation = stub.calls[0].animation;
+    timeWarpEffect.run({ effect: "timeWarp", rate: 0, duration: 100 }, context);
+    vi.advanceTimersByTime(50);
+    timeWarpEffect.run({ effect: "timeWarp", rate: 0.5, duration: 100 }, context);
+    vi.advanceTimersByTime(50);
+    expect(animation.playbackRate).toBe(0.5);
+    vi.advanceTimersByTime(50);
+    expect(animation.playbackRate).toBe(1);
+  });
+
   it("should shake the target harder when the intensity is higher", () => {
     const board = document.createElement("div");
     shakeEffect.run(
@@ -61,7 +76,7 @@ describe("motion effects", () => {
     expect(stub.calls).toHaveLength(0);
   });
 
-  it("should slow the juice's own animations and restore them after the time warp", () => {
+  it("should slow the juice's own animations and restore them when the time warp ends", () => {
     vi.useFakeTimers();
     const card = document.createElement("div");
     const context = createJuiceTestContext({ anchors: { card } });

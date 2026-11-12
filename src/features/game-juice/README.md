@@ -50,7 +50,7 @@ emitJuice("card.played", { variant: "viral", origin: cardElement });
 3. Emit it where the moment happens (`emitJuice`, after the state change renders). Make the elements it targets anchors.
 4. Feel it in `/juice`, tune it, and fold the exported JSON back into the recipe (`src/features/juice-inspector/README.md`).
 
-**Adjust juice:** edit the step values in `GAME_JUICE_RECIPES`, or tune them live in `/juice` and copy the JSON. Global intensity, tempo, volume and vibration live in the inspector too. Hard ceilings (`JUICE_LIMITS`) keep any tuning within the accessibility limits.
+**Adjust juice:** edit the step values in `GAME_JUICE_RECIPES`, or tune them live in `/juice` and copy the JSON. Global intensity, tempo, volume and vibration live in the inspector too. Hard ceilings (`JUICE_LIMITS`) keep any tuning within the accessibility limits. `emitJuice` is typed per event: an event with required vars (e.g. `meter.changed` needs `vars.meter`) does not compile without them.
 
 **A new kind of effect:** see "How to add a primitive" in `src/features/juice-effects/README.md`, then register it in `createGameJuiceEffects`.
 

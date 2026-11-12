@@ -41,7 +41,11 @@ function createClock() {
   };
 }
 
-function setup(book: JuiceRecipeBook, overrides: Partial<JuiceTuning> = {}) {
+function setup(
+  book: JuiceRecipeBook,
+  overrides: Partial<JuiceTuning> = {},
+  options: { hidden?: () => boolean } = {}
+) {
   const played: Played[] = [];
   const cancels: string[] = [];
   const record =
@@ -99,7 +103,7 @@ function setup(book: JuiceRecipeBook, overrides: Partial<JuiceTuning> = {}) {
     schedule: clock.schedule,
     now: clock.now,
     random: () => 0.5,
-    isHidden: () => false,
+    isHidden: options.hidden ?? (() => false),
     findAnchor: () => null,
     getStage: () => null,
   });
@@ -170,6 +174,39 @@ describe("createJuiceDirector", () => {
 });
 
 describe("createJuiceDirector limits and options", () => {
+  it("should guard a templated target that fills to the screen like a screen step", () => {
+    const { director, played } = setup({
+      boom: { steps: [{ effect: "flash", target: "{where}" }] },
+    });
+    for (let index = 0; index < JUICE_LIMITS.screenFlashesPerSecond + 2; index += 1)
+      director.play("boom", { vars: { where: "screen" } });
+    expect(played).toHaveLength(JUICE_LIMITS.screenFlashesPerSecond);
+  });
+
+  it("should drop steps that come due while the tab is hidden", () => {
+    let hidden = false;
+    const { director, played, clock } = setup(
+      { hit: { steps: [{ effect: "sound" }, { effect: "shake", at: 100 }] } },
+      {},
+      { hidden: () => hidden }
+    );
+    director.play("hit", {});
+    hidden = true;
+    clock.advance(100);
+    expect(effectsOf(played)).toEqual(["sound"]);
+  });
+
+  it("should not start the cooldown when every step was gated out", () => {
+    const { director, played, gates } = setup({
+      tap: { cooldownMs: 1000, steps: [{ effect: "shake" }] },
+    });
+    gates.reducedMotion = true;
+    director.play("tap", {});
+    gates.reducedMotion = false;
+    director.play("tap", {});
+    expect(effectsOf(played)).toEqual(["shake"]);
+  });
+
   it("should ignore an event during its cooldown when the recipe sets one", () => {
     const { director, played, clock } = setup({
       tap: { cooldownMs: 100, steps: [{ effect: "sound" }] },

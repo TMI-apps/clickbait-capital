@@ -42,6 +42,45 @@ describe("overlay effects", () => {
     expect(glowEffect.flashes({ effect: "glow", target: "screen" })).toBe(true);
   });
 
+  it("should cap a flash at the screen opacity and spend a flash token when its target covers most of the screen", () => {
+    const board = document.createElement("div");
+    let claimed = 0;
+    const context = createJuiceTestContext({
+      anchors: { board },
+      overrides: {
+        resolve: (ref) =>
+          ref === "screen"
+            ? { element: null, rect: { x: 0, y: 0, width: 100, height: 100 }, isScreen: true }
+            : { element: board, rect: { x: 0, y: 0, width: 80, height: 80 }, isScreen: false },
+        claimScreenFlash: () => {
+          claimed += 1;
+          return claimed === 1;
+        },
+      },
+    });
+    const step = {
+      effect: "flash",
+      target: "board",
+      color: "success",
+      opacity: 0.6,
+      duration: 300,
+    };
+    flashEffect.run(step, context);
+    flashEffect.run(step, context);
+    expect(peakOpacity()).toBe(JUICE_LIMITS.screenOpacity);
+    expect(stub.calls).toHaveLength(1);
+  });
+
+  it("should beat once and no faster than the screen beat when a glow covers the screen", () => {
+    const context = createJuiceTestContext();
+    glowEffect.run(
+      { effect: "glow", target: "screen", color: "type-ad", times: 6, duration: 50 },
+      context
+    );
+    expect(stub.calls[0].options.iterations).toBe(1);
+    expect(stub.calls[0].options.duration).toBe(JUICE_LIMITS.screenBeatMs);
+  });
+
   it("should remove its node from the stage when the animation finishes", () => {
     const tile = document.createElement("div");
     const context = createJuiceTestContext({ anchors: { tile } });
@@ -84,7 +123,7 @@ describe("overlay effects", () => {
     expect(stub.calls[0].keyframes.some((frame) => frame.transform)).toBe(false);
   });
 
-  it("should map a token name to its CSS variable and reject anything else", () => {
+  it("should map a token name to its CSS variable and reject anything else when resolving a colour", () => {
     expect(tokenColor("type-viral")).toBe("var(--type-viral)");
     expect(tokenColor("red; background: url(x)")).toBe("currentColor");
   });

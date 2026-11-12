@@ -37,6 +37,7 @@ const defaultFetchBytes = async (url: string): Promise<ArrayBuffer> => {
   return response.arrayBuffer();
 };
 
+/** Second copy: juice-engine `clampJuice`; extract to `src/shared/utils/` at a third. */
 const clamp = (value: number, min: number, max: number): number =>
   Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
 

@@ -54,7 +54,7 @@ export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) =
     <div className="flex items-end justify-between gap-2">
       <Anchor name={anchors.card} className="h-20 w-16 text-center">
         <span className="block font-semibold">Kaart</span>
-        <span className="font-mono text-[0.6rem] text-muted-foreground">origin</span>
+        <span className="font-mono text-xs text-muted-foreground">origin</span>
       </Anchor>
       <Anchor name={anchors.button} className="px-4">
         <span className="font-semibold">Knop</span>

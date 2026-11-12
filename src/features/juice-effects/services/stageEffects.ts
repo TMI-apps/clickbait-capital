@@ -124,6 +124,7 @@ function flyParticle(
     return release;
   }
   animation.onfinish = release;
+  animation.oncancel = release;
   return () => {
     animation.cancel();
     release();

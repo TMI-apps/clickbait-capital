@@ -274,6 +274,7 @@ export function createJuiceTestContext(
     fill: (template) => template,
     track: (animation) => tracked.push(animation),
     animations: () => tracked.filter((animation) => animation.playState === "running"),
+    claimScreenFlash: () => true,
     ...options.overrides,
   } as JuiceEffectContext & { stage: HTMLElement };
 }

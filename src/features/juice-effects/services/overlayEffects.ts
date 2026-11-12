@@ -73,6 +73,8 @@ export function playNode(
     return remove;
   }
   animation.onfinish = remove;
+  // A cancel from outside (director cancelAll, time-warp teardown) cleans up too.
+  animation.oncancel = remove;
   return () => {
     animation.cancel();
     remove();
@@ -85,10 +87,34 @@ function hugCorners(node: HTMLElement, target: JuiceResolvedTarget): void {
   node.style.borderRadius = getComputedStyle(target.element).borderRadius;
 }
 
-/** Peak opacity: screen-wide overlays never pass the WCAG margin, local ones stay soft. */
-function overlayOpacity(opacity: number, target: JuiceResolvedTarget, intensity: number): number {
-  const ceiling = target.isScreen ? JUICE_LIMITS.screenOpacity : 0.6;
-  return clampJuice(opacity * intensity, 0, ceiling);
+/** True when the overlay covers enough of the screen to count as a screen flash (WCAG 2.3.1). */
+function isScreenLevel(target: JuiceResolvedTarget, context: JuiceEffectContext): boolean {
+  if (target.isScreen) return true;
+  const screen = context.resolve("screen")?.rect;
+  if (!screen || screen.width * screen.height === 0) return false;
+  const share = (target.rect.width * target.rect.height) / (screen.width * screen.height);
+  return share >= JUICE_LIMITS.screenAreaShare;
+}
+
+/**
+ * The overlay's target, or null when it should not play: a large non-screen target spends a
+ * screen-flash token like a `screen` step (the director already spent one for `screen` steps).
+ */
+function overlayTarget(ref: string, context: JuiceEffectContext): JuiceResolvedTarget | null {
+  const target = context.resolve(ref);
+  if (!target) return null;
+  if (!target.isScreen && isScreenLevel(target, context) && !context.claimScreenFlash())
+    return null;
+  return target;
+}
+
+/** Peak opacity: screen-level overlays never pass the WCAG margin, local ones stay soft. */
+function overlayOpacity(
+  opacity: number,
+  { target, context }: { target: JuiceResolvedTarget; context: JuiceEffectContext }
+): number {
+  const ceiling = isScreenLevel(target, context) ? JUICE_LIMITS.screenOpacity : 0.6;
+  return clampJuice(opacity * context.intensity, 0, ceiling);
 }
 
 const COLOR_PARAMS = {
@@ -103,13 +129,13 @@ export const flashEffect = defineJuiceEffect<FlashStep>({
   params: { ...COLOR_PARAMS, opacity: { unit: "", min: 0, max: 1, step: 0.05, label: "Dekking" } },
   flashes: (step) => step.target === "screen",
   run: (step, context) => {
-    const target = context.resolve(step.target);
+    const target = overlayTarget(step.target, context);
     if (!target) return;
     const node = createStageNode(context, target.rect);
     if (!node) return;
     hugCorners(node, target);
     node.style.background = tokenColor(step.color);
-    const peak = overlayOpacity(step.opacity, target, context.intensity);
+    const peak = overlayOpacity(step.opacity, { target, context });
     return playNode(
       {
         element: node,
@@ -129,21 +155,25 @@ export const glowEffect = defineJuiceEffect<GlowStep>({
   params: { ...COLOR_PARAMS, times: { unit: "×", min: 1, max: 6, step: 1, label: "Keer" } },
   flashes: (step) => step.target === "screen",
   run: (step, context) => {
-    const target = context.resolve(step.target);
+    const target = overlayTarget(step.target, context);
     if (!target) return;
     const node = createStageNode(context, target.rect);
     if (!node) return;
     hugCorners(node, target);
     const color = tokenColor(step.color);
     node.style.boxShadow = `0 0 18px 4px ${color}, inset 0 0 0 2px ${color}`;
-    const peak = clampJuice(context.intensity, 0, target.isScreen ? JUICE_LIMITS.screenOpacity : 1);
+    const screenLevel = isScreenLevel(target, context);
+    const peak = clampJuice(context.intensity, 0, screenLevel ? JUICE_LIMITS.screenOpacity : 1);
+    // A screen-level glow beats once and slowly: one flash per guard token.
+    const beats = screenLevel ? 1 : clampJuice(Math.round(step.times), 1, 6);
+    const beatMs = scaledMs(step.duration, context);
     return playNode(
       {
         element: node,
         keyframes: [{ opacity: 0 }, { opacity: peak, offset: 0.4 }, { opacity: 0 }],
         options: {
-          duration: scaledMs(step.duration, context),
-          iterations: clampJuice(Math.round(step.times), 1, 6),
+          duration: screenLevel ? Math.max(JUICE_LIMITS.screenBeatMs, beatMs) : beatMs,
+          iterations: beats,
           easing: "ease-in-out",
         },
       },
@@ -160,14 +190,14 @@ export const tintEffect = defineJuiceEffect<TintStep>({
   params: { ...COLOR_PARAMS, opacity: { unit: "", min: 0, max: 1, step: 0.05, label: "Dekking" } },
   flashes: (step) => step.target === "screen",
   run: (step, context) => {
-    const target = context.resolve(step.target);
+    const target = overlayTarget(step.target, context);
     if (!target) return;
     const node = createStageNode(context, target.rect);
     if (!node) return;
     hugCorners(node, target);
     const color = tokenColor(step.color);
     node.style.background = `radial-gradient(ellipse at center, transparent 45%, ${color} 100%)`;
-    const peak = overlayOpacity(step.opacity, target, context.intensity);
+    const peak = overlayOpacity(step.opacity, { target, context });
     return playNode(
       {
         element: node,

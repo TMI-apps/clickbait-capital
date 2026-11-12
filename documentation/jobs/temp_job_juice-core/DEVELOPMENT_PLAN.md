@@ -19,7 +19,7 @@
 | 2 | `juice-effects`: primitives; move `particlePaths` + `motionTokens`; `game-audio` play options | effect unit tests green; game-juice + game-audio tests green | Done |
 | 3 | `game-juice`: catalog, recipes, runtime, `GameJuiceRoot` (lazy in `App.tsx`) | recipe tests green; bundle check | Done |
 | 4 | `juice-inspector` + `/juice` page | acceptance test green; Playwright on `/juice` | Done |
-| 5 | Docs + full check | full tooling gate; READMEs; Playwright phone/desk/reduced | Pending |
+| 5 | Docs + full check | full tooling gate; READMEs; Playwright phone/desk/reduced | Done |
 
 ## Design
 
@@ -172,6 +172,12 @@ gameplay / UI ──emitJuice(name, payload)──► gameJuiceBus ──► dir
 ## Notes during development
 
 Advisory (not promoted): fold a thin `card.played` slice into lap 1 (rejected: D9 keeps lap 1 free of gameplay changes; recipes mirror today's juice 1:1 so the format is proven against it in lap 2); dock the inspector as an overlay on `/spel` (later lap, after the standalone page); "Voortgang wissen" should also reset the in-memory tuning (lap 4 with the settings work); ducking / mix buses (out of scope for web); background-tab desync handled by A6 drop rule.
+
+## Check summary
+
+Check (impl): 0 blockers · 11 warnings fixed (test titles; F2 markers on `clampJuice` / `isRecord`; real timer in the acceptance test; screen-level overlays on large targets and screen glow beats; templated flash-guard bypass; overlapping time warps; tracker growth; cleanup on cancel; cooldown without play; haptic cancel; kit typography on Button) · advisory 9 (listed below) · verified: type-check, full lint (no new warnings), 677 Vitest + 150 node tests, arch, structure, feature size, feature docs, bundle 139.8 / 150 KiB, Playwright `/juice` at 390×844 and 1440×900 (+ emulated reduced motion), edit → persisted → applied, `/spel` unchanged · not verified: real phones (vibration on Android, iOS Safari composite add), sound pitch variation by ear.
+
+Advisory (not fixed, for laps 2–4): expose `stopJuice(tag)` and a loop flag (scandal ramp, hover); numeric payload bindings beyond `strength` (drag, forecast, scandal level); recipe priority for the concurrency cap; per-key cooldown (per meter); `GameJuiceRoot` loads on every route (needed for buttons / navigation in lap 4; ~one lazy chunk); "Voortgang wissen" should reset the in-memory tuning (lap 4); type casts at the recipe-book boundary and the inspector's untyped emit; sticky mock board takes ~⅓ of a phone screen; the particle glow peaks at 0.7 (local, < 25 % of the screen).
 
 ## Decisions made
 

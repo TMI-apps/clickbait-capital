@@ -29,15 +29,17 @@ The game-agnostic runtime of the juice system: gameplay **emits semantic events*
 
 ## Rules the director enforces
 
-| Rule            | Value (`JUICE_LIMITS`)                                                            |
-| --------------- | --------------------------------------------------------------------------------- |
-| Reduced motion  | `skip` effects dropped, `static` effects shown without movement, `keep` played    |
-| Haptics         | only with tuning `haptics`, the player's gate, and no reduced motion              |
-| Screen flashes  | at most `screenFlashesPerSecond` (3) per rolling second (WCAG 2.3.1)              |
-| Concurrent runs | `concurrentRuns` (6); the oldest run is cancelled                                 |
-| Intensity       | tuning × payload `strength` (0–2), at most `maxIntensity`                         |
-| Hidden tab      | steps that come due while the page is hidden are dropped                          |
-| Missing target  | a step whose anchor is missing or detached is skipped by its effect, never throws |
+| Rule            | Value (`JUICE_LIMITS`)                                                                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Reduced motion  | `skip` effects dropped, `static` effects shown without movement, `keep` played                                                                                                                                                                   |
+| Haptics         | only with tuning `haptics`, the player's gate, and no reduced motion                                                                                                                                                                             |
+| Screen flashes  | at most `screenFlashesPerSecond` (3) per rolling second (WCAG 2.3.1), checked after `{var}` templates fill the target; effects spend a token too (`claimScreenFlash`) when a non-screen target covers ≥ `screenAreaShare` (25 %) of the viewport |
+| Concurrent runs | `concurrentRuns` (6); the oldest run is cancelled                                                                                                                                                                                                |
+| Cooldown        | starts only when the event actually played a step                                                                                                                                                                                                |
+| Payload typing  | `emit` requires the payload when the catalog entry has required fields                                                                                                                                                                           |
+| Intensity       | tuning × payload `strength` (0–2), at most `maxIntensity`                                                                                                                                                                                        |
+| Hidden tab      | steps that come due while the page is hidden are dropped                                                                                                                                                                                         |
+| Missing target  | a step whose anchor is missing or detached is skipped by its effect, never throws                                                                                                                                                                |
 
 Effects apply the other ceilings themselves (screen opacity, live particles, vibration pulse, time-warp length, callout read time).
 

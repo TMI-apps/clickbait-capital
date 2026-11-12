@@ -3,9 +3,12 @@ import type { JuiceEventMap, JuicePayload } from "@/features/juice-engine/types/
 /** Receives every emitted event: the director plays it, the inspector logs it. */
 export type JuiceListener = (name: string, payload: JuicePayload) => void;
 
+/** The payload argument: optional when every field of the event's payload is optional. */
+export type JuiceEmitArgs<P> = Partial<P> extends P ? [payload?: P] : [payload: P];
+
 export interface JuiceBus<E extends JuiceEventMap> {
   /** Announces a moment. Never throws; with no listener (root not mounted yet) it is dropped. */
-  emit: <K extends keyof E & string>(name: K, payload?: E[K]) => void;
+  emit: <K extends keyof E & string>(name: K, ...args: JuiceEmitArgs<E[K]>) => void;
   /** Subscribes to every event; returns the unsubscribe. */
   listen: (listener: JuiceListener) => () => void;
 }
@@ -17,8 +20,8 @@ export interface JuiceBus<E extends JuiceEventMap> {
 export function createJuiceBus<E extends JuiceEventMap>(): JuiceBus<E> {
   const listeners = new Set<JuiceListener>();
 
-  const emit = <K extends keyof E & string>(name: K, payload?: E[K]): void => {
-    const data: JuicePayload = payload ?? {};
+  const emit = <K extends keyof E & string>(name: K, ...args: JuiceEmitArgs<E[K]>): void => {
+    const data: JuicePayload = args[0] ?? {};
     listeners.forEach((listener) => {
       try {
         listener(name, data);

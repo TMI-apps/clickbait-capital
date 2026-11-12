@@ -62,16 +62,10 @@ export const hapticEffect = defineJuiceEffect<HapticStep>({
     const pattern = hapticPattern(step.pattern, context.intensity);
     if (!pattern.some((ms, index) => index % 2 === 0 && ms > 0)) return;
     try {
+      // No cancel: vibrate(0) would also stop a newer run's buzz, and pulses are ≤ 60 ms anyway.
       navigator.vibrate(pattern);
     } catch {
-      return;
+      // Vibration blocked (no user activation yet): skip.
     }
-    return () => {
-      try {
-        navigator.vibrate(0);
-      } catch {
-        // Nothing to stop.
-      }
-    };
   },
 });
