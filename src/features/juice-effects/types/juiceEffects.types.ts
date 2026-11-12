@@ -54,6 +54,19 @@ export interface ZoomStep extends JuiceStepBase {
   duration: number;
 }
 
+/** An entrance: the target fades in from an offset and scale (a post landing, a screen appearing). */
+export interface EnterStep extends JuiceStepBase {
+  effect: "enter";
+  target: string;
+  /** Start offset, px (negative = from above). */
+  dy: number;
+  /** Start scale (0.9 = from slightly smaller); 1 = no scale. */
+  scale: number;
+  duration: number;
+  /** "spring" overshoots (lively), "linear" is dry (news). Default "spring". */
+  easing?: "spring" | "linear";
+}
+
 /** Hit-stop (rate 0) or slow-mo (rate < 1) of the juice's own running animations. */
 export interface TimeWarpStep extends JuiceStepBase {
   effect: "timeWarp";
@@ -165,6 +178,7 @@ export type JuiceEffectStep =
   | PopStep
   | PulseStep
   | ZoomStep
+  | EnterStep
   | TimeWarpStep
   | FlashStep
   | GlowStep

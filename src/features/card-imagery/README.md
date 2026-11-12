@@ -12,17 +12,17 @@ Pictures for the cards and events of the deck and the hero photo of each phase i
 
 ## Structure
 
-| Layer      | Path                               | Purpose                                                                                                                                                                    |
-| ---------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                     | Public barrel: `getCardImage`, `getPhaseImage`, `listCardImageCredits`, `listPhaseImageCredits`, `formatCardImageCredit`, `ImageCreditList`, both manifests, size constants, types |
-| Components | `components/ImageCreditList.tsx`   | Credit list: lazy 64×48 thumbnail (the credit's `src`), maker, source and licence (linked when they have a page), card count for reused photos                                                  |
-| Services   | `services/cardImageManifest.ts`    | Generated manifest, one entry per content id                                                                                                                               |
-| Services   | `services/cardImageLookup.ts`      | Lookup by id, credit lines, `CARD_IMAGE_WIDTH` / `CARD_IMAGE_HEIGHT`                                                                                                       |
-| Services   | `services/phaseImageManifest.ts`   | One hero photo per phase (owner's order)                                                                                                                                   |
-| Services   | `services/phaseImageLookup.ts`     | Lookup by phase, phase credits, `PHASE_IMAGE_WIDTH` / `PHASE_IMAGE_HEIGHT`                                                                                                 |
-| Tests      | `services/phaseImageLookup.test.ts` | Every phase has a photo under 150 KB with an Unsplash credit and a Dutch alt; lookup and credits                                                                          |
-| Tests      | `services/cardImageLookup.test.ts` | Every deck id has an entry with a file under 150 KB; no unused files; maker and allowed licence; Unsplash photo page; reused photos share file and credit; thumbnail rules |
-| Types      | `types/cardImage.types.ts`         | `CardImageManifestEntry`, `CardImage`, `PhaseImageManifestEntry`, `PhaseImage`, `CardImageCredit` (carries the thumbnail `src`), `CardImageLicense`                       |
+| Layer      | Path                                | Purpose                                                                                                                                                                            |
+| ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                      | Public barrel: `getCardImage`, `getPhaseImage`, `listCardImageCredits`, `listPhaseImageCredits`, `formatCardImageCredit`, `ImageCreditList`, both manifests, size constants, types |
+| Components | `components/ImageCreditList.tsx`    | Credit list: lazy 64×48 thumbnail (the credit's `src`), maker, source and licence (linked when they have a page), card count for reused photos                                     |
+| Services   | `services/cardImageManifest.ts`     | Generated manifest, one entry per content id                                                                                                                                       |
+| Services   | `services/cardImageLookup.ts`       | Lookup by id, credit lines, `CARD_IMAGE_WIDTH` / `CARD_IMAGE_HEIGHT`                                                                                                               |
+| Services   | `services/phaseImageManifest.ts`    | One hero photo per phase (owner's order)                                                                                                                                           |
+| Services   | `services/phaseImageLookup.ts`      | Lookup by phase, phase credits, `PHASE_IMAGE_WIDTH` / `PHASE_IMAGE_HEIGHT`                                                                                                         |
+| Tests      | `services/phaseImageLookup.test.ts` | Every phase has a photo under 150 KB with an Unsplash credit and a Dutch alt; lookup and credits                                                                                   |
+| Tests      | `services/cardImageLookup.test.ts`  | Every deck id has an entry with a file under 150 KB; no unused files; maker and allowed licence; Unsplash photo page; reused photos share file and credit; thumbnail rules         |
+| Types      | `types/cardImage.types.ts`          | `CardImageManifestEntry`, `CardImage`, `PhaseImageManifestEntry`, `PhaseImage`, `CardImageCredit` (carries the thumbnail `src`), `CardImageLicense`                                |
 
 ## Files
 

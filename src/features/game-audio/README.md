@@ -8,7 +8,7 @@ Sound effects and the mute toggle for Clickbait Capital. Juice rules: `documenta
 - Muted until the first user gesture (browser autoplay rules): the first `pointerdown`, `keydown` or `touchend` anywhere on the page unlocks audio and loads the sounds.
 - One mute switch for the whole page, remembered in `localStorage` (`clickbait-capital:audio-muted`; a blocked storage only loses the memory).
 - `MuteToggle`: 48 px button, `aria-pressed` (true = sound on), icon plus Dutch label; `compact` gives a 44 px icon-only outline square for toolbars.
-- The board decides when to play what (`src/features/game-board/services/boardSounds.ts`); this feature only plays, mutes and unlocks.
+- The juice recipes decide when to play what (`src/features/game-juice/services/gameJuiceRecipes.ts`, through the juice director's sound port); this feature only plays, mutes and unlocks.
 
 ## Structure
 
@@ -26,7 +26,7 @@ Files: `public/audio/<id>.mp3` (mono, 44.1 kHz, 96 kbps, about 124 KB for all 11
 
 ## Sounds
 
-| Id                          | When the board plays it              | Length |
+| Id                          | Juice event (recipe) that plays it   | Length |
 | --------------------------- | ------------------------------------ | ------ |
 | `card-viral`                | Viral card played                    | ~0.9 s |
 | `card-ad`                   | Ad card played                       | ~0.9 s |

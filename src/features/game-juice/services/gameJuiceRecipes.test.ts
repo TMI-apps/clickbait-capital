@@ -28,10 +28,16 @@ const ALL_STEPS = BRANCHES.flatMap(([, , steps]) => steps);
 const DULL_BRANCHES: Array<[string, string]> = [
   ["card.played", "news"],
   ["event.resolved", "journalism"],
+  ["event.outcome", "journalism"],
+  ["outcome.row", "dull"],
   ["feed.landed", "news"],
   ["meter.changed", "dull"],
 ];
 const DULL_EFFECTS = new Set(["sound", "badge"]);
+
+/** A dull entrance: a short linear slide, no scale, no overshoot (design § 5 "kort en droog"). */
+const isDryEntrance = (step: JuiceStepData): boolean =>
+  step.effect === "enter" && step.easing === "linear" && step.scale === 1;
 
 describe("GAME_JUICE_RECIPES", () => {
   it("should name only effects the game registry provides when steps are listed", () => {
@@ -59,8 +65,10 @@ describe("GAME_JUICE_RECIPES", () => {
   it("should keep news and journalism dull when those branches play", () => {
     for (const [event, variant] of DULL_BRANCHES) {
       const recipe = GAME_JUICE_BOOK[event];
-      const effects = juiceRecipeSteps(recipe, variant).map((step) => step.effect);
-      expect(effects.filter((effect) => !DULL_EFFECTS.has(effect))).toEqual([]);
+      const loud = juiceRecipeSteps(recipe, variant).filter(
+        (step) => !DULL_EFFECTS.has(step.effect) && !isDryEntrance(step)
+      );
+      expect(loud.map((step) => `${event}/${variant}: ${step.effect}`)).toEqual([]);
     }
   });
 
@@ -86,5 +94,20 @@ describe("GAME_JUICE_RECIPES", () => {
       (step) => EFFECTS[step.effect]?.flashes(step) && typeof step.opacity === "number"
     );
     expect(screen.every((step) => Number(step.opacity) <= JUICE_LIMITS.screenOpacity)).toBe(true);
+  });
+
+  it("should play every milestone sound 250 ms after the action sound when a milestone follows an action", () => {
+    for (const event of ["phase.up", "run.won", "run.lost", "event.appeared"] as const) {
+      const sound = GAME_JUICE_RECIPES[event].steps?.find((step) => step.effect === "sound");
+      expect(sound?.at, event).toBe(250);
+    }
+  });
+
+  it("should start every step that uses the origin at once when the origin is a played card", () => {
+    // The played card leaves the draft right after the play, so a delayed step would lose it.
+    const delayed = ALL_STEPS.filter(
+      (step) => (step.target === "origin" || step.from === "origin") && (step.at ?? 0) > 0
+    );
+    expect(delayed).toEqual([]);
   });
 });

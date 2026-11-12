@@ -49,6 +49,9 @@ export interface JuiceDirector {
 interface Run {
   name: string;
   tag?: string;
+  /** Steps still waiting for their `at`. */
+  timers: Set<JuiceCancel>;
+  /** Cleanups of the effects already playing. */
   cancels: Set<JuiceCancel>;
 }
 
@@ -190,6 +193,33 @@ function planJuiceSteps({ steps, effects, tuning, gates, random }: PlanInput): S
   });
 }
 
+/** Drops a run from the live list (it no longer counts toward the cap or `stop`). */
+function retireRun(runs: Run[], run: Run): void {
+  const index = runs.indexOf(run);
+  if (index >= 0) runs.splice(index, 1);
+}
+
+/** The live runs plus the two ways to end one. */
+function createRunRegistry() {
+  const runs: Run[] = [];
+  /**
+   * Over the concurrency cap: the oldest run's pending steps are dropped, but what already
+   * plays finishes (cutting a particle burst mid-flight reads as a glitch).
+   */
+  const evictRun = (run: Run): void => {
+    run.timers.forEach((cancel) => cancel());
+    run.timers.clear();
+    retireRun(runs, run);
+  };
+  /** `stop(tag)` and `cancelAll`: pending steps and playing effects end now. */
+  const cancelRun = (run: Run): void => {
+    evictRun(run);
+    run.cancels.forEach((cancel) => cancel());
+    run.cancels.clear();
+  };
+  return { runs, evictRun, cancelRun };
+}
+
 interface GateInput {
   step: JuiceStepData;
   effect: JuiceEffect;
@@ -231,22 +261,11 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
     getStage = getJuiceStage,
     viewport = defaultViewport,
   } = options;
-  const runs: Run[] = [];
+  const { runs, evictRun, cancelRun } = createRunRegistry();
   const retireTimers = new Set<JuiceCancel>();
   const lastStart = new Map<string, number>();
   const takeFlash = createFlashGuard(now);
   const tracker = createAnimationTracker();
-
-  const retire = (run: Run): void => {
-    const index = runs.indexOf(run);
-    if (index >= 0) runs.splice(index, 1);
-  };
-
-  const cancelRun = (run: Run): void => {
-    run.cancels.forEach((cancel) => cancel());
-    run.cancels.clear();
-    retire(run);
-  };
 
   const contextFor = (payload: JuicePayload, reduced: boolean): JuiceEffectContext => {
     const tuning = getTuning();
@@ -280,18 +299,24 @@ export function createJuiceDirector(options: JuiceDirectorOptions): JuiceDirecto
   const start = (name: string, recipe: JuiceRecipe, payload: JuicePayload): boolean => {
     const plans = planSteps(juiceRecipeSteps(recipe, payload.variant));
     if (plans.length === 0) return false;
-    const run: Run = { name, tag: recipe.tag, cancels: new Set() };
+    const run: Run = { name, tag: recipe.tag, timers: new Set(), cancels: new Set() };
     runs.push(run);
-    while (runs.length > JUICE_LIMITS.concurrentRuns) cancelRun(runs[0]);
+    while (runs.length > JUICE_LIMITS.concurrentRuns) evictRun(runs[0]);
     let last = 0;
     for (const plan of plans) {
       last = Math.max(last, plan.delay);
       if (plan.delay === 0) fire(run, plan, payload);
-      else run.cancels.add(schedule(() => fire(run, plan, payload), plan.delay));
+      else {
+        const stopTimer = schedule(() => {
+          run.timers.delete(stopTimer);
+          fire(run, plan, payload);
+        }, plan.delay);
+        run.timers.add(stopTimer);
+      }
     }
     const stopRetire = schedule(() => {
       retireTimers.delete(stopRetire);
-      retire(run);
+      retireRun(runs, run);
     }, last + RUN_TAIL_MS);
     retireTimers.add(stopRetire);
     return true;

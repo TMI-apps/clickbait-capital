@@ -6,7 +6,7 @@ import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { Modal } from "@/components/common/Modal";
 import { getCardImage } from "@/features/card-imagery/api";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
-import { EffectsJuice, juiceActionForEvent } from "@/features/game-juice/api";
+import { EffectsJuice } from "@/features/game-juice/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
 
 type EventOption = FlowEvent["options"][number];
@@ -93,9 +93,7 @@ const Outcome = ({ option, onContinue }: OutcomeProps) => {
           </span>
           <span className="font-medium">{option.label}</span>
         </p>
-        {option.effects.length > 0 && (
-          <EffectsJuice effects={option.effects} action={juiceActionForEvent(option.kind)} />
-        )}
+        {option.effects.length > 0 && <EffectsJuice effects={option.effects} kind={option.kind} />}
       </div>
       <Button autoFocus aria-describedby={outcomeId} onClick={onContinue}>
         {UI_COPY.events.continueButton}

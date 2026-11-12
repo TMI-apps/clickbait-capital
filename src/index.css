@@ -153,90 +153,14 @@
       transform: none;
     }
   }
-  /* Game juice (src/features/game-juice): transform/opacity only, durations from tokens. */
-  --animate-juice-particle: juice-particle var(--duration-juice) cubic-bezier(0.2, 0.7, 0.3, 1) both;
-  --animate-juice-pop: juice-pop var(--duration-card-draw) var(--ease-card) both;
+  /* Comment slide (follower-comments): the one CSS juice entrance left; moments are juice recipes. */
   --animate-juice-slide: juice-slide var(--duration-normal) linear both;
-  --animate-juice-flash: juice-flash var(--duration-juice) var(--ease-standard) both;
-  --animate-juice-glow: juice-glow var(--duration-juice) ease-in-out 2 both;
-  --animate-juice-end: juice-end var(--duration-juice) var(--ease-card) both;
-  --animate-juice-burst: juice-burst var(--duration-juice) ease-out both;
 
-  @keyframes juice-particle {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(0.4);
-    }
-    15% {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1.2);
-    }
-    80% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-      transform: translate(calc(-50% + var(--juice-dx, 0px)), calc(-50% + var(--juice-dy, 0px)))
-        rotate(var(--juice-rotate, 0deg)) scale(0.75);
-    }
-  }
-  @keyframes juice-pop {
-    from {
-      opacity: 0;
-      transform: translateY(-0.75rem) scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  /* News: a tight, dry slide without overshoot (design § 5). */
+  /* A tight, dry slide without overshoot. */
   @keyframes juice-slide {
     from {
       opacity: 0;
       transform: translateY(-0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes juice-flash {
-    0% {
-      opacity: 0;
-    }
-    25% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-  @keyframes juice-glow {
-    0%,
-    100% {
-      opacity: 0.55;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.06);
-    }
-  }
-  @keyframes juice-burst {
-    from {
-      opacity: 0.9;
-      transform: translate(-50%, -50%) scale(0.2);
-    }
-    to {
-      opacity: 0;
-      transform: translate(-50%, -50%) scale(1.6);
-    }
-  }
-  @keyframes juice-end {
-    from {
-      opacity: 0;
-      transform: scale(0.92);
     }
     to {
       opacity: 1;

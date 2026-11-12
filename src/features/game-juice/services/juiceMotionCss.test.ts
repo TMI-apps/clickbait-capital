@@ -43,15 +43,16 @@ describe("juice motion CSS", () => {
     }
   });
 
-  it("should run the flash, glow and end entrance on the juice duration so Volledig restores them", () => {
+  it("should keep no CSS keyframes when that juice moved to the recipes", () => {
     for (const name of [
       "juice-particle",
+      "juice-pop",
       "juice-flash",
       "juice-glow",
       "juice-burst",
       "juice-end",
     ]) {
-      expect(indexCss).toMatch(new RegExp(`--animate-${name}: ${name} var\\(--duration-juice\\)`));
+      expect(indexCss).not.toContain(`@keyframes ${name} `);
     }
   });
 });

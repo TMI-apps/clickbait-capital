@@ -218,10 +218,16 @@ describe("createJuiceDirector limits and options", () => {
     expect(played).toHaveLength(2);
   });
 
-  it("should cancel the oldest run when more runs than the limit are alive", () => {
-    const { director, cancels } = setup({ hit: { steps: [{ effect: "shake" }] } });
+  it("should drop the oldest run's pending steps but let its playing effects finish when more runs than the limit are alive", () => {
+    const { director, cancels, played, clock } = setup({
+      hit: { steps: [{ effect: "shake" }, { effect: "badge", at: 500 }] },
+    });
     for (let index = 0; index <= JUICE_LIMITS.concurrentRuns; index += 1) director.play("hit", {});
-    expect(cancels).toEqual(["shake"]);
+    expect(cancels).toEqual([]);
+    clock.advance(500);
+    expect(effectsOf(played).filter((effect) => effect === "badge")).toHaveLength(
+      JUICE_LIMITS.concurrentRuns
+    );
   });
 
   it("should cancel the runs of a tag when stop is called with that tag", () => {

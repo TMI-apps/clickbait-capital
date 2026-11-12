@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useRetainedValue } from "@/features/game-board/hooks/useRetainedValue";
+import { useRetainedValue } from "@/shared/hooks/useRetainedValue";
 
 describe("useRetainedValue", () => {
   it("should keep the last value when the input turns null", () => {

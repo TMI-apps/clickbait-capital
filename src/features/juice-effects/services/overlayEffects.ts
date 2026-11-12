@@ -134,6 +134,7 @@ export const flashEffect = defineJuiceEffect<FlashStep>({
     const node = createStageNode(context, target.rect);
     if (!node) return;
     hugCorners(node, target);
+    node.dataset.juiceFlash = step.color;
     node.style.background = tokenColor(step.color);
     const peak = overlayOpacity(step.opacity, { target, context });
     return playNode(

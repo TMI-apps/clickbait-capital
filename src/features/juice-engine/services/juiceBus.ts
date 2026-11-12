@@ -11,6 +11,10 @@ export interface JuiceBus<E extends JuiceEventMap> {
   emit: <K extends keyof E & string>(name: K, ...args: JuiceEmitArgs<E[K]>) => void;
   /** Subscribes to every event; returns the unsubscribe. */
   listen: (listener: JuiceListener) => () => void;
+  /** Ends the running recipes with this tag (a loop, a ramp, marks that must not outlive their UI). */
+  stop: (tag: string) => void;
+  /** Subscribes to stop requests (the director); returns the unsubscribe. */
+  listenStop: (listener: (tag: string) => void) => () => void;
 }
 
 /** Events kept while nothing listens yet (the lazy host is still loading). */
@@ -34,6 +38,7 @@ export function createJuiceBus<E extends JuiceEventMap>(
   now: () => number = () => Date.now()
 ): JuiceBus<E> {
   const listeners = new Set<JuiceListener>();
+  const stopListeners = new Set<(tag: string) => void>();
   let pending: PendingEvent[] = [];
 
   const deliver = (name: string, data: JuicePayload): void => {
@@ -63,5 +68,16 @@ export function createJuiceBus<E extends JuiceEventMap>(
     };
   };
 
-  return { emit, listen };
+  const stop = (tag: string): void => {
+    stopListeners.forEach((listener) => listener(tag));
+  };
+
+  const listenStop = (listener: (tag: string) => void): (() => void) => {
+    stopListeners.add(listener);
+    return () => {
+      stopListeners.delete(listener);
+    };
+  };
+
+  return { emit, listen, stop, listenStop };
 }

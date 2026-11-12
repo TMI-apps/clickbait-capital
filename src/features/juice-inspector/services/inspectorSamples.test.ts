@@ -14,7 +14,10 @@ const MOCK_ANCHORS = new Set<string>([
   INSPECTOR_ANCHORS.chart,
   INSPECTOR_ANCHORS.feed,
   INSPECTOR_ANCHORS.button,
+  INSPECTOR_ANCHORS.endScreen,
+  INSPECTOR_ANCHORS.scandal,
   ...INSPECTOR_ANCHORS.meters,
+  ...INSPECTOR_ANCHORS.outcomes,
 ]);
 
 describe("inspectorEntries", () => {

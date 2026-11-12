@@ -9,7 +9,7 @@ import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 import { CommentAnnouncer, PostComments, useCommentReveal } from "@/features/follower-comments/api";
 import type { CommentBatch, CommentReveal } from "@/features/follower-comments/api";
 import { UI_COPY } from "@/features/game-content/api";
-import { FEED_ENTRANCE } from "@/features/game-juice/api";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { cn } from "@/shared/utils/cn";
 
 /** Drop target id the draft cards are dragged onto. */
@@ -73,31 +73,33 @@ interface NewestPostProps {
  * follower comments as they reveal (feed-comments D1, D4). Same card on every screen size
  * (feed-top-card D1, replaces feed-images D3); on a short feed box the photo is cropped (D2).
  */
-const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => (
-  <li
-    data-variant="newest"
-    className={cn(
-      "flex flex-col overflow-hidden rounded-md bg-card text-card-foreground elevation-sm",
-      FEED_ENTRANCE[entry.type]
-    )}
-  >
-    <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
-    <div className="min-w-0 p-2.5">
-      <TypeLabel type={entry.type} />
-      <p className="text-sm leading-snug font-bold">{entry.title}</p>
-      <p className="line-clamp-2 text-xs text-muted-foreground">{entry.body}</p>
-    </div>
-    {comments && (
-      <PostComments
-        batch={comments}
-        variant="full"
-        shown={reveal.shown}
-        reduced={reveal.reduced}
-        className="mx-2.5 mb-2"
-      />
-    )}
-  </li>
-);
+const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
+  // Juice anchor of `feed.landed`: the post's entrance per type is a recipe (juice-migrate D6).
+  const anchor = useJuiceAnchor("feed:newest");
+  return (
+    <li
+      ref={anchor}
+      data-variant="newest"
+      className="flex flex-col overflow-hidden rounded-md bg-card text-card-foreground elevation-sm"
+    >
+      <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
+      <div className="min-w-0 p-2.5">
+        <TypeLabel type={entry.type} />
+        <p className="text-sm leading-snug font-bold">{entry.title}</p>
+        <p className="line-clamp-2 text-xs text-muted-foreground">{entry.body}</p>
+      </div>
+      {comments && (
+        <PostComments
+          batch={comments}
+          variant="full"
+          shown={reveal.shown}
+          reduced={reveal.reduced}
+          className="mx-2.5 mb-2"
+        />
+      )}
+    </li>
+  );
+};
 
 /**
  * Older post: small photo, type and title; the body stays for screen readers (D2). Its comments

@@ -161,7 +161,7 @@ describe("useBoardSession", () => {
   });
 });
 
-describe("useBoardSession resume and sounds", () => {
+describe("useBoardSession resume and juice", () => {
   it("should resume the identical board when a saved run is passed", () => {
     const first = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     for (let count = 0; count < 4; count++) {
@@ -178,9 +178,9 @@ describe("useBoardSession resume and sounds", () => {
     expect(result.current.view).toEqual(before);
   });
 
-  it("should give no sounds when a run starts or resumes", () => {
+  it("should give no juice when a run starts or resumes", () => {
     const fresh = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
-    expect(fresh.result.current.sounds.ids).toEqual([]);
+    expect(fresh.result.current.juice.reveal).toEqual([]);
     act(() => fresh.result.current.play(fresh.result.current.view.draft[0].id));
     fresh.unmount();
 
@@ -189,26 +189,29 @@ describe("useBoardSession resume and sounds", () => {
     );
 
     expect(result.current.resumed).toBe(true);
-    expect(result.current.sounds.ids).toEqual([]);
+    expect(result.current.juice).toMatchObject({ followUp: [], reveal: [] });
   });
 
-  it("should give the played card's sound once per action when a card is played", () => {
+  it("should reveal the played card's post once per action when a card is played", () => {
     const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     const card = result.current.view.draft[0];
-    const keyBefore = result.current.sounds.key;
+    const keyBefore = result.current.juice.key;
 
     act(() => result.current.play(card.id));
 
-    expect(result.current.sounds.ids[0]).toBe(`card-${card.type}`);
-    expect(result.current.sounds.key).not.toBe(keyBefore);
+    expect(result.current.juice.reveal).toContainEqual({
+      name: "feed.landed",
+      payload: { variant: card.type },
+    });
+    expect(result.current.juice.key).not.toBe(keyBefore);
   });
 
-  it("should give no sounds when the run restarts", () => {
+  it("should give no juice when the run restarts", () => {
     const { result } = renderHook(() => useBoardSession({ content: SEED_CONTENT, seed: 3 }));
     act(() => result.current.play(result.current.view.draft[0].id));
 
     act(() => result.current.restart());
 
-    expect(result.current.sounds.ids).toEqual([]);
+    expect(result.current.juice.reveal).toEqual([]);
   });
 });

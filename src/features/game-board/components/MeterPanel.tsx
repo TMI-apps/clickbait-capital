@@ -1,9 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Coins, Siren, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { MeterKey } from "@/features/game-engine/api";
-import { JUICE_METER_ATTR, MeterJuice } from "@/features/game-juice/api";
-import type { MeterAccent, MeterFlash } from "@/features/game-juice/api";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import type { MeterView, ScoreMarkerView } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
 import { ScoreChart } from "@/features/score-chart/api";
@@ -51,11 +49,8 @@ const MeterDelta = ({ delta, text }: { delta: number; text: string }) => {
 
 export interface MeterPanelProps {
   meters: MeterView[];
-  /** Changes on every action so the delta chips and juice animate again. */
+  /** Changes on every action so the delta chips animate again. */
   version: number;
-  /** Juice of the last action per tile (game-juice): accent mark and gain / loss flash. */
-  accents?: Partial<Record<MeterKey, MeterAccent>>;
-  flashes?: Partial<Record<MeterKey, MeterFlash>>;
   /** Where each line lands if the held card is played (share of its goal); drawn dashed. */
   forecast?: Partial<Record<MeterView["key"], number>> | null;
   /** The held card's change per line as text ("+15.000"), shown at the forecast dot. */
@@ -74,12 +69,11 @@ export interface MeterPanelProps {
 export const MeterPanel = ({
   meters,
   version,
-  accents = {},
-  flashes = {},
   forecast = null,
   forecastText = null,
   markers,
 }: MeterPanelProps) => {
+  const chartAnchor = useJuiceAnchor("chart");
   // Memoised so a re-render that changes neither (juice, drag moves) doesn't rebuild a long run's path.
   const series = useMemo(
     () =>
@@ -96,7 +90,10 @@ export const MeterPanel = ({
   return (
     // No padding on the panel: the plot reaches its inner edges, so the launch origin sits in the
     // panel's bottom-left corner (chart-origin D2). The counters keep the inset instead.
-    <section className="overflow-hidden rounded-lg border border-border bg-card elevation-sm">
+    <section
+      ref={chartAnchor}
+      className="overflow-hidden rounded-lg border border-border bg-card elevation-sm"
+    >
       <ScoreChart series={series} markers={markers} className="h-31 sm:h-35 board-desk:h-62">
         <ul
           aria-label="Gebruikers en geld"
@@ -108,8 +105,6 @@ export const MeterPanel = ({
               tile={tile}
               alignEnd={index === meters.length - 1}
               version={version}
-              accent={accents[tile.key]}
-              flash={flashes[tile.key]}
             />
           ))}
         </ul>
@@ -123,23 +118,24 @@ interface ScoreCounterProps {
   /** The right-hand counter aligns to the chart's right edge. */
   alignEnd: boolean;
   version: number;
-  accent?: MeterAccent;
-  flash?: MeterFlash;
 }
 
-/** One counter over the chart: a translucent backing keeps it readable over the lines. */
-const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterProps) => {
+/**
+ * One counter over the chart: a translucent backing keeps it readable over the lines. It is the
+ * juice anchor `meter:<key>` (flash, glow and mark of `card.played` / `meter.changed`).
+ */
+const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
   const meter = METERS[tile.key];
+  const anchor = useJuiceAnchor(`meter:${tile.key}`);
   return (
     <li
-      {...{ [JUICE_METER_ATTR]: tile.key }}
+      ref={anchor}
       className={cn(
         "relative min-w-0 rounded-md bg-card/80 px-1.5 py-0.5 backdrop-blur-[2px]",
         alignEnd && "justify-self-end text-right",
         tile.full && meter.capGlow
       )}
     >
-      <MeterJuice accent={accent} flash={flash} version={version} />
       {/* Visual readout; the meter below speaks amount, change and goal once (screen-reader D3). */}
       <div
         aria-hidden="true"
@@ -184,13 +180,20 @@ const ScoreCounter = ({ tile, alignEnd, version, accent, flash }: ScoreCounterPr
   );
 };
 
-/** The scandal warning under the tiles (score-redesign D13): only while reputation is low. */
-export const ScandalWarning = ({ text }: { text: string }) => (
-  <p
-    role="status"
-    className="flex items-center gap-1.5 rounded-lg border-2 border-destructive bg-destructive/10 px-2 py-1 text-sm font-bold text-destructive"
-  >
-    <Siren aria-hidden="true" className="size-4 shrink-0" />
-    {text}
-  </p>
-);
+/**
+ * The scandal warning under the tiles (score-redesign D13): only while reputation is low. It is
+ * the juice anchor `scandal` (the warning's ramp in juice-core lap 3).
+ */
+export const ScandalWarning = ({ text }: { text: string }) => {
+  const anchor = useJuiceAnchor("scandal");
+  return (
+    <p
+      ref={anchor}
+      role="status"
+      className="flex items-center gap-1.5 rounded-lg border-2 border-destructive bg-destructive/10 px-2 py-1 text-sm font-bold text-destructive"
+    >
+      <Siren aria-hidden="true" className="size-4 shrink-0" />
+      {text}
+    </p>
+  );
+};

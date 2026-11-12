@@ -9,6 +9,7 @@ export {
   hapticPattern,
 } from "@/features/juice-effects/services/deviceEffects";
 export {
+  enterEffect,
   popEffect,
   pulseEffect,
   shakeEffect,

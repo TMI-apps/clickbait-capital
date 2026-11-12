@@ -7,6 +7,7 @@ import {
 } from "@/features/juice-engine/api";
 import { animateJuice, scaledMs } from "@/features/juice-effects/services/overlayEffects";
 import type {
+  EnterStep,
   PopStep,
   PulseStep,
   ShakeStep,
@@ -142,6 +143,44 @@ export const zoomEffect = defineJuiceEffect<ZoomStep>({
           { transform: "scale(1)" },
         ],
         options: { duration: scaledMs(step.duration, context), easing: "ease-in-out" },
+      },
+      context
+    );
+  },
+});
+
+/** The card ease token's curve: a springy overshoot (`--ease-card`). */
+const SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+
+/**
+ * An entrance: the target fades in from an offset and a scale and settles (a post landing in
+ * the feed, the end screen). Plays on top of the element's own transform; reduced motion skips
+ * it, so the element simply appears.
+ */
+export const enterEffect = defineJuiceEffect<EnterStep>({
+  id: "enter",
+  channel: "motion",
+  reducedMotion: "skip",
+  params: {
+    dy: { unit: "px", min: -64, max: 64, step: 1, label: "Verschuiving" },
+    scale: { unit: "×", min: 0.5, max: 1, step: 0.01, label: "Startschaal" },
+    duration: DURATION,
+  },
+  run: (step, context) => {
+    const dy = clampJuice(step.dy * context.intensity, -64, 64);
+    const scale = clampJuice(1 - (1 - step.scale) * context.intensity, 0.5, 1);
+    return animateTarget(
+      {
+        ref: step.target,
+        keyframes: [
+          { opacity: 0, transform: `translateY(${dy}px) scale(${scale})` },
+          { opacity: 1, transform: "translateY(0) scale(1)" },
+        ],
+        options: {
+          duration: scaledMs(step.duration, context),
+          easing: step.easing === "linear" ? "linear" : SPRING,
+          fill: "backwards",
+        },
       },
       context
     );

@@ -48,4 +48,12 @@ describe("createJuiceBus", () => {
     bus.emit("ui.press");
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it("should pass a tag to every stop listener when stop is called", () => {
+    const bus = createJuiceBus<Events>();
+    const listener = vi.fn();
+    bus.listenStop(listener);
+    bus.stop("alarm");
+    expect(listener).toHaveBeenCalledWith("alarm");
+  });
 });
