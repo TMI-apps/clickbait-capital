@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from "react";
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { Pause } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
 import { useRetainedValue } from "@/shared/hooks/useRetainedValue";
 import { useCardForecast } from "@/features/game-board/hooks/useCardForecast";
-import { useBoardReveal } from "@/features/game-board/hooks/useBoardJuice";
+import { useBoardReveal, useScandalWarningJuice } from "@/features/game-board/hooks/useBoardJuice";
 import type { CommentBatch } from "@/features/follower-comments/api";
 import { EventModal } from "@/features/game-flow/api";
 import {
@@ -28,6 +28,8 @@ import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
 /** Pixels a pointer moves before a press becomes a drag (mobile-fit D1). */
 const DRAG_START_DISTANCE = 6;
 const POINTER_OPTIONS = { activationConstraint: { distance: DRAG_START_DISTANCE } };
+/** Where the drag juice starts (the card) and what counts as a play (the feed). */
+const DRAFT_TARGETS = { cardElement: draftCardElement, feedId: FEED_DROP_ID };
 
 /**
  * Board grid (mobile-fit D2, desktop-layout D1). DOM order is the reading order everywhere:
@@ -108,7 +110,8 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
   const [paused, setPaused] = useState(false);
-  const preview = useCardForecast(view.draft, detailCard);
+  const preview = useCardForecast({ draft: view.draft, detailCard, ...DRAFT_TARGETS });
+
   // Mouse, touch and pen alike: a drag starts on the first move past 6px, a tap stays a click (D3).
   const sensors = useSensors(useSensor(PointerSensor, POINTER_OPTIONS));
 
@@ -126,6 +129,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
     meters: view.meters,
     hold: view.feed[0]?.type === "event" && eventDialogMounted,
   });
+  useScandalWarningJuice(view.scandal);
 
   /**
    * From a drag or the detail dialog's "In de feed" (closing the dialog is a no-op after a drag).
@@ -141,11 +145,6 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
     play(cardId);
   };
 
-  const handleDragEnd = ({ active, over }: DragEndEvent): void => {
-    preview.endDrag();
-    if (over?.id === FEED_DROP_ID) playCard(String(active.id));
-  };
-
   /** A tap or Enter opens the details (game-board D2); focus comes back to this slot after. */
   const showDetails = (card: DraftCardView): void => {
     screenReader.rememberSlot(view.draft.findIndex((draft) => draft.id === card.id));
@@ -153,7 +152,11 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
   };
 
   return (
-    <DndContext sensors={sensors} {...preview.dragEvents} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      {...preview.dragEvents}
+      onDragEnd={(event) => preview.endDrag(event) && playCard(String(event.active.id))}
+    >
       <div ref={shown.boardRef} data-viewport-lock className={BOARD_GRID}>
         <BoardStatus phase={view.phase} onPause={withTap(() => setPaused(true))}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}

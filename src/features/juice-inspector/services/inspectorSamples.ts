@@ -10,6 +10,8 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
   card: "inspector:card",
   chart: "chart",
   feed: "feed:newest",
+  drop: "feed:drop",
+  comment: "comment:latest",
   button: "button",
   outcomes: ["outcome:users", "outcome:revenue"],
   endScreen: "end-screen",
@@ -21,6 +23,7 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
 const SAMPLE_VARS: Record<string, Record<string, string | number>> = {
   "meter.changed": { meter: "users", text: "+1.250" },
   "outcome.row": { row: "outcome:users" },
+  "goal.reached": { meter: "users" },
 };
 
 /** Every event and variant in the recipe book, in book order (new recipes appear by themselves). */

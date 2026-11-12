@@ -2,6 +2,7 @@ import type { JuiceEffectStep } from "@/features/juice-effects/api";
 import type {
   GameJuiceCatalog,
   GameJuiceEventName,
+  JuiceScandalLevel,
 } from "@/features/game-juice/types/gameJuiceEvents.types";
 
 /** The variant names an event's catalog entry allows. */
@@ -19,6 +20,9 @@ export interface GameJuiceRecipe<K extends GameJuiceEventName> {
 
 /** Tag of the outcome recipes: their marks sit on the dialog's rows and end when it closes. */
 export const EVENT_OUTCOME_TAG = "event-outcome";
+
+/** Tag of the scandal warning's ramp: it ends when the warning goes away. */
+export const SCANDAL_WARNING_TAG = "scandal-warning";
 
 export type GameJuiceRecipeBook = { [K in GameJuiceEventName]: GameJuiceRecipe<K> };
 
@@ -63,11 +67,93 @@ const AD_VISUALS: JuiceEffectStep[] = [
  */
 const NEWS_VISUALS: JuiceEffectStep[] = [];
 
+/** The tile's change text rises off it ("+12.000"); a `-big` move rises further (lap-3 D5). */
+const METER_FLOATER = {
+  gain: {
+    effect: "floater",
+    target: "meter:{meter}",
+    text: "{text}",
+    color: "success",
+    rise: 28,
+    duration: 900,
+  },
+  loss: {
+    effect: "floater",
+    target: "meter:{meter}",
+    text: "{text}",
+    color: "destructive",
+    rise: 28,
+    duration: 900,
+  },
+} satisfies Record<string, JuiceEffectStep>;
+
+/** Lifting a card: a small pop and the pickup swoosh; viral lifts brighter, news duller (design § 5). */
+const pickup = (rate: number, volume: number, color: string): JuiceEffectStep[] => [
+  { effect: "sound", id: "card-pickup", rate, volume, rateJitter: 0.03 },
+  { effect: "haptic", pattern: "6" },
+  { effect: "pop", target: "origin", scale: 1.06, duration: 200 },
+  { effect: "glow", target: "origin", color, times: 1, duration: 420 },
+];
+
+/** The scandal warning's ramp: louder and busier per level, never a loop (lap-3 D3). */
+const SCANDAL_WARNING: Record<JuiceScandalLevel, JuiceEffectStep[]> = {
+  "1": [
+    { effect: "sound", id: "scandal-warning", volume: 0.7 },
+    { effect: "glow", target: "scandal", color: "destructive", times: 1, duration: 760 },
+  ],
+  "2": [
+    { effect: "sound", id: "scandal-warning" },
+    { effect: "pulse", target: "scandal", scale: 1.04, times: 2, duration: 760 },
+    { effect: "glow", target: "scandal", color: "destructive", times: 2, duration: 760 },
+  ],
+  "3": [
+    { effect: "sound", id: "scandal-warning", rate: 1.08 },
+    { effect: "haptic", pattern: "20 40 20" },
+    { effect: "shake", target: "scandal", strength: 3, duration: 360 },
+    { effect: "pulse", target: "scandal", scale: 1.06, times: 3, duration: 900 },
+    { effect: "glow", target: "scandal", color: "destructive", times: 3, duration: 900 },
+    { effect: "badge", target: "scandal", glyph: "🚨", duration: 1600 },
+  ],
+};
+
 /**
  * The game's recipe table: what every catalog event looks, sounds and feels like. Tune values
  * live in the inspector (`/juice`), then copy the exported JSON into the matching steps here.
  */
 export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
+  // A hold that turns into a drag lifts once (lap-3 D4).
+  "card.pickup": {
+    cooldownMs: 300,
+    variants: {
+      viral: pickup(1.08, 1, "type-viral"),
+      ad: pickup(1, 1, "type-ad"),
+      news: pickup(0.9, 0.6, "type-news"),
+    },
+  },
+  "card.over-feed": {
+    cooldownMs: 250,
+    steps: [
+      { effect: "sound", id: "card-pickup", rate: 1.25, volume: 0.5 },
+      { effect: "haptic", pattern: "4" },
+      { effect: "pulse", target: "feed:drop", scale: 1.03, times: 1, duration: 240 },
+    ],
+  },
+  // The card drops back into the draft: the pickup swoosh, lower and softer.
+  "card.cancel": {
+    steps: [{ effect: "sound", id: "card-pickup", rate: 0.75, volume: 0.6 }],
+  },
+  // The chart answers "what if": one soft beat on it, not again for a quick re-hold.
+  "forecast.shown": {
+    cooldownMs: 400,
+    steps: [{ effect: "glow", target: "chart", color: "primary", times: 1, duration: 420 }],
+  },
+  // Plays 2–4 times in a row: quiet, varied, no vibration.
+  "comment.arrived": {
+    steps: [
+      { effect: "sound", id: "comment-pop", rateJitter: 0.08 },
+      { effect: "pop", target: "comment:latest", scale: 1.04, duration: 200 },
+    ],
+  },
   "card.played": {
     variants: {
       viral: [
@@ -92,6 +178,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     variants: {
       gain: [
         { effect: "flash", target: "meter:{meter}", color: "success", opacity: 0.2, duration: 760 },
+        METER_FLOATER.gain,
       ],
       loss: [
         {
@@ -101,9 +188,11 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
           opacity: 0.2,
           duration: 760,
         },
+        METER_FLOATER.loss,
       ],
       "gain-big": [
         { effect: "flash", target: "meter:{meter}", color: "success", opacity: 0.2, duration: 760 },
+        { ...METER_FLOATER.gain, rise: 40 },
         { effect: "sound", at: 250, id: "meter-gain" },
       ],
       "loss-big": [
@@ -114,6 +203,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
           opacity: 0.2,
           duration: 760,
         },
+        { ...METER_FLOATER.loss, rise: 40 },
         { effect: "sound", at: 250, id: "meter-loss" },
       ],
       dull: [],
@@ -201,6 +291,51 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       { effect: "enter", target: "end-screen", dy: 0, scale: 0.92, duration: 760 },
       { effect: "haptic", pattern: "60 40 60" },
       { effect: "flash", target: "screen", color: "destructive", opacity: 0.25, duration: 760 },
+    ],
+  },
+  // Follows the action's own sound by 250 ms (juice-migrate D2).
+  "goal.reached": {
+    steps: [
+      { effect: "sound", at: 250, id: "goal-reached" },
+      { effect: "haptic", at: 250, pattern: "20 40 20" },
+      { effect: "glow", target: "meter:{meter}", color: "success", times: 2, duration: 760 },
+      {
+        effect: "particles",
+        from: "meter:{meter}",
+        glyphs: "🎯⭐✨",
+        count: 10,
+        duration: 760,
+        glow: "success",
+      },
+      // Over the chart, not the tile: the tile's new amount and its floater stay readable.
+      {
+        effect: "callout",
+        at: 250,
+        target: "chart",
+        text: "Doel gehaald!",
+        color: "success",
+        duration: 1600,
+      },
+    ],
+  },
+  "money.danger": {
+    steps: [
+      { effect: "sound", at: 250, id: "money-danger" },
+      { effect: "haptic", at: 250, pattern: "40" },
+      { effect: "shake", target: "meter:revenue", strength: 3, duration: 360 },
+      { effect: "glow", target: "meter:revenue", color: "destructive", times: 3, duration: 900 },
+      { effect: "badge", target: "meter:revenue", glyph: "⚠️", duration: 1600 },
+    ],
+  },
+  "scandal.warning": { tag: SCANDAL_WARNING_TAG, variants: SCANDAL_WARNING },
+  // Replaces `event.appeared` when the opened event is a scandal (lap-3 D2): the loudest bust.
+  "scandal.hit": {
+    steps: [
+      { effect: "sound", at: 250, id: "scandal-hit" },
+      { effect: "haptic", at: 250, pattern: "60 30 60" },
+      { effect: "shake", target: "board", strength: 8, duration: 360 },
+      { effect: "tint", target: "screen", color: "destructive", opacity: 0.25, duration: 760 },
+      { effect: "particles", from: "screen", glyphs: "🚨😡📰", count: 12, duration: 760 },
     ],
   },
   "ui.press": {

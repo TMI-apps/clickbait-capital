@@ -3,7 +3,11 @@ import { createGame, SEED_CONTENT, type GameState } from "@/features/game-engine
 import {
   METER_CUE_THRESHOLD,
   juiceForAction,
+  meterMoments,
+  scandalLevel,
+  scandalWarningJuice,
   type BoardJuiceAction,
+  type BoardMomentMeter,
   type BoardJuiceMeter,
 } from "@/features/game-board/services/boardJuice";
 
@@ -80,6 +84,24 @@ describe("juiceForAction", () => {
     expect(meterVariants(juice.reveal)).toEqual(["gain"]);
   });
 
+  it("should play the scandal hit instead of the event sting when the opened event is a scandal", () => {
+    const before = base();
+    const juice = juiceForAction(
+      action({ before, after: withChanges(before, { status: "event" }), openedScandal: true })
+    );
+    expect(names(juice.followUp)).toEqual(["scandal.hit"]);
+  });
+
+  it("should carry the tile's change text when a meter moves", () => {
+    const juice = juiceForAction(
+      action({ meters: [{ ...moved("users", 0.05), deltaText: "+50" }] })
+    );
+    expect(juice.reveal[0]).toEqual({
+      name: "meter.changed",
+      payload: { variant: "gain", vars: { meter: "users", text: "+50" } },
+    });
+  });
+
   it("should follow with the next phase when the phase advances", () => {
     const before = base();
     const juice = juiceForAction(action({ before, after: withChanges(before, { phase: 2 }) }));
@@ -109,5 +131,53 @@ describe("juiceForAction", () => {
     const juice = juiceForAction(action({ cardType: null, optionKind: "engagement" }));
     expect(juice.followUp).toEqual([{ name: "feed.landed", payload: { variant: "event" } }]);
     expect(juice.reveal).toEqual([{ name: "event.resolved", payload: { variant: "engagement" } }]);
+  });
+});
+
+const tile = (
+  key: BoardMomentMeter["key"],
+  flags: Partial<Omit<BoardMomentMeter, "key">> = {}
+): BoardMomentMeter => ({ key, full: false, danger: false, ...flags });
+
+describe("meterMoments", () => {
+  it("should reach the goal and warn about money when the flags turn on between two boards", () => {
+    const moments = meterMoments(
+      [tile("users"), tile("revenue")],
+      [tile("users", { full: true }), tile("revenue", { danger: true })]
+    );
+    expect(moments).toEqual([
+      { name: "goal.reached", payload: { vars: { meter: "users" } } },
+      { name: "money.danger", payload: {} },
+    ]);
+  });
+
+  it("should play nothing when a tile stays full or in danger", () => {
+    const board = [tile("users", { full: true }), tile("revenue", { danger: true })];
+    expect(meterMoments(board, board)).toEqual([]);
+  });
+});
+
+describe("scandalWarningJuice", () => {
+  it("should bucket the chance per turn into three levels when a warning shows", () => {
+    expect([null, { chance: 0.1 }, { chance: 0.3 }, { chance: 0.6 }].map(scandalLevel)).toEqual([
+      0, 1, 2, 3,
+    ]);
+  });
+
+  it("should play the new level when the warning appears or rises", () => {
+    expect(scandalWarningJuice(0, 1)).toEqual({
+      name: "scandal.warning",
+      payload: { variant: "1" },
+    });
+    expect(scandalWarningJuice(1, 3)).toEqual({
+      name: "scandal.warning",
+      payload: { variant: "3" },
+    });
+  });
+
+  it("should stop the ramp when the warning goes away and stay quiet when it falls", () => {
+    expect(scandalWarningJuice(2, 0)).toBe("stop");
+    expect(scandalWarningJuice(3, 2)).toBeNull();
+    expect(scandalWarningJuice(0, 0)).toBeNull();
   });
 });

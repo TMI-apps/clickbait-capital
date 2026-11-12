@@ -10,6 +10,7 @@ import { CommentAnnouncer, PostComments, useCommentReveal } from "@/features/fol
 import type { CommentBatch, CommentReveal } from "@/features/follower-comments/api";
 import { UI_COPY } from "@/features/game-content/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
+import { useCommentArrivals } from "@/features/game-board/hooks/useBoardJuice";
 import { cn } from "@/shared/utils/cn";
 
 /** Drop target id the draft cards are dragged onto. */
@@ -76,6 +77,8 @@ interface NewestPostProps {
 const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
   // Juice anchor of `feed.landed`: the post's entrance per type is a recipe (juice-migrate D6).
   const anchor = useJuiceAnchor("feed:newest");
+  // `comment.arrived` pops the newest shown comment (lap-3 D7).
+  const latestComment = useJuiceAnchor("comment:latest");
   return (
     <li
       ref={anchor}
@@ -94,6 +97,7 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
           variant="full"
           shown={reveal.shown}
           reduced={reveal.reduced}
+          latestRef={latestComment}
           className="mx-2.5 mb-2"
         />
       )}
@@ -131,33 +135,38 @@ const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentB
  * (instant under reduced motion). The feed keys it by the newest post, so it vanishes at once
  * when the dropped post takes its place.
  */
-const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => (
-  <div
-    data-drop-slot={open ? "open" : "closed"}
-    aria-hidden={!open}
-    className={cn(
-      "grid transition-[grid-template-rows,opacity] duration-(--duration-normal) ease-(--ease-standard)",
-      open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-    )}
-  >
-    <div className="min-h-0 overflow-hidden">
-      <div className="pb-2">
-        <div
-          className={cn(
-            "flex flex-col overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast)",
-            over && "border-solid border-primary bg-primary/15"
-          )}
-        >
-          <div className={NEWEST_PHOTO_HEIGHT} />
-          {/* Text cell as tall as the newest post's type, title and body lines. */}
-          <p className="flex min-h-22 items-center justify-center p-2.5 text-center text-sm font-semibold text-primary">
-            Laat los om te plaatsen
-          </p>
+const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => {
+  // `card.over-feed` pulses the slot (lap-3 D4).
+  const anchor = useJuiceAnchor("feed:drop");
+  return (
+    <div
+      data-drop-slot={open ? "open" : "closed"}
+      aria-hidden={!open}
+      className={cn(
+        "grid transition-[grid-template-rows,opacity] duration-(--duration-normal) ease-(--ease-standard)",
+        open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+      )}
+    >
+      <div className="min-h-0 overflow-hidden">
+        <div className="pb-2">
+          <div
+            ref={anchor}
+            className={cn(
+              "flex flex-col overflow-hidden rounded-md border-2 border-dashed border-primary/60 bg-primary/5 transition-colors duration-(--duration-fast)",
+              over && "border-solid border-primary bg-primary/15"
+            )}
+          >
+            <div className={NEWEST_PHOTO_HEIGHT} />
+            {/* Text cell as tall as the newest post's type, title and body lines. */}
+            <p className="flex min-h-22 items-center justify-center p-2.5 text-center text-sm font-semibold text-primary">
+              Laat los om te plaatsen
+            </p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export interface PhoneFeedProps {
   entries: FeedEntry[];
@@ -180,6 +189,7 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
   const commentsOf = (entry: FeedEntry): CommentBatch | null => comments[entry.step] ?? null;
   const newestComments = entries[0] ? commentsOf(entries[0]) : null;
   const reveal = useCommentReveal(newestComments, revealKey);
+  useCommentArrivals(newestComments?.key ?? null, reveal.shown);
 
   // A new post lands on top, or a drag opens the slot there: bring the list back to the top (D5).
   useEffect(() => {

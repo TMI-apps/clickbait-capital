@@ -36,7 +36,8 @@ const COUNTER_LABELS: Record<string, string> = {
 /**
  * A small mock of the board with every anchor the game's recipes target, laid out like the
  * real one: the score chart with its two counters and the scandal warning, an event outcome's
- * rows, the newest post, a card (the event origin) and a button, all inside the end screen
+ * rows, the drop slot, the newest post with a comment, a card (the event origin) and a button,
+ * all inside the end screen
  * anchor. Labels show the anchor names that recipe steps use.
  */
 export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) => (
@@ -63,9 +64,17 @@ export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) =
           </Anchor>
         ))}
       </div>
-      <Anchor name={anchors.feed} className="h-14">
+      <Anchor name={anchors.drop} className="border-2 border-dashed border-primary/60 py-1">
+        <span className="font-semibold">Laat los om te plaatsen</span>{" "}
+        <AnchorName>{anchors.drop}</AnchorName>
+      </Anchor>
+      <Anchor name={anchors.feed} className="flex flex-col gap-1">
         <span className="block font-semibold">Nieuwste post</span>
-        <AnchorName>feed:newest</AnchorName>
+        <AnchorName>{anchors.feed}</AnchorName>
+        <Anchor name={anchors.comment} className="py-0.5 text-xs">
+          <span className="font-semibold">Volger:</span> wauw!{" "}
+          <AnchorName>{anchors.comment}</AnchorName>
+        </Anchor>
       </Anchor>
       <div className="flex items-end justify-between gap-2">
         <Anchor name={anchors.card} className="h-20 w-16 text-center">
