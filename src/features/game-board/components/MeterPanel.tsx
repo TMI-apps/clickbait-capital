@@ -73,6 +73,7 @@ export const MeterPanel = ({
   forecastText = null,
   markers,
 }: MeterPanelProps) => {
+  const chartAnchor = useJuiceAnchor("chart");
   // Memoised so a re-render that changes neither (juice, drag moves) doesn't rebuild a long run's path.
   const series = useMemo(
     () =>
@@ -89,7 +90,10 @@ export const MeterPanel = ({
   return (
     // No padding on the panel: the plot reaches its inner edges, so the launch origin sits in the
     // panel's bottom-left corner (chart-origin D2). The counters keep the inset instead.
-    <section className="overflow-hidden rounded-lg border border-border bg-card elevation-sm">
+    <section
+      ref={chartAnchor}
+      className="overflow-hidden rounded-lg border border-border bg-card elevation-sm"
+    >
       <ScoreChart series={series} markers={markers} className="h-31 sm:h-35 board-desk:h-62">
         <ul
           aria-label="Gebruikers en geld"
@@ -176,13 +180,20 @@ const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
   );
 };
 
-/** The scandal warning under the tiles (score-redesign D13): only while reputation is low. */
-export const ScandalWarning = ({ text }: { text: string }) => (
-  <p
-    role="status"
-    className="flex items-center gap-1.5 rounded-lg border-2 border-destructive bg-destructive/10 px-2 py-1 text-sm font-bold text-destructive"
-  >
-    <Siren aria-hidden="true" className="size-4 shrink-0" />
-    {text}
-  </p>
-);
+/**
+ * The scandal warning under the tiles (score-redesign D13): only while reputation is low. It is
+ * the juice anchor `scandal` (the warning's ramp in juice-core lap 3).
+ */
+export const ScandalWarning = ({ text }: { text: string }) => {
+  const anchor = useJuiceAnchor("scandal");
+  return (
+    <p
+      ref={anchor}
+      role="status"
+      className="flex items-center gap-1.5 rounded-lg border-2 border-destructive bg-destructive/10 px-2 py-1 text-sm font-bold text-destructive"
+    >
+      <Siren aria-hidden="true" className="size-4 shrink-0" />
+      {text}
+    </p>
+  );
+};

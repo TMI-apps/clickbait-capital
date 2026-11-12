@@ -11,9 +11,10 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
   chart: "chart",
   feed: "feed:newest",
   button: "button",
-  outcomes: ["outcome:users", "outcome:revenue", "outcome:reputation"],
+  outcomes: ["outcome:users", "outcome:revenue"],
   endScreen: "end-screen",
-  meters: ["meter:users", "meter:revenue", "meter:reputation"],
+  meters: ["meter:users", "meter:revenue"],
+  scandal: "scandal",
 };
 
 /** Template vars a sample event carries, so templated targets and texts resolve on the mock board. */

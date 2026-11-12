@@ -16,7 +16,10 @@ export interface InspectorAnchorNames {
   chart: string;
   feed: string;
   button: string;
+  /** The score counters over the chart (Gebruikers, Geld). */
   meters: readonly string[];
+  /** The scandal warning under the chart. */
+  scandal: string;
   /** Rows of an event's outcome (in the game: the event dialog). */
   outcomes: readonly string[];
   /** The end-of-run screen. */

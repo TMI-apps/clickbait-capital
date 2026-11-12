@@ -57,10 +57,11 @@ const AD_VISUALS: JuiceEffectStep[] = [
   { effect: "badge", at: 450, target: "meter:revenue", glyph: "💰", duration: 1600 },
 ];
 
-/** News stays dull on purpose (design § 5, game-juice D8): only a small shield. */
-const NEWS_VISUALS: JuiceEffectStep[] = [
-  { effect: "badge", target: "meter:reputation", glyph: "🛡️", duration: 1200 },
-];
+/**
+ * News stays dull on purpose (design § 5, game-juice D8): no visuals with the play. Its one mark,
+ * a small shield, sits on the news post once it has landed (`feed.landed` news).
+ */
+const NEWS_VISUALS: JuiceEffectStep[] = [];
 
 /**
  * The game's recipe table: what every catalog event looks, sounds and feels like. Tune values
@@ -129,7 +130,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
         { effect: "glow", target: "outcome:revenue", color: "type-ad", times: 2, duration: 760 },
         { effect: "badge", target: "outcome:revenue", glyph: "💰", duration: 1600 },
       ],
-      journalism: [{ effect: "badge", target: "outcome:reputation", glyph: "🛡️", duration: 1200 }],
+      journalism: [],
     },
   },
   // Outcome rows pop in together, so the flash and the count-up stay in step (event-juice-drop D2).
@@ -164,6 +165,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
           duration: 200,
           easing: "linear",
         },
+        { effect: "badge", target: "feed:newest", glyph: "🛡️", duration: 1200 },
       ],
       event: [{ effect: "enter", target: "feed:newest", dy: 24, scale: 0.92, duration: 420 }],
     },

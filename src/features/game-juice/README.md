@@ -6,7 +6,7 @@ The game's juice: what every moment of Clickbait Capital looks, sounds and feels
 
 - **Viral:** a light shake of the board, a neon explosion of 🔥😱😡 from the card, a glow and 🔥 on Gebruikers, the loudest sound.
 - **Ad:** coins fly from the card to Geld, a gold glow and 💰, a ka-ching.
-- **News:** a quiet click and a small 🛡️ only; the post slides in short and dry; meters don't flash.
+- **News:** a quiet click; the post slides in short and dry and shows a small 🛡️; meters don't flash.
 - **Every action:** each moved meter flashes gain / loss (not after news or journalism); a ≥ 10 % move adds a blip; the new post enters; an answered event plays its option kind's card juice once its dialog has closed, and its outcome rows enter, flash, count up and show the kind's mark.
 - **Milestones and endings:** the next phase, a new event, the IPO (confetti, gold flash, entrance) and a loss (red flash, entrance), each sound 250 ms after the action's own.
 
@@ -56,7 +56,7 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 - **D2 — No animation library (juice-core D3, D7).** Effects are native Web Animations on transform / opacity; the only CSS juice left is the comment slide (follower-comments) and the kit's card draw / play.
 - **D3 — Motion preference.** The director reads `useReducedMotion` (Beweging): motion steps drop or show static (marks), sound plays. Recipes don't read the CSS duration tokens, so "Volledig" over an OS reduce plays full juice without a CSS override (game-juice D9's CSS block remains for the count-up and kit durations).
 - **D4 — Budgets and safety (juice-core D8).** Viral 12 particles, ad 10, win 14 (recipe test); screen flashes ≤ 3/s and ≤ 0.3 opacity, ≤ 48 live particles (`JUICE_LIMITS`).
-- **D5 — Marks are moments (juice-migrate D5).** 🔥 / 💰 / 🛡️ show 1.6 s with the action; colour is never the only signal (each mark has its own shape). The news shield targets `meter:reputation`, which the board no longer shows (score-redesign D13), so on the board news stays a sound; the outcome dialog's reputation row shows it.
+- **D5 — Marks are moments (juice-migrate D5, D12).** 🔥 / 💰 / 🛡️ show for 1.6 s with the action. Colour is never the only signal, because each mark has its own shape. The board has no reputation tile (score-redesign D13), so the news shield sits on the news post once it has landed (`feed.landed` news). Journalism answers stay fully dull.
 - **D6 — News stays dull (design § 5; juice-migrate D4).** The recipe test allows news / journalism branches only sound, a mark and a short linear entrance; their meters don't flash or blip.
 - **D7 — Event options juice like cards (event-juice-drop D1).** `event.resolved` engagement / commercial / journalism play the viral / ad / news visuals (test-checked).
 - **D8 — Outcome reveal (event-juice-drop D2, juice-migrate D8).** `EffectsJuice` anchors each row (`outcome:<meter>`) through the kit's `overlay` slot; `useOutcomeJuice` emits once; numbers count up from 0, at once for journalism.

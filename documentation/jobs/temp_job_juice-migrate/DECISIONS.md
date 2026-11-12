@@ -18,6 +18,7 @@ Updated: 2026-11-12
 | D9 | Vibration off until its setting | closed | The game passes `haptics: false` to the director until lap 4 adds the player's "Trillen" setting (juice-core D10); the recipes already carry their vibration steps | loop-plan (plan review) | no player gets vibration without an off switch |
 | D10 | Pitch variation | closed | The small `rateJitter` (±4 %) on card sounds ships now | loop-plan | part of the owner's audio juice; recipes tune it |
 | D11 | Outcome marks end with the dialog | closed | Outcome recipes carry `EVENT_OUTCOME_TAG`; answering calls `stopJuice` (new `stop(tag)` on the bus, wired to the director); an event post enters at once behind the closing dialog instead of after it | loop-check (play-test, review) | found on the play-test: the 🔥 mark of a dialog row floated over the feed; the delayed entrance blinked a visible post |
+| D12 | News mark and mock board | closed | The news 🛡️ moves to the landed news post (`feed.landed` news), since the board has no reputation tile; journalism stays fully dull; the inspector's mock board mirrors the real one (chart with Gebruikers / Geld counters, scandal warning; no Reputatie tile); the board gains `chart` and `scandal` anchors | orchestrator note + loop-check advisory | before, the shield targeted `meter:reputation` and never showed |
 
 ## Open
 
@@ -25,4 +26,4 @@ Updated: 2026-11-12
 
 ## Log
 
-- 2026-11-12 — D1, D6 closed via loop-refine (clear winner); D2–D5, D7, D8 via loop-plan (clear winner); D9, D10 via plan review; D11 via loop-check
+- 2026-11-12 — D1, D6 closed via loop-refine (clear winner); D2–D5, D7, D8 via loop-plan (clear winner); D9, D10 via plan review; D11 via loop-check; D12 via the orchestrator's note
