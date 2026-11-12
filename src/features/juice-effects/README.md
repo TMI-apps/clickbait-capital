@@ -2,6 +2,12 @@
 
 The primitive library of the juice system: one small effect per juice idea, each declared with `defineJuiceEffect` (`@/features/juice-engine/api`) so its channel, reduced-motion form and tunable params live in one place. Game-agnostic: colours are theme token names, targets are anchor names, sounds go through a port. The game's registry is `src/features/game-juice/services/gameJuiceRuntime.ts`.
 
+## Purpose
+
+- One primitive per juice idea (shake, pop, flash, particles, floaters, callouts, sound, vibration, …) that recipes combine.
+- Each primitive owns its safety ceilings and its reduced-motion form, so no recipe or tuning can make juice unsafe.
+- Game-agnostic: the game's catalog and recipes live in `src/features/game-juice/`.
+
 ## Effects
 
 | Id          | Channel | Reduced motion | What it does                                                       | Key params                                                           |
