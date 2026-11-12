@@ -21,9 +21,9 @@ export function createSoundEffect(port: SoundPort): JuiceEffect {
     channel: "sound",
     reducedMotion: "keep",
     params: {
-      volume: { unit: "", min: 0, max: 1, step: 0.05, label: "Volume" },
-      rate: { unit: "×", min: 0.5, max: 2, step: 0.01, label: "Toonhoogte" },
-      rateJitter: { unit: "±", min: 0, max: 0.3, step: 0.01, label: "Variatie" },
+      volume: { unit: "", min: 0, max: 1, step: 0.05, label: "Volume", default: 1 },
+      rate: { unit: "×", min: 0.5, max: 2, step: 0.01, label: "Toonhoogte", default: 1 },
+      rateJitter: { unit: "±", min: 0, max: 0.3, step: 0.01, label: "Variatie", default: 0 },
     },
     run: (step, context) => {
       const volume = clampJuice((step.volume ?? 1) * context.volume, 0, 1);

@@ -21,13 +21,13 @@ import type {
   ParticlesStep,
 } from "@/features/juice-effects/types/juiceEffects.types";
 
-/** Particles alive on the stage right now (all bursts together). */
-let liveParticles = 0;
+/** Particle nodes alive right now (all bursts together), counted until released. */
+const liveNodes = new Set<HTMLElement>();
 /** Released particle nodes kept for reuse, so bursts don't churn the DOM. */
 const pool: HTMLElement[] = [];
 
 /** Particles a new burst may add without passing the live cap. */
-export const particleRoom = (): number => Math.max(0, JUICE_LIMITS.liveParticles - liveParticles);
+export const particleRoom = (): number => Math.max(0, JUICE_LIMITS.liveParticles - liveNodes.size);
 
 const centerOf = (rect: JuiceRect): JuicePoint => ({
   x: rect.x + rect.width / 2,
@@ -38,14 +38,14 @@ function takeParticleNode(stage: HTMLElement): HTMLElement {
   const node = pool.pop() ?? document.createElement("span");
   node.removeAttribute("style");
   stage.appendChild(node);
-  liveParticles += 1;
+  liveNodes.add(node);
   return node;
 }
 
 function releaseParticleNode(node: HTMLElement): void {
-  if (!node.isConnected) return;
+  // Counted even when the stage already left the page (route change mid-burst).
+  if (!liveNodes.delete(node)) return;
   node.remove();
-  liveParticles = Math.max(0, liveParticles - 1);
   if (pool.length < JUICE_LIMITS.liveParticles) pool.push(node);
 }
 
@@ -138,8 +138,8 @@ export const particlesEffect = defineJuiceEffect<ParticlesStep>({
   params: {
     count: { unit: "", min: 0, max: JUICE_LIMITS.liveParticles, step: 1, label: "Aantal" },
     duration: { unit: "ms", min: 200, max: 3000, step: 10, label: "Duur" },
-    reach: { unit: "", min: 0.1, max: 1, step: 0.05, label: "Bereik" },
-    size: { unit: "rem", min: 0.75, max: 4, step: 0.25, label: "Grootte" },
+    reach: { unit: "", min: 0.1, max: 1, step: 0.05, label: "Bereik", default: 0.45 },
+    size: { unit: "rem", min: 0.75, max: 4, step: 0.25, label: "Grootte", default: 1.75 },
   },
   run: (step, context) => {
     const stage = context.stage;

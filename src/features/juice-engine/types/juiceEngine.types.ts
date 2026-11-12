@@ -141,6 +141,8 @@ export interface JuiceParamSpec {
   max: number;
   step: number;
   label: string;
+  /** Value the effect uses when a step leaves this param out (optional params). */
+  default?: number;
 }
 
 /** One effect primitive. */

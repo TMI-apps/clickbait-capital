@@ -1,5 +1,5 @@
 import { useEffect, useRef, type RefObject } from "react";
-import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
+import { useReducedMotion } from "@/features/game-settings/api";
 import { readDurationToken } from "@/features/juice-engine/api";
 
 const easeOut = (t: number): number => 1 - (1 - t) ** 3;
@@ -16,7 +16,7 @@ export function useCountUp(
   { instant = false, from }: { instant?: boolean; from?: number } = {}
 ): void {
   const shown = useRef(from ?? value);
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     const element = ref.current;

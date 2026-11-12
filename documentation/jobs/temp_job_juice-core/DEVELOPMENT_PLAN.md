@@ -14,11 +14,11 @@
 
 | Phase | Goal | Gate | Status |
 |-------|------|------|--------|
-| 0 | Acceptance test written, failing | test fails for the missing module | Pending |
-| 1 | `juice-engine`: types, bus, anchors, tuning store, director, stage | engine unit tests green; tooling gate | Pending |
-| 2 | `juice-effects`: primitives; move `particlePaths` + `motionTokens`; `game-audio` play options | effect unit tests green; game-juice + game-audio tests green | Pending |
-| 3 | `game-juice`: catalog, recipes, runtime, `GameJuiceRoot` (lazy in `App.tsx`) | recipe tests green; bundle check | Pending |
-| 4 | `juice-inspector` + `/juice` page | acceptance test green; Playwright on `/juice` | Pending |
+| 0 | Acceptance test written, failing | test fails for the missing module | Done |
+| 1 | `juice-engine`: types, bus, anchors, tuning store, director, stage | engine unit tests green; tooling gate | Done |
+| 2 | `juice-effects`: primitives; move `particlePaths` + `motionTokens`; `game-audio` play options | effect unit tests green; game-juice + game-audio tests green | Done |
+| 3 | `game-juice`: catalog, recipes, runtime, `GameJuiceRoot` (lazy in `App.tsx`) | recipe tests green; bundle check | Done |
+| 4 | `juice-inspector` + `/juice` page | acceptance test green; Playwright on `/juice` | Done |
 | 5 | Docs + full check | full tooling gate; READMEs; Playwright phone/desk/reduced | Pending |
 
 ## Design

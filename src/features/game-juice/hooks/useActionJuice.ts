@@ -1,6 +1,6 @@
 // Second copy: replaced by the juice recipes (`gameJuiceRecipes.ts`); juice-core lap 2 deletes this.
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { useMotionPreference } from "@/features/game-juice/hooks/useMotionPreference";
+import { useReducedMotion } from "@/features/game-settings/api";
 import { useShake } from "@/features/game-juice/hooks/useShake";
 import {
   PARTICLE_GLYPHS,
@@ -64,7 +64,7 @@ export function useParticleBurst({
   getOrigin,
   target,
 }: UseParticleBurstOptions): ParticleBurst | null {
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
   const [burst, setBurst] = useState<ParticleBurst | null>(null);
 
   useLayoutEffect(() => {
@@ -144,7 +144,7 @@ export function useActionJuice<M extends JuiceMeterInput>({
   ...current
 }: UseActionJuiceOptions<M>): ActionJuice<M> {
   const { action, meters, key } = useShownAction(current, hold);
-  const { reduced } = useMotionPreference();
+  const reduced = useReducedMotion();
   const [mountKey] = useState(key);
   const origin = useRef<ScreenPoint | null>(null);
   const shakeRef = useRef<HTMLDivElement>(null);
