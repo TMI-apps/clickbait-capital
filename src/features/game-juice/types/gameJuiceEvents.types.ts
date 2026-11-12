@@ -17,8 +17,21 @@ export type JuiceOptionVariant = "engagement" | "commercial" | "journalism";
 /** A meter tile the juice targets (`meter:<key>` anchors). */
 export type JuiceMeterKey = "users" | "revenue" | "reputation";
 
+/** How loud the scandal warning is: 1 under 25 % risk per turn, 2 under 50 %, else 3. */
+export type JuiceScandalLevel = "1" | "2" | "3";
+
 /** Variant and vars per event name; `{}` means the event takes neither. */
 export interface GameJuiceCatalog {
+  /** A draft card was lifted: a drag started or a press turned into a hold; origin = the card. */
+  "card.pickup": { variant: JuiceCardVariant };
+  /** The dragged card moved over the feed's drop slot (`feed:drop`). */
+  "card.over-feed": Record<string, never>;
+  /** A drag ended without a play (dropped outside the feed, or Escape). */
+  "card.cancel": Record<string, never>;
+  /** The chart started showing a card's forecast (held, dragged, opened or focused). */
+  "forecast.shown": Record<string, never>;
+  /** A follower comment appeared under the newest post (`comment:latest`). */
+  "comment.arrived": Record<string, never>;
   /** A card was played (from the draft or dropped on the feed); origin = the card. */
   "card.played": { variant: JuiceCardVariant };
   /** An answered event's consequences land on the board (after its dialog closed). */
@@ -50,6 +63,14 @@ export interface GameJuiceCatalog {
   "run.won": Record<string, never>;
   /** The run ended in a loss (bankrupt, abandoned, banned). */
   "run.lost": Record<string, never>;
+  /** Gebruikers or Geld reached its phase goal line; `vars.meter` names the tile. */
+  "goal.reached": { vars: { meter: JuiceMeterKey } };
+  /** Geld dropped into the danger zone (Bankroet is a few turns away). */
+  "money.danger": Record<string, never>;
+  /** The scandal warning appeared or rose a level (never when it falls). */
+  "scandal.warning": { variant: JuiceScandalLevel };
+  /** A scandal struck: the event an action opened is a scandal. Replaces `event.appeared`. */
+  "scandal.hit": Record<string, never>;
   /** A main button was pressed. */
   "ui.press": Record<string, never>;
 }

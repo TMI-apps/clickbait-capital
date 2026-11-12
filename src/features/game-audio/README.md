@@ -38,6 +38,14 @@ Files: `public/audio/<id>.mp3` (mono, 44.1 kHz, 96 kbps, about 124 KB for all 11
 | `game-over`                 | Bankroet / Verlaten / Verbod         | ~2 s   |
 | `ipo-win`                   | IPO ending                           | ~1.1 s |
 | `ui-tap`                    | Generic button tap                   | ~0.5 s |
+| `card-pickup`               | `card.pickup`: card dragged or held  | ~0.4 s |
+| `comment-pop`               | `comment.arrived`: one per comment   | ~0.1 s |
+| `goal-reached`              | `goal.reached`: a goal line crossed  | ~1.3 s |
+| `money-danger`              | `money.danger`: Geld near Bankroet   | ~0.8 s |
+| `scandal-warning`           | `scandal.warning`: risk up a level   | ~0.9 s |
+| `scandal-hit`               | `scandal.hit`: a scandal strikes     | ~1.3 s |
+
+Which event plays a sound, and at what pitch and volume, lives in the juice recipes (`src/features/game-juice/services/gameJuiceRecipes.ts`); this table names the usual trigger.
 
 ## Sound style
 
@@ -54,13 +62,14 @@ Every prompt is `STYLE + SOUND (+ TYPE TWIST)`, so the set sounds like one famil
 ## Provenance and license
 
 - Generated with ElevenLabs Sound Effects (`eleven_text_to_sound_v2`, prompt influence 0.5, 1 take each) on the owner's ElevenLabs account, 2026-11-04, at build time by an agent. No API key is in the app or repo; the app only serves the resulting MP3s.
+- The six board-moment sounds (`card-pickup` … `scandal-hit`) were generated 2026-11-12 with prompt influence 0.3 (the generation flow's default), two takes each, one picked per sound by measurement; each prompt ends with a length hint. Same processing (mono 44.1 kHz 96 kbps, leading silence trimmed, 80 ms fade-out, RMS ≈ −21.5 dB, peaks ≤ −1.4 dBFS). Their seeds carry the differing generator and date (`set`).
 - License: commercial use allowed on the owner's paid plan under the ElevenLabs Terms of Service; no attribution required. Credit line for the credits screen: `AUDIO_CREDIT_LINE` ("Geluidseffecten gemaakt met ElevenLabs Sound Effects.").
 - To regenerate or add a sound: keep `SOUND_STYLE`, add the id to `SOUND_EFFECT_IDS` and its seed in `soundManifest.ts`, save `public/audio/<id>.mp3` with the same processing, and update the date.
 
 ## Decisions
 
-- **Web Audio, no library (game-audio D1):** decoded buffers give low latency, overlapping plays and a per-sound gain that also works on iOS Safari (where `HTMLAudioElement.volume` is ignored). Howler.js is the common package for this; for 11 one-shot sounds without sprites or streaming a ~100-line player avoids a new dependency.
-- **Unlock on first gesture (D2):** the `AudioContext` is created inside the first gesture, so no autoplay warning and no sound before the player interacts. Sounds load right after unlock (124 KB total).
+- **Web Audio, no library (game-audio D1):** decoded buffers give low latency, overlapping plays and a per-sound gain that also works on iOS Safari (where `HTMLAudioElement.volume` is ignored). Howler.js is the common package for this; for 17 one-shot sounds without sprites or streaming a ~100-line player avoids a new dependency.
+- **Unlock on first gesture (D2):** the `AudioContext` is created inside the first gesture, so no autoplay warning and no sound before the player interacts. Sounds load right after unlock (~190 KB total).
 - **Mute is a sound-on toggle (D3):** `aria-pressed` reflects "sound on" under the stable name "Geluid"; visible text says "Geluid aan" / "Geluid uit".
 - **Mix in data (D4):** files are normalized; the design's asymmetry (loud viral, quiet news) is the manifest `volume`.
 - **Level by RMS, mix by volume (D6):** a review found the first files 12 dB apart in mean level (peak normalization favours sustained sounds); the files now share one mean level and the asymmetry stays only in `volume`.

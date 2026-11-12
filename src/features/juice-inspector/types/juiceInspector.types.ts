@@ -15,6 +15,10 @@ export interface InspectorAnchorNames {
   card: string;
   chart: string;
   feed: string;
+  /** The drop slot a dragged card opens above the feed. */
+  drop: string;
+  /** The newest shown follower comment under the newest post. */
+  comment: string;
   button: string;
   /** The score counters over the chart (Gebruikers, Geld). */
   meters: readonly string[];

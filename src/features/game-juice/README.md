@@ -46,6 +46,8 @@ emitJuice("card.played", { variant: "viral", origin: cardElement });
 
 **Adjust juice:** edit the step values in `GAME_JUICE_RECIPES`, or tune them live in `/juice` and copy the JSON. Global intensity, tempo, volume and vibration live in the inspector too. Hard ceilings (`JUICE_LIMITS`) keep any tuning within the accessibility limits. `emitJuice` is typed per event: an event with required vars (e.g. `meter.changed` needs `vars.meter`) does not compile without them.
 
+**The board's moments** (game-board emits them; lap juice-wiring-board): `card.pickup` (drag start or hold, once per lift), `card.over-feed` (pulses `feed:drop`), `card.cancel`, `forecast.shown` (one beat on `chart`), `comment.arrived` (one per revealed comment, pops `comment:latest`; 60 ms cooldown, so a batch revealed at once under reduced motion pops once), `meter.changed` (now also floats the tile's change text, `vars.text`), `goal.reached` (`vars.meter`), `money.danger`, `scandal.warning` (variant = level 1–3, tag `SCANDAL_WARNING_TAG`) and `scandal.hit` (instead of `event.appeared` when the opened event is a scandal).
+
 **A new kind of effect:** see "How to add a primitive" in `src/features/juice-effects/README.md`, then register it in `createGameJuiceEffects`.
 
 ## Decisions
@@ -64,6 +66,7 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 - **D10 — Vibration off until its setting (juice-migrate D9).** The game passes `haptics: false` until the "Trillen" setting (juice-core D10) lands; the inspector's knob is ready.
 - **D12 — Pitch variation (juice-migrate D10).** Card sounds vary their pitch by up to ±4 % (`rateJitter`), so a sound heard twenty times a run doesn't grate.
 - **D13 — Outcome marks leave with their dialog.** `event.outcome` / `outcome.row` carry the tag `EVENT_OUTCOME_TAG`; answering the event calls `stopJuice(EVENT_OUTCOME_TAG)`, so no mark floats over the board after the dialog closes. An event post enters at once (behind the closing dialog), not after it.
+- **D14 — Board moments (juice-wiring-board D1–D7).** Goal reached and money danger fire on the edge of the shown tiles' `full` / `danger`, with the reveal; the scandal warning ramps per level (1 under 25 %, 2 under 50 %, else 3), plays only when it appears or rises, and is stopped by tag when it goes; a scandal's opening plays `scandal.hit` instead of the event sting; a hold that turns into a drag lifts once; dull moves float nothing; the six board sounds are ElevenLabs files (game-audio README).
 - **D11 — Event-driven juice system (juice-core D1–D13).** Adding juice = a catalog entry and a recipe; adjusting = recipe values or `/juice`.
 
 ## Testing

@@ -23,6 +23,7 @@ export type {
 } from "@/features/game-juice/services/gameJuiceRuntime";
 export {
   EVENT_OUTCOME_TAG,
+  SCANDAL_WARNING_TAG,
   GAME_JUICE_RECIPES,
 } from "@/features/game-juice/services/gameJuiceRecipes";
 export type {
@@ -35,4 +36,5 @@ export type {
   JuiceCardVariant,
   JuiceMeterKey,
   JuiceOptionVariant,
+  JuiceScandalLevel,
 } from "@/features/game-juice/types/gameJuiceEvents.types";

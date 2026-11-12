@@ -1,3 +1,4 @@
+import type { Ref } from "react";
 import { fillTemplate, UI_COPY } from "@/features/game-content/api";
 import type { FollowerTone } from "@/features/game-content/api";
 import type {
@@ -21,10 +22,12 @@ interface CommentLineProps {
   animate: boolean;
   /** Older posts keep each comment to one line; the newest may wrap to two. */
   oneLine: boolean;
+  itemRef?: Ref<HTMLLIElement>;
 }
 
-const CommentLine = ({ comment, animate, oneLine }: CommentLineProps) => (
+const CommentLine = ({ comment, animate, oneLine, itemRef }: CommentLineProps) => (
   <li
+    ref={itemRef}
     data-kind={comment.kind}
     className={cn(
       "flex min-w-0 items-start gap-1.5 text-xs leading-4",
@@ -59,6 +62,8 @@ export interface PostCommentsProps {
   shown?: number;
   /** Reduced motion: no entrance slide. */
   reduced?: boolean;
+  /** Ref for the newest shown comment (e.g. a juice anchor that pops it as it arrives). */
+  latestRef?: Ref<HTMLLIElement>;
   className?: string;
 }
 
@@ -73,6 +78,7 @@ export const PostComments = ({
   variant,
   shown = batch.comments.length,
   reduced = false,
+  latestRef,
   className,
 }: PostCommentsProps) => {
   const collapsed = variant === "collapsed";
@@ -90,12 +96,13 @@ export const PostComments = ({
       )}
     >
       <ol aria-label={UI_COPY.comments.label} className="flex flex-col gap-0.5">
-        {visible.map((comment) => (
+        {visible.map((comment, index) => (
           <CommentLine
             key={comment.key}
             comment={comment}
             animate={!collapsed && !reduced}
             oneLine={collapsed}
+            itemRef={index === visible.length - 1 ? latestRef : undefined}
           />
         ))}
       </ol>
