@@ -1,11 +1,16 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Flag, Lightbulb } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { getPhaseImage } from "@/features/card-imagery/api";
 import { GLOSSARY, PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
 import type { FlowPhase } from "@/features/game-flow/types/gameFlow.types";
-import { emitJuice, type JuicePhaseVariant } from "@/features/game-juice/api";
+import {
+  PHASE_INTRO_TAG,
+  emitJuice,
+  stopJuice,
+  type JuicePhaseVariant,
+} from "@/features/game-juice/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { cn } from "@/shared/utils/cn";
 import { FlowScreen } from "./FlowScreen";
@@ -25,13 +30,12 @@ export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScre
   const steps = Array.from({ length: phase.phaseCount }, (_, index) => index + 1);
   const stepAnchor = useJuiceAnchor("phase:step");
   const goalAnchor = useJuiceAnchor("phase:goal");
-  // The new phase's dot lights up and its goal box glows (`phase.intro`), once per phase
-  // (StrictMode runs mount effects twice in development).
-  const played = useRef<number | null>(null);
+  // The new phase's dot lights up and its goal box glows (`phase.intro`). Its steps wait for the
+  // screen's entrance, so leaving early stops them: without their anchors they would burst
+  // from the middle of the board (juice-wiring-flow D10).
   useEffect(() => {
-    if (played.current === phase.phaseId) return;
-    played.current = phase.phaseId;
     emitJuice("phase.intro", { variant: String(phase.phaseId) as JuicePhaseVariant });
+    return () => stopJuice(PHASE_INTRO_TAG);
   }, [phase.phaseId]);
   return (
     <FlowScreen

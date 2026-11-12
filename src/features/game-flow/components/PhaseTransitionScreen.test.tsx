@@ -27,6 +27,17 @@ describe("PhaseTransitionScreen", () => {
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
   });
 
+  it("should stop the phase intro when the player leaves the screen before it played", () => {
+    const stopped: string[] = [];
+    const stop = gameJuiceBus.listenStop((tag) => stopped.push(tag));
+    const { unmount } = renderWithProviders(
+      <PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />
+    );
+    unmount();
+    stop();
+    expect(stopped).toEqual(["phase-intro"]);
+  });
+
   it("should play the phase intro of its phase once when the screen opens", () => {
     const heard: string[] = [];
     const stop = gameJuiceBus.listen((name, payload) => heard.push(`${name}:${payload.variant}`));

@@ -21,6 +21,9 @@ export interface GameJuiceRecipe<K extends GameJuiceEventName> {
 /** Tag of the outcome recipes: their marks sit on the dialog's rows and end when it closes. */
 export const EVENT_OUTCOME_TAG = "event-outcome";
 
+/** Tag of the phase intro: its delayed sparkles end with the screen, never on the board. */
+export const PHASE_INTRO_TAG = "phase-intro";
+
 /** Tag of the scandal warning's ramp: it ends when the warning goes away. */
 export const SCANDAL_WARNING_TAG = "scandal-warning";
 
@@ -377,6 +380,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
   // The phase's step dot lights up, then the goal box. Phase 1 starts a run, so it also gets
   // the fanfare, softly; later phases heard it with the action that reached them.
   "phase.intro": {
+    tag: PHASE_INTRO_TAG,
     steps: [
       { effect: "pop", at: 300, target: "phase:step", scale: 1.4, duration: 420 },
       {

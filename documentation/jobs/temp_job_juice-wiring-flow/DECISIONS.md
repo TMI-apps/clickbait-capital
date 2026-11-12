@@ -16,6 +16,7 @@ Updated: 2026-11-12
 | D7 | Rule line | closed | `.claude/rules/architecture.md` § Edge-case placement gains: feedback / juice → emit a game-juice event at the moment, recipes live in `features/game-juice/`, never call effects or sounds from gameplay or UI | owner Q4 = A | the only protected-file change |
 | D8 | No-field events | closed | Catalog events without variant or vars use `JuiceNoFields` (`variant?` / `vars?`: never) instead of `Record<string, never>`, so they can still carry the engine's `origin` (`ui.press` on the control) | loop-build | type-only |
 | D9 | Real presses only | closed | The press listener ignores script clicks (`isTrusted`; the share download clicks a hidden link), runs in the bubble phase so a click dnd-kit swallows after a drag doesn't tap, and reads the click's `composedPath()` so a control React removed on click (or its opt-out area) still resolves | loop-check (review) | |
+| D10 | Phase intro ends with its screen | closed | `phase.intro` carries `PHASE_INTRO_TAG`; `PhaseTransitionScreen` stops it when it closes. Its steps wait 300 ms for the entrance, and a particle step whose anchor is gone bursts from the screen centre, so a quick "Aan de slag" threw the intro's sparkles over the board (seen as a CI failure: 8 extra particles after a news card). The stop also covers StrictMode's double effect run, replacing the ref guard | loop-ship (CI) | |
 
 ## Open
 
@@ -23,4 +24,4 @@ Updated: 2026-11-12
 
 ## Log
 
-- 2026-11-12 — D9 via loop-check (review); D1–D8 closed (loop-plan / loop-build; D3 and D7 carry owner answers Q1 and Q4)
+- 2026-11-12 — D10 via loop-ship (CI); D9 via loop-check (review); D1–D8 closed (loop-plan / loop-build; D3 and D7 carry owner answers Q1 and Q4)

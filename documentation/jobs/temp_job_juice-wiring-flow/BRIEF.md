@@ -65,4 +65,4 @@ M.
 
 ## Decisions
 
-`DECISIONS.md` D1–D9.
+`DECISIONS.md` D1–D10.
