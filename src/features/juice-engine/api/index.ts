@@ -49,4 +49,4 @@ export type {
   JuiceTuningStore,
 } from "@/features/juice-engine/services/juiceTuning";
 export type * from "@/features/juice-engine/types/juiceEngine.types";
-export { parseDurationMs, readDurationToken } from "@/features/juice-engine/services/motionTokens";
+export { parseDurationMs, readDurationToken } from "@/features/juice-engine/services/juiceEffect";

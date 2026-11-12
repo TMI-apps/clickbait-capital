@@ -4,7 +4,7 @@ The game-agnostic runtime of the juice system: gameplay **emits semantic events*
 
 ## Purpose
 
-- `createJuiceBus<Events>()` — typed `emit(name, payload)` / `listen(listener)`. A failing listener never breaks gameplay; events with no listener are dropped (juice is never load-bearing).
+- `createJuiceBus<Events>()` — typed `emit(name, payload)` / `listen(listener)`. A failing listener never breaks gameplay. Events emitted before anything listens (the lazy host still loading) wait, up to 16, and reach the first listener if they are at most 1 s old; older ones are dropped (juice is never load-bearing).
 - `createJuiceDirector(...)` — plays a recipe: shared `steps`, then `variants[payload.variant]`; each step after `at` × motion scale; gated per channel; scaled by intensity × payload `strength`; flash guard, concurrency cap, cooldowns, `stop(tag)`, `cancelAll()`.
 - `createJuiceTuning(...)` — the one place juice is adjusted: shipped recipes ⊕ per-step overrides, global knobs (intensity, motion scale, volume, haptics), persisted (debounced), JSON export, `reload` for other tabs.
 - `defineJuiceEffect(...)` — declares an effect primitive: id, channel, reduced-motion behaviour, tunable params (unit, range, optional `default` for params a step may leave out), `run`. The inspector draws its controls from these params.
@@ -12,20 +12,19 @@ The game-agnostic runtime of the juice system: gameplay **emits semantic events*
 
 ## Structure
 
-| Layer      | Path                         | Purpose                                                                              |
-| ---------- | ---------------------------- | ------------------------------------------------------------------------------------ |
-| API        | `api/index.ts`               | Public surface                                                                       |
-| Components | `components/JuiceStage.tsx`  | Fixed, click-through, `aria-hidden` overlay; registers itself as the stage           |
-| Hooks      | `hooks/useJuiceDirector.ts`  | Bus → director while mounted; `storage` event → `tuning.reload()`; cancel on unmount |
-| Hooks      | `hooks/useJuiceAnchor.ts`    | Ref callback registering a named anchor                                              |
-| Hooks      | `hooks/useJuiceTuning.ts`    | `useSyncExternalStore` view of a tuning store                                        |
-| Services   | `services/juiceBus.ts`       | Typed event bus                                                                      |
-| Services   | `services/juiceDirector.ts`  | Recipe player: variants, delays, gates, flash guard, caps, cooldown, tags            |
-| Services   | `services/juiceTuning.ts`    | Tuning store, override parsing / merging, ranges                                     |
-| Services   | `services/juiceEffect.ts`    | `defineJuiceEffect`, `JUICE_LIMITS`, param readers                                   |
-| Services   | `services/juiceAnchors.ts`   | Anchor and stage registries (StrictMode-safe)                                        |
-| Services   | `services/motionTokens.ts`   | Read CSS duration tokens in JS                                                       |
-| Types      | `types/juiceEngine.types.ts` | Steps, recipes, payloads, tuning, gates, effect contract                             |
+| Layer      | Path                         | Purpose                                                                                             |
+| ---------- | ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`               | Public surface                                                                                      |
+| Components | `components/JuiceStage.tsx`  | Fixed, click-through, `aria-hidden` overlay; registers itself as the stage                          |
+| Hooks      | `hooks/useJuiceDirector.ts`  | Bus → director while mounted; `storage` event → `tuning.reload()`; cancel on unmount                |
+| Hooks      | `hooks/useJuiceAnchor.ts`    | Ref callback registering a named anchor                                                             |
+| Hooks      | `hooks/useJuiceTuning.ts`    | `useSyncExternalStore` view of a tuning store                                                       |
+| Services   | `services/juiceBus.ts`       | Typed event bus                                                                                     |
+| Services   | `services/juiceDirector.ts`  | Recipe player: variants, delays, gates, flash guard, caps, cooldown, tags                           |
+| Services   | `services/juiceTuning.ts`    | Tuning store, override parsing / merging, ranges                                                    |
+| Services   | `services/juiceEffect.ts`    | `defineJuiceEffect`, `JUICE_LIMITS`, param readers, CSS duration tokens in JS (`readDurationToken`) |
+| Services   | `services/juiceAnchors.ts`   | Anchor and stage registries (StrictMode-safe)                                                       |
+| Types      | `types/juiceEngine.types.ts` | Steps, recipes, payloads, tuning, gates, effect contract                                            |
 
 ## Rules the director enforces
 
@@ -55,7 +54,7 @@ Lap log: `documentation/jobs/temp_job_juice-core/DECISIONS.md` (until it is remo
 
 ## Testing
 
-Colocated Vitest: `services/juiceDirector.test.ts` (variants, delays × motion scale, reduced / static, haptic gates, flash guard, cooldown, concurrency, tags, chance, strength, unknowns, templates; manual clock), `services/juiceTuning.test.ts` (defaults, overrides, clamps, debounced persistence, reset, reload, export, blocked storage, defensive parsing), `services/motionTokens.test.ts`.
+Colocated Vitest: `services/juiceBus.test.ts` (fan-out, failing listener, early events held ≤ 1 s, unsubscribe), `services/juiceAnchors.test.ts` (newest registration wins, detached anchors), `services/juiceDirector.test.ts` (variants, delays × motion scale, reduced / static, haptic gates, flash guard, cooldown, concurrency, tags, chance, strength, unknowns, templates; manual clock), `services/juiceTuning.test.ts` (defaults, overrides, clamps, debounced persistence, reset, reload, export, blocked storage, defensive parsing), `services/juiceEffect.test.ts` (duration parsing, clamp).
 
 ## Dependencies
 

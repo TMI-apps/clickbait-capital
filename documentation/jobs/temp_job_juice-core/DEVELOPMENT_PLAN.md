@@ -42,7 +42,7 @@
 - `services/juiceAnchors.ts` — page anchor registry (`registerAnchor(name, el) → unregister`, `findAnchor(name)`), stage registry (`registerStage`, `getStage`).
 - `services/juiceTuning.ts` (+ test) — `createJuiceTuning({ book, defaults, storage })`: `getTuning`, `getBook` (defaults ⊕ overrides, memoized per version), `setGlobal`, `setStepValue(event, branch, index, param, value)`, `reset`, `exportOverrides` (pretty JSON), `subscribe`. Storage errors are swallowed.
 - `services/juiceDirector.ts` (+ test) — `createJuiceDirector({ effects, getBook, getTuning, getGates, schedule?, now? })` → `{ play(name, payload), cancelAll() }`. Rules: unknown event / effect → no-op (dev warn); `at` and effect durations × `motionScale`; reduced motion → `skip` effects dropped, `static` effects run with `ctx.reduced = true`; `haptic` channel only when tuning and gates allow; screen-flash guard (≤ 3 flash steps on `screen` per rolling 1000 ms); every run's cancel is tracked and released when it ends.
-- `services/motionTokens.ts` (+ test, moved from game-juice) — `parseDurationMs`, `readDurationToken`.
+- `parseDurationMs`, `readDurationToken` (moved from game-juice `motionTokens.ts`) live in `services/juiceEffect.ts` (budget: services layer at 10).
 - `components/JuiceStage.tsx` — fixed `inset-0`, `pointer-events-none`, `aria-hidden`, `overflow-hidden`, `z-[60]`, registers itself as the stage.
 - `hooks/useJuiceAnchor.ts` — ref callback that registers / unregisters a named anchor.
 - `hooks/useJuiceTuning.ts` — `useSyncExternalStore` view of a tuning store (inspector).
