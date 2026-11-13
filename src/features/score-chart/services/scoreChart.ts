@@ -17,14 +17,31 @@ export const CHART_HEIGHT = 80;
  */
 export const FORECAST_RESERVE_PX = 112;
 
+/**
+ * From this rendered width on the chart is large (desk-wide D2): its labels, dots and forecast
+ * segment are a step bigger. Mirrors the `@min-[40rem]` container queries in `ScoreChart`.
+ */
+export const LARGE_CHART_PX = 640;
+
+/** The forecast room on a large chart: a 32 px segment, a bigger dot, a 0.75 rem label (≈ 80 px). */
+export const FORECAST_RESERVE_LARGE_PX = 136;
+
 /** Height of a forecast delta label in CSS pixels: two labels closer than this are spread apart. */
 const FORECAST_LABEL_PX = 16;
 
 /** Forecast segment length in CSS pixels: from the newest point to the forecast dot. */
 const FORECAST_SEGMENT_PX = 24;
+const FORECAST_SEGMENT_LARGE_PX = 32;
 
-/** The free right part never takes less or more than these shares of the width. */
-const RESERVE_SHARE_MIN = 0.18;
+/** Length of an event tick on the bottom edge in CSS pixels, whatever the chart's height. */
+const EVENT_TICK_PX = 9;
+const EVENT_TICK_LARGE_PX = 12;
+
+/**
+ * The free right part never takes more than this share of the width (a narrow phone chart), nor
+ * less than the minimum, which only a chart wider than ~1400 px reaches (desk-wide D2).
+ */
+const RESERVE_SHARE_MIN = 0.08;
 const RESERVE_SHARE_MAX = 0.4;
 
 /** Assumed width before the chart is measured (a phone chart). */
@@ -73,10 +90,25 @@ const ORIGIN_SHARE = 0;
 /** Air between the top overlay and the highest point, in CSS pixels. */
 const OVERLAY_GAP_PX = 6;
 
+/** A measured width, or the phone width before the first measurement. */
+function measuredWidth(widthPx: number | undefined): number {
+  return widthPx && widthPx > 0 ? widthPx : DEFAULT_WIDTH_PX;
+}
+
+/** Forecast segment and event tick lengths in CSS pixels: a step longer on a large chart. */
+function markSizes(widthPx: number): { segmentPx: number; tickPx: number } {
+  const large = widthPx >= LARGE_CHART_PX;
+  return {
+    segmentPx: large ? FORECAST_SEGMENT_LARGE_PX : FORECAST_SEGMENT_PX,
+    tickPx: large ? EVENT_TICK_LARGE_PX : EVENT_TICK_PX,
+  };
+}
+
 /** Share of the width kept free for the forecast at a rendered width (chart-timeline D5). */
 export function reserveShare(widthPx: number | undefined): number {
-  const width = widthPx && widthPx > 0 ? widthPx : DEFAULT_WIDTH_PX;
-  return Math.min(RESERVE_SHARE_MAX, Math.max(RESERVE_SHARE_MIN, FORECAST_RESERVE_PX / width));
+  const width = measuredWidth(widthPx);
+  const reservePx = width >= LARGE_CHART_PX ? FORECAST_RESERVE_LARGE_PX : FORECAST_RESERVE_PX;
+  return Math.min(RESERVE_SHARE_MAX, Math.max(RESERVE_SHARE_MIN, reservePx / width));
 }
 
 /**
@@ -271,7 +303,8 @@ export function toChartGeometry(input: ChartGeometryInput): ChartGeometry {
   const dividers = markers
     .filter((marker) => marker.kind === "divider" && marker.index > 0 && marker.index < count)
     .map((marker) => marker.index);
-  const width = widthPx && widthPx > 0 ? widthPx : DEFAULT_WIDTH_PX;
+  const width = measuredWidth(widthPx);
+  const { segmentPx, tickPx } = markSizes(width);
   const chartHeightPx = heightPx && heightPx > 0 ? heightPx : DEFAULT_HEIGHT_PX;
   const lastX = x(count - 1);
   const context: LineContext = {
@@ -280,12 +313,13 @@ export function toChartGeometry(input: ChartGeometryInput): ChartGeometry {
     topY: Math.max(TOP_Y, ((topInsetPx + OVERLAY_GAP_PX) / chartHeightPx) * CHART_HEIGHT),
     currentFrom: dividers.length > 0 ? Math.max(...dividers) : 0,
     dividers,
-    forecastX: lastX + (FORECAST_SEGMENT_PX / width) * CHART_WIDTH,
+    forecastX: lastX + (segmentPx / width) * CHART_WIDTH,
   };
   return {
     width: CHART_WIDTH,
     height: CHART_HEIGHT,
     historyRight,
+    eventTopY: CHART_HEIGHT - (Math.min(tickPx, chartHeightPx) / chartHeightPx) * CHART_HEIGHT,
     markers: marks,
     lines: spreadForecastLabels(
       series.map((line, index) => toChartLine(line, index, context)),
