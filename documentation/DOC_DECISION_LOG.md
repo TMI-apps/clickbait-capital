@@ -6,6 +6,17 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## juice-tone-down — fix/juice-tone-down
+
+Owner feedback after lap 4: several sounds annoyed more than they added. Handling a card is now silent, the frame left behind a lifted card is gone, the comment pop is barely there, and the most frequent sounds sit lower in the mix. Recipe data only, plus removing the unused `card-pickup` sound.
+
+| id | topic | status | choice | source | notes |
+|----|-------|--------|--------|--------|-------|
+| D1 | Lifting a card | closed | `card.pickup` keeps a 6 ms vibration and a tiny pop on the card; its sound and its glow are removed. The glow drew a ring at the card's rect at lift time, which stayed behind as a square frame (the `li` has no card corners) while the card moved: the "empty space" the owner saw. `card-pickup` (sound id, manifest seed, `public/audio/card-pickup.mp3`) is deleted, nothing else used it | owner feedback | lost: a quieter tick (the owner called the lift sound intrusive; silence is the lightest answer) |
+| D2 | Over the feed, cancel | closed | `card.over-feed` keeps the drop slot's pulse and a 4 ms vibration, no sound; `card.cancel` plays nothing. The play sounds stay | owner feedback | both reused `card-pickup` at another pitch |
+| D3 | Comment pop | closed | `comment-pop` plays at recipe volume 0.2 and rate 0.75 (≈ −4 semitones, rate jitter ±5 %): mix 0.3 × 0.2 = 0.06 against `ui-tap`'s 0.245, about a quarter; each pop is one comment, so overlapping pops at the 200 ms pace stay under one tap. Kept rather than dropped: the file's tone sits at ~1.4 kHz, which rate 0.75 lowers to ~1.05 kHz | owner feedback | if it still reads as a ping on the preview, the next step is removing the sound step and keeping the visual pop |
+| D4 | Mix audit | closed | Frequent sounds go down: `ui.press` tap ×0.7 (0.35 → 0.245, plays on every button), big meter blips ×0.6 (0.45 → 0.27; they follow the card sound and `meter-gain` is bright, spectral peak ~10 kHz). Kept: card plays (the main feedback), goal / phase / endings / share (rare milestones), money danger and the scandal ramp (they warn) | loop-build audit | files share one RMS level (game-audio D6), so the recipe and manifest volumes are the real mix |
+
 ## juice-wiring-flow — feat/juice-wiring-flow
 
 Lap 4 of the game juice system. Every button and link taps through one delegated `ui.press`, and navigation settles each page in. Juice also reaches the phase intro, the event dialog's arrival, the endings and sharing. Players get a "Trillen" setting (default Aan, shown where the device can vibrate) that vibration now follows. The architecture rule names where juice goes.

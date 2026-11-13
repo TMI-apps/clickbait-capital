@@ -14,7 +14,6 @@ export const SOUND_EFFECT_IDS = [
   "game-over",
   "ipo-win",
   "ui-tap",
-  "card-pickup",
   "comment-pop",
   "goal-reached",
   "money-danger",

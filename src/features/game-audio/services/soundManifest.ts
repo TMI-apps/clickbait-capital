@@ -53,12 +53,6 @@ const SEEDS: Record<SoundEffectId, ManifestSeed> = {
   "ipo-win": { volume: 0.9, sound: "Victory jingle with a bright bell ring and a cash sparkle." },
   "ui-tap": { volume: 0.35, sound: "Subtle soft button tap." },
   // Board moments (juice-wiring-board): one take of two each, picked by measurement.
-  "card-pickup": {
-    volume: 0.4,
-    sound:
-      "Subtle quick airy upward swoosh with a tiny soft click, like lifting a card off a table, light and playful. Half a second long.",
-    set: JUICE_SET,
-  },
   "comment-pop": {
     volume: 0.3,
     sound:
