@@ -90,14 +90,6 @@ const METER_FLOATER = {
   },
 } satisfies Record<string, JuiceEffectStep>;
 
-/** Lifting a card: a small pop and the pickup swoosh; viral lifts brighter, news duller (design § 5). */
-const pickup = (rate: number, volume: number, color: string): JuiceEffectStep[] => [
-  { effect: "sound", id: "card-pickup", rate, volume, rateJitter: 0.03 },
-  { effect: "haptic", pattern: "6" },
-  { effect: "pop", target: "origin", scale: 1.06, duration: 200 },
-  { effect: "glow", target: "origin", color, times: 1, duration: 420 },
-];
-
 /** The scandal warning's ramp: louder and busier per level, never a loop (lap-3 D3). */
 const SCANDAL_WARNING: Record<JuiceScandalLevel, JuiceEffectStep[]> = {
   "1": [
@@ -124,38 +116,38 @@ const SCANDAL_WARNING: Record<JuiceScandalLevel, JuiceEffectStep[]> = {
  * live in the inspector (`/juice`), then copy the exported JSON into the matching steps here.
  */
 export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
-  // A hold that turns into a drag lifts once (lap-3 D4).
+  // A hold that turns into a drag lifts once (lap-3 D4). Silent, and no glow: the glow stayed
+  // behind at the card's old spot as a frame not shaped like the card (juice-tone-down D1).
   "card.pickup": {
     cooldownMs: 300,
-    variants: {
-      viral: pickup(1.08, 1, "type-viral"),
-      ad: pickup(1, 1, "type-ad"),
-      news: pickup(0.9, 0.6, "type-news"),
-    },
+    steps: [
+      { effect: "haptic", pattern: "6" },
+      { effect: "pop", target: "origin", scale: 1.06, duration: 200 },
+    ],
   },
+  // Silent: the slot's pulse and a tick of vibration say "let go here" (juice-tone-down D2).
   "card.over-feed": {
     cooldownMs: 250,
     steps: [
-      { effect: "sound", id: "card-pickup", rate: 1.25, volume: 0.5 },
       { effect: "haptic", pattern: "4" },
       { effect: "pulse", target: "feed:drop", scale: 1.03, times: 1, duration: 240 },
     ],
   },
-  // The card drops back into the draft: the pickup swoosh, lower and softer.
-  "card.cancel": {
-    steps: [{ effect: "sound", id: "card-pickup", rate: 0.75, volume: 0.6 }],
-  },
+  // The card drops back into the draft: nothing plays (juice-tone-down D2).
+  "card.cancel": { steps: [] },
   // The chart answers "what if": one soft beat on it, not again for a quick re-hold.
   "forecast.shown": {
     cooldownMs: 400,
     steps: [{ effect: "glow", target: "chart", color: "primary", times: 1, duration: 420 }],
   },
-  // Plays 2–4 times in a row: quiet, varied, no vibration. The cooldown merges the pops of a
-  // batch revealed at once (reduced motion); the fastest pace is 200 ms apart, so it keeps those.
+  // Plays 2–4 times in a row: barely there, pitched down, no vibration (juice-tone-down D3).
+  // Each pop is ~6 % loud (a quarter of ui-tap), so even overlapping ones stay under one tap. The
+  // cooldown merges the pops of a batch revealed at once (reduced motion); the fastest pace is
+  // 200 ms apart, so it keeps those.
   "comment.arrived": {
     cooldownMs: 60,
     steps: [
-      { effect: "sound", id: "comment-pop", rateJitter: 0.08 },
+      { effect: "sound", id: "comment-pop", volume: 0.2, rate: 0.75, rateJitter: 0.05 },
       { effect: "pop", target: "comment:latest", scale: 1.04, duration: 200 },
     ],
   },
@@ -179,6 +171,8 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
   "event.resolved": {
     variants: { engagement: VIRAL_VISUALS, commercial: AD_VISUALS, journalism: NEWS_VISUALS },
   },
+  // A big move's blip follows the card's sound often and is bright, so it plays softer
+  // (juice-tone-down D4).
   "meter.changed": {
     variants: {
       gain: [
@@ -198,7 +192,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       "gain-big": [
         { effect: "flash", target: "meter:{meter}", color: "success", opacity: 0.2, duration: 760 },
         { ...METER_FLOATER.gain, rise: 40 },
-        { effect: "sound", at: 250, id: "meter-gain" },
+        { effect: "sound", at: 250, id: "meter-gain", volume: 0.6 },
       ],
       "loss-big": [
         {
@@ -209,7 +203,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
           duration: 760,
         },
         { ...METER_FLOATER.loss, rise: 40 },
-        { effect: "sound", at: 250, id: "meter-loss" },
+        { effect: "sound", at: 250, id: "meter-loss", volume: 0.6 },
       ],
       dull: [],
     },
@@ -364,11 +358,12 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       },
     ],
   },
-  // Every button and link in the app (delegated, game-juice D15): a tap and a tiny squash.
+  // Every button and link in the app (delegated, game-juice D15): a tap and a tiny squash. The
+  // tap sounds on every press, so it sits under the board's sounds (juice-tone-down D4).
   "ui.press": {
     cooldownMs: 60,
     steps: [
-      { effect: "sound", id: "ui-tap" },
+      { effect: "sound", id: "ui-tap", volume: 0.7 },
       { effect: "haptic", pattern: "6" },
       { effect: "pop", target: "origin", scale: 1.04, duration: 160 },
     ],
