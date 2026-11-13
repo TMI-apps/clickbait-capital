@@ -22,6 +22,7 @@ import {
   shakeEffect,
   timeWarpEffect,
   tintEffect,
+  traceEffect,
   zoomEffect,
   type SoundPort,
 } from "@/features/juice-effects/api";
@@ -89,6 +90,7 @@ export function createGameJuiceEffects(sound: SoundPort): JuiceEffectRegistry {
     zoomEffect,
     enterEffect,
     timeWarpEffect,
+    traceEffect,
     flashEffect,
     glowEffect,
     tintEffect,

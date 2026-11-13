@@ -14,6 +14,8 @@ export interface ScoreChartSeries {
   forecast?: number;
   /** The forecast's change as text ("+15.000"), shown next to the forecast dot. */
   forecastText?: string;
+  /** How brightly the line glows (a streak, chart-juice D3): 0 none, up to 3. */
+  glow?: 0 | 1 | 2 | 3;
 }
 
 /**
@@ -39,6 +41,14 @@ export interface ChartLine {
   pastPoints: string;
   /** Polyline points of the current stretch. */
   points: string;
+  /** The current stretch without its newest segment (`tail`), drawn as the polyline. */
+  headPoints: string;
+  /**
+   * The newest segment of the current stretch, drawn on its own so it can draw in (juice anchor
+   * `chart-tail:<key>`); absent when the stretch has one point.
+   */
+  tail?: { from: { x: number; y: number }; to: { x: number; y: number } };
+  glow: 0 | 1 | 2 | 3;
   last: { x: number; y: number };
   /** The forecast point in the free right part of the chart, when the series has a forecast. */
   forecast?: {

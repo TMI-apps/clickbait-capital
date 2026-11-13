@@ -8,26 +8,28 @@ The game's juice: what every moment of Clickbait Capital looks, sounds and feels
 - **Ad:** coins fly from the card to Geld, a gold glow and 💰, a ka-ching.
 - **News:** a quiet click; the post slides in short and dry and shows a small 🛡️; meters don't flash.
 - **Every action:** each moved meter flashes gain / loss (not after news or journalism); a ≥ 10 % move adds a blip; the new post enters; an answered event plays its option kind's card juice once its dialog has closed, and its outcome rows enter, flash, count up and show the kind's mark.
+- **The chart (chart-juice):** each moved line draws in its newest stretch and its end dot reacts by tier (small / medium / big / huge, per line in `CHART_MOVE_TIERS`); up pops, glows and sparks, down shudders, shakes and tints red. A streak of ups (3, 5, 8+, `STREAK_LEVELS`) gives the counter a 🔥 chip and the line a glow, and each step plays the gain blip one tone higher; a broken streak shrugs.
 - **Milestones and endings:** the next phase, a new event, the IPO (confetti, gold flash, entrance) and a loss (red flash, entrance), each sound 250 ms after the action's own.
 
 ## Structure
 
-| Layer      | Path                             | Purpose                                                                                                                |
-| ---------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                   | `emitJuice`, `emitJuiceEvent`, catalog types, recipes, tuning store, effect registry, `EffectsJuice`, `CountUpNumber`  |
-| API        | `api/root.ts`                    | `GameJuiceRoot` only: `App.tsx` lazy-loads this entry so the director, effects and recipes stay out of the main chunk  |
-| Components | `components/GameJuiceRoot.tsx`   | The juice host mounted once in `App.tsx` (inside the router): overlay stage, director, press tap, page entrance        |
-| Components | `components/EffectsJuice.tsx`    | An event outcome's rows with their anchors (`outcome:<meter>`) and count-up                                            |
-| Components | `components/CountUpNumber.tsx`   | A number that counts to its new value (or from `from`)                                                                 |
-| Hooks      | `hooks/useGameJuiceDirector.ts`  | Bus → director with the game's effects, game-audio sound port, Beweging and Trillen gates, tuning reset on a wipe      |
-| Hooks      | `hooks/useJuicePress.ts`         | App-wide `ui.press`: one click listener on buttons and links (real presses only) (opt out: `data-juice-press="off"`)   |
-| Hooks      | `hooks/usePageJuice.ts`          | `page.opened` on each navigation (not the first load); registers `App.tsx`'s `[data-juice-page]` area as anchor `page` |
-| Hooks      | `hooks/useOutcomeJuice.ts`       | Emits `event.outcome` and `outcome.row` once per mounted outcome                                                       |
-| Hooks      | `hooks/useCountUp.ts`            | rAF count-up that writes text through a ref                                                                            |
-| Services   | `services/gameJuiceRecipes.ts`   | `GAME_JUICE_RECIPES`: every catalog event's steps (content as data)                                                    |
-| Services   | `services/gameJuiceRuntime.ts`   | `gameJuiceBus` / `emitJuice` / `emitJuiceEvent`, `getGameJuiceTuning()`, `createGameJuiceEffects(sound)`               |
-| Services   | `services/juicePress.ts`         | `pressedControl` (pure): which click counts as a press                                                                 |
-| Types      | `types/gameJuiceEvents.types.ts` | `GameJuiceCatalog`: every event name with its variants and vars                                                        |
+| Layer      | Path                             | Purpose                                                                                                                                |
+| ---------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                   | `emitJuice`, `emitJuiceEvent`, catalog types, recipes, tuning store, effect registry, `EffectsJuice`, `CountUpNumber`                  |
+| API        | `api/root.ts`                    | `GameJuiceRoot` only: `App.tsx` lazy-loads this entry so the director, effects and recipes stay out of the main chunk                  |
+| Components | `components/GameJuiceRoot.tsx`   | The juice host mounted once in `App.tsx` (inside the router): overlay stage, director, press tap, page entrance                        |
+| Components | `components/EffectsJuice.tsx`    | An event outcome's rows with their anchors (`outcome:<meter>`) and count-up                                                            |
+| Components | `components/CountUpNumber.tsx`   | A number that counts to its new value (or from `from`)                                                                                 |
+| Hooks      | `hooks/useGameJuiceDirector.ts`  | Bus → director with the game's effects, game-audio sound port, Beweging and Trillen gates, tuning reset on a wipe                      |
+| Hooks      | `hooks/useJuicePress.ts`         | App-wide `ui.press`: one click listener on buttons and links (real presses only) (opt out: `data-juice-press="off"`)                   |
+| Hooks      | `hooks/usePageJuice.ts`          | `page.opened` on each navigation (not the first load); registers `App.tsx`'s `[data-juice-page]` area as anchor `page`                 |
+| Hooks      | `hooks/useOutcomeJuice.ts`       | Emits `event.outcome` and `outcome.row` once per mounted outcome                                                                       |
+| Hooks      | `hooks/useCountUp.ts`            | rAF count-up that writes text through a ref                                                                                            |
+| Services   | `services/gameJuiceRecipes.ts`   | `GAME_JUICE_RECIPES`: every catalog event's steps (content as data)                                                                    |
+| Services   | `services/gameJuiceRuntime.ts`   | `gameJuiceBus` / `emitJuice` / `emitJuiceEvent`, `getGameJuiceTuning()`, `createGameJuiceEffects(sound)`                               |
+| Services   | `services/chartJuice.ts`         | `CHART_MOVE_TIERS`, `STREAK_LEVELS` (tunable data) and their pure classifiers (`chartMoveVariant`, `streakStepVariant`, `streakLevel`) |
+| Services   | `services/juicePress.ts`         | `pressedControl` (pure): which click counts as a press                                                                                 |
+| Types      | `types/gameJuiceEvents.types.ts` | `GameJuiceCatalog`: every event name with its variants and vars                                                                        |
 
 ## The juice system
 
@@ -53,6 +55,8 @@ emitJuice("card.played", { variant: "viral", origin: cardElement });
 
 **The flow's moments** (lap juice-wiring-flow): `ui.press` on every button and link (delegated; tap, short vibration, tiny squash on the control); `page.opened` (the page settles in); `phase.intro` (variant = phase: the step dot pops with ✨🚀, the goal box glows; phase 1 adds the fanfare softly; tag `PHASE_INTRO_TAG`, stopped when the screen closes); `event.appeared` / `scandal.hit` glow around the dialog (`event-dialog`); `run.won` rings the ending's bell (`ending:icon` pop + gold glow), `run.lost` shakes it; `share.done` (`shared`: 📣💬✨ from the button, `failed`: the button shakes; closing the sheet plays nothing).
 
+**The chart's moments** (lap chart-juice; game-board emits them with the reveal): `chart.moved` per moved line (variant `up-<tier>` / `down-<tier>` / `dull`, `vars.meter`; targets `chart-tail:<meter>` and `chart-dot:<meter>`, anchored by score-chart), `streak.step` (variant 3–8, `vars.count`; target `streak:<meter>`, the counter's chip) and `streak.broken` (`vars.count`, the counter). Thresholds: `services/chartJuice.ts`, shown in `/juice`.
+
 **A press with its own juice:** mark the control or its area `data-juice-press="off"` (event answers, "In de feed", the inspector's triggers) so it doesn't also tap.
 
 **A new kind of effect:** see "How to add a primitive" in `src/features/juice-effects/README.md`, then register it in `createGameJuiceEffects`.
@@ -77,6 +81,7 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 - **D15 — One press tap for the whole app (juice-wiring-flow D1).** `GameJuiceRoot` listens to real clicks (`isTrusted`, bubble phase, the click's `composedPath()`) and plays `ui.press` on the pressed control, so new screens tap without wiring; `withTap` is gone. Areas with their own juice opt out with `data-juice-press="off"`.
 - **D16 — Vibration follows "Trillen" (juice-wiring-flow D3).** The haptics gate is the player's setting (default on); reduced motion still turns vibration off. "Voortgang wissen" also reloads the tuning (`onGameStorageCleared`).
 - **D17 — Adds, doesn't annoy (juice-tone-down D1–D4).** Handling a card is silent: `card.pickup` keeps a tiny pop and vibration (no sound, no glow), `card.over-feed` keeps the slot pulse and vibration, `card.cancel` plays nothing. `comment.arrived` plays its pop at 20 % and rate 0.75 (≈ a quarter of a tap); `ui.press` and the big meter blips play softer. A glow on `origin` stays where the element was when it started, so never glow a card that is about to move.
+- **D18 — Chart juice by tier, streaks per line (chart-juice D1–D4).** A move's tier is its distance in shares of the goal, per line (Gebruikers 8 / 25 / 60 %, Geld 4 / 12 / 40 %). Streak levels 3, 5, 8; each step plays `meter-gain` at rate 1.00 → 1.30 (no new sound files); news extends a streak silently and draws its line in dry. The chip and glow are view state (game-board, score-chart); only the moments are juice.
 - **D11 — Event-driven juice system (juice-core D1–D13).** Adding juice = a catalog entry and a recipe; adjusting = recipe values or `/juice`.
 
 ## Testing
@@ -84,6 +89,7 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 Colocated Vitest:
 
 - `services/gameJuiceRecipes.test.ts`: every step names a registered effect; sound ids exist; params are inside their ranges; news / journalism stay dull; event outcomes match their card's visuals; the particle and screen-flash ceilings hold; milestone sounds sit at 250 ms; origin steps run at once.
+- `services/chartJuice.test.ts`: tiers per line and direction, dull, streak steps from the first level capped at the last.
 - `services/juiceMotionCss.test.ts`: "Volledig" CSS durations, and no stale juice keyframes.
 - Board juice from the recipes: `src/features/game-board/components/GameBoard.test.tsx` § "GameBoard juice", plus the board mapping and hook tests.
 - Outcome juice: `src/features/game-flow/components/EventModal.test.tsx`.

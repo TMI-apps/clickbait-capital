@@ -9,7 +9,7 @@ import { PlayingBoard } from "./PlayingBoard";
 export interface GameBoardProps {
   /** Cards, events, phases and balance. Swap the content set here, not in the board. */
   content: GameContent;
-  /** Leave the game (pause menu "Stoppen", end screen "Home"). */
+  /** Leave the game (the board's home button, end screen "Naar het begin"). */
   onQuit: () => void;
   /** Fixed seed for tests and replays; random per run otherwise. */
   seed?: number;

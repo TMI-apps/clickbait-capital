@@ -16,6 +16,7 @@ const meters: MeterView[] = [
     goalAmountText: "100.000",
     full: true,
     danger: false,
+    streak: 3,
     valueText: "Gebruikers 120.000, +18.000, Doel: 100.000, doel gehaald",
   },
   {
@@ -30,6 +31,7 @@ const meters: MeterView[] = [
     goalAmountText: "€ 150.000",
     full: false,
     danger: true,
+    streak: 0,
     valueText: "Geld € 4.000, −€ 2.000, Doel: € 150.000, bijna bankroet",
   },
 ];
@@ -48,6 +50,16 @@ describe("MeterPanel", () => {
     expect(tiles[0]!.textContent).not.toContain("Doel");
     expect(screen.getByText("100.000")).toHaveClass("text-meter-users");
     expect(screen.getByText("€ 150.000")).toHaveClass("text-meter-revenue");
+  });
+
+  it("should show a streak chip and make the line glow when a number went up three times in a row", () => {
+    const { container } = render(<MeterPanel meters={meters} version={1} />);
+    const tiles = within(screen.getByRole("list", { name: "Gebruikers en geld" })).getAllByRole(
+      "listitem"
+    );
+    expect(tiles[0]!.querySelector("[data-streak]")).toHaveTextContent("🔥3x");
+    expect(tiles[1]!.querySelector("[data-streak]")).toBeNull();
+    expect(container.querySelectorAll("[data-chart-glow]")).toHaveLength(1);
   });
 
   it("should speak the danger text when money is nearly gone", () => {

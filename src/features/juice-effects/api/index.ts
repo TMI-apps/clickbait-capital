@@ -14,6 +14,7 @@ export {
   pulseEffect,
   shakeEffect,
   timeWarpEffect,
+  traceEffect,
   zoomEffect,
 } from "@/features/juice-effects/services/motionEffects";
 export {

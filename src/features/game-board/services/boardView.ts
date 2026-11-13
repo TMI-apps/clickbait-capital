@@ -14,6 +14,7 @@ import {
   resolveEvent,
   scandalChance,
 } from "@/features/game-engine/api";
+import { STREAK_LEVELS } from "@/features/game-juice/api";
 import type { SessionStep } from "@/features/game-session/api";
 import type {
   CardEffectView,
@@ -80,7 +81,21 @@ function tileValueText(label: string, tile: Omit<MeterView, "key" | "valueText">
   parts.push(tile.goalText);
   if (tile.full) parts.push("doel gehaald");
   if (tile.danger) parts.push("bijna bankroet");
+  if (tile.streak >= STREAK_LEVELS[0]) parts.push(`${tile.streak} keer op rij omhoog`);
   return parts.join(", ");
+}
+
+/**
+ * How many actions in a row a line went up, counted back from its newest point (chart-juice D3):
+ * derived from the session history, so a resume shows the same streak without a save change.
+ */
+export function streakOf(history: readonly number[]): number {
+  let count = 0;
+  for (let index = history.length - 1; index > 0; index -= 1) {
+    if (history[index]! <= history[index - 1]!) break;
+    count += 1;
+  }
+  return count;
 }
 
 /**
@@ -166,9 +181,10 @@ export function toMeters(
     const goal = phase.goal[score];
     const delta = state.lastTurn?.delta[score] ?? 0;
     const share = (value: number): number => (goal <= 0 ? 1 : Math.max(0, value) / goal);
+    const shares = history.map((point) => share(point[score]));
     const tile = {
       value: Math.round(Math.min(1, share(amount)) * 100),
-      history: history.map((point) => share(point[score])),
+      history: shares,
       amount,
       amountText: formatScore(score, amount),
       delta,
@@ -177,6 +193,7 @@ export function toMeters(
       goalAmountText: formatScore(score, goal),
       full: amount >= goal,
       danger: score === "money" && amount <= costPerTurn * MONEY_DANGER_TURNS,
+      streak: streakOf(shares),
     };
     return { key, ...tile, valueText: tileValueText(SCORE_LABEL[score], tile) };
   });

@@ -207,10 +207,10 @@ describe("GameBoard", () => {
     expect(posts()).toHaveLength(0);
   });
 
-  it("should quit to the start when the player stops from the pause menu", async () => {
+  it("should go to the start without a pause menu when the player presses home", async () => {
     const { user, onQuit } = await renderBoard();
-    await user.click(screen.getByRole("button", { name: "Menu" }));
-    await user.click(screen.getByRole("button", { name: "Stoppen" }));
+    expect(screen.queryByRole("button", { name: "Menu" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Naar het begin" }));
     expect(onQuit).toHaveBeenCalledTimes(1);
   });
 });

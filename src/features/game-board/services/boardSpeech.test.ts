@@ -20,6 +20,7 @@ const tiles = (users: [string, string], money: [string, string], danger = false)
     goalAmountText: "100.000",
     full: false,
     danger: false,
+    streak: 0,
     valueText: "",
   },
   {
@@ -34,6 +35,7 @@ const tiles = (users: [string, string], money: [string, string], danger = false)
     goalAmountText: "€ 150.000",
     full: false,
     danger,
+    streak: 0,
     valueText: "",
   },
 ];

@@ -22,6 +22,18 @@ export type {
   GameJuiceEvents,
 } from "@/features/game-juice/services/gameJuiceRuntime";
 export {
+  CHART_MOVE_TIERS,
+  STREAK_LEVELS,
+  chartMoveTier,
+  chartMoveVariant,
+  streakLevel,
+  streakStepVariant,
+} from "@/features/game-juice/services/chartJuice";
+export type {
+  ChartJuiceLine,
+  ChartMoveThresholds,
+} from "@/features/game-juice/services/chartJuice";
+export {
   EVENT_OUTCOME_TAG,
   SCANDAL_WARNING_TAG,
   PHASE_INTRO_TAG,
@@ -35,6 +47,9 @@ export type {
   GameJuiceCatalog,
   GameJuiceEventName,
   JuiceCardVariant,
+  JuiceChartMoveTier,
+  JuiceChartMoveVariant,
+  JuiceStreakStep,
   JuiceMeterKey,
   JuiceOptionVariant,
   JuicePhaseVariant,

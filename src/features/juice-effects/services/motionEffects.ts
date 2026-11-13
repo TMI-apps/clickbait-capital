@@ -12,6 +12,7 @@ import type {
   PulseStep,
   ShakeStep,
   TimeWarpStep,
+  TraceStep,
   ZoomStep,
 } from "@/features/juice-effects/types/juiceEffects.types";
 
@@ -184,6 +185,46 @@ export const enterEffect = defineJuiceEffect<EnterStep>({
       },
       context
     );
+  },
+});
+
+/**
+ * Slack around the target the clip leaves open, px: a stroke's caps and joins reach past its
+ * geometric box (and a non-scaling stroke past its user-space box), so the clip never trims them.
+ */
+const TRACE_BLEED_PX = 24;
+
+/**
+ * The target draws itself in from its left edge (a chart line's newest stretch). It animates
+ * `clip-path` rather than transform or opacity: the one non-compositor property in the library,
+ * kept to a short animation on a small element (juice-effects D7). Reduced motion skips it, so
+ * the target shows at once.
+ */
+export const traceEffect = defineJuiceEffect<TraceStep>({
+  id: "trace",
+  channel: "motion",
+  reducedMotion: "skip",
+  params: { duration: DURATION },
+  run: (step, context) => {
+    const target = context.resolve(step.target);
+    if (!target?.element) return;
+    const bleed = `${TRACE_BLEED_PX}px`;
+    const animation = animateJuice(
+      {
+        element: target.element,
+        keyframes: [
+          { clipPath: `inset(-${bleed} 100% -${bleed} -${bleed})` },
+          { clipPath: `inset(-${bleed} -${bleed} -${bleed} -${bleed})` },
+        ],
+        options: {
+          duration: scaledMs(step.duration, context),
+          easing: step.easing === "linear" ? "linear" : "ease-out",
+          fill: "backwards",
+        },
+      },
+      context
+    );
+    return animation ? () => animation.cancel() : undefined;
   },
 });
 

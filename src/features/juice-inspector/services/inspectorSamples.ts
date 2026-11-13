@@ -20,6 +20,8 @@ export const INSPECTOR_ANCHORS: InspectorAnchorNames = {
   phaseStep: "phase:step",
   phaseGoal: "phase:goal",
   meters: ["meter:users", "meter:revenue"],
+  chartLines: ["chart-tail:users", "chart-dot:users", "chart-tail:revenue", "chart-dot:revenue"],
+  streaks: ["streak:users", "streak:revenue"],
   scandal: "scandal",
 };
 
@@ -28,6 +30,9 @@ const SAMPLE_VARS: Record<string, Record<string, string | number>> = {
   "meter.changed": { meter: "users", text: "+1.250" },
   "outcome.row": { row: "outcome:users" },
   "goal.reached": { meter: "users" },
+  "chart.moved": { meter: "users" },
+  "streak.step": { meter: "users", count: 5 },
+  "streak.broken": { meter: "users", count: 4 },
 };
 
 /** Every event and variant in the recipe book, in book order (new recipes appear by themselves). */

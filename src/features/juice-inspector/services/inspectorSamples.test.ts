@@ -23,6 +23,8 @@ const MOCK_ANCHORS = new Set<string>([
   INSPECTOR_ANCHORS.phaseGoal,
   INSPECTOR_ANCHORS.scandal,
   ...INSPECTOR_ANCHORS.meters,
+  ...INSPECTOR_ANCHORS.chartLines,
+  ...INSPECTOR_ANCHORS.streaks,
   ...INSPECTOR_ANCHORS.outcomes,
 ]);
 

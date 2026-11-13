@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, ArrowDown, ArrowUp, Check, Coins, Siren, TrendingUp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { STREAK_LEVELS, streakLevel } from "@/features/game-juice/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
 import type { MeterView, ScoreMarkerView } from "@/features/game-board/types/gameBoard.types";
 import { UI_COPY } from "@/features/game-content/api";
@@ -84,6 +85,7 @@ export const MeterPanel = ({
         goalText: tile.goalAmountText,
         forecast: forecast?.[tile.key],
         forecastText: forecastText?.[tile.key],
+        glow: streakLevel(tile.streak),
       })),
     [meters, forecast, forecastText]
   );
@@ -114,6 +116,36 @@ export const MeterPanel = ({
         </ul>
       </ScoreChart>
     </section>
+  );
+};
+
+/** A streak chip's look per level (chart-juice D3): hotter from the second level. */
+const STREAK_CHIP = [
+  "",
+  "bg-type-viral/15 text-type-viral",
+  "bg-type-viral/25 text-type-viral",
+  "bg-type-viral text-type-viral-foreground",
+] as const;
+
+/**
+ * "🔥 3x" next to the amount while the number goes up action after action (chart-juice D3): the
+ * juice anchor `streak:<key>` (`streak.step`). Visual only; the meter speaks the streak.
+ */
+const StreakChip = ({ meterKey, count }: { meterKey: MeterView["key"]; count: number }) => {
+  const anchor = useJuiceAnchor(`streak:${meterKey}`);
+  return (
+    <span
+      ref={anchor}
+      data-streak={count}
+      className={cn(
+        // Phones: compact and in the icon's place, so the counter stays one row over the short
+        // chart; desk: after the amount and change.
+        "order-first inline-flex items-center rounded-full px-1 font-mono text-[0.65rem] leading-4 font-bold whitespace-nowrap tabular-nums board-desk:order-none board-desk:px-1.5 board-desk:text-xs board-desk:leading-5",
+        STREAK_CHIP[streakLevel(count)]
+      )}
+    >
+      🔥{count}x
+    </span>
   );
 };
 
@@ -159,7 +191,14 @@ const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
         className={cn("flex flex-wrap items-center gap-x-1", alignEnd && "justify-end")}
       >
         {/* Below the desk layout the name row is dropped so the counters cover little of the chart; icon and colour still tell the lines apart. */}
-        <meter.icon className={cn("size-3.5 shrink-0 board-desk:hidden", meter.text)} />
+        {/* A streak chip takes the icon's place on phones; the colour still names the line. */}
+        <meter.icon
+          className={cn(
+            "size-3.5 shrink-0 board-desk:hidden",
+            meter.text,
+            tile.streak >= STREAK_LEVELS[0] && "hidden"
+          )}
+        />
         {tile.full && <Check className="size-3.5 text-success board-desk:hidden" />}
         <span
           className={cn(
@@ -170,6 +209,7 @@ const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
           {tile.amountText}
         </span>
         <MeterDelta key={version} delta={tile.delta} text={tile.deltaText} />
+        {tile.streak >= STREAK_LEVELS[0] && <StreakChip meterKey={tile.key} count={tile.streak} />}
         {tile.danger && <AlertTriangle className="size-4 text-destructive" />}
       </div>
       <span

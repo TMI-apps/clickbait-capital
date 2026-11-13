@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import type { ReactNode } from "react";
+import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { cn } from "@/shared/utils/cn";
 import { useElementSize } from "@/features/score-chart/hooks/useElementSize";
 import { useScoreChart } from "@/features/score-chart/hooks/useScoreChart";
@@ -69,6 +70,35 @@ const MarkerLines = ({
     )
   );
 
+/** A streak's glow on the current stretch (chart-juice D3): brighter per level, static. */
+const LINE_GLOW = [
+  "",
+  "[filter:drop-shadow(0_0_2px_currentColor)]",
+  "[filter:drop-shadow(0_0_4px_currentColor)]",
+  "[filter:drop-shadow(0_0_4px_currentColor)_drop-shadow(0_0_8px_currentColor)]",
+] as const;
+
+/** The newest segment on its own: the juice anchor `chart-tail:<key>` draws it in (`trace`). */
+const LineTail = ({ line }: { line: ChartLine }) => {
+  const anchor = useJuiceAnchor(`chart-tail:${line.key}`);
+  if (!line.tail) return null;
+  const { from, to } = line.tail;
+  return (
+    <line
+      ref={anchor}
+      data-chart-tail={line.key}
+      x1={from.x}
+      y1={from.y}
+      x2={to.x}
+      y2={to.y}
+      className="stroke-current"
+      strokeWidth={3}
+      strokeLinecap="round"
+      vectorEffect="non-scaling-stroke"
+    />
+  );
+};
+
 /** One series: dashed goal line, the faded past, the strong current stretch and its forecast. */
 const LinePaths = ({ line, width }: { line: ChartLine; width: number }) => (
   <g className={line.tone}>
@@ -93,15 +123,18 @@ const LinePaths = ({ line, width }: { line: ChartLine; width: number }) => (
         vectorEffect="non-scaling-stroke"
       />
     )}
-    <polyline
-      points={line.points}
-      fill="none"
-      className="stroke-current"
-      strokeWidth={3}
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      vectorEffect="non-scaling-stroke"
-    />
+    <g data-chart-glow={line.glow || undefined} className={LINE_GLOW[line.glow]}>
+      <polyline
+        points={line.headPoints}
+        fill="none"
+        className="stroke-current"
+        strokeWidth={3}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+      />
+      <LineTail line={line} />
+    </g>
     {line.forecast && (
       <line
         x1={line.last.x}
@@ -117,6 +150,22 @@ const LinePaths = ({ line, width }: { line: ChartLine; width: number }) => (
     )}
   </g>
 );
+
+/** A line's end dot, as HTML so it stays round; the juice anchor `chart-dot:<key>`. */
+const EndDot = ({ line, width, height }: { line: ChartLine; width: number; height: number }) => {
+  const anchor = useJuiceAnchor(`chart-dot:${line.key}`);
+  return (
+    <span
+      ref={anchor}
+      data-chart-dot={line.key}
+      className={cn(
+        "absolute size-2 -translate-1/2 rounded-full bg-current @min-[40rem]:size-3",
+        line.tone
+      )}
+      style={at(line.last, width, height)}
+    />
+  );
+};
 
 /** The forecast dot and its delta label in the line's colour, right of the dot. */
 const ForecastMark = ({
@@ -165,7 +214,8 @@ const ForecastMark = ({
  * events. Strokes do not scale (`vector-effect`) and dots and labels are HTML, so they stay round
  * and sharp however the SVG stretches. A series' `forecast` adds a dashed segment to a hollow dot
  * with its delta: where the line lands if the held card is played (D12). The chart itself is
- * `aria-hidden`; `children` (the counters) sit on top of it and speak.
+ * `aria-hidden`; `children` (the counters) sit on top of it and speak. Juice anchors per line:
+ * `chart-tail:<key>` (the newest segment) and `chart-dot:<key>` (the end dot), chart-juice D2.
  */
 export const ScoreChart = ({ series, markers, children, className }: ScoreChartProps) => {
   const box = useRef<HTMLDivElement>(null);
@@ -208,14 +258,7 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
         )}
         {/* End dots as HTML: the SVG stretches non-uniformly, so an SVG circle would be an oval. */}
         {lines.map((line) => (
-          <span
-            key={`${line.key}-dot`}
-            className={cn(
-              "absolute size-2 -translate-1/2 rounded-full bg-current @min-[40rem]:size-3",
-              line.tone
-            )}
-            style={at(line.last, width, height)}
-          />
+          <EndDot key={`${line.key}-dot`} line={line} width={width} height={height} />
         ))}
         {lines.map((line) => (
           <ForecastMark key={`${line.key}-forecast`} line={line} width={width} height={height} />

@@ -233,6 +233,9 @@ function toChartLine(line: ScoreChartSeries, index: number, context: LineContext
     y: y(shares[point]!),
   }));
   const last = coords[coords.length - 1]!;
+  const current = coords.filter((point) => point.index >= context.currentFrom);
+  const head = current.length > 1 ? current.slice(0, -1) : current;
+  const tailFrom = current.length > 1 ? current[current.length - 2]! : null;
   return {
     key: line.key,
     tone: line.tone,
@@ -241,7 +244,12 @@ function toChartLine(line: ScoreChartSeries, index: number, context: LineContext
     pastPoints: toPoints(
       coords.filter((point) => point.index <= context.currentFrom && context.currentFrom > 0)
     ),
-    points: toPoints(coords.filter((point) => point.index >= context.currentFrom)),
+    points: toPoints(current),
+    headPoints: toPoints(head),
+    ...(tailFrom
+      ? { tail: { from: { x: tailFrom.x, y: tailFrom.y }, to: { x: last.x, y: last.y } } }
+      : {}),
+    glow: line.glow ?? 0,
     last: { x: last.x, y: last.y },
     ...(line.forecast === undefined
       ? {}

@@ -2,7 +2,9 @@ import type { JuiceEffectStep } from "@/features/juice-effects/api";
 import type {
   GameJuiceCatalog,
   GameJuiceEventName,
+  JuiceChartMoveVariant,
   JuiceScandalLevel,
+  JuiceStreakStep,
 } from "@/features/game-juice/types/gameJuiceEvents.types";
 
 /** The variant names an event's catalog entry allows. */
@@ -111,6 +113,164 @@ const SCANDAL_WARNING: Record<JuiceScandalLevel, JuiceEffectStep[]> = {
   ],
 };
 
+/** The line's newest stretch draws in; its end dot and the chart react after it. */
+const TAIL = "chart-tail:{meter}";
+const DOT = "chart-dot:{meter}";
+
+/**
+ * A chart line's move (chart-juice D1, D2): the newest stretch draws in, longer for a bigger
+ * move, then its end dot reacts. Up: the dot pops and glows, sparks fly from a big move, a huge
+ * one punches the chart. Down: the dot shudders red, a big drop shakes the chart, a huge one tints
+ * it. No sound: the meter blip and the streak tones already speak. News stays dull: a dry draw-in.
+ */
+const CHART_MOVED: Record<JuiceChartMoveVariant, JuiceEffectStep[]> = {
+  "up-small": [
+    { effect: "trace", target: TAIL, duration: 320 },
+    { effect: "pop", at: 260, target: DOT, scale: 1.25, duration: 260 },
+  ],
+  "up-medium": [
+    { effect: "trace", target: TAIL, duration: 420 },
+    { effect: "pop", at: 340, target: DOT, scale: 1.4, duration: 320 },
+    { effect: "glow", at: 340, target: DOT, color: "success", times: 1, duration: 600 },
+  ],
+  "up-big": [
+    { effect: "trace", target: TAIL, duration: 520 },
+    { effect: "pop", at: 420, target: DOT, scale: 1.5, duration: 380 },
+    { effect: "glow", at: 420, target: DOT, color: "success", times: 2, duration: 600 },
+    {
+      effect: "particles",
+      at: 420,
+      from: DOT,
+      glyphs: "✨⭐",
+      count: 6,
+      reach: 0.12,
+      duration: 700,
+    },
+  ],
+  "up-huge": [
+    { effect: "trace", target: TAIL, duration: 600 },
+    { effect: "zoom", at: 480, target: "chart", scale: 1.03, duration: 520 },
+    { effect: "pop", at: 480, target: DOT, scale: 1.5, duration: 420 },
+    { effect: "glow", at: 480, target: DOT, color: "success", times: 3, duration: 600 },
+    {
+      effect: "particles",
+      at: 480,
+      from: DOT,
+      glyphs: "🚀✨⭐",
+      count: 10,
+      reach: 0.18,
+      duration: 760,
+      glow: "success",
+    },
+  ],
+  "down-small": [
+    { effect: "trace", target: TAIL, duration: 320 },
+    { effect: "shake", at: 260, target: DOT, strength: 2, duration: 280 },
+  ],
+  "down-medium": [
+    { effect: "trace", target: TAIL, duration: 420 },
+    { effect: "shake", at: 340, target: DOT, strength: 3, duration: 320 },
+    { effect: "glow", at: 340, target: DOT, color: "destructive", times: 1, duration: 600 },
+  ],
+  "down-big": [
+    { effect: "trace", target: TAIL, duration: 520 },
+    { effect: "shake", at: 420, target: "chart", strength: 3, duration: 360 },
+    { effect: "glow", at: 420, target: DOT, color: "destructive", times: 2, duration: 600 },
+  ],
+  "down-huge": [
+    { effect: "trace", target: TAIL, duration: 600 },
+    { effect: "shake", at: 480, target: "chart", strength: 5, duration: 360 },
+    { effect: "tint", at: 480, target: "chart", color: "destructive", opacity: 0.2, duration: 900 },
+    { effect: "glow", at: 480, target: DOT, color: "destructive", times: 3, duration: 600 },
+    {
+      effect: "particles",
+      at: 480,
+      from: DOT,
+      glyphs: "📉💸",
+      count: 6,
+      reach: 0.12,
+      duration: 700,
+    },
+  ],
+  dull: [{ effect: "trace", target: TAIL, duration: 320, easing: "linear" }],
+};
+
+/** The streak chip on a counter (`streak:<meter>`): it only exists from the first level. */
+const CHIP = "streak:{meter}";
+
+/** One step of a streak: the meter blip's sound one tone higher per step (rate). */
+const streakTone = (rate: number): JuiceEffectStep => ({
+  effect: "sound",
+  at: 500,
+  id: "meter-gain",
+  volume: 0.45,
+  rate,
+});
+
+/**
+ * A streak of ups (chart-juice D3): each step plays the gain blip a step higher and pops the
+ * chip; a level (3, 5, 8+) adds a floater and more: sparks at 5, a buzz and a bigger burst at 8+.
+ * The tone follows the chart's draw-in and the big-move blip (250 ms), so it never masks them.
+ */
+const STREAK_STEP: Record<JuiceStreakStep, JuiceEffectStep[]> = {
+  "3": [
+    streakTone(1),
+    { effect: "pop", at: 500, target: CHIP, scale: 1.3, duration: 320 },
+    {
+      effect: "floater",
+      at: 500,
+      target: CHIP,
+      text: "🔥 {count}x op rij!",
+      color: "type-viral",
+      rise: 24,
+      duration: 1200,
+    },
+  ],
+  "4": [streakTone(1.06), { effect: "pop", at: 500, target: CHIP, scale: 1.3, duration: 320 }],
+  "5": [
+    streakTone(1.12),
+    { effect: "pop", at: 500, target: CHIP, scale: 1.4, duration: 360 },
+    { effect: "glow", at: 500, target: CHIP, color: "type-viral", times: 2, duration: 600 },
+    { effect: "particles", at: 500, from: CHIP, glyphs: "🔥", count: 6, reach: 0.1, duration: 700 },
+    {
+      effect: "floater",
+      at: 500,
+      target: CHIP,
+      text: "🔥 {count}x op rij!",
+      color: "type-viral",
+      rise: 32,
+      duration: 1400,
+    },
+  ],
+  "6": [streakTone(1.18), { effect: "pop", at: 500, target: CHIP, scale: 1.35, duration: 320 }],
+  "7": [streakTone(1.24), { effect: "pop", at: 500, target: CHIP, scale: 1.35, duration: 320 }],
+  "8": [
+    streakTone(1.3),
+    { effect: "haptic", at: 500, pattern: "12 30 12" },
+    { effect: "pop", at: 500, target: CHIP, scale: 1.5, duration: 400 },
+    { effect: "glow", at: 500, target: CHIP, color: "type-viral", times: 3, duration: 600 },
+    {
+      effect: "particles",
+      at: 500,
+      from: CHIP,
+      glyphs: "🔥💥",
+      count: 10,
+      reach: 0.14,
+      duration: 760,
+      glow: "type-viral",
+    },
+    {
+      effect: "floater",
+      at: 500,
+      target: CHIP,
+      text: "🔥 {count}x op rij!",
+      color: "type-viral",
+      rise: 40,
+      duration: 1600,
+    },
+  ],
+};
+
 /**
  * The game's recipe table: what every catalog event looks, sounds and feels like. Tune values
  * live in the inspector (`/juice`), then copy the exported JSON into the matching steps here.
@@ -207,6 +367,16 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
       ],
       dull: [],
     },
+  },
+  "chart.moved": { variants: CHART_MOVED },
+  "streak.step": { variants: STREAK_STEP },
+  // Subtle (chart-juice D4): the counter shrugs and a puff of smoke, the blip low and soft.
+  "streak.broken": {
+    steps: [
+      { effect: "shake", at: 500, target: "meter:{meter}", strength: 2, duration: 300 },
+      { effect: "badge", at: 500, target: "meter:{meter}", glyph: "💨", duration: 1200 },
+      { effect: "sound", at: 500, id: "meter-loss", volume: 0.25, rate: 0.85 },
+    ],
   },
   "event.outcome": {
     tag: EVENT_OUTCOME_TAG,
