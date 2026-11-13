@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { Pause } from "lucide-react";
+import { Home } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { MuteToggle } from "@/features/game-audio/api";
 import { useBoardScreenReader } from "@/features/game-board/hooks/useBoardScreenReader";
@@ -21,7 +21,6 @@ import type { BoardView, DraftCardView } from "@/features/game-board/types/gameB
 import { CardDetailDialog } from "./CardDetailDialog";
 import { CardDraft, draftCardElement } from "./CardDraft";
 import { MeterPanel, ScandalWarning } from "./MeterPanel";
-import { PauseMenu } from "./PauseMenu";
 import { PhaseProgress } from "./PhaseProgress";
 import { FEED_DROP_ID, PhoneFeed } from "./PhoneFeed";
 
@@ -63,13 +62,18 @@ const DESK_PLAY =
 
 interface BoardStatusProps {
   phase: BoardView["phase"];
-  onPause: () => void;
+  /** Back to the start screen; the run is saved (chart-juice D5, local-save D8). */
+  onHome: () => void;
   /** The meters, which carry the board's juice. */
   children: ReactNode;
 }
 
-/** Phase and goal with sound and pause controls, and the meters. */
-const BoardStatus = ({ phase, onPause, children }: BoardStatusProps) => (
+/**
+ * Phase and goal with the sound and home controls, and the meters. No pause: play is turn based,
+ * so nothing runs while the player thinks (chart-juice D5). Home leaves to the start screen,
+ * which keeps the saved run ("Verder spelen") and the settings.
+ */
+const BoardStatus = ({ phase, onHome, children }: BoardStatusProps) => (
   <div className={DESK_STATUS}>
     <header className="flex shrink-0 items-start gap-2">
       <PhaseProgress phase={phase} />
@@ -78,10 +82,10 @@ const BoardStatus = ({ phase, onPause, children }: BoardStatusProps) => (
         variant="outline"
         size="icon"
         className="size-11 shrink-0"
-        aria-label={UI_COPY.board.menuButton}
-        onClick={onPause}
+        aria-label={UI_COPY.board.homeButton}
+        onClick={onHome}
       >
-        <Pause aria-hidden="true" />
+        <Home aria-hidden="true" />
       </Button>
     </header>
     {children}
@@ -103,13 +107,12 @@ export interface PlayingBoardProps {
 
 /**
  * The board during play: meters, phase progress, the phone feed and the 3-card draft, plus
- * the event modal, card detail and pause dialogs, and the drag context.
+ * the event modal and card detail dialogs, and the drag context.
  */
 export const PlayingBoard = (props: PlayingBoardProps) => {
   const { view, play, chooseOption, onQuit } = props;
   const shownEvent = useRetainedValue(view.event);
   const [detailCard, setDetailCard] = useState<DraftCardView | null>(null);
-  const [paused, setPaused] = useState(false);
   const preview = useCardForecast({ draft: view.draft, detailCard, ...DRAFT_TARGETS });
 
   // Mouse, touch and pen alike: a drag starts on the first move past 6px, a tap stays a click (D3).
@@ -158,7 +161,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       onDragEnd={(event) => preview.endDrag(event) && playCard(String(event.active.id))}
     >
       <div ref={shown.boardRef} data-viewport-lock className={BOARD_GRID}>
-        <BoardStatus phase={view.phase} onPause={() => setPaused(true)}>
+        <BoardStatus phase={view.phase} onHome={onQuit}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
           <div className="flex min-w-0 flex-col gap-2 board-desk:min-h-0 board-desk:flex-1">
             <MeterPanel
@@ -214,7 +217,6 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
           setEventDialogMounted(false);
         }}
       />
-      <PauseMenu open={paused} onResume={() => setPaused(false)} onQuit={onQuit} />
     </DndContext>
   );
 };

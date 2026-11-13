@@ -39,6 +39,8 @@ export interface MeterView {
   full: boolean;
   /** Geld is low enough that Bankroet is near (a few turns of costs): the board warns. */
   danger: boolean;
+  /** Actions in a row this number went up, newest last (`streakOf`); 0 after one that didn't. */
+  streak: number;
   /** What a screen reader hears for this tile: amount, last change, goal and warnings. */
   valueText: string;
 }

@@ -10,11 +10,13 @@ The x axis is the whole run (chart-timeline D1, D2): it starts at the launch ori
 
 A series' optional `forecast` share is drawn as a dashed segment from the newest point to a hollow dot 24 px to its right (`data-chart-forecast`) with `forecastText` beside it in the line's colour (`data-chart-forecast-text`, D7; two labels closer than their height are spread apart), so the history never shifts when a forecast appears. `children` are laid over the top of the chart in a measured wrapper (game-board puts the counters in its corners, D6, and gives them the inset, so the plot runs to the panel's edges, chart-origin D2); only the goal and divider lines run behind them. The chart is visual only (`aria-hidden`); the caller speaks the numbers.
 
+**Juice anchors (chart-juice D2, D3):** per line the newest segment of the current stretch is its own `<line>` (`ChartLine.tail`; the polyline draws `headPoints`), anchored as `chart-tail:<key>`, and the end dot is anchored as `chart-dot:<key>`, so game-juice's `chart.moved` can draw the segment in (`trace`) and pop / shake the dot. A series' `glow` (0–3, a streak level) puts a static drop-shadow on the current stretch. The chart emits nothing itself.
+
 **Any size (desk-wide D2):** the caller sets the box (a phone strip of ~364 × 124 px up to the desk's whole left column, ~2000 × 1300 px). Strokes never scale (`vector-effect`), dots and labels are HTML, and goal lines, the overlay clearance and the forecast label spacing are in pixels, so nothing stretches. From `LARGE_CHART_PX` (640 px, a `@container` query `@min-[40rem]` in `ScoreChart`) the chart is large: goal, divider and forecast labels go from 0.65 rem to 0.75 rem (line height stays 16 px, so the label spacing holds), the end dots from 8 to 12 px, the forecast dot from 10 to 14 px, the forecast segment from 24 to 32 px and the event ticks from 9 to 12 px.
 
 ## Structure
 
-- `components/ScoreChart.tsx`: the SVG (dividers, event ticks, per series a dashed goal line, the faded past and the current polyline, strokes with `vector-effect: non-scaling-stroke`) plus the end dots, forecast dots and labels, divider labels and goal labels as HTML, so they stay round and sharp while the SVG stretches.
+- `components/ScoreChart.tsx`: the SVG (dividers, event ticks, per series a dashed goal line, the faded past, the current polyline and its anchored tail segment, strokes with `vector-effect: non-scaling-stroke`) plus the end dots, forecast dots and labels, divider labels and goal labels as HTML, so they stay round and sharp while the SVG stretches.
 - `hooks/useScoreChart.ts`: memoises the geometry (pass a stable `series`; game-board memoises it). `hooks/useElementSize.ts`: the measured chart and overlay size (`ResizeObserver`).
 - `services/scoreChart.ts`: pure geometry (`toChartGeometry({ series, markers, widthPx, heightPx, topInsetPx })`, `reserveShare`, `goalTops`), unit-tested in `scoreChart.test.ts`.
 - `types/scoreChart.types.ts`: `ScoreChartSeries`, `ChartMarker`, `ChartGeometry`.
@@ -22,4 +24,4 @@ A series' optional `forecast` share is drawn as a dashed segment from the newest
 
 ## Dependencies
 
-Theme token classes only (`text-meter-*`, `muted-foreground`, `card`) and no chart library. No game logic: game-board builds the series from the engine state (`MeterView.history`, `DraftCardView.forecastText`) and the markers (`BoardView.scoreMarkers`).
+Theme token classes only (`text-meter-*`, `muted-foreground`, `card`) and no chart library; `@/features/juice-engine/api` for `useJuiceAnchor`. No game logic: game-board builds the series from the engine state (`MeterView.history`, `DraftCardView.forecastText`) and the markers (`BoardView.scoreMarkers`).

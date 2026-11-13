@@ -31,8 +31,8 @@ const COLOR_MODE_OPTIONS: { value: ColorMode; label: string }[] = [
 ];
 
 /**
- * All game settings in one panel: used by `/instellingen` and inside the board's pause menu,
- * so both always show the same controls. Each setting writes to its own source of truth
+ * All game settings in one panel: used by `/instellingen` (the board has no pause menu since
+ * chart-juice D5; its start screen links here). Each setting writes to its own source of truth
  * (game-audio mute, the motion and vibration stores, ColorModeContext); nothing is copied here.
  */
 export const SettingsPanel = () => {

@@ -17,6 +17,7 @@ The primitive library of the juice system: one small effect per juice idea, each
 | `pulse`     | motion  | skip           | The target beats `times` times                                                                   | `target`, `scale`, `times`, `duration` (beat)                          |
 | `zoom`      | motion  | skip           | Push-in that holds and eases back                                                                | `target`, `scale`, `duration`                                          |
 | `enter`     | motion  | skip           | Entrance: fades in from a `dy` offset and start `scale` (post landing, end screen, outcome rows) | `target`, `dy` px, `scale`, `easing` (`spring` / `linear`), `duration` |
+| `trace`     | motion  | skip           | The target draws in from its left edge (clip opens left to right; a chart line's newest stretch) | `target`, `duration`, `easing` (`ease-out` / `linear`)                 |
 | `timeWarp`  | motion  | skip           | Hit-stop (rate 0) / slow-mo of the juice's own animations only                                   | `rate` 0–1, `duration` (≤ 300 ms)                                      |
 | `flash`     | motion  | skip           | Colour wash in and out (screen: ≤ 0.3 opacity, counted as a flash)                               | `target`, `color`, `opacity`, `duration`                               |
 | `glow`      | motion  | skip           | Glowing ring that beats                                                                          | `target`, `color`, `times`, `duration`                                 |
@@ -42,7 +43,7 @@ Durations are ms before the motion scale. Intensity (tuning × payload strength)
 | Layer    | Path                          | Purpose                                                                   |
 | -------- | ----------------------------- | ------------------------------------------------------------------------- |
 | API      | `api/index.ts`                | Public surface                                                            |
-| Services | `services/motionEffects.ts`   | `shake`, `pop`, `pulse`, `zoom`, `enter`, `timeWarp`                      |
+| Services | `services/motionEffects.ts`   | `shake`, `pop`, `pulse`, `zoom`, `enter`, `trace`, `timeWarp`             |
 | Services | `services/overlayEffects.ts`  | `flash`, `glow`, `tint`, `badge`; stage-node / WAAPI helpers              |
 | Services | `services/stageEffects.ts`    | `particles` (pooled, live cap), `floater`, `callout`                      |
 | Services | `services/deviceEffects.ts`   | `createSoundEffect(port)`, `haptic`                                       |
@@ -56,6 +57,7 @@ Durations are ms before the motion scale. Intensity (tuning × payload strength)
 - **D3 — Screen-safety ceilings live in the effect (A6).** Screen opacity ≤ 0.3, ≤ 48 live particles, vibration pulses ≤ 60 ms, time warp ≤ 300 ms, callouts ≥ 1.5 s — applied after intensity and overrides, so no tuning can pass them.
 - **D4 — Time warp touches only juice animations (A7).** It never slows the app's own UI transitions. Overlapping warps share one restore: every animation gets its pre-warp rate back when the last warp ends.
 - **D5 — Screen-level overlays.** A flash, glow or tint on `screen`, or on any target covering ≥ 25 % of the viewport, is capped at 0.3 opacity and spends a screen-flash token; a screen-level glow beats once, ≥ 400 ms. Nodes clean up on finish and on cancel (`oncancel`); a pooled particle node detaches its old flight's handlers before reuse.
+- **D7 — `trace` animates a clip (chart-juice D6).** The one primitive that animates neither transform nor opacity: `clip-path: inset()` with a 24 px bleed, so round caps and non-scaling strokes are never trimmed. Kept short and on one small element; `stroke-dashoffset` breaks under `vector-effect: non-scaling-stroke` in a stretched viewBox.
 - **D6 — Haptics are fire-and-forget.** `navigator.vibrate(0)` would also stop a newer buzz, so a vibration is never cancelled; pulses are ≤ 60 ms.
 
 ## Testing

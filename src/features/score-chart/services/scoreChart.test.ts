@@ -225,6 +225,16 @@ describe("toChartGeometry forecast labels", () => {
     expect(geometry.markers).toEqual([]);
   });
 
+  it("should split off the newest segment as the tail when the current stretch has two points or more", () => {
+    const line = toChartGeometry({ series: [{ ...series[0]!, shares: ramp(5), glow: 2 }] })
+      .lines[0]!;
+    const head = xsOf(line.headPoints);
+    expect(head).toHaveLength(xsOf(line.points).length - 1);
+    expect(line.tail?.from.x).toBe(head[head.length - 1]);
+    expect(line.tail?.to).toEqual(line.last);
+    expect(line.glow).toBe(2);
+  });
+
   it("should keep the history in place whether or not a forecast is shown", () => {
     const without = toChartGeometry({ series: [series[1]!] }).lines[0]!;
     const withForecast = toChartGeometry({ series: [{ ...series[1]!, forecast: 0.65 }] }).lines[0]!;

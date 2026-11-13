@@ -23,6 +23,18 @@ export type JuiceMeterKey = "users" | "revenue" | "reputation";
 /** How loud the scandal warning is: 1 under 25 % risk per turn, 2 under 50 %, else 3. */
 export type JuiceScandalLevel = "1" | "2" | "3";
 
+/** How far a chart line moved in one action (thresholds: `CHART_MOVE_TIERS`). */
+export type JuiceChartMoveTier = "small" | "medium" | "big" | "huge";
+
+/** A chart line's move: its direction and tier, or `dull` (news / journalism, design § 5). */
+export type JuiceChartMoveVariant = `${"up" | "down"}-${JuiceChartMoveTier}` | "dull";
+
+/** A gain on a chart line: the line and the move's tier (`users-big`, `revenue-small`). */
+export type JuiceChartGainVariant = `${Exclude<JuiceMeterKey, "reputation">}-${JuiceChartMoveTier}`;
+
+/** A streak's length as a variant: 3 to 7, and `8` for 8 or more (`STREAK_LEVELS`). */
+export type JuiceStreakStep = "3" | "4" | "5" | "6" | "7" | "8";
+
 /** An event without variant or vars (it may still carry the engine's `origin` / `strength`). */
 export interface JuiceNoFields {
   variant?: never;
@@ -53,6 +65,24 @@ export interface GameJuiceCatalog {
     variant: "gain" | "loss" | "gain-big" | "loss-big" | "dull";
     vars: { meter: JuiceMeterKey; text?: string };
   };
+  /**
+   * A score chart line moved: its newest stretch draws in and its end dot reacts, louder the
+   * further it moved (`CHART_MOVE_TIERS`). `vars.meter` names the line (`chart-tail:<meter>`,
+   * `chart-dot:<meter>`).
+   */
+  "chart.moved": { variant: JuiceChartMoveVariant; vars: { meter: JuiceMeterKey } };
+  /**
+   * A chart line went up (not after news or journalism): its glyphs fly from the newest post to
+   * the line's end dot (`chart-dot:<meter>`), more for a bigger gain (chart-juice D8).
+   */
+  "chart.gain": { variant: JuiceChartGainVariant; vars: { meter: JuiceMeterKey } };
+  /**
+   * Gebruikers or Geld went up again: a streak of `vars.count` actions in a row, from the first
+   * streak level (`STREAK_LEVELS`). Variant = the count, `8` for 8 or more.
+   */
+  "streak.step": { variant: JuiceStreakStep; vars: { meter: JuiceMeterKey; count: number } };
+  /** A streak of at least the first level ended (the number did not go up). */
+  "streak.broken": { vars: { meter: JuiceMeterKey; count: number } };
   /** An event's outcome shows in its dialog: the accent of the chosen option's kind. */
   "event.outcome": { variant: JuiceOptionVariant };
   /**

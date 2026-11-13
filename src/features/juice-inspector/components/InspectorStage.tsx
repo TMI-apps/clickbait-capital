@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
+import { ScoreChart, type ScoreChartSeries } from "@/features/score-chart/api";
 import type { InspectorAnchorNames } from "@/features/juice-inspector/types/juiceInspector.types";
 import { cn } from "@/shared/utils/cn";
 
@@ -40,8 +41,43 @@ const COUNTER_LABELS: Record<string, string> = {
 };
 
 /**
+ * The real score chart with two sample lines, so `chart.moved` draws in the newest stretch
+ * (`chart-tail:<key>`) and moves the end dot (`chart-dot:<key>`) exactly as in the game. Users
+ * is on a streak (glowing line); stable at module level, so the chart's memo holds.
+ */
+const SAMPLE_SERIES: ScoreChartSeries[] = [
+  {
+    key: "users",
+    shares: [0.05, 0.12, 0.1, 0.22, 0.38, 0.6],
+    tone: "text-meter-users",
+    goalText: "10.000",
+    glow: 2,
+  },
+  {
+    key: "revenue",
+    shares: [0.2, 0.3, 0.26, 0.4, 0.35, 0.28],
+    tone: "text-meter-revenue",
+    goalText: "€ 20.000",
+  },
+];
+
+/** A mock streak chip (`streak:<key>`), as the board shows it on a counter during a streak. */
+const StreakChip = ({ name }: { name: string }) => {
+  const ref = useJuiceAnchor(name);
+  return (
+    <span
+      ref={ref}
+      className="inline-block rounded-full bg-type-viral/25 px-1.5 font-mono text-xs leading-5 font-bold text-type-viral"
+    >
+      🔥 5x
+    </span>
+  );
+};
+
+/**
  * A small mock of the board with every anchor the game's recipes target, laid out like the
- * real one: the score chart with its two counters and the scandal warning, an event outcome's
+ * real one: the real score chart (its line tails and end dots) with its two counters and their
+ * streak chips, the scandal warning, an event outcome's
  * rows, the drop slot, the newest post with a comment, a card (the event origin), a button,
  * the event dialog, the phase intro's step dot and goal, and the ending icon, all inside the end
  * screen
@@ -50,16 +86,24 @@ const COUNTER_LABELS: Record<string, string> = {
 export const InspectorStage = ({ anchors }: { anchors: InspectorAnchorNames }) => (
   <Anchor name={anchors.endScreen} className="border-0 bg-transparent p-0">
     <Anchor name={anchors.board} className="flex flex-col gap-2 bg-background p-3">
-      <Anchor name={anchors.chart} className="flex h-24 flex-col justify-between">
-        <div className="grid grid-cols-2 gap-2">
-          {anchors.meters.map((meter, index) => (
-            <Anchor key={meter} name={meter} className={cn("py-1", index > 0 && "text-right")}>
-              <span className="block truncate font-semibold">{COUNTER_LABELS[meter] ?? meter}</span>
-              <AnchorName>{meter}</AnchorName>
-            </Anchor>
-          ))}
-        </div>
-        <AnchorName>chart</AnchorName>
+      <Anchor name={anchors.chart} className="overflow-hidden p-0">
+        <ScoreChart series={SAMPLE_SERIES} className="h-32">
+          <div className="grid grid-cols-2 gap-2 p-1.5">
+            {anchors.meters.map((meter, index) => (
+              <Anchor
+                key={meter}
+                name={meter}
+                className={cn("bg-card/80 py-1", index > 0 && "text-right")}
+              >
+                <span className="block truncate font-semibold">
+                  {COUNTER_LABELS[meter] ?? meter}{" "}
+                  {anchors.streaks[index] && <StreakChip name={anchors.streaks[index]} />}
+                </span>
+                <AnchorName>{meter}</AnchorName>
+              </Anchor>
+            ))}
+          </div>
+        </ScoreChart>
       </Anchor>
       <Anchor name={anchors.scandal} className="py-1">
         <span className="font-semibold">Schandaal dreigt</span> <AnchorName>scandal</AnchorName>

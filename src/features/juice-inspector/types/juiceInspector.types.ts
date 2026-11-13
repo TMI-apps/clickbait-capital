@@ -22,6 +22,10 @@ export interface InspectorAnchorNames {
   button: string;
   /** The score counters over the chart (Gebruikers, Geld). */
   meters: readonly string[];
+  /** Each chart line's newest segment and end dot (`chart-tail:<key>`, `chart-dot:<key>`). */
+  chartLines: readonly string[];
+  /** The streak chips on the counters (`streak:<key>`). */
+  streaks: readonly string[];
   /** The scandal warning under the chart. */
   scandal: string;
   /** Rows of an event's outcome (in the game: the event dialog). */

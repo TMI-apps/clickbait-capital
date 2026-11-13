@@ -6,6 +6,7 @@ import {
   feedEntryForCard,
   feedEntryForEvent,
   formatScore,
+  streakOf,
   toDraft,
   toEventView,
   toGameEnd,
@@ -170,6 +171,14 @@ describe("toEventView option order", () => {
     expect(firstKinds(7)).toEqual(firstKinds(7));
     expect(new Set(firstKinds(7)).size).toBeGreaterThan(1);
     expect(firstKinds(7)).not.toEqual(firstKinds(8));
+  });
+});
+
+describe("streakOf", () => {
+  it("should count the ups in a row from the newest point when the line rose", () => {
+    expect(streakOf([0.1, 0.2, 0.1, 0.2, 0.3, 0.4])).toBe(3);
+    expect(streakOf([0.1, 0.2, 0.2])).toBe(0);
+    expect(streakOf([0.5])).toBe(0);
   });
 });
 

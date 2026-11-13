@@ -1,6 +1,14 @@
 import type { CardType, EventOptionKind, GameContent, GameState } from "@/features/game-engine/api";
-import type { GameJuiceEmit, JuiceScandalLevel } from "@/features/game-juice/api";
+import {
+  STREAK_LEVELS,
+  chartGainVariant,
+  chartMoveVariant,
+  streakStepVariant,
+  type GameJuiceEmit,
+  type JuiceScandalLevel,
+} from "@/features/game-juice/api";
 import type { SessionState } from "@/features/game-session/api";
+import { streakOf } from "@/features/game-board/services/boardView";
 import type { MeterView, ScandalRiskView } from "@/features/game-board/types/gameBoard.types";
 
 /** A number must move at least this share of its value in one action to earn the meter blip. */
@@ -8,7 +16,7 @@ export const METER_CUE_THRESHOLD = 0.1;
 
 /** What a meter tile tells the juice about the last action. */
 export type BoardJuiceMeter = Pick<MeterView, "key" | "amount" | "delta"> &
-  Partial<Pick<MeterView, "deltaText">>;
+  Partial<Pick<MeterView, "deltaText" | "history">>;
 
 export interface BoardJuiceAction {
   /** The card played, or null when an event option was chosen. */
@@ -93,6 +101,34 @@ function meterChanges(meters: BoardJuiceMeter[], options: MeterJuiceOptions): Ga
     }));
 }
 
+/** The chart and streak juice of one line's newest move (chart-juice D1–D4), or nothing. */
+function lineJuice(meter: BoardJuiceMeter, dull: boolean): GameJuiceEmit[] {
+  const history = meter.history ?? [];
+  if (history.length < 2) return [];
+  const move = history[history.length - 1]! - history[history.length - 2]!;
+  const vars = { meter: meter.key };
+  const emits: GameJuiceEmit[] =
+    move === 0
+      ? []
+      : [
+          {
+            name: "chart.moved",
+            payload: { variant: chartMoveVariant(meter.key, move, dull), vars },
+          },
+        ];
+  const gain = chartGainVariant(meter.key, move, dull);
+  if (gain) emits.push({ name: "chart.gain", payload: { variant: gain, vars } });
+  const count = streakOf(history);
+  const before = streakOf(history.slice(0, -1));
+  const step = streakStepVariant(count);
+  // News extends a streak silently (design § 5); a streak that ends always shrugs.
+  if (count > before && step && !dull)
+    emits.push({ name: "streak.step", payload: { variant: step, vars: { ...vars, count } } });
+  if (count === 0 && before >= STREAK_LEVELS[0])
+    emits.push({ name: "streak.broken", payload: { vars: { ...vars, count: before } } });
+  return emits;
+}
+
 /**
  * The juice one action earns, in two groups: the follow-up plays at once, the reveal on the
  * board after the event dialog has closed (event-juice-drop D3). Pure, so the rules are
@@ -106,7 +142,10 @@ export function juiceForAction(action: BoardJuiceAction): Omit<BoardJuice, "key"
     ? [{ name: "event.resolved", payload: { variant: optionKind } }]
     : [];
   const landed: GameJuiceEmit = { name: "feed.landed", payload: { variant: cardType ?? "event" } };
-  const meterJuice = meterChanges(meters, { dull, quiet: followUp !== null });
+  const meterJuice = [
+    ...meterChanges(meters, { dull, quiet: followUp !== null }),
+    ...meters.flatMap((meter) => lineJuice(meter, dull)),
+  ];
   // An event post appears behind its closing dialog, so it enters at once (as the old CSS did);
   // replaying its entrance after the dialog would blink a post that is already visible.
   if (optionKind)

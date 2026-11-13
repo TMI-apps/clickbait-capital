@@ -46,7 +46,7 @@ const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage }))
 );
 
-/** Routes that fill the screen without the Topbar (the game has its own pause menu). */
+/** Routes that fill the screen without the Topbar (the game has its own home button). */
 const FULLSCREEN_ROUTES = new Set(["/tasks", "/spel", "/juice"]);
 
 const reportRenderError = (error: Error): void => reportError(error, "react");

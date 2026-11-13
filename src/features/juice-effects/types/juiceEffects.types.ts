@@ -67,6 +67,18 @@ export interface EnterStep extends JuiceStepBase {
   easing?: "spring" | "linear";
 }
 
+/**
+ * The target draws itself in from its left edge (a chart line's newest stretch): a clip that
+ * opens left to right. Reduced motion skips it, so the target simply shows.
+ */
+export interface TraceStep extends JuiceStepBase {
+  effect: "trace";
+  target: string;
+  duration: number;
+  /** "ease-out" settles (default), "linear" is dry (news). */
+  easing?: "ease-out" | "linear";
+}
+
 /** Hit-stop (rate 0) or slow-mo (rate < 1) of the juice's own running animations. */
 export interface TimeWarpStep extends JuiceStepBase {
   effect: "timeWarp";
@@ -179,6 +191,7 @@ export type JuiceEffectStep =
   | PulseStep
   | ZoomStep
   | EnterStep
+  | TraceStep
   | TimeWarpStep
   | FlashStep
   | GlowStep

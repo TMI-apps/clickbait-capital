@@ -5,6 +5,7 @@ import {
   popEffect,
   shakeEffect,
   timeWarpEffect,
+  traceEffect,
   zoomEffect,
 } from "@/features/juice-effects/services/motionEffects";
 import {
@@ -67,6 +68,19 @@ describe("motion effects", () => {
       createJuiceTestContext({ anchors: { card }, overrides: { motionScale: 2 } })
     );
     expect(stub.calls[0].options.duration).toBe(600);
+  });
+
+  it("should open a clip from the left edge when a trace plays", () => {
+    const tail = document.createElement("div");
+    traceEffect.run(
+      { effect: "trace", target: "tail", duration: 400 },
+      createJuiceTestContext({ anchors: { tail } })
+    );
+    const [from, to] = stub.calls[0].keyframes.map((frame) => String(frame.clipPath));
+    expect(stub.calls[0].element).toBe(tail);
+    expect(from).toContain(" 100% ");
+    expect(to).not.toContain("100%");
+    expect(stub.calls[0].options.fill).toBe("backwards");
   });
 
   it("should do nothing when the target is not on screen", () => {

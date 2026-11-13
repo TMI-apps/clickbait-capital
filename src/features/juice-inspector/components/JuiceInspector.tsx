@@ -1,4 +1,5 @@
 import type { JuiceRecipe } from "@/features/juice-engine/api";
+import { ChartJuiceThresholds } from "@/features/juice-inspector/components/ChartJuiceThresholds";
 import { EventLog } from "@/features/juice-inspector/components/EventLog";
 import { EventPad } from "@/features/juice-inspector/components/EventPad";
 import { InspectorStage } from "@/features/juice-inspector/components/InspectorStage";
@@ -47,6 +48,7 @@ export const JuiceInspector = () => {
           />
         )}
         <TuningPanel tuning={view.tuning} store={store} />
+        <ChartJuiceThresholds />
         <EventLog entries={log} />
       </div>
     </div>

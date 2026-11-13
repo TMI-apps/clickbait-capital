@@ -66,10 +66,8 @@ export const UI_COPY = {
     confirmPlay: "In de feed",
     cancelPlay: "Toch niet",
     feedLabel: "Je feed",
-    menuButton: "Menu",
-    pauseTitle: "Gepauzeerd",
-    resumeButton: "Verder",
-    quitButton: "Stoppen",
+    /** The board's home button: the run is saved, the start screen offers "Verder spelen". */
+    homeButton: "Naar het begin",
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
   },
   resume: {

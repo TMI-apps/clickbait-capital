@@ -4,7 +4,7 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 
 ## Purpose
 
-- **Trigger:** one button per catalog event and variant, grouped by domain. Each button emits the event on the game's real bus, so the real director plays it on a mock board laid out like the real one. It has every anchor the recipes target: `board`, the `chart` with its counters `meter:users` / `meter:revenue`, the `scandal` warning, the outcome rows `outcome:users` / `outcome:revenue`, `feed:newest`, `end-screen` around the board, a card as the origin, and a button.
+- **Trigger:** one button per catalog event and variant, grouped by domain. Each button emits the event on the game's real bus, so the real director plays it on a mock board laid out like the real one. It has every anchor the recipes target: `board`, the `chart` (the real `ScoreChart` with two sample lines, so `chart-tail:<key>` / `chart-dot:<key>` are the game's own) with its counters `meter:users` / `meter:revenue` and their streak chips `streak:<key>`, the `scandal` warning, the outcome rows `outcome:users` / `outcome:revenue`, `feed:newest`, `end-screen` around the board, a card as the origin, and a button.
 - **Tune:**
   - Global knobs: intensity, tempo (× every duration), volume and vibration.
   - The real Beweging setting, so reduced motion can be previewed.
@@ -14,6 +14,7 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
   - "Kopieer JSON" copies the overrides. If the clipboard is blocked, the JSON appears in a text box instead.
   - "Reset" drops all overrides.
 - **Log:** the last 20 events on the bus.
+- **Chart thresholds:** "Grafiek-drempels" shows the chart juice's tier thresholds per line, how many glyphs a gain flies to its line per tier (from the `chart.gain` recipes) and the streak levels (read-only; they are data in game-juice's `chartJuice.ts`). Every tier (`chart.moved · up-huge`, …) and streak step (`streak.step · 3`…`8`, `streak.broken`) has its own trigger.
 
 ## Tuning workflow (owner or agent)
 
@@ -24,19 +25,20 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 
 ## Structure
 
-| Layer      | Path                            | Purpose                                                                 |
-| ---------- | ------------------------------- | ----------------------------------------------------------------------- |
-| API        | `api/index.ts`                  | `JuiceInspector` (used by `src/pages/JuiceInspectorPage.tsx`)           |
-| Components | `components/JuiceInspector.tsx` | Layout: sticky mock board, then events, steps, tuning, log              |
-| Components | `components/InspectorStage.tsx` | Mock board; each block is a named juice anchor                          |
-| Components | `components/EventPad.tsx`       | 44 px trigger buttons per event and variant                             |
-| Components | `components/StepEditor.tsx`     | One fieldset per step: start time, numeric params (slider + box), texts |
-| Components | `components/TuningPanel.tsx`    | Global knobs, Beweging, Kopieer JSON, Reset                             |
-| Components | `components/EventLog.tsx`       | Last events (not a live region)                                         |
-| Hooks      | `hooks/useJuiceInspector.ts`    | Store, entries, effect registry, selection, trigger, log                |
-| Hooks      | `hooks/useJuiceEventLog.ts`     | Bus listener keeping the last 20 events                                 |
-| Services   | `services/inspectorSamples.ts`  | Entries from the recipe book, sample payloads, mock anchor names        |
-| Types      | `types/juiceInspector.types.ts` | `InspectorEntry`, `InspectorAnchorNames`                                |
+| Layer      | Path                                  | Purpose                                                                 |
+| ---------- | ------------------------------------- | ----------------------------------------------------------------------- |
+| API        | `api/index.ts`                        | `JuiceInspector` (used by `src/pages/JuiceInspectorPage.tsx`)           |
+| Components | `components/JuiceInspector.tsx`       | Layout: sticky mock board, then events, steps, tuning, log              |
+| Components | `components/InspectorStage.tsx`       | Mock board; each block is a named juice anchor                          |
+| Components | `components/EventPad.tsx`             | 44 px trigger buttons per event and variant                             |
+| Components | `components/StepEditor.tsx`           | One fieldset per step: start time, numeric params (slider + box), texts |
+| Components | `components/ChartJuiceThresholds.tsx` | Read-only table of `CHART_MOVE_TIERS` and `STREAK_LEVELS` (chart-juice) |
+| Components | `components/TuningPanel.tsx`          | Global knobs, Beweging, Kopieer JSON, Reset                             |
+| Components | `components/EventLog.tsx`             | Last events (not a live region)                                         |
+| Hooks      | `hooks/useJuiceInspector.ts`          | Store, entries, effect registry, selection, trigger, log                |
+| Hooks      | `hooks/useJuiceEventLog.ts`           | Bus listener keeping the last 20 events                                 |
+| Services   | `services/inspectorSamples.ts`        | Entries from the recipe book, sample payloads, mock anchor names        |
+| Types      | `types/juiceInspector.types.ts`       | `InspectorEntry`, `InspectorAnchorNames`                                |
 
 ## Decisions
 
@@ -60,4 +62,5 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
 - `@/features/game-juice/api`: bus, tuning store, effect registry, recipes.
 - `@/features/juice-engine/api`: anchors, tuning hook, types.
 - `@/features/game-settings/api`: the Beweging setting.
+- `@/features/score-chart/api`: the real chart on the mock board.
 - Kit: `Button`, `Input`, `SegmentedControl`, `Textarea`. The sliders are native `<input type="range">`: the kit has no slider, and this dev tool alone doesn't justify adding one (add a kit `Slider` when a player-facing screen needs one).

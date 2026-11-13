@@ -1,6 +1,6 @@
 # Game settings
 
-Player settings for Clickbait Capital: sound, motion, colour mode and wiping local data. Screens: `/instellingen` (`src/pages/SettingsPage.tsx`) and the board's pause menu, both rendering `SettingsPanel`.
+Player settings for Clickbait Capital: sound, motion, colour mode and wiping local data. Screen: `/instellingen` (`src/pages/SettingsPage.tsx`), reached from the start screen, rendering `SettingsPanel`.
 
 ## Purpose
 
@@ -26,7 +26,7 @@ Player settings for Clickbait Capital: sound, motion, colour mode and wiping loc
 
 ## Decisions
 
-- **Settings inside the pause menu (D1):** the pause dialog swaps to `SettingsPanel`; navigating to `/instellingen` would end the in-memory run.
+- **Settings inside the pause menu (D1, superseded by chart-juice D5: the board has no pause menu; settings are on the start screen, and the run is saved for "Verder spelen"):** the pause dialog swaps to `SettingsPanel`; navigating to `/instellingen` would end the in-memory run.
 - **External store, no provider (D2):** `useSyncExternalStore` over a module singleton, like the game-audio mute, so any feature reads it without a provider in `App.tsx`.
 - **CSS follows the choice (D3):** the store sets `data-motion="reduced|full"` on `<html>`; for "Verminderd" it also sets the `--duration-*` tokens to `0.01ms` inline. "Volledig" lifts JS juice, and game-juice restores its own durations under `data-motion="full"` (`src/index.css`); the rest of the token CSS still honours an OS reduce request (amended by juice-motion-setting D1).
 - **Trillen store (juice-wiring-flow D3):** `getHapticsStore` mirrors the motion store (external store, `useHapticsPreference`); a second copy of a stored on/off page setting next to game-audio's mute, marked for extraction at a third. `onGameStorageCleared` lets features drop in-memory state after "Voortgang wissen" (game-juice reloads its tuning) without game-settings importing them.

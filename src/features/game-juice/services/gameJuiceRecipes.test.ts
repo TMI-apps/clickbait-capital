@@ -32,12 +32,14 @@ const DULL_BRANCHES: Array<[string, string]> = [
   ["outcome.row", "dull"],
   ["feed.landed", "news"],
   ["meter.changed", "dull"],
+  ["chart.moved", "dull"],
 ];
 const DULL_EFFECTS = new Set(["sound", "badge"]);
 
 /** A dull entrance: a short linear slide, no scale, no overshoot (design § 5 "kort en droog"). */
 const isDryEntrance = (step: JuiceStepData): boolean =>
-  step.effect === "enter" && step.easing === "linear" && step.scale === 1;
+  (step.effect === "enter" && step.easing === "linear" && step.scale === 1) ||
+  (step.effect === "trace" && step.easing === "linear");
 
 describe("GAME_JUICE_RECIPES", () => {
   it("should name only effects the game registry provides when steps are listed", () => {
