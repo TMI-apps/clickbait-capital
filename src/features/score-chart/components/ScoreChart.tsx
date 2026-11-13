@@ -29,7 +29,16 @@ const at = ({ x, y }: { x: number; y: number }, width: number, height: number) =
 });
 
 /** Dividers as dashed full-height lines, events as short ticks on the bottom edge. */
-const MarkerLines = ({ marks, height }: { marks: ChartMarkerMark[]; height: number }) =>
+const MarkerLines = ({
+  marks,
+  height,
+  eventTop,
+}: {
+  marks: ChartMarkerMark[];
+  height: number;
+  /** Top of an event tick, in chart units. */
+  eventTop: number;
+}) =>
   marks.map((mark, index) =>
     mark.kind === "divider" ? (
       <line
@@ -50,7 +59,7 @@ const MarkerLines = ({ marks, height }: { marks: ChartMarkerMark[]; height: numb
         data-chart-marker="event"
         x1={mark.x}
         x2={mark.x}
-        y1={height * 0.92}
+        y1={eventTop}
         y2={height}
         className={cn("stroke-current", mark.tone ?? "text-muted-foreground")}
         strokeWidth={2}
@@ -124,7 +133,7 @@ const ForecastMark = ({
       <span
         data-chart-forecast={line.key}
         className={cn(
-          "absolute size-2.5 -translate-1/2 rounded-full border-2 border-current bg-card animate-in fade-in-0 zoom-in-50 duration-(--duration-fast)",
+          "absolute size-2.5 -translate-1/2 rounded-full border-2 @min-[40rem]:size-3.5 border-current bg-card animate-in fade-in-0 zoom-in-50 duration-(--duration-fast)",
           line.tone
         )}
         style={at(line.forecast, width, height)}
@@ -133,7 +142,7 @@ const ForecastMark = ({
         <span
           data-chart-forecast-text={line.key}
           className={cn(
-            "absolute ml-2 -translate-y-1/2 rounded-sm bg-card/80 px-0.5 font-mono text-[0.65rem] leading-4 font-bold whitespace-nowrap tabular-nums animate-in fade-in-0 duration-(--duration-fast)",
+            "absolute ml-2 -translate-y-1/2 rounded-sm bg-card/80 px-0.5 font-mono text-[0.65rem] leading-4 @min-[40rem]:ml-2.5 @min-[40rem]:text-xs font-bold whitespace-nowrap tabular-nums animate-in fade-in-0 duration-(--duration-fast)",
             line.tone
           )}
           style={{
@@ -172,14 +181,15 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
   });
   const { width, height, lines } = geometry;
   return (
-    <div ref={box} className={cn("relative", className)}>
+    // A size container: from 40rem wide (LARGE_CHART_PX) labels, dots and the forecast are a step bigger.
+    <div ref={box} className={cn("@container relative", className)}>
       <div aria-hidden="true" className="absolute inset-0">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           preserveAspectRatio="none"
           className="absolute inset-0 size-full overflow-visible"
         >
-          <MarkerLines marks={geometry.markers} height={height} />
+          <MarkerLines marks={geometry.markers} height={height} eventTop={geometry.eventTopY} />
           {lines.map((line) => (
             <LinePaths key={line.key} line={line} width={width} />
           ))}
@@ -189,7 +199,7 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
             mark.label && (
               <span
                 key={`label-${index}`}
-                className="absolute bottom-2 ml-1 font-mono text-[0.6rem] leading-3 font-bold text-muted-foreground"
+                className="absolute bottom-2 ml-1 font-mono text-[0.6rem] leading-3 font-bold text-muted-foreground @min-[40rem]:bottom-3 @min-[40rem]:ml-1.5 @min-[40rem]:text-xs"
                 style={{ left: `${(mark.x / width) * 100}%` }}
               >
                 {mark.label}
@@ -200,7 +210,10 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
         {lines.map((line) => (
           <span
             key={`${line.key}-dot`}
-            className={cn("absolute size-2 -translate-1/2 rounded-full bg-current", line.tone)}
+            className={cn(
+              "absolute size-2 -translate-1/2 rounded-full bg-current @min-[40rem]:size-3",
+              line.tone
+            )}
             style={at(line.last, width, height)}
           />
         ))}
@@ -210,7 +223,7 @@ export const ScoreChart = ({ series, markers, children, className }: ScoreChartP
         {lines.map((line) => (
           <span
             key={line.key}
-            className={`absolute left-0 -translate-y-full rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums ${line.tone}`}
+            className={`absolute left-0 -translate-y-full rounded-sm bg-card/80 px-1 font-mono text-[0.65rem] leading-4 font-bold tabular-nums @min-[40rem]:px-1.5 @min-[40rem]:text-xs ${line.tone}`}
             style={{ top: `${(line.goalY / height) * 100}%` }}
           >
             {line.goalText}

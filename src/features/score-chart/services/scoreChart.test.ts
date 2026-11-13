@@ -3,8 +3,10 @@ import {
   CHART_HEIGHT,
   CHART_WIDTH,
   FIXED_STEPS,
+  FORECAST_RESERVE_LARGE_PX,
   FORECAST_RESERVE_PX,
   goalTops,
+  LARGE_CHART_PX,
   MAX_DRAWN_POINTS,
   reserveShare,
   toChartGeometry,
@@ -104,6 +106,23 @@ describe("toChartGeometry time axis", () => {
     }
     // A wide chart keeps only what the forecast needs (plus the minimum share), not a third.
     expect(reserveShare(1000)).toBeLessThan(0.2);
+  });
+
+  it("should size the forecast room by the measured width when the chart is large", () => {
+    for (const widthPx of [LARGE_CHART_PX, 1000, 1400]) {
+      const freePx = reserveShare(widthPx) * widthPx;
+      expect(freePx).toBeGreaterThanOrEqual(FORECAST_RESERVE_LARGE_PX - 1e-9);
+      expect(freePx).toBeLessThan(FORECAST_RESERVE_LARGE_PX * 1.25);
+    }
+  });
+
+  it("should keep event ticks the same pixel length when the chart is tall", () => {
+    const tickPx = (heightPx: number, widthPx: number): number => {
+      const { eventTopY } = toChartGeometry({ series, widthPx, heightPx });
+      return ((CHART_HEIGHT - eventTopY) / CHART_HEIGHT) * heightPx;
+    };
+    expect(tickPx(112, PHONE)).toBeCloseTo(9);
+    expect(tickPx(700, 1000)).toBeCloseTo(12);
   });
 
   it("should draw the forecast right of the newest point with its delta text, above it for a gain", () => {

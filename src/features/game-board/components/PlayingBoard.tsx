@@ -36,8 +36,10 @@ const DRAFT_TARGETS = { cardElement: draftCardElement, feedId: FEED_DROP_ID };
  * status (header, meters) before play (feed, draft).
  * - Portrait: header, meters, feed (takes the rest), draft.
  * - Split (sideways phone): header, meters and feed left, the draft right.
- * - Desk (wide, not short): play column left (feed, the draft under it), status panel right
- *   (header, stacked meters, active modifier notice).
+ * - Desk (wide, not short; desk-wide D1): the whole viewport, no centred max width. Status
+ *   column left takes all the remaining width and height (header, the score chart grown to fill
+ *   it, the scandal warning); play column right, a fixed width pinned to the right edge (feed,
+ *   the draft under it).
  * The status and play wrappers are `display: contents` except on desk, so the phone grid places
  * their children as before. Top and bottom padding grow into the notch and home-indicator
  * insets; the body pads the sides.
@@ -46,18 +48,18 @@ const BOARD_GRID = cn(
   "mx-auto grid h-dvh w-full max-w-6xl grid-cols-1 grid-rows-[auto_auto_minmax(6rem,1fr)_auto] gap-2 overflow-hidden overscroll-none px-3 touch-manipulation sm:gap-3 sm:px-6",
   "pt-[max(0.5rem,env(safe-area-inset-top))] pb-[max(0.5rem,env(safe-area-inset-bottom))]",
   "board-split:grid-cols-2 board-split:grid-rows-[auto_auto_minmax(0,1fr)] board-split:gap-x-4",
-  "board-desk:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] board-desk:grid-rows-[minmax(0,1fr)] board-desk:gap-x-8 board-desk:py-6"
+  "board-desk:max-w-none board-desk:grid-cols-[minmax(0,1fr)_clamp(22rem,30vw,28rem)] board-desk:grid-rows-[minmax(0,1fr)] board-desk:gap-x-6 board-desk:py-6"
 );
 
 /**
- * Not a scroll container: it fits the shortest desk height, and the meter juice marks poke a few
- * pixels out of their tiles, which a scroll container turns into a horizontal scrollbar
+ * Not a scroll container: the chart takes whatever height is left, and the meter juice marks poke
+ * a few pixels out of their counters, which a scroll container turns into a scrollbar
  * (desktop-layout D5).
  */
 const DESK_STATUS =
-  "contents board-desk:col-start-2 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
+  "contents board-desk:col-start-1 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:min-w-0 board-desk:flex-col board-desk:gap-3";
 const DESK_PLAY =
-  "contents board-desk:col-start-1 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
+  "contents board-desk:col-start-2 board-desk:row-start-1 board-desk:flex board-desk:min-h-0 board-desk:flex-col board-desk:gap-3";
 
 interface BoardStatusProps {
   phase: BoardView["phase"];
@@ -158,7 +160,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
       <div ref={shown.boardRef} data-viewport-lock className={BOARD_GRID}>
         <BoardStatus phase={view.phase} onPause={() => setPaused(true)}>
           {/* One grid item on phones (the status wrapper is display: contents), so the warning never adds a row. */}
-          <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex min-w-0 flex-col gap-2 board-desk:min-h-0 board-desk:flex-1">
             <MeterPanel
               meters={shown.meters}
               version={shown.revealKey}

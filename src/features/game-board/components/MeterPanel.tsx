@@ -64,7 +64,7 @@ export interface MeterPanelProps {
  * coloured goal lines over the whole run, and the two counters laid over its top corners on a
  * translucent backing, so the plot uses the full panel from zero in its bottom-left corner (chart-timeline D6, chart-origin D2): icon, name, absolute amount and the last change. A reached goal glows and
  * shows a check. Screen readers hear one `role="meter"` per number, with its goal. Phone and desk
- * alike; the desk chart is just taller.
+ * alike; on desk the panel grows to fill the status column (desk-wide D1).
  */
 export const MeterPanel = ({
   meters,
@@ -92,9 +92,13 @@ export const MeterPanel = ({
     // panel's bottom-left corner (chart-origin D2). The counters keep the inset instead.
     <section
       ref={chartAnchor}
-      className="overflow-hidden rounded-lg border border-border bg-card elevation-sm"
+      className="overflow-hidden rounded-lg border border-border bg-card elevation-sm board-desk:flex board-desk:min-h-0 board-desk:flex-1 board-desk:flex-col"
     >
-      <ScoreChart series={series} markers={markers} className="h-31 sm:h-35 board-desk:h-62">
+      <ScoreChart
+        series={series}
+        markers={markers}
+        className="h-31 sm:h-35 board-desk:h-auto board-desk:min-h-0 board-desk:flex-1"
+      >
         <ul
           aria-label="Gebruikers en geld"
           className="grid grid-cols-2 items-start gap-2 px-1.5 pt-1.5 board-desk:px-3 board-desk:pt-3"
@@ -132,7 +136,8 @@ const ScoreCounter = ({ tile, alignEnd, version }: ScoreCounterProps) => {
       ref={anchor}
       className={cn(
         "relative min-w-0 rounded-md bg-card/80 px-1.5 py-0.5 backdrop-blur-[2px]",
-        alignEnd && "justify-self-end text-right",
+        // On desk the chart is wide: each counter hugs its content, so its juice glow does too.
+        alignEnd ? "justify-self-end text-right" : "board-desk:justify-self-start",
         tile.full && meter.capGlow
       )}
     >

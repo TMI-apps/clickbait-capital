@@ -56,8 +56,9 @@
 }
 
 /*
- * Game board desktop layout (desktop-layout D1): a wide screen that is not short keeps the draft
- * under the feed (play column) and stacks the status in a panel beside it. Never overlaps
+ * Game board desktop layout (desktop-layout D1, desk-wide D1): a wide screen that is not short
+ * fills the viewport with the status and chart on the left and the feed with the draft under it
+ * in a fixed column on the right. Never overlaps
  * board-split: a screen at least 64rem wide and at most 40rem high is landscape.
  */
 @custom-variant board-desk {

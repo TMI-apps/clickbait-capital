@@ -64,6 +64,8 @@ export interface ChartGeometry {
   height: number;
   /** Right end of the history, in chart units: the rest is kept free for the forecast. */
   historyRight: number;
+  /** Top of the event ticks, in chart units: a fixed pixel length up from the bottom edge. */
+  eventTopY: number;
   markers: ChartMarkerMark[];
   lines: ChartLine[];
 }
