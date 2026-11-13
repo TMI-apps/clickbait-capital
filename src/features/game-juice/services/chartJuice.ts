@@ -1,4 +1,5 @@
 import type {
+  JuiceChartGainVariant,
   JuiceChartMoveTier,
   JuiceChartMoveVariant,
   JuiceMeterKey,
@@ -50,6 +51,16 @@ export function chartMoveVariant(
 ): JuiceChartMoveVariant {
   if (dull) return "dull";
   return `${share > 0 ? "up" : "down"}-${chartMoveTier(line, share)}`;
+}
+
+/** The `chart.gain` variant of a rise (line and tier), or null for a fall or a dull move. */
+export function chartGainVariant(
+  line: ChartJuiceLine,
+  share: number,
+  dull: boolean
+): JuiceChartGainVariant | null {
+  if (dull || share <= 0) return null;
+  return `${line}-${chartMoveTier(line, share)}`;
 }
 
 /** The streak's level: 0 below the first level, else 1–3. */

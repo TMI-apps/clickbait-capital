@@ -24,6 +24,7 @@ export type {
 export {
   CHART_MOVE_TIERS,
   STREAK_LEVELS,
+  chartGainVariant,
   chartMoveTier,
   chartMoveVariant,
   streakLevel,
@@ -47,6 +48,7 @@ export type {
   GameJuiceCatalog,
   GameJuiceEventName,
   JuiceCardVariant,
+  JuiceChartGainVariant,
   JuiceChartMoveTier,
   JuiceChartMoveVariant,
   JuiceStreakStep,

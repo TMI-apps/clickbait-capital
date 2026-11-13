@@ -5,10 +5,10 @@ The game's juice: what every moment of Clickbait Capital looks, sounds and feels
 ## Purpose
 
 - **Viral:** a light shake of the board, a neon explosion of 🔥😱😡 from the card, a glow and 🔥 on Gebruikers, the loudest sound.
-- **Ad:** coins fly from the card to Geld, a gold glow and 💰, a ka-ching.
+- **Ad:** a gold glow and 💰 on Geld, a ka-ching; the money gain flies as coins to the Geld line (chart-juice D9).
 - **News:** a quiet click; the post slides in short and dry and shows a small 🛡️; meters don't flash.
 - **Every action:** each moved meter flashes gain / loss (not after news or journalism); a ≥ 10 % move adds a blip; the new post enters; an answered event plays its option kind's card juice once its dialog has closed, and its outcome rows enter, flash, count up and show the kind's mark.
-- **The chart (chart-juice):** each moved line draws in its newest stretch and its end dot reacts by tier (small / medium / big / huge, per line in `CHART_MOVE_TIERS`); up pops, glows and sparks, down shudders, shakes and tints red. A streak of ups (3, 5, 8+, `STREAK_LEVELS`) gives the counter a 🔥 chip and the line a glow, and each step plays the gain blip one tone higher; a broken streak shrugs.
+- **The chart (chart-juice):** each moved line draws in its newest stretch and its end dot reacts by tier (small / medium / big / huge, per line in `CHART_MOVE_TIERS`); up pops, glows and sparks, down shudders, shakes and tints red. Every gain flies its glyphs from the new post to the line's end dot (👤🙋🧑‍💻 / 💶🪙💰, 3 / 6 / 12 / 18 by tier). A streak of ups (3, 5, 8+, `STREAK_LEVELS`) gives the counter a 🔥 chip and the line a glow, and each step plays the gain blip one tone higher; a broken streak shrugs.
 - **Milestones and endings:** the next phase, a new event, the IPO (confetti, gold flash, entrance) and a loss (red flash, entrance), each sound 250 ms after the action's own.
 
 ## Structure
@@ -55,7 +55,7 @@ emitJuice("card.played", { variant: "viral", origin: cardElement });
 
 **The flow's moments** (lap juice-wiring-flow): `ui.press` on every button and link (delegated; tap, short vibration, tiny squash on the control); `page.opened` (the page settles in); `phase.intro` (variant = phase: the step dot pops with ✨🚀, the goal box glows; phase 1 adds the fanfare softly; tag `PHASE_INTRO_TAG`, stopped when the screen closes); `event.appeared` / `scandal.hit` glow around the dialog (`event-dialog`); `run.won` rings the ending's bell (`ending:icon` pop + gold glow), `run.lost` shakes it; `share.done` (`shared`: 📣💬✨ from the button, `failed`: the button shakes; closing the sheet plays nothing).
 
-**The chart's moments** (lap chart-juice; game-board emits them with the reveal): `chart.moved` per moved line (variant `up-<tier>` / `down-<tier>` / `dull`, `vars.meter`; targets `chart-tail:<meter>` and `chart-dot:<meter>`, anchored by score-chart), `streak.step` (variant 3–8, `vars.count`; target `streak:<meter>`, the counter's chip) and `streak.broken` (`vars.count`, the counter). Thresholds: `services/chartJuice.ts`, shown in `/juice`.
+**The chart's moments** (lap chart-juice; game-board emits them with the reveal): `chart.moved` per moved line (variant `up-<tier>` / `down-<tier>` / `dull`, `vars.meter`; targets `chart-tail:<meter>` and `chart-dot:<meter>`, anchored by score-chart), `chart.gain` per risen line (variant `<line>-<tier>`, not after news or journalism: glyphs fly from `feed:newest` to `chart-dot:<meter>`), `streak.step` (variant 3–8, `vars.count`; target `streak:<meter>`, the counter's chip) and `streak.broken` (`vars.count`, the counter). Thresholds: `services/chartJuice.ts`, shown in `/juice`.
 
 **A press with its own juice:** mark the control or its area `data-juice-press="off"` (event answers, "In de feed", the inspector's triggers) so it doesn't also tap.
 
@@ -82,6 +82,7 @@ Lap logs: `documentation/DOC_DECISION_LOG.md` (`juice-core`, `juice-migrate`).
 - **D16 — Vibration follows "Trillen" (juice-wiring-flow D3).** The haptics gate is the player's setting (default on); reduced motion still turns vibration off. "Voortgang wissen" also reloads the tuning (`onGameStorageCleared`).
 - **D17 — Adds, doesn't annoy (juice-tone-down D1–D4).** Handling a card is silent: `card.pickup` keeps a tiny pop and vibration (no sound, no glow), `card.over-feed` keeps the slot pulse and vibration, `card.cancel` plays nothing. `comment.arrived` plays its pop at 20 % and rate 0.75 (≈ a quarter of a tap); `ui.press` and the big meter blips play softer. A glow on `origin` stays where the element was when it started, so never glow a card that is about to move.
 - **D18 — Chart juice by tier, streaks per line (chart-juice D1–D4).** A move's tier is its distance in shares of the goal, per line (Gebruikers 8 / 25 / 60 %, Geld 4 / 12 / 40 %). Streak levels 3, 5, 8; each step plays `meter-gain` at rate 1.00 → 1.30 (no new sound files); news extends a streak silently and draws its line in dry. The chip and glow are view state (game-board, score-chart); only the moments are juice.
+- **D19 — Gains fly to their line (chart-juice D8, D9).** One flight per rise, from the new post to the line's end dot, landing as the dot pops; the ad's coin flight to the counter is gone, so money flies once.
 - **D11 — Event-driven juice system (juice-core D1–D13).** Adding juice = a catalog entry and a recipe; adjusting = recipe values or `/juice`.
 
 ## Testing

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   CHART_MOVE_TIERS,
   STREAK_LEVELS,
+  chartGainVariant,
   chartMoveVariant,
   streakLevel,
   streakStepVariant,
@@ -16,8 +17,14 @@ describe("chartJuice", () => {
     expect(chartMoveVariant("revenue", CHART_MOVE_TIERS.revenue.huge, false)).toBe("up-huge");
   });
 
-  it("should keep the move dull when news or journalism moved it", () => {
+  it("should keep the move dull and fly nothing when news or journalism moved it", () => {
     expect(chartMoveVariant("users", 1, true)).toBe("dull");
+    expect(chartGainVariant("users", 1, true)).toBeNull();
+  });
+
+  it("should fly a gain to its line by tier and nothing for a loss", () => {
+    expect(chartGainVariant("revenue", CHART_MOVE_TIERS.revenue.big, false)).toBe("revenue-big");
+    expect(chartGainVariant("users", -0.5, false)).toBeNull();
   });
 
   it("should start the streak steps at the first level and cap them at the last", () => {

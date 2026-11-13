@@ -49,6 +49,7 @@ const line = (key: BoardJuiceMeter["key"], history: number[]): BoardJuiceMeter =
 const lineEmits = (emits: ReturnType<typeof juiceForAction>["reveal"]): string[] =>
   emits.flatMap((emit) => {
     if (emit.name === "chart.moved") return [`chart.moved ${emit.payload.variant}`];
+    if (emit.name === "chart.gain") return [`chart.gain ${emit.payload.variant}`];
     if (emit.name === "streak.step") return [`streak.step ${emit.payload.variant}`];
     if (emit.name === "streak.broken") return [`streak.broken ${emit.payload.vars.count}`];
     return [];
@@ -59,12 +60,21 @@ describe("juiceForAction chart and streaks", () => {
     const juice = juiceForAction(
       action({ meters: [line("users", [0.1, 0.12]), line("revenue", [0.5, 0.05])] })
     );
-    expect(lineEmits(juice.reveal)).toEqual(["chart.moved up-small", "chart.moved down-huge"]);
+    // A rise also flies its glyphs to the line (chart.gain); a fall throws nothing.
+    expect(lineEmits(juice.reveal)).toEqual([
+      "chart.moved up-small",
+      "chart.gain users-small",
+      "chart.moved down-huge",
+    ]);
   });
 
   it("should step the streak from three ups in a row and break it when the line falls", () => {
     const step = juiceForAction(action({ meters: [line("users", [0.1, 0.2, 0.3, 0.4, 0.5])] }));
-    expect(lineEmits(step.reveal)).toEqual(["chart.moved up-medium", "streak.step 4"]);
+    expect(lineEmits(step.reveal)).toEqual([
+      "chart.moved up-medium",
+      "chart.gain users-medium",
+      "streak.step 4",
+    ]);
     const broken = juiceForAction(action({ meters: [line("users", [0.1, 0.2, 0.3, 0.4, 0.38])] }));
     expect(lineEmits(broken.reveal)).toEqual(["chart.moved down-small", "streak.broken 3"]);
   });

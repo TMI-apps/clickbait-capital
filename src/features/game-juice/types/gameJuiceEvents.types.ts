@@ -29,6 +29,9 @@ export type JuiceChartMoveTier = "small" | "medium" | "big" | "huge";
 /** A chart line's move: its direction and tier, or `dull` (news / journalism, design § 5). */
 export type JuiceChartMoveVariant = `${"up" | "down"}-${JuiceChartMoveTier}` | "dull";
 
+/** A gain on a chart line: the line and the move's tier (`users-big`, `revenue-small`). */
+export type JuiceChartGainVariant = `${Exclude<JuiceMeterKey, "reputation">}-${JuiceChartMoveTier}`;
+
 /** A streak's length as a variant: 3 to 7, and `8` for 8 or more (`STREAK_LEVELS`). */
 export type JuiceStreakStep = "3" | "4" | "5" | "6" | "7" | "8";
 
@@ -68,6 +71,11 @@ export interface GameJuiceCatalog {
    * `chart-dot:<meter>`).
    */
   "chart.moved": { variant: JuiceChartMoveVariant; vars: { meter: JuiceMeterKey } };
+  /**
+   * A chart line went up (not after news or journalism): its glyphs fly from the newest post to
+   * the line's end dot (`chart-dot:<meter>`), more for a bigger gain (chart-juice D8).
+   */
+  "chart.gain": { variant: JuiceChartGainVariant; vars: { meter: JuiceMeterKey } };
   /**
    * Gebruikers or Geld went up again: a streak of `vars.count` actions in a row, from the first
    * streak level (`STREAK_LEVELS`). Variant = the count, `8` for 8 or more.

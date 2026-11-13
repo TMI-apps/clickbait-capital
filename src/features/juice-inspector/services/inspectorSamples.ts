@@ -31,6 +31,7 @@ const SAMPLE_VARS: Record<string, Record<string, string | number>> = {
   "outcome.row": { row: "outcome:users" },
   "goal.reached": { meter: "users" },
   "chart.moved": { meter: "users" },
+  "chart.gain": { meter: "users" },
   "streak.step": { meter: "users", count: 5 },
   "streak.broken": { meter: "users", count: 4 },
 };

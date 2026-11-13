@@ -14,7 +14,7 @@ A dev tool at `/juice` to feel and tune every juice event. It is hidden: there a
   - "Kopieer JSON" copies the overrides. If the clipboard is blocked, the JSON appears in a text box instead.
   - "Reset" drops all overrides.
 - **Log:** the last 20 events on the bus.
-- **Chart thresholds:** "Grafiek-drempels" shows the chart juice's tier thresholds per line and the streak levels (read-only; they are data in game-juice's `chartJuice.ts`). Every tier (`chart.moved · up-huge`, …) and streak step (`streak.step · 3`…`8`, `streak.broken`) has its own trigger.
+- **Chart thresholds:** "Grafiek-drempels" shows the chart juice's tier thresholds per line, how many glyphs a gain flies to its line per tier (from the `chart.gain` recipes) and the streak levels (read-only; they are data in game-juice's `chartJuice.ts`). Every tier (`chart.moved · up-huge`, …) and streak step (`streak.step · 3`…`8`, `streak.broken`) has its own trigger.
 
 ## Tuning workflow (owner or agent)
 

@@ -332,6 +332,17 @@ describe("GameBoard juice", () => {
   };
 
   const particles = (): number => document.querySelectorAll("[data-juice-particle]").length;
+  /** Particles whose glyph is in `glyphs` (a card's burst vs a gain's flight to its line). */
+  const particlesOf = (glyphs: string): number =>
+    [...document.querySelectorAll("[data-juice-particle]")].filter((node) =>
+      glyphs.includes(node.getAttribute("data-juice-particle") ?? "\u0000")
+    ).length;
+  const flightGlyphs = (variant: string): string => {
+    const step = GAME_JUICE_RECIPES["chart.gain"].variants?.[
+      variant as keyof NonNullable<(typeof GAME_JUICE_RECIPES)["chart.gain"]["variants"]>
+    ]?.find((candidate) => candidate.effect === "particles");
+    return step?.effect === "particles" ? step.glyphs : "";
+  };
   const badges = (): string[] =>
     [...document.querySelectorAll("[data-juice-badge]")].map(
       (node) => node.getAttribute("data-juice-badge") ?? ""
@@ -342,16 +353,25 @@ describe("GameBoard juice", () => {
     await playCard(user, draftCardOfType("viral"));
 
     expect(events).toContainEqual({ name: "card.played", variant: "viral", dialogOpen: false });
-    expect(particles()).toBe(particleCountOf("viral"));
+    const burst = cardSteps("viral").find((step) => step.effect === "particles");
+    expect(particlesOf(burst?.effect === "particles" ? burst.glyphs : "")).toBe(
+      particleCountOf("viral")
+    );
     expect(badges()).toEqual(badgesOf("viral"));
+    // The users gain flies its people to the Gebruikers line's end dot (chart-juice D8).
+    const gain = events.find((event) => event.name === "chart.gain");
+    expect(gain?.variant).toMatch(/^users-/);
+    expect(particlesOf(flightGlyphs(gain?.variant ?? ""))).toBeGreaterThan(0);
     const board = document.querySelector("[data-viewport-lock]");
     expect(stub.calls.some((call) => call.element === board)).toBe(true);
   });
 
-  it("should fly coins for an ad and keep news dull when those cards are played", async () => {
+  it("should throw no coins from an ad card and keep news dull when those cards are played", async () => {
     const { user } = await renderJuicedBoard(SEED_CONTENT, AD_THEN_NEWS_SEED);
     await playCard(user, draftCardOfType("ad"));
-    expect(particles()).toBe(particleCountOf("ad"));
+    // The ad itself throws nothing (chart-juice D9): a money gain flies to the Geld line instead.
+    expect(particleCountOf("ad")).toBe(0);
+    expect(particlesOf("🪙💶💰")).toBe(0);
 
     stub.finishAll();
     await playCard(user, draftCardOfType("news"));

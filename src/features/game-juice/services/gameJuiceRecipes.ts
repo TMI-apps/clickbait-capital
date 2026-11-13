@@ -2,6 +2,7 @@ import type { JuiceEffectStep } from "@/features/juice-effects/api";
 import type {
   GameJuiceCatalog,
   GameJuiceEventName,
+  JuiceChartGainVariant,
   JuiceChartMoveVariant,
   JuiceScandalLevel,
   JuiceStreakStep,
@@ -52,18 +53,13 @@ const VIRAL_VISUALS: JuiceEffectStep[] = [
   { effect: "badge", target: "meter:users", glyph: "🔥", duration: 1600 },
 ];
 
-/** Ad: coins fly from the card to Inkomsten, which glows gold. */
+/**
+ * Ad: a gold glow and 💰 on Geld. The coins no longer fly to the counter: the money gain flies
+ * to the Geld line's end dot instead (`chart.gain`, chart-juice D9), so there is one flight.
+ */
 const AD_VISUALS: JuiceEffectStep[] = [
-  {
-    effect: "particles",
-    from: "origin",
-    to: "meter:revenue",
-    glyphs: "🪙💰💶",
-    count: 10,
-    duration: 760,
-  },
-  { effect: "glow", at: 450, target: "meter:revenue", color: "type-ad", times: 2, duration: 760 },
-  { effect: "badge", at: 450, target: "meter:revenue", glyph: "💰", duration: 1600 },
+  { effect: "glow", at: 300, target: "meter:revenue", color: "type-ad", times: 2, duration: 760 },
+  { effect: "badge", at: 300, target: "meter:revenue", glyph: "💰", duration: 1600 },
 ];
 
 /**
@@ -157,7 +153,7 @@ const CHART_MOVED: Record<JuiceChartMoveVariant, JuiceEffectStep[]> = {
       at: 480,
       from: DOT,
       glyphs: "🚀✨⭐",
-      count: 10,
+      count: 8,
       reach: 0.18,
       duration: 760,
       glow: "success",
@@ -194,6 +190,33 @@ const CHART_MOVED: Record<JuiceChartMoveVariant, JuiceEffectStep[]> = {
   ],
   dull: [{ effect: "trace", target: TAIL, duration: 320, easing: "linear" }],
 };
+
+/**
+ * A gain flies to its line (chart-juice D8): glyphs from the newest post to the line's end dot,
+ * 3 / 6 / 12 / 18 by tier, landing as the draw-in ends and the dot pops (flight = the pop's `at`
+ * in `CHART_MOVED`). Users fly as people, money as coins and notes. Losses throw nothing.
+ */
+const GAIN_FLIGHT = { small: [3, 260], medium: [6, 340], big: [12, 420], huge: [18, 480] } as const;
+const GAIN_GLYPHS = { users: "👤🙋🧑‍💻", revenue: "💶🪙💰" } as const;
+
+const CHART_GAIN = Object.fromEntries(
+  (["users", "revenue"] as const).flatMap((line) =>
+    Object.entries(GAIN_FLIGHT).map(([tier, [count, duration]]) => [
+      `${line}-${tier}`,
+      [
+        {
+          effect: "particles",
+          from: "feed:newest",
+          to: "chart-dot:{meter}",
+          glyphs: GAIN_GLYPHS[line],
+          count,
+          size: 1.25,
+          duration,
+        },
+      ],
+    ])
+  )
+) as Record<JuiceChartGainVariant, JuiceEffectStep[]>;
 
 /** The streak chip on a counter (`streak:<meter>`): it only exists from the first level. */
 const CHIP = "streak:{meter}";
@@ -369,6 +392,7 @@ export const GAME_JUICE_RECIPES: GameJuiceRecipeBook = {
     },
   },
   "chart.moved": { variants: CHART_MOVED },
+  "chart.gain": { variants: CHART_GAIN },
   "streak.step": { variants: STREAK_STEP },
   // Subtle (chart-juice D4): the counter shrugs and a puff of smoke, the blip low and soft.
   "streak.broken": {

@@ -1,6 +1,7 @@
 import type { CardType, EventOptionKind, GameContent, GameState } from "@/features/game-engine/api";
 import {
   STREAK_LEVELS,
+  chartGainVariant,
   chartMoveVariant,
   streakStepVariant,
   type GameJuiceEmit,
@@ -115,6 +116,8 @@ function lineJuice(meter: BoardJuiceMeter, dull: boolean): GameJuiceEmit[] {
             payload: { variant: chartMoveVariant(meter.key, move, dull), vars },
           },
         ];
+  const gain = chartGainVariant(meter.key, move, dull);
+  if (gain) emits.push({ name: "chart.gain", payload: { variant: gain, vars } });
   const count = streakOf(history);
   const before = streakOf(history.slice(0, -1));
   const step = streakStepVariant(count);
