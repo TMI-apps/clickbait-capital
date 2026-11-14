@@ -13,7 +13,7 @@ Every card in the deck is a post that shows up in the feed. The player is "the a
 ## Success check (for this lap)
 
 - RESEARCH.md: an inventory of what the deck covers, and a sourced, dated list of real platform decisions not yet covered, each with incentive, harm, phase fit and age-11 fit; a ranked top 10.
-- PROPOSAL.md (revision 2, after the owner's answers): within the three existing types the pools shift from posts to company decisions over the phases, announced on the official account of the app the player names; 15–25 decision cards, 8–12 events (heavy topics fictionalised), the naming flow, follower cues, the balance approach and 2–3 build laps.
+- PROPOSAL.md (revision 2, after the owner's answers): within the three existing types the pools shift from posts to company decisions over the phases, announced on the official account of the app the player names; 15–25 decision cards, 8–12 events (heavy topics fictionalised), the naming flow, an "Echt gebeurd" line with a source link in the card detail, follower cues, the balance approach and 2–3 build laps.
 - No code, no protected files, no new dependencies.
 
 ## In scope

@@ -4,7 +4,7 @@ Lap: temp_job_policy-cards · Branch: docs/policy-cards-research · Base: main a
 
 Part 1 lists what the deck covers today. Part 2 lists real platform decisions and malpractices it does not cover yet, with a source for each. Part 3 ranks them for the game.
 
-**How to read the sources.** Each item names its source type: a **regulator decision** or **court ruling** is a finding; a **complaint** (a lawsuit by a state attorney general) contains **allegations** the company disputes; **leaked documents** and **investigative journalism** report what internal papers say, and the company usually disputes the framing. The game never names the company (recorded decision: no brand names) and does not credit real events (owner decision D3 in PROPOSAL § 0): these cases are inspiration only. The split matters for how firmly a card or event may state something. Where the search found only secondary coverage, the row says so.
+**How to read the sources.** Each item names its source type: a **regulator decision** or **court ruling** is a finding; a **complaint** (a lawsuit by a state attorney general) contains **allegations** the company disputes; **leaked documents** and **investigative journalism** report what internal papers say, and the company usually disputes the framing. The game never names the company (recorded decision: no brand names) and credits a real event only through a short "Echt gebeurd" line with a link in the card detail (owner decision D3, PROPOSAL § 5b). The split matters for how firmly that line may state something: an allegation is written as "in een rechtszaak stond", never as a proven fact. Where the search found only secondary coverage, the row says so.
 
 ---
 
