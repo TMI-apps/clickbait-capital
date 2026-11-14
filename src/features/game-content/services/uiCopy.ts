@@ -69,6 +69,12 @@ export const UI_COPY = {
     /** The board's home button: the run is saved, the start screen offers "Verder spelen". */
     homeButton: "Naar het begin",
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
+    /** Marks a decision card's post as the app's official announcement (policy-cards § 4). */
+    officialLabel: "Officieel ✓",
+    /** Card detail of a decision card (policy-cards § 5b): the real event and its article. */
+    realCaseLabel: "Echt gebeurd:",
+    realCaseLink: "Lees het artikel",
+    realCaseLinkLabel: "Lees het artikel bij {publisher} ({date}), opent in een nieuw tabblad",
   },
   resume: {
     kicker: "Opgeslagen spel",
@@ -157,6 +163,7 @@ export const UI_COPY = {
       "Je instellingen (weergave, geluid, trillen en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
       "Je browser bewaart de bestanden van het spel en de kaartfoto's op dit apparaat. Zo kun je ook zonder internet spelen.",
       "De site draait bij Cloudflare. Zoals bij elke website ziet die [[server]] je [[IP-adres]], anders kan hij de pagina niet sturen. Wij gebruiken dat niet om je te volgen.",
+      "Bij sommige kaarten staat 'Echt gebeurd' met een link naar een nieuwssite. Die opent in een nieuw tabblad. Die site heeft eigen privacyregels.",
     ],
     errorReports:
       "Loopt het spel vast, dan sturen we een foutmelding naar onze server: wat er misging, op welke pagina en in welke browser. Zonder je naam of andere gegevens over jou.",
@@ -257,9 +264,13 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
     "Het adres van je apparaat op internet. Zo weet een website waar hij de pagina heen moet sturen.",
   journalist: "Iemand die uitzoekt wat er echt gebeurt en daar eerlijk over schrijft.",
   klokkenluider: "Iemand die vertelt wat er in een bedrijf fout gaat, ook al wil de baas dat niet.",
+  lobby:
+    "Mensen die een bedrijf betaalt om politici over te halen. Zo worden wetten beter voor dat bedrijf.",
   "loot box":
     "Een kist in een game die je met echt geld koopt. Je weet niet wat erin zit. Meestal is het iets saais.",
   misleidend: "Het klopt niet helemaal en zet je op het verkeerde spoor.",
+  moderator:
+    "Iemand die berichten op een app nakijkt en haalt weg wat niet mag, zoals haat en nare filmpjes.",
   nepaccount: "Een account dat doet alsof het van iemand anders is.",
   nepnieuws: "Een bericht dat doet alsof het waar is, maar niet klopt.",
   oplichter: "Iemand die mensen bedriegt om hun geld of spullen af te pakken.",
@@ -267,6 +278,7 @@ export const GLOSSARY: Readonly<Record<string, string>> = {
   petitie: "Een lijst met namen van mensen die samen iets willen veranderen.",
   premium: "Een betaalde versie van een app, met extra's.",
   privacy: "Dat je zelf bepaalt wie wat over jou weet.",
+  privé: "Alleen voor jou en mensen die jij kiest. Onbekenden kunnen het niet zien.",
   rectificatie: "Een bericht waarin je zegt: wat we eerder schreven, klopte niet.",
   "scale-up": "Een jong bedrijf dat heel snel groeit.",
   server:

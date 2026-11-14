@@ -78,6 +78,17 @@ export interface CardEffectView {
 }
 
 /** One card of the open draft. */
+/**
+ * The real event behind a decision card (game-content `RealCase`, policy-cards § 5b): shown in
+ * the card detail as an "Echt gebeurd" line with a link to the article.
+ */
+export interface RealCaseView {
+  line: string;
+  url: string;
+  publisher: string;
+  date: string;
+}
+
 export interface DraftCardView {
   id: string;
   type: CardType;
@@ -85,6 +96,8 @@ export interface DraftCardView {
   body: string;
   /** Satirical one-liner when the content provides one (game-content `flavor`). */
   flavor?: string;
+  /** Decision cards with a real source (game-content `realCase`); only the card detail shows it. */
+  realCase?: RealCaseView;
   effects: CardEffectView[];
   /**
    * Where each score line lands if this card is played now, as a share of its goal line
@@ -118,6 +131,11 @@ export interface FeedEntry {
   type: CardType | "event";
   title: string;
   body: string;
+  /**
+   * A decision card's post (game-content `announce`, policy-cards § 4): title and body are the
+   * company's announcement, posted by the app's official account.
+   */
+  official?: boolean;
   /** Event posts: the chosen option's kind, which sets the board juice (event-juice-drop D1). */
   optionKind?: EventOptionKind;
 }

@@ -22,6 +22,7 @@ import type {
   EventView,
   FeedEntry,
   GameEndView,
+  RealCaseView,
   MeterView,
   PhaseProgressView,
   ScandalRiskView,
@@ -232,6 +233,34 @@ function flavorOf(card: CardDefinition): string | undefined {
   return typeof flavor === "string" && flavor !== "" ? flavor : undefined;
 }
 
+/** Presentation fields of a decision card the content adds next to the engine schema (game-content D2). */
+type DecisionFields = {
+  announce?: { title?: unknown; body?: unknown };
+  realCase?: Partial<Record<keyof RealCaseView, unknown>>;
+};
+
+/** The official announcement of a decision card, or undefined for a regular post. */
+function announceOf(card: CardDefinition): { title: string; body: string } | undefined {
+  const announce = (card as CardDefinition & DecisionFields).announce;
+  if (typeof announce?.title !== "string" || typeof announce.body !== "string") return undefined;
+  return { title: announce.title, body: announce.body };
+}
+
+/** The real event behind a decision card, when the content gives a complete one. */
+function realCaseOf(card: CardDefinition): RealCaseView | undefined {
+  const real = (card as CardDefinition & DecisionFields).realCase;
+  const { line, url, publisher, date } = real ?? {};
+  if (
+    typeof line !== "string" ||
+    typeof url !== "string" ||
+    typeof publisher !== "string" ||
+    typeof date !== "string"
+  ) {
+    return undefined;
+  }
+  return { line, url, publisher, date };
+}
+
 /** The open draft as board cards, or an empty list while an event or the end is showing. */
 export function toDraft(state: GameState, content: GameContent): DraftCardView[] {
   const hand = state.status === "playing" ? getHandCards(state, content) : null;
@@ -249,6 +278,7 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
       title: card.title,
       body: card.body,
       flavor: flavorOf(card),
+      realCase: realCaseOf(card),
       effects: forecastEffects(delta),
       forecast: {
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
@@ -362,13 +392,16 @@ type FeedPost = Omit<FeedEntry, "step">;
 
 /** Feed post for a played card. `turn` keeps keys unique when a card is drawn again. */
 export function feedEntryForCard(card: CardDefinition, turn: number): FeedPost {
-  return {
+  const post = {
     key: `card-${turn}-${card.id}`,
     contentId: card.id,
     type: card.type,
-    title: card.title,
-    body: stripGlossaryMarkup(card.body),
   };
+  const announce = announceOf(card);
+  // A decision card posts the company's announcement on the official account (policy-cards § 4).
+  return announce
+    ? { ...post, title: announce.title, body: announce.body, official: true }
+    : { ...post, title: card.title, body: stripGlossaryMarkup(card.body) };
 }
 
 /** Feed post for a resolved event: the event title plus the chosen policy. */

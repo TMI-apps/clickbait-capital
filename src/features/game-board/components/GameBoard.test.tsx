@@ -487,7 +487,7 @@ describe("GameBoard with a screen reader", () => {
 describe("GameBoard resumed from a save", () => {
   /** A one-card save on seed 11 for `content`. */
   const oneCardSave = (content: GameContent): SavedRun => ({
-    version: 7,
+    version: 8,
     seed: 11,
     actions: [{ kind: "card", cardId: createGame({ content, seed: 11 }).hand?.[0] ?? "" }],
   });

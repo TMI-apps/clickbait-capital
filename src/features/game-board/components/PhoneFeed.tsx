@@ -53,12 +53,17 @@ const PostArtwork = ({ entry, compact, className }: PostArtworkProps) => {
   return <GameCardArtwork type={entry.type} image={shown} className={className} />;
 };
 
-const TypeLabel = ({ type }: { type: FeedEntry["type"] }) => {
+/**
+ * Type of the post; a decision card's post also says it comes from the app's official account
+ * (policy-cards § 4). Minimal marker: the app-name lap gives it the app's name and avatar.
+ */
+const TypeLabel = ({ type, official }: { type: FeedEntry["type"]; official?: boolean }) => {
   const style = POST_STYLE[type];
   return (
     <p className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
       <style.icon aria-hidden="true" className="size-3.5 shrink-0" />
       {style.label}
+      {official && <span> · {UI_COPY.board.officialLabel}</span>}
     </p>
   );
 };
@@ -87,7 +92,7 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
     >
       <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
       <div className="min-w-0 p-2.5">
-        <TypeLabel type={entry.type} />
+        <TypeLabel type={entry.type} official={entry.official} />
         <p className="text-sm leading-snug font-bold">{entry.title}</p>
         <p className="line-clamp-2 text-xs text-muted-foreground">{entry.body}</p>
       </div>
@@ -119,7 +124,7 @@ const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentB
         <PostArtwork entry={entry} compact />
       </div>
       <div className="min-w-0">
-        <TypeLabel type={entry.type} />
+        <TypeLabel type={entry.type} official={entry.official} />
         <p className="truncate text-sm leading-snug font-bold">{entry.title}</p>
         <p className="sr-only">{entry.body}</p>
       </div>

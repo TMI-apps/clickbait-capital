@@ -15,6 +15,9 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "primary",
     critical: false,
     lines: {
+      officialViral: ["beste update ooit 🔥", "eindelijk!!"],
+      officialAd: ["alweer iets wat geld kost 😩", "moet ik nu betalen of zo?"],
+      officialNews: ["oké… best netjes van jullie", "huh, een update die normaal is"],
       viral: ["W post 🔥", "dit is echt next level", "GG, iedereen kijkt dit", "nog een keer!! 🔁"],
       ad: ["skip skip skip ⏭️", "bro, alweer reclame?", "ik wil gewoon filmpjes 😩"],
       news: ["oké dit is best interessant", "saai… maar wel waar", "huh, wist ik niet 🤔"],
@@ -36,6 +39,9 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "viral",
     critical: false,
     lines: {
+      officialViral: ["omg ik ga nóóit meer slapen 😂", "yesss, nog meer!!"],
+      officialAd: ["wacht, moet ik nu betalen?", "is dit nou een update of reclame?"],
+      officialNews: ["fijn, dit voelt veiliger", "oké, dit is wel chill"],
       viral: ["BROEMMM 🚲💨", "dit doen we morgen na op het plein", "haha iedereen moet dit zien"],
       ad: ["is die korting echt?", "kan ik er een nieuw zadel van kopen?", "meh, reclame 🥱"],
       news: ["ow, dat is wel heftig", "goed dat iemand dit zegt", "oké ik lees het even"],
@@ -56,6 +62,9 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "warning",
     critical: false,
     lines: {
+      officialViral: ["dit wordt een meme, let op", "update van het jaar 💀"],
+      officialAd: ["deze app wil gewoon je geld 💸", "kassa! 🤡"],
+      officialNews: ["saai maar oké 👍", "geen meme hierover, sorry"],
       viral: ["💀💀💀", "dit wordt een meme, let maar op", "ik kan niet meer 😂😂"],
       ad: ["reclame-moment 🤡", "*scrollt snel door*", "wie koopt dit nou 😂"],
       news: ["wie zet hier nou nieuws 😂", "nieuws? hier?? 😳", "oké respect, eerlijk 🫡"],
@@ -76,6 +85,12 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "news",
     critical: true,
     lines: {
+      officialViral: [
+        "Ook om twee uur 's nachts? Dat meen je niet.",
+        "Wie houdt hier nog op met kijken?",
+      ],
+      officialAd: ["Wie heeft dit bedacht?", "Het gaat jullie alleen om geld."],
+      officialNews: ["Eindelijk iemand met verstand.", "Dat werd tijd, jongens."],
       viral: [
         "Wat is een challenge eigenlijk? 🤔",
         "Pas wel op, jongens!",
@@ -103,6 +118,18 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "success",
     critical: true,
     lines: {
+      officialViral: [
+        "Dit is gemaakt om je vast te houden. Let op.",
+        "Lees eerst wat dit echt doet.",
+      ],
+      officialAd: [
+        "Lees de kleine letters, mensen.",
+        "Gratis bestaat niet. Jij betaalt met je gegevens.",
+      ],
+      officialNews: [
+        "Goed besluit. Ik check het wel even 😉",
+        "Dit is een goede stap. Nu nog doen.",
+      ],
       viral: [
         "Is dit wel echt? Bron?",
         "Klinkt als nep, ik check het even 🔍",
@@ -126,6 +153,9 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     tone: "ad",
     critical: false,
     lines: {
+      officialViral: ["meer kijken = meer deals 🤑", "nog meer filmpjes, nog meer deals"],
+      officialAd: ["ik wil die deal!!", "is er korting op? 👀"],
+      officialNews: ["geen korting hierop? 😢", "oké, maar waar zijn de deals"],
       viral: ["lol, maar waar is de korting?", "leuk filmpje, nu een deal pls", "haha nice 👍"],
       ad: ["KORTING?! 🤑", "ik heb al besteld 🛒", "hier, pak mijn zakgeld 💸"],
       news: ["geen deals vandaag? 😢", "hm, oké, goed om te weten", "nieuws levert niks op, toch?"],

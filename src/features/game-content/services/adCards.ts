@@ -17,6 +17,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { revenue: 18, users: -4, reputation: -2, toxicity: 3 },
     imageTheme: "cartoon rocket-logo crypto coin riding a rocket, green candle chart, hype emojis",
     imageAlt: "Een munt met een raketlogo op een raket, met een stijgende grafiek erachter.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-dropshipping",
@@ -28,6 +29,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     imageTheme:
       "young guru posing by rented sports car, stacks of boxes, 'passive income' captions",
     imageAlt: "Een jonge man poseert bij een sportauto met pakketjes en geldbiljetten.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-detoxthee",
@@ -38,6 +40,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { revenue: 13, users: -2, reputation: -1, toxicity: 2 },
     imageTheme: "pastel influencer holding bright green tea bottle, sparkles, 'detox' lettering",
     imageAlt: "Een influencer houdt lachend een flesje groene thee omhoog.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-preroll",
@@ -48,6 +51,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { revenue: 16, users: -5 },
     imageTheme: "video player with giant countdown and greyed-out skip button, frustrated thumb",
     imageAlt: "Een videospeler met een grote aftelklok en een uitgeschakelde knop 'Overslaan'.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-native",
@@ -58,6 +62,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { revenue: 15, users: -2, reputation: -2, toxicity: 3 },
     imageTheme: "fake news article layout hiding a mattress ad, tiny 'sponsored' label",
     imageAlt: "Een nepnieuwsartikel met een matras en een piepklein label 'gesponsord'.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-skin-shop",
@@ -69,6 +74,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     imageTheme:
       "youtube thumbnail style: glowing purple game skin in an in-game shop, 24h countdown timer, pile of coins",
     imageAlt: "Een glimmende paarse game-skin in een winkel met een aftelklok van 24 uur.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-lootbox",
@@ -80,6 +86,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     imageTheme:
       "youtube thumbnail style: glowing treasure chest bursting with light, tiny '0.1%' label, excited cartoon hero",
     imageAlt: "Een gloeiende schatkist met een piepklein label '0,1%'.",
+    phases: [1, 2, 3],
   },
   {
     id: "ad-pizzeria",
@@ -266,5 +273,179 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     imageAlt:
       "Een streamer in een hoodie met een prijskaartje van € 80 en een stempel 'uitverkocht'.",
     phases: [4],
+  },
+  // Decision cards (policy-cards § 3, § 5): money decisions of the company, announced as an
+  // official post (`announce`) with the real event behind them in the card detail (`realCase`).
+  {
+    id: "ad-besluit-kinderreclame",
+    type: "ad",
+    title: "Reclame op maat voor kinderen",
+    body: "De app houdt bij wat kinderen kijken. Dat verkoop je aan [[adverteerders|adverteerder]].",
+    flavor: "Kijkt naar dino's? Hier is een dino-ontbijtje. En nog een.",
+    effects: { revenue: 17, users: -3, reputation: -1, toxicity: 2 },
+    imageTheme:
+      "kid watching cartoons while hidden trackers collect toy and cereal ads around them",
+    imageAlt: "Een kind kijkt tekenfilms terwijl er reclames voor speelgoed omheen zweven.",
+    phases: [2, 3],
+    announce: {
+      title: "Alleen reclame die bij jou past!",
+      body: "Geen saaie reclames meer.",
+    },
+    realCase: {
+      line: "In 2019 betaalde een videoplatform 170 miljoen dollar boete voor reclame op maat bij kinderfilmpjes.",
+      url: "https://fpf.org/blog/ftc-reaches-landmark-settlement-regarding-kids-privacy-clarifies-platforms-and-video-creators-coppa-obligations-for-child-directed-content/",
+      publisher: "Future of Privacy Forum",
+      date: "sep. 2019",
+    },
+  },
+  {
+    id: "ad-besluit-quizapps",
+    type: "ad",
+    title: "Quizapps mogen gegevens meenemen",
+    body: "Een leuke quizapp neemt jouw [[data]] mee. En die van al je vrienden.",
+    flavor: "Welke pizza ben jij? Een pizza zonder [[privacy]].",
+    effects: { revenue: 17, users: -3, reputation: -1, toxicity: 2 },
+    imageTheme:
+      "cheerful personality quiz on a phone with a vacuum sucking up friends' profile cards",
+    imageAlt: "Een vrolijke quiz op een telefoon zuigt de profielen van vrienden op.",
+    phases: [2, 3],
+    announce: {
+      title: "Nieuw: quizzen van andere makers! 🧩",
+      body: "Ontdek welk dier jij bent.",
+    },
+    realCase: {
+      line: "Een quizapp verzamelde gegevens van 87 miljoen mensen. Het sociale netwerk kreeg 5 miljard dollar boete.",
+      url: "https://abcnews4.com/news/nation-world/ftc-fines-facebook-5b-adds-limited-oversight-on-privacy-07-24-2019",
+      publisher: "AP",
+      date: "jul. 2019",
+    },
+  },
+  {
+    id: "ad-besluit-vinkje-te-koop",
+    type: "ad",
+    title: "Vinkje te koop",
+    body: "Voor een paar euro per maand krijgt iedereen een vinkje. Ook [[nepaccounts|nepaccount]].",
+    flavor: "Echt of nep? Het vinkje weet het ook niet.",
+    effects: { revenue: 19, users: -3, reputation: -2, toxicity: 3 },
+    imageTheme: "blue check mark badges sold from a vending machine, fake profiles lining up",
+    imageAlt: "Een automaat verkoopt vinkjes, nepprofielen staan in de rij.",
+    phases: [3],
+    announce: {
+      title: "Krijg ook een vinkje! ✓",
+      body: "Laat zien dat jij het bent.",
+    },
+    realCase: {
+      line: "In 2025 kreeg een app 120 miljoen euro boete van Europa, onder meer voor een vinkje dat iedereen kon kopen.",
+      url: "https://digital-strategy.ec.europa.eu/en/news/commission-fines-x-eu120-million-under-digital-services-act",
+      publisher: "Europese Commissie",
+      date: "dec. 2025",
+    },
+  },
+  {
+    id: "ad-besluit-livestream-cadeaus",
+    type: "ad",
+    title: "Cadeautjes in livestreams",
+    body: "Kijkers kopen digitale cadeautjes voor streamers. Ook kinderen, met hun zakgeld. De app houdt een deel.",
+    flavor: "Een digitale roos kost 1 euro. Hij verwelkt in drie seconden.",
+    effects: { revenue: 19, users: -3, reputation: -2, toxicity: 3 },
+    imageTheme:
+      "livestream with animated digital gifts raining down, coin counter, piggy bank emptying",
+    imageAlt: "Een livestream met digitale cadeautjes en een spaarvarken dat leegloopt.",
+    phases: [3],
+    announce: {
+      title: "Steun je favoriete streamer! 💖",
+      body: "Stuur een cadeautje, met één tik.",
+    },
+    realCase: {
+      line: "Een gamemaker betaalde 245 miljoen dollar terug, omdat knoppen kinderen per ongeluk lieten betalen.",
+      url: "https://techcrunch.com/2022/12/19/ftc-fines-fortnite-maker-epic-games-520m-over-childrens-privacy-charges/",
+      publisher: "TechCrunch",
+      date: "dec. 2022",
+    },
+  },
+  {
+    id: "ad-besluit-reclame-onzeker",
+    type: "ad",
+    title: "Reclame als je je rot voelt",
+    body: "De app ziet wanneer je je onzeker voelt. Juist dan komt de reclame voor puistjescrème.",
+    flavor: "Timing is alles. Vooral voor de verkoop.",
+    effects: { revenue: 20, users: -4, reputation: -2, toxicity: 3 },
+    imageTheme: "sad teen on bed at night, phone showing a perfectly timed skin cream ad",
+    imageAlt: "Een somber kind op bed, de telefoon toont net een reclame voor crème.",
+    phases: [3, 4],
+    announce: {
+      title: "Precies de juiste reclame op het juiste moment.",
+      body: "Wij snappen wat jij nodig hebt.",
+    },
+    realCase: {
+      line: "In 2017 lekte een plan uit: reclame tonen aan tieners op momenten dat ze zich onzeker voelden.",
+      url: "https://www.cbsnews.com/news/facebook-admits-oversight-after-leak-reveals-internal-research-on-vulnerable-children/",
+      publisher: "CBS News",
+      date: "mei 2017",
+    },
+  },
+  {
+    id: "ad-besluit-oplichtersreclame",
+    type: "ad",
+    title: "Oplichters betalen extra",
+    body: "Reclame die op oplichting lijkt, mag blijven staan. Die [[adverteerders|adverteerder]] betalen wel meer.",
+    flavor: "Fraude? Wij noemen het een premium klant.",
+    effects: { revenue: 21, users: -5, reputation: -3, toxicity: 4 },
+    imageTheme: "shady ad with a 'win a phone' banner, a cash register ringing behind the screen",
+    imageAlt: "Een verdachte reclame 'Win een telefoon' met een kassa erachter.",
+    phases: [3, 4],
+    announce: {
+      title: "Iedereen mag bij ons adverteren!",
+      body: "Zo blijft onze app gratis.",
+    },
+    realCase: {
+      line: "Volgens eigen papieren verdiende een groot bedrijf 1 op de 10 euro aan reclame van oplichters.",
+      url: "https://www.socialmediatoday.com/news/report-claims-meta-earning-billions-scam-ads/804915/",
+      publisher: "Social Media Today",
+      date: "nov. 2025",
+    },
+  },
+  {
+    id: "ad-besluit-moderatie-uitbesteden",
+    type: "ad",
+    title: "Moderatie goedkoop uitbesteden",
+    body: "Ver weg kijken [[moderatoren|moderator]] de hele dag naar nare filmpjes. Voor heel weinig geld.",
+    flavor: "Uit het zicht, uit het hart. En uit de begroting.",
+    effects: { revenue: 21, users: -4, reputation: -2, toxicity: 3 },
+    imageTheme:
+      "rows of tired workers at screens in a far-away office, price tag 'cheap' on the door",
+    imageAlt: "Rijen vermoeide mensen achter schermen in een kantoor ver weg.",
+    phases: [4],
+    announce: {
+      title: "Nog meer mensen houden onze app veilig!",
+      body: "Ons veiligheidsteam groeit.",
+    },
+    realCase: {
+      line: "Moderatoren in Kenia stapten naar de rechter. Ze werden ziek van alle nare filmpjes.",
+      url: "https://www.africanews.com/2022/05/10/ex-facebook-content-moderator-in-kenya-sues-meta-over-poor-working-conditions/",
+      publisher: "Africanews",
+      date: "mei 2022",
+    },
+  },
+  {
+    id: "ad-besluit-stoppen-factcheckers",
+    type: "ad",
+    title: "Stoppen met factcheckers",
+    body: "Geen [[journalisten|journalist]] meer die berichten checken. Dat scheelt geld. [[Nepnieuws]] blijft staan.",
+    flavor: "Waarheid is duur. Twijfel is gratis.",
+    effects: { revenue: 20, users: -4, reputation: -3, toxicity: 4 },
+    imageTheme: "fact-checker desk being carried out of an office, fake headlines piling up",
+    imageAlt: "Een bureau van factcheckers wordt weggedragen, nepkoppen stapelen zich op.",
+    phases: [4],
+    announce: {
+      title: "Jullie bepalen zelf wat klopt! 💬",
+      body: "Meer vrijheid voor iedereen.",
+    },
+    realCase: {
+      line: "In 2025 stopte een groot bedrijf in Amerika met factcheckers.",
+      url: "https://www.pbs.org/newshour/nation/meta-says-it-will-follow-x-replace-fact-checking-with-community-notes",
+      publisher: "PBS NewsHour",
+      date: "jan. 2025",
+    },
   },
 ];
