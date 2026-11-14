@@ -19,6 +19,7 @@ One run of Clickbait Capital over the rules engine: the engine state, every acce
 
 ## Decisions
 
+- **App name with the run (app-name AN1):** `SessionState.appName` is set by `startSession(content, seed, appName)`, kept by every action (`advance` copies the session) and by `restart`, written to `SavedRun.appName` and read back by `restoreSession`. The engine never sees it. Runs without one (older saves, tests) show "Jouw app".
 - **Facts, not views (game-session-split D1):** the session stores engine states and steps only; feed posts, score readouts, the score chart's history (`SessionStep.state` users and money, score-redesign D10) and sounds are the board's projections (`useBoardSession`). This keeps the dependency one-way (game-board → game-session) and the session free of view models.
 - **Silent resume (local-save D5, game-session-split D1):** `restoreSession` marks all replayed steps (`replayedStepCount`), so a view knows their effects already happened; it keeps `previousGame`, so meter deltas after a resume are identical.
 - **State per step (feed-comments D3):** every step keeps the engine state after it, so a view can derive per-post facts for older posts too (the follower comments under each feed post). The replay rebuilds them, so the save stays `{ version, seed, actions }` and `SAVED_RUN_VERSION` is unchanged.

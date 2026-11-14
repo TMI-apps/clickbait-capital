@@ -14,9 +14,11 @@ import {
   resolveEvent,
   scandalChance,
 } from "@/features/game-engine/api";
+import { DEFAULT_APP_NAME, fillTemplate } from "@/features/game-content/api";
 import { STREAK_LEVELS } from "@/features/game-juice/api";
 import type { SessionStep } from "@/features/game-session/api";
 import type {
+  AnnouncementView,
   CardEffectView,
   DraftCardView,
   EventView,
@@ -227,13 +229,31 @@ export function toPhaseProgress(state: GameState, content: GameContent): PhasePr
 }
 
 /** Flavor line when the content adds one next to the engine schema (game-content D2). */
-function flavorOf(card: CardDefinition): string | undefined {
+/** Fills the player's app name into a content text (`{app}`, app-name lap). */
+const withApp = (text: string, app: string): string => fillTemplate(text, { app });
+
+/**
+ * The official announcement of a decision card (PROPOSAL § 4): content adds `announce` as a
+ * presentation field, which the engine schema does not know, so it is read like `flavor`.
+ */
+function announcementOf(card: CardDefinition): AnnouncementView | undefined {
+  const announce: unknown = (card as CardDefinition & { announce?: unknown }).announce;
+  if (typeof announce !== "object" || announce === null) return undefined;
+  const { title, body } = announce as { title?: unknown; body?: unknown };
+  return typeof title === "string" && typeof body === "string" ? { title, body } : undefined;
+}
+
+function flavorOf(card: CardDefinition, app: string): string | undefined {
   const flavor: unknown = (card as CardDefinition & { flavor?: unknown }).flavor;
-  return typeof flavor === "string" && flavor !== "" ? flavor : undefined;
+  return typeof flavor === "string" && flavor !== "" ? withApp(flavor, app) : undefined;
 }
 
 /** The open draft as board cards, or an empty list while an event or the end is showing. */
-export function toDraft(state: GameState, content: GameContent): DraftCardView[] {
+export function toDraft(
+  state: GameState,
+  content: GameContent,
+  app: string = DEFAULT_APP_NAME
+): DraftCardView[] {
   const hand = state.status === "playing" ? getHandCards(state, content) : null;
   if (!hand) {
     return [];
@@ -246,9 +266,9 @@ export function toDraft(state: GameState, content: GameContent): DraftCardView[]
     return {
       id: card.id,
       type: card.type,
-      title: card.title,
-      body: card.body,
-      flavor: flavorOf(card),
+      title: withApp(card.title, app),
+      body: withApp(card.body, app),
+      flavor: flavorOf(card, app),
       effects: forecastEffects(delta),
       forecast: {
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,
@@ -313,19 +333,23 @@ function seededOrder<T extends { id: string }>(items: readonly T[], key: string)
  * The pending event with its options, or null. Options come in an order shuffled per run and
  * event (seed + event id), so the first letter is not always the money option (event-redesign D5).
  */
-export function toEventView(state: GameState, content: GameContent): EventView | null {
+export function toEventView(
+  state: GameState,
+  content: GameContent,
+  app: string = DEFAULT_APP_NAME
+): EventView | null {
   const event = state.status === "event" ? getPendingEvent(state, content) : null;
   if (!event) {
     return null;
   }
   return {
     id: event.id,
-    title: event.title,
-    body: event.body,
+    title: withApp(event.title, app),
+    body: withApp(event.body, app),
     options: seededOrder(event.options, `${state.seed}:${event.id}`).map((option) => ({
       id: option.id,
       kind: option.kind,
-      label: option.label,
+      label: withApp(option.label, app),
       // Like the draft: what choosing it does, in absolute amounts, the scandal fine included.
       effects: forecastEffects(
         resolveEvent(state, content, option.id).lastTurn?.delta ?? { users: 0, money: 0 }
@@ -335,7 +359,11 @@ export function toEventView(state: GameState, content: GameContent): EventView |
 }
 
 /** The run summary for the end screens, or null while the run goes on. */
-export function toGameEnd(state: GameState, content: GameContent): GameEndView | null {
+export function toGameEnd(
+  state: GameState,
+  content: GameContent,
+  app: string = DEFAULT_APP_NAME
+): GameEndView | null {
   const ended = state.status === "won" || (state.status === "lost" && state.gameOver !== null);
   if (!ended) {
     return null;
@@ -354,6 +382,7 @@ export function toGameEnd(state: GameState, content: GameContent): GameEndView |
     },
     playedTypes: [...state.playedTypes],
     firedEventIds: [...state.firedEventIds],
+    appName: app,
   };
 }
 
@@ -368,6 +397,7 @@ export function feedEntryForCard(card: CardDefinition, turn: number): FeedPost {
     type: card.type,
     title: card.title,
     body: stripGlossaryMarkup(card.body),
+    announcement: announcementOf(card),
   };
 }
 
@@ -399,12 +429,31 @@ const feedEntryForStep = (step: SessionStep, content: GameContent): FeedPost | n
   return event ? feedEntryForEvent(event, action.optionId, turn) : null;
 };
 
-/** The phone feed for a run: one post per accepted step, newest first. */
-export function toFeed(steps: SessionStep[], content: GameContent): FeedEntry[] {
+/** A feed post with the player's app name filled in (`{app}`). */
+const postWithApp = (post: FeedPost, app: string): FeedPost => ({
+  ...post,
+  title: withApp(post.title, app),
+  body: withApp(post.body, app),
+  ...(post.announcement
+    ? {
+        announcement: {
+          title: withApp(post.announcement.title, app),
+          body: stripGlossaryMarkup(withApp(post.announcement.body, app)),
+        },
+      }
+    : {}),
+});
+
+/** The phone feed for a run: one post per accepted step, newest first, with `{app}` filled. */
+export function toFeed(
+  steps: SessionStep[],
+  content: GameContent,
+  app: string = DEFAULT_APP_NAME
+): FeedEntry[] {
   const feed: FeedEntry[] = [];
   for (let index = steps.length - 1; index >= 0; index--) {
     const entry = feedEntryForStep(steps[index], content);
-    if (entry) feed.push({ ...entry, step: index });
+    if (entry) feed.push({ ...postWithApp(entry, app), step: index });
   }
   return feed;
 }

@@ -108,6 +108,12 @@ export interface ScoreMarkerView {
   tone?: string;
 }
 
+/** A decision card's official announcement (PROPOSAL § 4): the company's own words in the feed. */
+export interface AnnouncementView {
+  title: string;
+  body: string;
+}
+
 /** One post in the phone feed (newest first in the list). */
 export interface FeedEntry {
   key: string;
@@ -120,6 +126,11 @@ export interface FeedEntry {
   body: string;
   /** Event posts: the chosen option's kind, which sets the board juice (event-juice-drop D1). */
   optionKind?: EventOptionKind;
+  /**
+   * Set for a decision card (one with `announce` content): the feed shows it as an official
+   * post by the player's app instead of a regular post (app-name lap).
+   */
+  announcement?: AnnouncementView;
 }
 
 /** The pending event and its three policy options. */
@@ -147,10 +158,14 @@ export interface GameEndView {
   statTexts: { users: string; money: string };
   playedTypes: CardType[];
   firedEventIds: string[];
+  /** The player's app name (app-name AN1), for `{app}` in the end texts. */
+  appName: string;
 }
 
 /** Everything the board renders for one moment of the run. */
 export interface BoardView {
+  /** The player's app name ("Jouw app" for a run without one): the feed is its official account. */
+  appName: string;
   meters: MeterView[];
   /** Phase starts and events on the chart's time axis. */
   scoreMarkers: ScoreMarkerView[];

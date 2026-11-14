@@ -15,6 +15,8 @@ export interface GameBoardProps {
   seed?: number;
   /** Continue this saved run instead of starting a new one (local-save D1). */
   savedRun?: SavedRun | null;
+  /** The name the player gave their app for a new run (app-name lap); a resumed run keeps its own. */
+  appName?: string;
 }
 
 /**
@@ -22,12 +24,13 @@ export interface GameBoardProps {
  * turns — full-screen phase transitions and the endings (game-flow D1, D2). All game state
  * comes from the game-session run, as the board sees it (`useBoardSession`).
  */
-export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) => {
+export const GameBoard = ({ content, onQuit, seed, savedRun, appName }: GameBoardProps) => {
   const { view, play, chooseOption, restart, juice, comments, resumed, seenPhase } =
     useBoardSession({
       content,
       seed,
       savedRun,
+      appName,
     });
   useBoardFollowUp(juice);
   const phaseIntro = usePhaseIntro(view.phase.phaseId, seenPhase);
@@ -47,7 +50,13 @@ export const GameBoard = ({ content, onQuit, seed, savedRun }: GameBoardProps) =
     );
   }
   if (phaseIntro.pendingPhase !== null) {
-    return <PhaseTransitionScreen phase={view.phase} onContinue={phaseIntro.dismiss} />;
+    return (
+      <PhaseTransitionScreen
+        phase={view.phase}
+        appName={view.appName}
+        onContinue={phaseIntro.dismiss}
+      />
+    );
   }
   return (
     <PlayingBoard

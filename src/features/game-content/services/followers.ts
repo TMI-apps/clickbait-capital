@@ -5,7 +5,8 @@ import type { FollowerPersona } from "@/features/game-content/types/contentPrese
  * characters who react after every post and event choice. Lines are short Dutch at about
  * age 11; no real people, brands, games or platforms (game-content tone). Two are critical
  * (grandma and the fact-checker): they complain when reputation drops and leave when it is
- * very low, so the comments show the echo chamber that is left over.
+ * very low, so the comments show the echo chamber that is left over. A line may name the
+ * player's app as `{app}` (app-name lap); follower-comments fills it in.
  */
 export const FOLLOWERS: readonly FollowerPersona[] = [
   {
@@ -23,6 +24,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
         "zoveel nieuwe kijkers!!",
         "dit is een banger 🔥🔥",
         "iedereen op school heeft dit gezien",
+        "iedereen zit nu op {app} 📲",
       ],
       toxic: ["L + ratio 💀", "jij snapt er niks van 🤡", "wie dit niet snapt is een noob"],
       adFatigue: ["nog één reclame en ik ben weg", "meer reclame dan filmpjes 😤"],
@@ -92,7 +94,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
         "Fijn, eindelijk iets dat klopt",
       ],
       toxic: ["Wat een gescheld hier… 😟", "Zo praat je toch niet tegen elkaar?"],
-      complain: ["Ik vertrouw deze app niet meer zo", "Wat is hier aan de hand? 😕"],
+      complain: ["Ik vertrouw {app} niet meer zo", "Wat is hier aan de hand? 😕"],
       adFatigue: ["Alleen nog maar reclame, hè"],
     },
   },

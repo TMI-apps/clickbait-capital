@@ -13,7 +13,9 @@ const phase = {
 
 describe("PhaseTransitionScreen", () => {
   it("should show the phase photo with its Dutch alt when the phase has one", () => {
-    renderWithProviders(<PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />);
+    renderWithProviders(
+      <PhaseTransitionScreen phase={phase} appName="Pixelplein" onContinue={vi.fn()} />
+    );
     const expected = getPhaseImage(2);
     const image = screen.getByRole("img", { name: expected?.alt });
     expect(image).toHaveAttribute("src", expected?.src);
@@ -21,7 +23,9 @@ describe("PhaseTransitionScreen", () => {
   });
 
   it("should drop the photo and keep the heading when the photo fails to load", () => {
-    renderWithProviders(<PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />);
+    renderWithProviders(
+      <PhaseTransitionScreen phase={phase} appName="Pixelplein" onContinue={vi.fn()} />
+    );
     fireEvent.error(screen.getByRole("img"));
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
@@ -31,7 +35,7 @@ describe("PhaseTransitionScreen", () => {
     const stopped: string[] = [];
     const stop = gameJuiceBus.listenStop((tag) => stopped.push(tag));
     const { unmount } = renderWithProviders(
-      <PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />
+      <PhaseTransitionScreen phase={phase} appName="Pixelplein" onContinue={vi.fn()} />
     );
     unmount();
     stop();
@@ -44,9 +48,9 @@ describe("PhaseTransitionScreen", () => {
     // The bus holds events emitted while nothing listened (the tests above); drop those.
     heard.length = 0;
     const { rerender } = renderWithProviders(
-      <PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />
+      <PhaseTransitionScreen phase={phase} appName="Pixelplein" onContinue={vi.fn()} />
     );
-    rerender(<PhaseTransitionScreen phase={phase} onContinue={vi.fn()} />);
+    rerender(<PhaseTransitionScreen phase={phase} appName="Pixelplein" onContinue={vi.fn()} />);
     stop();
     expect(heard).toEqual(["phase.intro:2"]);
   });

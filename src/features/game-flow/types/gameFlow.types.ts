@@ -46,6 +46,8 @@ export interface RunSummary {
   statTexts: { users: string; money: string };
   playedTypes: readonly CardType[];
   firedEventIds: readonly string[];
+  /** The player's app name (app-name AN1): fills `{app}` in the endings, report and share text. */
+  appName: string;
 }
 
 /** The dramatic ending screen (game over or IPO). */

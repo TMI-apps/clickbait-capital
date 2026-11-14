@@ -82,25 +82,25 @@ export const PHASE_INTROS: Record<PhaseId, PhaseIntro> = {
   1: {
     kicker: "Fase 1",
     title: "De Zolderkamer",
-    body: "Op je zolderkamer lanceer je je eigen app. Je hebt nog 0 gebruikers en een klein beetje startgeld. Welke posts ga jij [[boosten|boost]]? Word je een eerlijk nieuwskanaal, of buit je je gebruikers uit?",
+    body: "Op je zolderkamer lanceer je je eigen app: {app}. Je hebt nog 0 gebruikers en een klein beetje startgeld. Welke posts ga jij [[boosten|boost]]? Word je een eerlijk nieuwskanaal, of buit je je gebruikers uit?",
     tip: "Nog niemand let op je. Laat je app groeien, maar houd genoeg geld over: elke beurt kost je servers geld.",
   },
   2: {
     kicker: "Fase 2",
     title: "De Scale-Up",
-    body: "Je app is een [[scale-up]] geworden. Je zit nu in een kantoor met een pingpongtafel, maar je [[investeerders|investeerder]] willen hun geld terug en de [[servers|server]] kosten nu echt geld. Hoeveel reclame durf jij te laten zien?",
+    body: "{app} is een [[scale-up]] geworden. Je zit nu in een kantoor met een pingpongtafel, maar je [[investeerders|investeerder]] willen hun geld terug en de [[servers|server]] kosten nu echt geld. Hoeveel reclame durf jij te laten zien?",
     tip: "Zonder reclame ga je [[bankroet]]. Met te veel reclame lopen je gebruikers weg.",
   },
   3: {
     kicker: "Fase 3",
     title: "Wereldwijd Platform",
-    body: "Mensen over de hele wereld gebruiken je app. Regeringen, kranten en [[adverteerders|adverteerder]] kijken mee. Kies jij ophef voor de kliks, of laat je ook echt nieuws zien?",
+    body: "Mensen over de hele wereld gebruiken {app}. Regeringen, kranten en [[adverteerders|adverteerder]] kijken mee. Kies jij ophef voor de kliks, of laat je ook echt nieuws zien?",
     tip: "Ophef maakt mensen nu sneller boos. Sla je het nieuws over, dan dreigt al snel een schandaal, en dat kost een boete.",
   },
   4: {
     kicker: "Fase 4",
     title: "De Beursgang",
-    body: "Tussen de glazen torens wacht je [[beursgang]]. [[Aandeelhouders|aandeelhouder]] willen winst en de [[toezichthouder]] wacht op één fout. Pak jij het snelle geld, of blijf je eerlijk?",
+    body: "Tussen de glazen torens wacht de [[beursgang]] van {app}. [[Aandeelhouders|aandeelhouder]] willen winst en de [[toezichthouder]] wacht op één fout. Pak jij het snelle geld, of blijf je eerlijk?",
     tip: "Ophef telt nu dubbel zo zwaar. Een schandaal kost een boete, en hoe groter je app, hoe groter die boete.",
   },
 };
