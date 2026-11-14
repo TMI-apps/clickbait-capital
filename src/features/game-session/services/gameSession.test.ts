@@ -110,3 +110,25 @@ describe("gameSession", () => {
     expect(toSavedRun(over)).toBeNull();
   });
 });
+
+describe("the player's app name", () => {
+  it("should keep the app name through actions and the save when the run was named", () => {
+    const start = startSession(SEED_CONTENT, 3, "Pixelplein");
+    const cardId = start.game.hand?.[0] ?? "";
+    const played = applyAction(start, SEED_CONTENT, { kind: "card", cardId });
+
+    expect(played.appName).toBe("Pixelplein");
+    const saved = toSavedRun(played);
+    expect(saved?.appName).toBe("Pixelplein");
+    expect(saved && restoreSession(SEED_CONTENT, saved)?.appName).toBe("Pixelplein");
+  });
+
+  it("should store no name when the run was started without one", () => {
+    const start = startSession(SEED_CONTENT, 3);
+    const cardId = start.game.hand?.[0] ?? "";
+    const saved = toSavedRun(applyAction(start, SEED_CONTENT, { kind: "card", cardId }));
+
+    expect(saved).not.toBeNull();
+    expect(saved && "appName" in saved).toBe(false);
+  });
+});

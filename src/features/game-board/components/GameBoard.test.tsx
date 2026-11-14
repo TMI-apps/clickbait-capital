@@ -83,7 +83,7 @@ const draftCardOfType = (type: string): HTMLElement => {
 /** The feed's type label per card type (game-content `UI_COPY.cardTypes`). */
 const TYPE_LABELS = { viral: "Viraal", ad: "Advertentie", news: "Nieuws" } as const;
 
-const feed = (): HTMLElement => screen.getByRole("region", { name: "Je feed" });
+const feed = (): HTMLElement => screen.getByRole("region", { name: "Feed van Jouw app" });
 /** The feed's posts, without the comment lists nested in them. */
 const posts = (): HTMLElement[] => [...feed().querySelectorAll<HTMLElement>("li[data-variant]")];
 
@@ -530,7 +530,13 @@ const ENTRIES: FeedEntry[] = [
 const renderFeed = (dragging: boolean) =>
   renderWithProviders(
     <DndContext>
-      <PhoneFeed entries={ENTRIES} comments={[]} revealKey={2} dragging={dragging} />
+      <PhoneFeed
+        entries={ENTRIES}
+        appName="Pixelplein"
+        comments={[]}
+        revealKey={2}
+        dragging={dragging}
+      />
     </DndContext>
   );
 
@@ -553,5 +559,60 @@ describe("PhoneFeed drop slot", () => {
 
     expect(dropSlot()?.getAttribute("data-drop-slot")).toBe("closed");
     expect(dropSlot()?.getAttribute("aria-hidden")).toBe("true");
+  });
+});
+
+/** A decision card's post (PROPOSAL § 4): content gives it an announcement (lap 2 adds real ones). */
+const OFFICIAL: FeedEntry = {
+  key: "card-3-v9",
+  step: 2,
+  contentId: "v9",
+  type: "viral",
+  title: "Autoplay standaard aan",
+  body: "Na elk filmpje start meteen het volgende.",
+  announcement: { title: "Nóg makkelijker kijken!", body: "Het volgende filmpje start vanzelf." },
+};
+
+describe("PhoneFeed official account", () => {
+  const renderOfficial = (entries: FeedEntry[]) =>
+    renderWithProviders(
+      <DndContext>
+        <PhoneFeed
+          entries={entries}
+          appName="Pixelplein"
+          comments={[]}
+          revealKey={3}
+          dragging={false}
+        />
+      </DndContext>
+    );
+
+  it("should name the feed after the player's app when the board shows it", () => {
+    renderOfficial(ENTRIES);
+
+    const region = screen.getByRole("region", { name: "Feed van Pixelplein" });
+    expect(within(region).getAllByText("Pixelplein").length).toBeGreaterThanOrEqual(1);
+    expect(within(region).getAllByText("Officieel").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("should show the announcement by the app instead of the card text when a decision card is played", () => {
+    renderOfficial([OFFICIAL, ...ENTRIES]);
+
+    const newest = document.querySelector("li[data-variant='newest']") as HTMLElement;
+    expect(newest.dataset.official).toBe("true");
+    expect(within(newest).getByText("Nóg makkelijker kijken!")).toBeInTheDocument();
+    expect(within(newest).getByText("Het volgende filmpje start vanzelf.")).toBeInTheDocument();
+    expect(within(newest).getByText("Pixelplein")).toBeInTheDocument();
+    expect(within(newest).queryByText("Autoplay standaard aan")).not.toBeInTheDocument();
+    expect(within(newest).queryByText("Viraal")).not.toBeInTheDocument();
+  });
+
+  it("should keep the type label on a regular post when it has no announcement", () => {
+    renderOfficial(ENTRIES);
+
+    const newest = document.querySelector("li[data-variant='newest']") as HTMLElement;
+    expect(newest.dataset.official).toBeUndefined();
+    expect(within(newest).getByText("Viraal")).toBeInTheDocument();
+    expect(within(newest).getByText("Nieuwste")).toBeInTheDocument();
   });
 });

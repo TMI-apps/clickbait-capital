@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { commentsForSession } from "@/features/follower-comments/api";
 import type { CommentBatch } from "@/features/follower-comments/api";
+import { DEFAULT_APP_NAME } from "@/features/game-content/api";
 import type { GameContent } from "@/features/game-engine/api";
 import { useGameSession } from "@/features/game-session/api";
 import type { GameSession, UseGameSessionOptions } from "@/features/game-session/api";
@@ -28,15 +29,17 @@ export interface BoardSession extends Omit<GameSession, "session"> {
 
 const toBoardView = (session: GameSession["session"], content: GameContent): BoardView => {
   const { game, steps } = session;
+  const app = session.appName ?? DEFAULT_APP_NAME;
   return {
+    appName: app,
     meters: toMeters(game, content, steps),
     scoreMarkers: toScoreMarkers(game, steps, content),
     scandal: toScandalRisk(game, content),
     phase: toPhaseProgress(game, content),
-    draft: toDraft(game, content),
-    feed: toFeed(steps, content),
-    event: toEventView(game, content),
-    end: toGameEnd(game, content),
+    draft: toDraft(game, content, app),
+    feed: toFeed(steps, content, app),
+    event: toEventView(game, content, app),
+    end: toGameEnd(game, content, app),
   };
 };
 

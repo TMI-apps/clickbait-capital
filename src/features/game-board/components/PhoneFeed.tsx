@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { Megaphone, Newspaper, Siren, Zap } from "lucide-react";
+import { BadgeCheck, Megaphone, Newspaper, Siren, Zap } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { GameCardArtwork } from "@/components/common/GameCard";
 import type { GameCardImage } from "@/components/common/GameCard";
@@ -8,7 +8,7 @@ import { getCardImage } from "@/features/card-imagery/api";
 import type { FeedEntry } from "@/features/game-board/types/gameBoard.types";
 import { CommentAnnouncer, PostComments, useCommentReveal } from "@/features/follower-comments/api";
 import type { CommentBatch, CommentReveal } from "@/features/follower-comments/api";
-import { UI_COPY } from "@/features/game-content/api";
+import { fillTemplate, UI_COPY } from "@/features/game-content/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
 import { useCommentArrivals } from "@/features/game-board/hooks/useBoardJuice";
 import { cn } from "@/shared/utils/cn";
@@ -63,8 +63,36 @@ const TypeLabel = ({ type }: { type: FeedEntry["type"] }) => {
   );
 };
 
+/**
+ * The player's app as the author of its own posts (app-name lap): initial-letter avatar, name,
+ * check mark and "Officieel". Heads the feed (it is the app's official account) and every
+ * decision card's announcement.
+ */
+const OfficialAuthor = ({ appName, className }: { appName: string; className?: string }) => (
+  <p className={cn("flex min-w-0 items-center gap-1.5 text-xs", className)}>
+    <span
+      aria-hidden="true"
+      className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-[0.625rem] font-bold text-primary-foreground uppercase"
+    >
+      {appName.trim().charAt(0)}
+    </span>
+    <span className="truncate font-semibold">{appName}</span>
+    <BadgeCheck aria-hidden="true" className="size-3.5 shrink-0 text-primary" />
+    <span className="shrink-0 text-muted-foreground">{UI_COPY.board.officialLabel}</span>
+  </p>
+);
+
+/** What a post shows: a decision card's announcement replaces the card's own title and body. */
+const postText = (entry: FeedEntry): { title: string; body: string } =>
+  entry.announcement ?? { title: entry.title, body: entry.body };
+
+/** Type label of a regular post, or the app as author of an official one. */
+const PostByline = ({ entry, appName }: { entry: FeedEntry; appName: string }) =>
+  entry.announcement ? <OfficialAuthor appName={appName} /> : <TypeLabel type={entry.type} />;
+
 interface NewestPostProps {
   entry: FeedEntry;
+  appName: string;
   comments: CommentBatch | null;
   reveal: CommentReveal;
 }
@@ -74,7 +102,7 @@ interface NewestPostProps {
  * follower comments as they reveal (feed-comments D1, D4). Same card on every screen size
  * (feed-top-card D1, replaces feed-images D3); on a short feed box the photo is cropped (D2).
  */
-const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
+const NewestPost = ({ entry, appName, comments, reveal }: NewestPostProps) => {
   // Juice anchor of `feed.landed`: the post's entrance per type is a recipe (juice-migrate D6).
   const anchor = useJuiceAnchor("feed:newest");
   // `comment.arrived` pops the newest shown comment (lap-3 D7).
@@ -83,13 +111,14 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
     <li
       ref={anchor}
       data-variant="newest"
+      data-official={entry.announcement ? "true" : undefined}
       className="flex flex-col overflow-hidden rounded-md bg-card text-card-foreground elevation-sm"
     >
       <PostArtwork entry={entry} compact={false} className={NEWEST_PHOTO_HEIGHT} />
       <div className="min-w-0 p-2.5">
-        <TypeLabel type={entry.type} />
-        <p className="text-sm leading-snug font-bold">{entry.title}</p>
-        <p className="line-clamp-2 text-xs text-muted-foreground">{entry.body}</p>
+        <PostByline entry={entry} appName={appName} />
+        <p className="text-sm leading-snug font-bold">{postText(entry).title}</p>
+        <p className="line-clamp-2 text-xs text-muted-foreground">{postText(entry).body}</p>
       </div>
       {comments && (
         <PostComments
@@ -109,9 +138,16 @@ const NewestPost = ({ entry, comments, reveal }: NewestPostProps) => {
  * Older post: small photo, type and title; the body stays for screen readers (D2). Its comments
  * collapse to the first one plus "+N" (feed-comments D2).
  */
-const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentBatch | null }) => (
+interface CompactPostProps {
+  entry: FeedEntry;
+  appName: string;
+  comments: CommentBatch | null;
+}
+
+const CompactPost = ({ entry, appName, comments }: CompactPostProps) => (
   <li
     data-variant="compact"
+    data-official={entry.announcement ? "true" : undefined}
     className="flex flex-col gap-1 rounded-md bg-card p-1.5 text-card-foreground elevation-sm"
   >
     <div className="flex items-center gap-2">
@@ -119,9 +155,9 @@ const CompactPost = ({ entry, comments }: { entry: FeedEntry; comments: CommentB
         <PostArtwork entry={entry} compact />
       </div>
       <div className="min-w-0">
-        <TypeLabel type={entry.type} />
-        <p className="truncate text-sm leading-snug font-bold">{entry.title}</p>
-        <p className="sr-only">{entry.body}</p>
+        <PostByline entry={entry} appName={appName} />
+        <p className="truncate text-sm leading-snug font-bold">{postText(entry).title}</p>
+        <p className="sr-only">{postText(entry).body}</p>
       </div>
     </div>
     {comments && <PostComments batch={comments} variant="collapsed" className="ml-0.5" />}
@@ -170,6 +206,8 @@ const DropSlot = ({ open, over }: { open: boolean; over: boolean }) => {
 
 export interface PhoneFeedProps {
   entries: FeedEntry[];
+  /** The player's app: the feed is its official account (app-name lap). */
+  appName: string;
   /** Follower comments per session step (`FeedEntry.step`); null where a step has none. */
   comments: ReadonlyArray<CommentBatch | null>;
   /** The board's juice key: the newest post's comments reveal once it reaches their batch. */
@@ -182,7 +220,7 @@ export interface PhoneFeedProps {
  * The central smartphone feed: played cards land on top with their follower comments under them
  * (feed-comments D1). Also the drop target for dragging.
  */
-export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedProps) => {
+export const PhoneFeed = ({ entries, appName, comments, revealKey, dragging }: PhoneFeedProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: FEED_DROP_ID });
   const listRef = useRef<HTMLDivElement>(null);
   const newestKey = entries[0]?.key;
@@ -199,15 +237,16 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
   return (
     <section
       ref={setNodeRef}
-      aria-label={UI_COPY.board.feedLabel}
+      aria-label={fillTemplate(UI_COPY.board.feedLabel, { app: appName })}
       className={cn(
         "relative mx-auto flex min-h-24 w-full max-w-sm flex-1 board-desk:max-w-md flex-col overflow-hidden rounded-[1.75rem] border-4 border-border bg-background transition-shadow duration-(--duration-fast)",
         dragging && "border-dashed",
         isOver && "ring-4 ring-primary"
       )}
     >
-      <div className="flex shrink-0 justify-center py-1.5" aria-hidden="true">
-        <span className="h-1.5 w-16 rounded-full bg-border" />
+      {/* The app's profile bar: the feed is its official account (app-name lap). */}
+      <div className="flex shrink-0 items-center justify-center px-3 pt-1 pb-1.5">
+        <OfficialAuthor appName={appName} className="max-w-full" />
       </div>
       <div
         ref={listRef}
@@ -225,11 +264,17 @@ export const PhoneFeed = ({ entries, comments, revealKey, dragging }: PhoneFeedP
                 <NewestPost
                   key={entry.key}
                   entry={entry}
+                  appName={appName}
                   comments={newestComments}
                   reveal={reveal}
                 />
               ) : (
-                <CompactPost key={entry.key} entry={entry} comments={commentsOf(entry)} />
+                <CompactPost
+                  key={entry.key}
+                  entry={entry}
+                  appName={appName}
+                  comments={commentsOf(entry)}
+                />
               )
             )}
           </ol>

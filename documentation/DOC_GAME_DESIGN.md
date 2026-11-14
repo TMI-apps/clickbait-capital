@@ -51,6 +51,8 @@ Een run begint met **0 gebruikers en € 3.000 startgeld** en groeit **exponenti
 
 De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en incasseren.
 
+Vóór de eerste beurt geeft de speler zijn app een naam ("Hoe heet jouw app?", 2–16 tekens, met een voorgestelde naam en een dobbelsteen). De feed is het officiële account van die app, en de naam staat in de fase-intro's, gebeurtenissen, het einde, het rapport en de deeltekst. Beslissingskaarten verschijnen in de feed als officiële aankondiging van de app (app-name lap; `documentation/jobs/temp_job_policy-cards/PROPOSAL.md` § 4 en § 7).
+
 ```
 ┌────────────────────────────────────────────────────────┐
 │ 1. Draft-fase: 3 Kaarten gedeeld (Viraal, Ad, Nieuws)  │
@@ -100,15 +102,15 @@ Gebeurteniskaarten onderbreken de reguliere draft. Er verschijnt één urgente s
 
 _Trigger: Toxicity \> 60 tijdens Mijlpaal 3\._
 
-- **Optie A (Commercieel):** "Laat de politieke micro-targeting advertenties toe."  
+- **Optie A (Commercieel):** "Laat de politieke micro-targeting advertenties toe."
 
-- _Effect:_ \+++ Inkomsten, \- Reputatie, \++ Toxicity.  
+- _Effect:_ \+++ Inkomsten, \- Reputatie, \++ Toxicity.
 
-- **Optie B (Engagement):** "Laat de discussie woeden, sensatie brengt mensen naar de app."  
+- **Optie B (Engagement):** "Laat de discussie woeden, sensatie brengt mensen naar de app."
 
-- _Effect:_ \+++ Gebruikers, \--- Reputatie.  
+- _Effect:_ \+++ Gebruikers, \--- Reputatie.
 
-- **Optie C (Journalistiek):** "Schakel factcheckers in en label valse claims."  
+- **Optie C (Journalistiek):** "Schakel factcheckers in en label valse claims."
 
 - _Effect:_ \+++ Reputatie, \-- Inkomsten, \- Gebruikers.
 
@@ -135,27 +137,27 @@ Het audiovisuele design manipuleert de speler actief om dezelfde keuzes te maken
 
 ### **Feedback-Matrix per Kaartkeuze**
 
-- **Virale Kaart:**  
+- **Virale Kaart:**
 
-- _Visueel:_ Scherm schudt licht (_screen shake_), neon paars/roze explosie, vlammenanimatie rondom de engagement-teller, reactie-emoji's (🔥, 😱, 😡) vliegen over het scherm.  
+- _Visueel:_ Scherm schudt licht (_screen shake_), neon paars/roze explosie, vlammenanimatie rondom de engagement-teller, reactie-emoji's (🔥, 😱, 😡) vliegen over het scherm.
 
-- _Audio:_ Stijgende synthesizer-tonen, applaus, luide notificatie-pings met basboost.  
+- _Audio:_ Stijgende synthesizer-tonen, applaus, luide notificatie-pings met basboost.
 
-- _Gevoel:_ Directe, verslavende feedback.  
+- _Gevoel:_ Directe, verslavende feedback.
 
-- **Advertentiekaart:**  
+- **Advertentiekaart:**
 
-- _Visueel:_ Gouden munten en dollartekens spatten fysiek vanuit de kaart naar de Geld-teller, getallen tellen met een snelle slotmachine-animatie op.  
+- _Visueel:_ Gouden munten en dollartekens spatten fysiek vanuit de kaart naar de Geld-teller, getallen tellen met een snelle slotmachine-animatie op.
 
-- _Audio:_ Ouderwets mechanisch kassageluid (_ka-ching\!_), rinkelend kleingeld.  
+- _Audio:_ Ouderwets mechanisch kassageluid (_ka-ching\!_), rinkelend kleingeld.
 
-- _Gevoel:_ Voldoening van winst en financiële zekerheid.  
+- _Gevoel:_ Voldoening van winst en financiële zekerheid.
 
-- **Nieuwskaart:**  
+- **Nieuwskaart:**
 
-- _Visueel:_ Geen deeltjeseffecten. De kaart schuift met een strakke, droge animatie in de feed. Een klein, neutraal groen schild-icoontje verschijnt discreet bij de kaart (reputatie is verborgen).  
+- _Visueel:_ Geen deeltjeseffecten. De kaart schuift met een strakke, droge animatie in de feed. Een klein, neutraal groen schild-icoontje verschijnt discreet bij de kaart (reputatie is verborgen).
 
-- _Audio:_ Een matte, houten 'klik' of krantengeluid. Geen muziekstijging.  
+- _Audio:_ Een matte, houten 'klik' of krantengeluid. Geen muziekstijging.
 
 - _Gevoel:_ Functioneel, administratief, intentioneel saai.
 
@@ -199,18 +201,18 @@ Het spel verloopt over vier fases. Elke fase heeft twee doellijnen, één voor G
 
 Om te voorkomen dat spelers gedachteloos één type kaart blijven spammen, sturen correctiemechanismen de balans bij:
 
-- **Ad-Fatigue:**  
+- **Ad-Fatigue:**
 
-- Worden er binnen 4 beurten 3 Advertenties gekozen? Dan levert elke volgende advertentie 50% minder inkomsten op en kost deze dubbele Gebruikersaantallen.  
+- Worden er binnen 4 beurten 3 Advertenties gekozen? Dan levert elke volgende advertentie 50% minder inkomsten op en kost deze dubbele Gebruikersaantallen.
 
-- **Echo-Chamber (Virale Spiraal):**  
+- **Echo-Chamber (Virale Spiraal):**
 
-- 3 Virale kaarten op rij activeert een _Engagement Frenzy_ (+50% bonus op Gebruikerswinst), maar verhoogt Toxicity direct met \+25.  
+- 3 Virale kaarten op rij activeert een _Engagement Frenzy_ (+50% bonus op Gebruikerswinst), maar verhoogt Toxicity direct met \+25.
 
-- **Nieuws overslaan (Neglect):**  
+- **Nieuws overslaan (Neglect):**
 
 - Na 3 opeenvolgende beurten zonder Nieuwskaart zakt de verborgen reputatie elke beurt met 3, en elke kaart die geen nieuws is voegt 2 Toxicity toe. Een lage reputatie geeft kans op een schandaal (§ 2). (De Journalistieke Droogte, virale kaarten rood omrand na 5 beurten, is geschrapt: balance-cleanup D1.)
 
-- **Voorspelling (Forecast):**  
+- **Voorspelling (Forecast):**
 
 - Houdt de speler een kaart vast (lang indrukken, slepen, detailvenster of toetsenbordfocus), dan tekent de grafiek per lijn een stippellijn naar waar die lijn na het spelen uitkomt. De kaart toont dezelfde absolute bedragen. Turn-modifiers (Ad-Fatigue, Echo-Chamber, passieve kosten) zitten erin, omdat de engine de zet op een kopie uitrekent (D12, D32).

@@ -3,6 +3,12 @@
  * the game-content api instead of writing strings in components. `{name}` placeholders are
  * filled with `fillTemplate` from the same api.
  */
+/**
+ * The app name of a run without one (app-name AN1): a save from before the naming step, or a
+ * board started without it (tests). Fills `{app}` like a real name.
+ */
+export const DEFAULT_APP_NAME = "Jouw app";
+
 export const UI_COPY = {
   app: {
     name: "Clickbait Capital",
@@ -19,6 +25,23 @@ export const UI_COPY = {
     settingsButton: "Instellingen",
     creditsButton: "Credits",
     privacyLink: "Privacy",
+  },
+  /** The naming step before a new run (app-name lap): the player names their app. */
+  appName: {
+    kicker: "Nieuw spel",
+    title: "Hoe heet jouw app?",
+    body: "Jij begint een eigen app op je zolderkamer. Verzin een naam, of kies er een met de dobbelsteen.",
+    label: "Naam van je app",
+    hint: "2 tot 16 letters of cijfers.",
+    shuffleButton: "Andere naam",
+    startButton: "Start",
+    errors: {
+      empty: "Geef je app een naam.",
+      short: "Die naam is te kort. Gebruik minstens 2 tekens.",
+      long: "Die naam is te lang. Gebruik hoogstens 16 tekens.",
+      chars: "Gebruik alleen letters, cijfers, spaties, - of _.",
+      blocked: "Kies een andere naam.",
+    },
   },
   howToPlay: {
     title: "Hoe speel je?",
@@ -65,7 +88,10 @@ export const UI_COPY = {
     dragHint: "Sleep een kaart naar je feed",
     confirmPlay: "In de feed",
     cancelPlay: "Toch niet",
-    feedLabel: "Je feed",
+    feedLabel: "Feed van {app}",
+    /** Marks the app's own posts and the feed header (official account). */
+    officialLabel: "Officieel",
+    officialBadge: "Officieel account",
     /** The board's home button: the run is saved, the start screen offers "Verder spelen". */
     homeButton: "Naar het begin",
     resumedAnnouncement: "Spel hervat. Fase {phase} van 4: {name}. Beurt {turn}.",
@@ -73,7 +99,7 @@ export const UI_COPY = {
   resume: {
     kicker: "Opgeslagen spel",
     title: "Verder waar je was?",
-    body: "Je vorige spel staat nog klaar. Kies je Nieuw spel, dan is het oude spel weg.",
+    body: "Je vorige spel met {app} staat nog klaar. Kies je Nieuw spel, dan is het oude spel weg.",
   },
   phaseIntro: {
     continueButton: "Aan de slag",
@@ -93,7 +119,7 @@ export const UI_COPY = {
     reportButton: "Bekijk je rapport",
     shareButton: "Deel je resultaat",
     shareText:
-      "Ik speelde Clickbait Capital en haalde fase {phase} in {turns} beurten, met {users} gebruikers op mijn hoogtepunt. Kun jij het algoritme beter bespelen?",
+      "Ik speelde Clickbait Capital. Mijn app {app} haalde fase {phase} in {turns} beurten, met {users} gebruikers op het hoogtepunt. Kun jij het algoritme beter bespelen?",
     shareCopied: "Link gekopieerd.",
     shareDoneStatus: "Gedeeld. Benieuwd wie het algoritme beter bespeelt.",
     shareSavedAndCopiedStatus: "Afbeelding opgeslagen en link gekopieerd.",
@@ -154,7 +180,7 @@ export const UI_COPY = {
     points: [
       "Geen account en geen inlog. We vragen nooit je naam of e-mailadres.",
       "Geen cookies, geen reclame, geen bezoekerstellers en geen [[trackers|tracker]].",
-      "Je instellingen (weergave, geluid, trillen en beweging) en een spel dat nog bezig is, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
+      "Je instellingen (weergave, geluid, trillen en beweging) en een spel dat nog bezig is, met de naam van je app, bewaart je browser alleen op dit apparaat. Zo kun je later verder spelen. Niets daarvan gaat ergens heen. Het spel wordt gewist zodra het afgelopen is.",
       "Je browser bewaart de bestanden van het spel en de kaartfoto's op dit apparaat. Zo kun je ook zonder internet spelen.",
       "De site draait bij Cloudflare. Zoals bij elke website ziet die [[server]] je [[IP-adres]], anders kan hij de pagina niet sturen. Wij gebruiken dat niet om je te volgen.",
     ],

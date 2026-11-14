@@ -3,6 +3,11 @@
  * transition, ending and results). The board imports only from here
  * (`@/features/game-flow/api`).
  */
+export {
+  FlowScreen,
+  type FlowHeroImage,
+  type FlowScreenProps,
+} from "@/features/game-flow/components/FlowScreen";
 export { EventModal, type EventModalProps } from "@/features/game-flow/components/EventModal";
 export { GameEndFlow, type GameEndFlowProps } from "@/features/game-flow/components/GameEndFlow";
 export {

@@ -291,3 +291,47 @@ describe("toScoreHistory", () => {
     ]);
   });
 });
+
+describe("the player's app name", () => {
+  /** A decision card as lap 2 writes it: the engine card plus an `announce` presentation field. */
+  const decisionCard = {
+    ...SEED_CONTENT.cards[0],
+    announce: { title: "Nieuw bij {app}!", body: "Vanaf vandaag [[algoritme]] aan." },
+  };
+
+  it("should carry the announcement into the feed post when a decision card is played", () => {
+    expect(feedEntryForCard(decisionCard, 2).announcement).toEqual({
+      title: "Nieuw bij {app}!",
+      body: "Vanaf vandaag [[algoritme]] aan.",
+    });
+    expect(feedEntryForCard(SEED_CONTENT.cards[1], 2).announcement).toBeUndefined();
+  });
+
+  it("should fill in the app name and strip markup when the feed shows an announcement", () => {
+    const content = { ...SEED_CONTENT, cards: [decisionCard, ...SEED_CONTENT.cards.slice(1)] };
+    const step = {
+      action: { kind: "card" as const, cardId: decisionCard.id },
+      turn: 1,
+      eventId: null,
+      state: fresh(),
+    };
+
+    expect(toFeed([step], content, "Pixelplein")[0]?.announcement).toEqual({
+      title: "Nieuw bij Pixelplein!",
+      body: "Vanaf vandaag algoritme aan.",
+    });
+  });
+
+  it("should fill in the app name when a card text names the app", () => {
+    const content = {
+      ...SEED_CONTENT,
+      cards: SEED_CONTENT.cards.map((card) => ({ ...card, title: `{app}: ${card.title}` })),
+    };
+    const state = createGame({ content, seed: 1 });
+
+    const titles = toDraft(state, content, "Pixelplein").map((card) => card.title);
+    expect(titles.length).toBeGreaterThan(0);
+    expect(titles.every((title) => title.startsWith("Pixelplein: "))).toBe(true);
+    expect(toDraft(state, content).every((card) => card.title.startsWith("Jouw app: "))).toBe(true);
+  });
+});

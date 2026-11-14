@@ -19,6 +19,7 @@ const run = (overrides: Partial<RunSummary> = {}): RunSummary => ({
   statTexts: { users: "2.000.000", money: "€ 150.000" },
   playedTypes: ["viral", "viral", "ad", "news", "viral"],
   firedEventIds: ["event-a"],
+  appName: "Pixelplein",
   ...overrides,
 });
 
@@ -32,6 +33,7 @@ describe("toEndingView", () => {
       kicker: UI_COPY.results.lostKicker,
       title,
       ...variants.noIncome,
+      headline: "Pixelplein offline: de rekeningen zijn niet betaald",
     });
   });
 
@@ -84,7 +86,7 @@ describe("toShareCardContent", () => {
     const ending = toEndingView(summary);
     const card = toShareCardContent(summary);
     expect(card).toMatchObject({
-      kicker: UI_COPY.results.lostKicker,
+      kicker: `${UI_COPY.results.lostKicker} · Pixelplein`,
       title: GAME_OVER_TEXTS.bankrupt.title,
       line: ending.headline,
       url: `${SITE_ORIGIN}/`,
@@ -96,7 +98,7 @@ describe("toShareCardContent", () => {
       { label: UI_COPY.results.moneyLabel, value: "€ 150.000" },
     ]);
     expect(card.text).toContain(
-      "fase 2 in 12 beurten, met 2.000.000 gebruikers op mijn hoogtepunt"
+      "Mijn app Pixelplein haalde fase 2 in 12 beurten, met 2.000.000 gebruikers op het hoogtepunt"
     );
   });
 
@@ -104,7 +106,7 @@ describe("toShareCardContent", () => {
     const summary = run({ outcome: "won", reason: null, phaseId: 4, phaseName: "De Beursgang" });
     const report = buildEndReport(summary);
     expect(toShareCardContent(summary)).toMatchObject({
-      kicker: UI_COPY.results.wonKicker,
+      kicker: `${UI_COPY.results.wonKicker} · Pixelplein`,
       title: report.title,
       line: report.closing,
     });

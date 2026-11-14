@@ -24,7 +24,8 @@ export const isSavedRun = (value: unknown): value is SavedRun =>
   value.version === SAVED_RUN_VERSION &&
   Number.isSafeInteger(value.seed) &&
   Array.isArray(value.actions) &&
-  value.actions.every(isRunAction);
+  value.actions.every(isRunAction) &&
+  (value.appName === undefined || typeof value.appName === "string");
 
 /** Removes the saved run. Blocked storage removes nothing (local-save D7). */
 export const clearSavedRun = (): void => {

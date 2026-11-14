@@ -16,6 +16,8 @@ export interface UseGameSessionOptions {
   seed?: number;
   /** A saved run to continue (local-save D1); ignored when it no longer replays. */
   savedRun?: SavedRun | null;
+  /** The name the player gave their app for a new run (app-name AN1); a resumed run keeps its own. */
+  appName?: string;
 }
 
 export interface GameSession {
@@ -45,19 +47,24 @@ interface RunState {
   seenPhase: number;
 }
 
-const freshRun = (content: GameContent, seed: number | undefined): RunState => ({
-  session: startSession(content, seed ?? randomSeed()),
+interface FreshRunOptions {
+  seed: number | undefined;
+  appName: string | undefined;
+}
+
+const freshRun = (content: GameContent, { seed, appName }: FreshRunOptions): RunState => ({
+  session: startSession(content, seed ?? randomSeed(), appName),
   resumed: false,
   seenPhase: 0,
 });
 
 const openRun = (
   content: GameContent,
-  seed: number | undefined,
+  fresh: FreshRunOptions,
   savedRun: SavedRun | null | undefined
 ): RunState => {
   const restored = savedRun ? restoreSession(content, savedRun) : null;
-  if (!restored) return freshRun(content, seed);
+  if (!restored) return freshRun(content, fresh);
   // The replay keeps the state before the last action: its phase is the intro already seen.
   return { session: restored, resumed: true, seenPhase: restored.previousGame?.phase ?? 0 };
 };
@@ -77,8 +84,13 @@ function useRunPersistence(session: SessionState): void {
  * save in step. All rules stay in the engine and the action handling in `gameSession`;
  * views (the board) derive what they show from `session`.
  */
-export function useGameSession({ content, seed, savedRun }: UseGameSessionOptions): GameSession {
-  const [run, setRun] = useState<RunState>(() => openRun(content, seed, savedRun));
+export function useGameSession({
+  content,
+  seed,
+  savedRun,
+  appName,
+}: UseGameSessionOptions): GameSession {
+  const [run, setRun] = useState<RunState>(() => openRun(content, { seed, appName }, savedRun));
   const { session } = run;
   useRunPersistence(session);
 
@@ -96,7 +108,11 @@ export function useGameSession({ content, seed, savedRun }: UseGameSessionOption
     [dispatch]
   );
 
-  const restart = useCallback(() => setRun(freshRun(content, seed)), [content, seed]);
+  // "Opnieuw" keeps the run's app name, also for a resumed run (app-name lap).
+  const restart = useCallback(
+    () => setRun((current) => freshRun(content, { seed, appName: current.session.appName })),
+    [content, seed]
+  );
 
   return {
     session,

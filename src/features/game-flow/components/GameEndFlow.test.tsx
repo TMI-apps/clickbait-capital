@@ -19,6 +19,7 @@ const summary = (overrides: Partial<RunSummary>): RunSummary => ({
   statTexts: { users: "60.000", money: "€ 4.000" },
   playedTypes: ["viral", "news"],
   firedEventIds: [],
+  appName: "Pixelplein",
   ...overrides,
 });
 

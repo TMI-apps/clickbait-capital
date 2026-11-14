@@ -3,7 +3,7 @@ import { Flag, Lightbulb } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { getPhaseImage } from "@/features/card-imagery/api";
-import { GLOSSARY, PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
+import { fillTemplate, GLOSSARY, PHASE_INTROS, UI_COPY } from "@/features/game-content/api";
 import type { FlowPhase } from "@/features/game-flow/types/gameFlow.types";
 import {
   PHASE_INTRO_TAG,
@@ -17,6 +17,8 @@ import { FlowScreen } from "./FlowScreen";
 
 export interface PhaseTransitionScreenProps {
   phase: FlowPhase;
+  /** The player's app, named in the intro (`{app}`, app-name lap). */
+  appName: string;
   onContinue: () => void;
 }
 
@@ -25,7 +27,11 @@ export interface PhaseTransitionScreenProps {
  * dots are decorative; the kicker ("Fase 2") in the focused heading says where you are. The
  * phase's photo (card-imagery `getPhaseImage`) sits behind the heading as the hero.
  */
-export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScreenProps) => {
+export const PhaseTransitionScreen = ({
+  phase,
+  appName,
+  onContinue,
+}: PhaseTransitionScreenProps) => {
   const intro = PHASE_INTROS[phase.phaseId];
   const steps = Array.from({ length: phase.phaseCount }, (_, index) => index + 1);
   const stepAnchor = useJuiceAnchor("phase:step");
@@ -63,12 +69,12 @@ export const PhaseTransitionScreen = ({ phase, onContinue }: PhaseTransitionScre
       }
     >
       <p className="text-base">
-        <GlossaryText text={intro.body} glossary={GLOSSARY} />
+        <GlossaryText text={fillTemplate(intro.body, { app: appName })} glossary={GLOSSARY} />
       </p>
       <p className="flex gap-2 text-sm text-muted-foreground">
         <Lightbulb aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
         <span>
-          <GlossaryText text={intro.tip} glossary={GLOSSARY} />
+          <GlossaryText text={fillTemplate(intro.tip, { app: appName })} glossary={GLOSSARY} />
         </span>
       </p>
       <section

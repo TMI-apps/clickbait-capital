@@ -23,6 +23,7 @@ import {
   getContentEvent,
 } from "@/features/game-content/services/gameContent";
 import { PHASE_INTROS } from "@/features/game-content/services/phases";
+import { REAL_BRAND_NAMES } from "@/features/game-content/services/brandNames";
 import { GLOSSARY, UI_COPY } from "@/features/game-content/services/uiCopy";
 
 const TYPES: CardType[] = ["viral", "ad", "news"];
@@ -282,32 +283,6 @@ const RICH_FIELDS = [
   /^ui\.credits\.body$/,
 ];
 
-/** Real game, platform and brand names the copy must not use (kids-content D6). */
-const TRADEMARKS = [
-  "fortnite",
-  "brawl stars",
-  "roblox",
-  "minecraft",
-  "youtube",
-  "tiktok",
-  "instagram",
-  "snapchat",
-  "whatsapp",
-  "twitch",
-  "discord",
-  "facebook",
-  "twitter",
-  "pubg",
-  "call of duty",
-  "clash",
-  "v-bucks",
-  "robux",
-  "playstation",
-  "xbox",
-  "nintendo",
-  "super73",
-];
-
 describe("glossary", () => {
   it("should explain every marked word when a string marks a hard word", () => {
     const missing = PLAYER_STRINGS.flatMap(([path, text]) =>
@@ -345,7 +320,7 @@ describe("glossary", () => {
 
   it("should not name real games, platforms or brands when copy describes the pupils' world", () => {
     const named = PLAYER_STRINGS.flatMap(([path, text]) =>
-      TRADEMARKS.filter((name) => text.toLowerCase().includes(name)).map(
+      REAL_BRAND_NAMES.filter((name) => text.toLowerCase().includes(name)).map(
         (name) => `${path}: ${name}`
       )
     );

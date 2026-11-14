@@ -177,6 +177,7 @@ export const PlayingBoard = (props: PlayingBoardProps) => {
         <div className={DESK_PLAY}>
           <PhoneFeed
             entries={view.feed}
+            appName={view.appName}
             comments={props.comments}
             revealKey={shown.revealKey}
             dragging={preview.dragging}
