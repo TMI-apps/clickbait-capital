@@ -26,6 +26,12 @@ The name the player gives their app at the start of a new game (app-name lap, `d
 - **AN3 No package:** a small Dutch + English list with letter-swap normalising; a package would be a new dependency, and the common ones have no Dutch. A basic filter, not moderation: a glued-on compound ("Scrollkut") passes, as do words the list does not hold.
 - **AN4 Real brands blocked:** the tone rule (no real platforms, games or brands, kids-content D6) also covers the player's input. One brand list in game-content serves the copy test and this filter; platform names too short or too common to scan the copy for are blocked here as whole words.
 
+## Dependencies
+
+- `@/features/game-content/api` (`REAL_BRAND_NAMES` for the filter, `UI_COPY.appName` for the screen's copy and refusal reasons).
+- `@/features/game-flow/api` (`FlowScreen`: layout, heading focus, entrance motion).
+- Kit: `Button`, `FormField`. Icons: `lucide-react`.
+
 ## Testing
 
 Colocated Vitest: `services/appNameRules.test.ts` (cleaning, length and character limits, swear words with letter swaps and spaces, ordinary words that contain a short swear word, real brands, every suggestion passes, the dice never repeats the current name). The flow: `src/pages/GamePage.test.tsx` (name step on a new game and after "Nieuw spel", refusal reasons, dice, the name in the feed and in the save, the saved name on the resume screen).
