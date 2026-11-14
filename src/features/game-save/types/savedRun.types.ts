@@ -21,6 +21,11 @@ export interface SavedRun {
   version: typeof SAVED_RUN_VERSION;
   seed: number;
   actions: RunAction[];
+  /**
+   * The player's app name (app-name AN1). Optional and not part of the replay, so adding it
+   * needed no version bump; a save without it resumes as "Jouw app".
+   */
+  appName?: string;
 }
 
 /** How `/spel` starts: ask the player, resume the save, or start a new run. */

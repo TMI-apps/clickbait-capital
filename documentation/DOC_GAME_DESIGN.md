@@ -51,6 +51,8 @@ Een run begint met **0 gebruikers en € 3.000 startgeld** en groeit **exponenti
 
 De gameplay volgt een strakke, repetitieve cyclus van afwegen, injecteren en incasseren.
 
+Vóór de eerste beurt geeft de speler zijn app een naam ("Hoe heet jouw app?", 2–16 tekens, met een voorgestelde naam en een dobbelsteen). De feed is het officiële account van die app, en de naam staat in de fase-intro's, gebeurtenissen, het einde, het rapport en de deeltekst. Beslissingskaarten verschijnen in de feed als officiële aankondiging van de app (app-name lap; `documentation/jobs/temp_job_policy-cards/PROPOSAL.md` § 4 en § 7).
+
 ```
 ┌────────────────────────────────────────────────────────┐
 │ 1. Draft-fase: 3 Kaarten gedeeld (Viraal, Ad, Nieuws)  │

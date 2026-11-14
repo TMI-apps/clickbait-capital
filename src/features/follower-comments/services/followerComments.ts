@@ -1,6 +1,12 @@
 import type { CardType, EventOptionKind, GameContent, GameState } from "@/features/game-engine/api";
 import { nextRandom } from "@/shared/utils/seededRandom";
-import { fillTemplate, FOLLOWERS, getContentCard, UI_COPY } from "@/features/game-content/api";
+import {
+  DEFAULT_APP_NAME,
+  fillTemplate,
+  FOLLOWERS,
+  getContentCard,
+  UI_COPY,
+} from "@/features/game-content/api";
 import type { FollowerCue, FollowerPersona } from "@/features/game-content/api";
 import type { SessionState } from "@/features/game-session/api";
 import type {
@@ -196,6 +202,8 @@ export interface CommentsForStepOptions {
   content: GameContent;
   /** Reputation before the action; null when unknown (counts as a crossing). */
   previousReputation?: number | null;
+  /** The player's app name for `{app}` in a line (app-name AN1); "Jouw app" when absent. */
+  appName?: string;
 }
 
 /**
@@ -207,13 +215,16 @@ export interface CommentsForStepOptions {
  */
 export function commentsForStep(options: CommentsForStepOptions): CommentBatch | null {
   const { seed, step, game, content, previousReputation = null } = options;
+  const app = options.appName ?? DEFAULT_APP_NAME;
   const context = commentContext(game, content);
   if (!context) return null;
   const random = new StepRandom(seed, step);
   const leaves = leaveComments(context, previousReputation, step);
   const slots = Math.max(1, COMMENTS_PER_PACE[context.pace] - leaves.length);
   const picks = pickSpeakers(context, slots, random);
-  const lines = picks.map((pick, index) => toComment(pick, `${step}-${index}`, random));
+  const lines = picks
+    .map((pick, index) => toComment(pick, `${step}-${index}`, random))
+    .map((comment) => ({ ...comment, text: fillTemplate(comment.text, { app }) }));
   return { key: step + 1, pace: context.pace, comments: [...lines, ...leaves] };
 }
 
@@ -225,9 +236,10 @@ export function commentsForSession(
   session: SessionState,
   content: GameContent
 ): Array<CommentBatch | null> {
-  const { steps, game } = session;
+  const { steps, game, appName } = session;
   return steps.map((step, index) =>
     commentsForStep({
+      appName,
       seed: game.seed,
       step: index,
       game: step.state,

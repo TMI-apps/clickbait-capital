@@ -37,40 +37,41 @@ The full Dutch deck and all player-facing copy for Clickbait Capital, as typed d
 
 Milestones open soon after their phase starts. Every other event is a **scandal** (score-redesign D14): while hidden reputation is below `CONTENT_BALANCE.scandal.threshold` (30), each card turn rolls against the scandal chance (0 → 90 % over 20 points) and draws a scandal of the phase, at most one event per card turn and spaced by `eventPacing` (game-engine D10): 3–6 card turns after the previous event, only 3 at the maximum chance. Each scandal also costs a fine of 18 revenue points at the phase's euro rate (D25). Scandals repeat once all of a phase's scandals have fired.
 
-| Event                                  | Trigger             | Models                                  |
-| -------------------------------------- | ------------------- | --------------------------------------- |
-| Gemeen filmpje over een klasgenoot     | scandal, phase 1    | first boomerang (bullying)              |
-| Je eerste ophef                        | scandal, phase 1    | first boomerang                         |
-| Investeerders aan tafel                | milestone phase 2   | design § 6 Fase 2                       |
-| Een andere app doet je na              | scandal, phase 2    | competitors (engine "Not modelled yet") |
-| Klachten over te veel reclame          | scandal, phase 2    | ad-pressure complaints (idem)           |
-| Een challenge wordt gevaarlijk         | scandal, phases 2–3 | boomerang                               |
-| Oplichters beloven gratis skins        | scandal, phases 2–3 | scam ads                                |
-| De wereld kijkt mee                    | milestone phase 3   | design § 6 Fase 3                       |
-| Streamers maken ruzie                  | scandal, phase 3    | boomerang                               |
-| Een boete voor je app                  | scandal, phase 3    | fines (engine "Not modelled yet")       |
-| Nepnieuws over de verkiezingen         | scandal, phase 3    | design § 4 example (design options)     |
-| Uitleggen in het parlement             | scandal, phases 3–4 | hearings (idem)                         |
-| Ouders en scholen slaan alarm          | scandal, phases 3–4 | backlash (design § 6 Fase 3)            |
-| Op weg naar de beurs                   | milestone phase 4   | design § 6 Fase 4                       |
-| De helft is nep                        | scandal, phase 4    | boomerang (fake followers)              |
-| Geheime papieren uitgelekt             | scandal, phase 4    | boomerang                               |
-| Vlammetjes-paniek                      | scandal, phases 2–3 | streaks (policy-cards § 6 E1)           |
-| Klas slaapt in                         | scandal, phase 3    | autoplay, night notifications (E2)      |
-| Filterspiegel                          | scandal, phase 3    | beauty filters (E3)                     |
-| Europa onderzoekt je ontwerp           | scandal, phases 3–4 | addictive design, regulator (E4)        |
-| Onbekende mannen in de berichten       | scandal, phases 3–4 | strangers messaging girls (E5, D4)      |
-| Zakgeld weg in één avond               | scandal, phases 3–4 | livestream gifts (E6)                   |
-| Nep met vinkje                         | scandal, phases 3–4 | paid check marks, scams (E7)            |
-| Moderatoren slaan alarm                | scandal, phase 4    | outsourced moderation (E8)              |
-| Geweld in een ver land                 | scandal, phase 4    | violence fuelled by a feed (E9, D4)     |
-| De chatbot zegt rare dingen            | scandal, phase 4    | AI chatbot for children (E10)           |
-| Een nieuwe wet in Brussel              | scandal, phase 4    | lobbying (E11)                          |
-| Een land verbiedt je app voor kinderen | scandal, phase 4    | under-16 ban, age check (E12)           |
+| Event                                 | Trigger             | Models                                  |
+| ------------------------------------- | ------------------- | --------------------------------------- |
+| Gemeen filmpje over een klasgenoot    | scandal, phase 1    | first boomerang (bullying)              |
+| Je eerste ophef                       | scandal, phase 1    | first boomerang                         |
+| Investeerders aan tafel               | milestone phase 2   | design § 6 Fase 2                       |
+| Een andere app doet je na             | scandal, phase 2    | competitors (engine "Not modelled yet") |
+| Klachten over te veel reclame         | scandal, phase 2    | ad-pressure complaints (idem)           |
+| Een challenge wordt gevaarlijk        | scandal, phases 2–3 | boomerang                               |
+| Oplichters beloven gratis skins       | scandal, phases 2–3 | scam ads                                |
+| De wereld kijkt mee                   | milestone phase 3   | design § 6 Fase 3                       |
+| Streamers maken ruzie                 | scandal, phase 3    | boomerang                               |
+| Een boete voor je app                 | scandal, phase 3    | fines (engine "Not modelled yet")       |
+| Nepnieuws over de verkiezingen        | scandal, phase 3    | design § 4 example (design options)     |
+| Uitleggen in het parlement            | scandal, phases 3–4 | hearings (idem)                         |
+| Ouders en scholen slaan alarm         | scandal, phases 3–4 | backlash (design § 6 Fase 3)            |
+| Op weg naar de beurs                  | milestone phase 4   | design § 6 Fase 4                       |
+| De helft is nep                       | scandal, phase 4    | boomerang (fake followers)              |
+| Geheime papieren uitgelekt            | scandal, phase 4    | boomerang                               |
+| Vlammetjes-paniek                     | scandal, phases 2–3 | streaks (policy-cards § 6 E1)           |
+| Klas slaapt in                        | scandal, phase 3    | autoplay, night notifications (E2)      |
+| Filterspiegel                         | scandal, phase 3    | beauty filters (E3)                     |
+| Europa onderzoekt je ontwerp          | scandal, phases 3–4 | addictive design, regulator (E4)        |
+| Onbekende mannen in de berichten      | scandal, phases 3–4 | strangers messaging girls (E5, D4)      |
+| Zakgeld weg in één avond              | scandal, phases 3–4 | livestream gifts (E6)                   |
+| Nep met vinkje                        | scandal, phases 3–4 | paid check marks, scams (E7)            |
+| Moderatoren slaan alarm               | scandal, phase 4    | outsourced moderation (E8)              |
+| Geweld in een ver land                | scandal, phase 4    | violence fuelled by a feed (E9, D4)     |
+| De chatbot zegt rare dingen           | scandal, phase 4    | AI chatbot for children (E10)           |
+| Een nieuwe wet in Brussel             | scandal, phase 4    | lobbying (E11)                          |
+| Een land verbiedt {app} voor kinderen | scandal, phase 4    | under-16 ban, age check (E12)           |
 
 ## Decisions
 
-- **Decision cards (policy-cards D1–D4, § 3–§ 9; decision-cards lap):** from phase 2 each type's pool also holds company decisions (24 cards, ids `<type>-besluit-*`): 2 / 6 / 4 per type in phases 2–4, so decisions are 0 / 14 / 33 / 50 % of the pool; the 8 (ads 7) "every phase" posts now run phases 1–3, texts unchanged. A decision card is a normal card of its type (same profile, effects, modifiers); only `announce` marks it: the feed posts the company's spin as an official post, the card says what it really does. No engine flag, no "beleid" label (D1). `realCase` gives the card detail an "Echt gebeurd" line and one article link (D3); the line is plain text without brand names (asserted), the article may name companies, so its url is left out of the trademark scan. Sources were picked open and reputable and checked by hand once (`documentation/jobs/temp_job_decision-cards/BRIEF.md` § Source check): paywalled TIME and MIT Technology Review and the company newsroom were swapped for NPR, CBS News and TechCrunch; the Myanmar case links a gentler NPR explainer, so its line now cites UN investigators. 12 new scandals (phases 2–4) cover the harm; heavy topics are fictional and non-graphic (D4: "meiden worden lastiggevallen door onbekende mannen", "geweld in een ver land"). New glossary words: _privé_, _moderator_, _lobby_. Copy says "jouw app" until the app-name lap adds `{app}`. Decision values sit at the level of the phase posts next to them (balance § Decision-cards lap), not under them.
+- **Decision cards (policy-cards D1–D4, § 3–§ 9; decision-cards lap):** from phase 2 each type's pool also holds company decisions (24 cards, ids `<type>-besluit-*`): 2 / 6 / 4 per type in phases 2–4, so decisions are 0 / 14 / 33 / 50 % of the pool; the 8 (ads 7) "every phase" posts now run phases 1–3, texts unchanged. A decision card is a normal card of its type (same profile, effects, modifiers); only `announce` marks it: the feed posts the company's spin as an official post, the card says what it really does. No engine flag, no "beleid" label (D1). `realCase` gives the card detail an "Echt gebeurd" line and one article link (D3); the line is plain text without brand names (asserted), the article may name companies, so its url is left out of the trademark scan. Sources were picked open and reputable and checked by hand once (`documentation/jobs/temp_job_decision-cards/BRIEF.md` § Source check): paywalled TIME and MIT Technology Review and the company newsroom were swapped for NPR, CBS News and TechCrunch; the Myanmar case links a gentler NPR explainer, so its line now cites UN investigators. 12 new scandals (phases 2–4) cover the harm; heavy topics are fictional and non-graphic (D4: "meiden worden lastiggevallen door onbekende mannen", "geweld in een ver land"). New glossary words: _privé_, _moderator_, _lobby_. Event bodies E2, E4, E9, E10 and E12 name the player's app with `{app}` (app-name lap). Decision values sit at the level of the phase posts next to them (balance § Decision-cards lap), not under them.
+- **App name copy (app-name lap):** `UI_COPY.appName` holds the naming step (title, label, hint, dice and Start buttons, the five refusal reasons). `DEFAULT_APP_NAME` ("Jouw app") is the name of a run without one. `{app}` appears in the four phase intros, two game-over headlines, the end report intro, the resume text, the share text, the feed label and two follower lines. `selectGameOverText` and `buildEndReport` fill it from `EndReportInput.appName`. The brand list moved from `gameContent.test.ts` to `services/brandNames.ts` (`REAL_BRAND_NAMES`), so the copy test and the app-name filter share it. The privacy page names the app name among what the browser keeps.
 - **Exponential growth (exponential-growth D1–D4, supersedes the numbers of D5, D8, D9 and score-redesign D20):** a run starts at 0 users and € 3.000 (about 15 turns of phase-1 server costs at € 200, so a new app has runway but bankruptcy stays real). A users point adds 6 % of the current users plus a fixed 50 / 500 / 5.000 / 50.000 per phase; news cards now grow users a little (2–5 points, always below every viral card) instead of costing users; ads pay € 0,05 per user per point and cost 1,5 % of the users per point. Goals are ×10 per phase (10k / € 20k → 100k / € 200k → 1 mln / € 2 mln → 10 mln / € 20 mln); costs € 200 / 4.000 / 40.000 / 400.000 per turn; scandals from reputation 35, fines 8 points of the phase price plus 8 ad points from the current users. Simulation (60 seeds): human-like 57 × won in a median 38 turns (8–11 per phase), rule-of-thumb 33 × won, mixed 55, rotate 46; viral-only, ad-only and news-heavy 60 × Bankroet (viral-only meets a scandal in 59 of 60 runs). Precedent: idle/incremental games (Cookie Clicker, AdVenture Capitalist) grow by a share of what you own and set each milestone an order of magnitude higher, so every step takes similar time. Copy follows the numbers: the phase 1 intro starts at 0 users, phase 3 no longer claims millions (players arrive with 100k–500k).
 - **Trillen copy (juice-wiring-flow D3):** `UI_COPY.settings.vibrationHint` explains the new Trillen row; the reset hint and the privacy page now name vibration among the settings kept on the device.
 - **Typed TS data, not JSON (game-content D1):** the structure whitelist has no data folder, and TS checks the deck against the engine schema at compile time, like `seedContent.ts`.

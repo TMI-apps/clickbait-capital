@@ -104,7 +104,8 @@ export function toShareCardContent(summary: RunSummary): ShareCardContent {
   const ending = toEndingView(summary);
   return {
     appName: UI_COPY.app.name,
-    kicker: ending.kicker,
+    // The player's app goes on the card next to the outcome (app-name lap).
+    kicker: `${ending.kicker} · ${summary.appName}`,
     title: ending.title,
     line: ending.headline,
     stats: statRows(summary)
@@ -113,6 +114,7 @@ export function toShareCardContent(summary: RunSummary): ShareCardContent {
     footerLabel: copy.shareCardFooter,
     shareTitle: UI_COPY.app.name,
     text: fillTemplate(copy.shareText, {
+      app: summary.appName,
       phase: String(summary.phaseId),
       turns: countFormat(summary.turn),
       users: summary.statTexts.users,

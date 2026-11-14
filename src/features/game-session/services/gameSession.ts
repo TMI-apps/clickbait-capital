@@ -29,14 +29,24 @@ export interface SessionState {
   steps: SessionStep[];
   /** How many of `steps` were rebuilt from a save: their effects already happened (silent). */
   replayedStepCount: number;
+  /**
+   * The name the player gave their app (app-name AN1): presentation only, the engine never
+   * reads it; saved with the run. Absent for runs started without the naming step.
+   */
+  appName?: string;
 }
 
-/** A fresh run on `seed`. */
-export const startSession = (content: GameContent, seed: number): SessionState => ({
+/** A fresh run on `seed`, for the app the player named (when they did). */
+export const startSession = (
+  content: GameContent,
+  seed: number,
+  appName?: string
+): SessionState => ({
   game: createGame({ content, seed }),
   previousGame: null,
   steps: [],
   replayedStepCount: 0,
+  ...(appName === undefined ? {} : { appName }),
 });
 
 const advance = (
@@ -44,10 +54,10 @@ const advance = (
   next: GameState,
   step: Omit<SessionStep, "state">
 ): SessionState => ({
+  ...current,
   game: next,
   previousGame: current.game,
   steps: [...current.steps, { ...step, state: next }],
-  replayedStepCount: current.replayedStepCount,
 });
 
 const playAction = (
@@ -97,7 +107,7 @@ const isOver = (session: SessionState): boolean =>
  * steps count as replayed, so a resume is silent.
  */
 export const restoreSession = (content: GameContent, saved: SavedRun): SessionState | null => {
-  let session = startSession(content, saved.seed);
+  let session = startSession(content, saved.seed, saved.appName);
   for (const action of saved.actions) {
     const next = applyAction(session, content, action);
     if (next === session || isOver(next)) return null;
@@ -114,4 +124,5 @@ export const toSavedRun = (session: SessionState): SavedRun | null =>
         version: SAVED_RUN_VERSION,
         seed: session.game.seed,
         actions: session.steps.map((step) => step.action),
+        ...(session.appName === undefined ? {} : { appName: session.appName }),
       };

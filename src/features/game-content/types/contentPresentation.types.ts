@@ -85,6 +85,8 @@ export interface EndReportInput {
   score: { users: number; money: number };
   playedTypes: readonly ("viral" | "ad" | "news")[];
   firedEventIds: readonly string[];
+  /** The player's app name for `{app}` (app-name AN1); "Jouw app" when absent. */
+  appName?: string;
 }
 
 /** One line of the end report: a label and its filled-in value. */

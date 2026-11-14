@@ -499,7 +499,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-klas-slaapt-in",
     title: "Klas slaapt in",
-    body: "Een hele klas komt te laat op school. Ze zaten tot diep in de nacht op jouw app. De juf belt het nieuws.",
+    body: "Een hele klas komt te laat op school. Ze zaten tot diep in de nacht op {app}. De juf belt het nieuws.",
     trigger: { kind: "scandal", phases: [3] },
     options: [
       {
@@ -558,7 +558,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-europa-ontwerp",
     title: "Europa onderzoekt je ontwerp",
-    body: "De [[toezichthouder]] in Brussel zegt: jouw app is expres zo gemaakt dat je niet kunt stoppen.",
+    body: "De [[toezichthouder]] in Brussel zegt: {app} is expres zo gemaakt dat je niet kunt stoppen.",
     trigger: { kind: "scandal", phases: [3, 4] },
     options: [
       {
@@ -702,7 +702,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-geweld-ver-land",
     title: "Geweld in een ver land",
-    body: "In een land ver weg zet jouw app groepen tegen elkaar op. Er gaan geruchten rond en mensen raken gewond. Bij jouw bedrijf spreekt niemand die taal.",
+    body: "In een land ver weg zet {app} groepen tegen elkaar op. Er gaan geruchten rond en mensen raken gewond. Bij {app} spreekt niemand die taal.",
     trigger: { kind: "scandal", phases: [4] },
     options: [
       {
@@ -731,7 +731,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-chatbot-vriendje",
     title: "De chatbot zegt rare dingen",
-    body: "Jouw app heeft een chatbot als 'vriendje' voor kinderen. Hij zegt dingen die niet kloppen. En dingen die niet oké zijn.",
+    body: "{app} heeft een chatbot als 'vriendje' voor kinderen. Hij zegt dingen die niet kloppen. En dingen die niet oké zijn.",
     trigger: { kind: "scandal", phases: [4] },
     options: [
       {
@@ -788,8 +788,8 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   },
   {
     id: "event-land-verbiedt-app",
-    title: "Een land verbiedt je app voor kinderen",
-    body: "Een land zegt: kinderen onder de 16 mogen niet meer op sociale media. Ook niet op jouw app.",
+    title: "Een land verbiedt {app} voor kinderen",
+    body: "Een land zegt: kinderen onder de 16 mogen niet meer op sociale media. Ook niet op {app}.",
     trigger: { kind: "scandal", phases: [4] },
     options: [
       {

@@ -27,6 +27,7 @@ The screens between board turns in Clickbait Capital: the event modal, the phase
 
 ## Decisions
 
+- **The player's app in the screens (app-name lap):** `PhaseTransitionScreen` takes `appName` and fills `{app}` in the intro body and tip. `ResumeScreen` names the saved run's app. `RunSummary.appName` fills `{app}` in the game-over story and end report (through game-content), the share text, and the share card's kicker ("Game over · Pixelplein"). `FlowScreen` is exported so the naming step (app-name `AppNameScreen`) uses the same layout and heading focus.
 - **Screens replace the board (game-flow D1):** phase transitions, endings and results render instead of the board as a full-screen `<main>` whose heading takes focus on open; only the event stays a modal over the board, so the player sees the feed it interrupts.
 - **When intros show (D2):** the phase 1 intro opens every run (`PHASE_INTROS` is "shown when the phase starts"); a transition always comes before a milestone event of the same turn; an ending wins over a pending transition. `usePhaseIntro.reset` is called with the board's restart. A resumed run passes the phase before its last action as seen, so it opens on the board unless that action started a new phase (local-save D5).
 - **Report on a game over (D3):** the results reuse `buildEndReport` lines for every ending except the IPO valuation; the report intro shows only after a win, and the report title and closing question form the IPO ending screen.

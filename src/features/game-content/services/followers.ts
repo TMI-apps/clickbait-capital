@@ -5,7 +5,8 @@ import type { FollowerPersona } from "@/features/game-content/types/contentPrese
  * characters who react after every post and event choice. Lines are short Dutch at about
  * age 11; no real people, brands, games or platforms (game-content tone). Two are critical
  * (grandma and the fact-checker): they complain when reputation drops and leave when it is
- * very low, so the comments show the echo chamber that is left over.
+ * very low, so the comments show the echo chamber that is left over. A line may name the
+ * player's app as `{app}` (app-name lap); follower-comments fills it in.
  */
 export const FOLLOWERS: readonly FollowerPersona[] = [
   {
@@ -17,7 +18,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     lines: {
       officialViral: ["beste update ooit 🔥", "eindelijk!!"],
       officialAd: ["alweer iets wat geld kost 😩", "moet ik nu betalen of zo?"],
-      officialNews: ["oké… best netjes van jullie", "huh, een update die normaal is"],
+      officialNews: ["oké… best netjes van {app}", "huh, een update die normaal is"],
       viral: ["W post 🔥", "dit is echt next level", "GG, iedereen kijkt dit", "nog een keer!! 🔁"],
       ad: ["skip skip skip ⏭️", "bro, alweer reclame?", "ik wil gewoon filmpjes 😩"],
       news: ["oké dit is best interessant", "saai… maar wel waar", "huh, wist ik niet 🤔"],
@@ -26,6 +27,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
         "zoveel nieuwe kijkers!!",
         "dit is een banger 🔥🔥",
         "iedereen op school heeft dit gezien",
+        "iedereen zit nu op {app} 📲",
       ],
       toxic: ["L + ratio 💀", "jij snapt er niks van 🤡", "wie dit niet snapt is een noob"],
       adFatigue: ["nog één reclame en ik ben weg", "meer reclame dan filmpjes 😤"],
@@ -63,7 +65,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
     critical: false,
     lines: {
       officialViral: ["dit wordt een meme, let op", "update van het jaar 💀"],
-      officialAd: ["deze app wil gewoon je geld 💸", "kassa! 🤡"],
+      officialAd: ["{app} wil gewoon je geld 💸", "kassa! 🤡"],
       officialNews: ["saai maar oké 👍", "geen meme hierover, sorry"],
       viral: ["💀💀💀", "dit wordt een meme, let maar op", "ik kan niet meer 😂😂"],
       ad: ["reclame-moment 🤡", "*scrollt snel door*", "wie koopt dit nou 😂"],
@@ -107,7 +109,7 @@ export const FOLLOWERS: readonly FollowerPersona[] = [
         "Fijn, eindelijk iets dat klopt",
       ],
       toxic: ["Wat een gescheld hier… 😟", "Zo praat je toch niet tegen elkaar?"],
-      complain: ["Ik vertrouw deze app niet meer zo", "Wat is hier aan de hand? 😕"],
+      complain: ["Ik vertrouw {app} niet meer zo", "Wat is hier aan de hand? 😕"],
       adFatigue: ["Alleen nog maar reclame, hè"],
     },
   },

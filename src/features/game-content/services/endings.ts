@@ -6,6 +6,7 @@ import type {
   GameOverStory,
   GameOverText,
 } from "@/features/game-content/types/contentPresentation.types";
+import { DEFAULT_APP_NAME } from "@/features/game-content/services/uiCopy";
 import { EVENT_CARDS } from "@/features/game-content/services/eventCards";
 
 /**
@@ -24,13 +25,13 @@ export const GAME_OVER_TEXTS = {
     title: "Bankroet",
     variants: {
       noIncome: {
-        headline: "App offline: de rekeningen zijn niet betaald",
+        headline: "{app} offline: de rekeningen zijn niet betaald",
         body: "Het bedrijf van je [[servers|server]] heeft de stekker eruit getrokken. De [[investeerders|investeerder]] namen de pingpongtafel mee. Je feed was druk, maar niemand betaalde ervoor.",
         lesson:
           "Aandacht is nog geen geld. Een app zonder [[verdienmodel]] gaat vroeg of laat meer reclame laten zien.",
       },
       costsOutgrew: {
-        headline: "Groeiende app gaat onderuit door hoge rekeningen",
+        headline: "Groeiende app {app} gaat onderuit door hoge rekeningen",
         body: "De reclame bracht geld op, maar de rekeningen groeiden harder: servers, controleurs, advocaten. Op een dinsdagochtend was het geld op.",
         lesson:
           "Hoe groter een app, hoe duurder hij is. Daarom willen techbedrijven steeds meer geld verdienen aan elke gebruiker.",
@@ -89,11 +90,22 @@ function bankruptVariant(run: EndReportInput): GameOverVariant<"bankrupt"> {
   return ad < NO_INCOME_BELOW_AD_SHARE ? "noIncome" : "costsOutgrew";
 }
 
+/** The run's app name for `{app}` (app-name AN1); runs without one read "Jouw app". */
+const appNameOf = (input: EndReportInput): string => input.appName ?? DEFAULT_APP_NAME;
+
 function textOf<V extends string>(
   ending: { title: string; variants: Record<V, GameOverStory> },
-  variant: V
+  variant: V,
+  app: string
 ): GameOverText {
-  return { title: ending.title, variant, ...ending.variants[variant] };
+  const story = ending.variants[variant];
+  return {
+    title: ending.title,
+    variant,
+    headline: fillTemplate(story.headline, { app }),
+    body: fillTemplate(story.body, { app }),
+    lesson: fillTemplate(story.lesson, { app }),
+  };
 }
 
 /**
@@ -103,7 +115,7 @@ function textOf<V extends string>(
 export function selectGameOverText(reason: GameOverReason, run: EndReportInput): GameOverText {
   switch (reason) {
     case "bankrupt":
-      return textOf(GAME_OVER_TEXTS.bankrupt, bankruptVariant(run));
+      return textOf(GAME_OVER_TEXTS.bankrupt, bankruptVariant(run), appNameOf(run));
   }
 }
 
@@ -111,7 +123,7 @@ export function selectGameOverText(reason: GameOverReason, run: EndReportInput):
 export const END_REPORT_TEMPLATE = {
   title: "Gefeliciteerd met je beursgang!",
   intro:
-    "In {turns} beurten groeide je app van een zolderkamer tot een groot techbedrijf op de [[beurs]], met {users} gebruikers en {money} op de bank. Dit is wat er niet in de folder voor [[investeerders|investeerder]] stond.",
+    "In {turns} beurten groeide {app} van een zolderkamer tot een groot techbedrijf op de [[beurs]], met {users} gebruikers en {money} op de bank. Dit is wat er niet in de folder voor [[investeerders|investeerder]] stond.",
   lines: {
     valuation: "Wat je bedrijf waard is op dag één",
     viralPosts: "Virale posts die je bovenaan zette",
@@ -173,6 +185,7 @@ export function buildEndReport(input: EndReportInput): EndReport {
   return {
     title: END_REPORT_TEMPLATE.title,
     intro: fillTemplate(END_REPORT_TEMPLATE.intro, {
+      app: appNameOf(input),
       turns: numberFormat.format(input.turn),
       users: numberFormat.format(input.score.users),
       money: euroFormat.format(Math.max(0, input.score.money)),

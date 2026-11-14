@@ -33,6 +33,16 @@ describe("savedRunStorage", () => {
     expect(SAVED_RUN_KEY.startsWith(GAME_STORAGE_PREFIX)).toBe(true);
   });
 
+  it("should keep the app name when a named run is written and read back", () => {
+    writeSavedRun({ ...RUN, appName: "Pixelplein" });
+    expect(readSavedRun()).toEqual({ ...RUN, appName: "Pixelplein" });
+  });
+
+  it("should discard the save when the app name is not text", () => {
+    window.localStorage.setItem(SAVED_RUN_KEY, JSON.stringify({ ...RUN, appName: 42 }));
+    expect(readSavedRun()).toBeNull();
+  });
+
   it("should return null when nothing is saved", () => {
     expect(readSavedRun()).toBeNull();
   });
