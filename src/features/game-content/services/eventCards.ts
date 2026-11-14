@@ -528,7 +528,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-filterspiegel",
     title: "Filterspiegel",
-    body: "Meiden zeggen op het nieuws: zonder filter durf ik niet meer op de foto. Hun ouders wijzen naar jouw app.",
+    body: "Meiden zeggen op het nieuws: zonder filter durf ik niet meer op de foto. Hun ouders wijzen naar {app}.",
     trigger: { kind: "scandal", phases: [3] },
     options: [
       {
@@ -587,7 +587,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
   {
     id: "event-onbekende-mannen",
     title: "Onbekende mannen in de berichten",
-    body: "Meiden op jouw app worden lastiggevallen door onbekende mannen. Die sturen berichten die niet oké zijn.",
+    body: "Meiden op {app} worden lastiggevallen door onbekende mannen. Die sturen berichten die niet oké zijn.",
     trigger: { kind: "scandal", phases: [3, 4] },
     options: [
       {
