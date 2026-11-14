@@ -6,6 +6,18 @@ History of the decisions jobs made: what was chosen, what was rejected, and why.
 - **Cite with the job key:** `(skill-loop D53)`. Ids restart at D1 in every job, so a bare `D53` is ambiguous.
 - **Who writes it:** `loop-ship` appends the lap's closed rows from its scratch `DECISIONS.md` in the ship commit ([`loop-ship`](../.agents/skills/loop-ship/SKILL.md)). Earlier job logs were deleted in #16; only the ones still cited are restored below from `a920c0d^`.
 
+## decision-imagery — feat/decision-imagery
+
+20 of the 36 decision cards and scandals show an owner-picked open-licence photo (Flickr / StockSnap: CC0, Public Domain Mark, CC BY), credited on `/credits` with maker, source page and licence page; the other 16 keep the type placeholder (`card-imagery`, `public/cards/`, `game-content`).
+
+| id  | topic            | status | choice                                                                                                                                                                    | source                   | notes                                                                                                   |
+| --- | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| D1  | Picture set      | closed | Exactly the owner's 20 picks; the other 16 decision ids keep the type placeholder (`PLACEHOLDER_IDS`)                                                                      | owner (via orchestrator) | candidates on `transport/decision-images`, not merged into `main`                                       |
+| D2  | Licence kinds    | closed | Adds `CC0 1.0`, `Public Domain Mark 1.0`, `CC BY 2.0`, each with the Flickr / StockSnap source page and the Creative Commons licence page                                    | owner (via orchestrator) | amends owner-photos D1 "CC0 / CC BY fallbacks removed": these are owner picks, not agent fallbacks     |
+| D3  | Source label     | closed | Credit link text from the source host (`formatImageSourceLabel`: Unsplash, Flickr, StockSnap) instead of the fixed "Foto op Unsplash"                                       | loop-build               | rejected: a `sourceName` field per entry (repeats what the URL says)                                    |
+| D4  | V5 maker         | closed | "David Wipf (via Flickr)": the photo is posted by the Flickr account and its description names David Wipf as the photographer                                              | loop-build               | MANIFEST.csv said "Flickr"; CC BY needs the real maker                                                  |
+| D5  | Captions         | closed | Viral / ad / event picks get a topic caption and sticker like the other entries; news stays plain (thumbnail-imagery D7)                                                   | loop-build               | e.g. "Nooit klaar" 📱, "Niet breken!" 🔥, "Brussel!" 🇪🇺                                                 |
+
 ## decision-cards — feat/decision-cards
 
 From phase 2 the three card types also hold company decisions, posted in the feed as official announcements, with an "Echt gebeurd" article link in the card detail; 24 decision cards, 12 scandals (`game-content`, `follower-comments`, `game-board`, `game-save`; policy-cards D1–D4).

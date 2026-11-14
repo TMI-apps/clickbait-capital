@@ -8,6 +8,7 @@ import {
   CARD_IMAGE_HEIGHT,
   CARD_IMAGE_WIDTH,
   formatCardImageCredit,
+  formatImageSourceLabel,
   getCardImage,
   listCardImageCredits,
 } from "@/features/card-imagery/services/cardImageLookup";
@@ -17,56 +18,42 @@ const CONTENT_IDS = [
   ...GAME_CONTENT.events.map((event) => event.id),
 ];
 const PUBLIC_DIR = resolve(process.cwd(), "public");
-/** Only the Unsplash License has a licence page; owner-supplied pictures carry none. */
+/** Licence page per allowed licence; owner-supplied pictures carry none. */
 const LICENSE_URLS: Record<string, string | undefined> = {
   "Unsplash License": "https://unsplash.com/license",
+  "CC0 1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "Public Domain Mark 1.0": "https://creativecommons.org/publicdomain/mark/1.0/",
+  "CC BY 2.0": "https://creativecommons.org/licenses/by/2.0/",
   "Eigen foto TMI": undefined,
   "AI-beeld van TMI": undefined,
   "Aangeleverd door TMI": undefined,
 };
+/** Source page pattern per licence kind (open licences link the Flickr or StockSnap page). */
+const OPEN_SOURCE_PAGE =
+  /^https:\/\/(www\.flickr\.com\/photos\/[^/\s]+\/\d+|stocksnap\.io\/photo\/\S+)$/;
+const OPEN_LICENSES = new Set(["CC0 1.0", "Public Domain Mark 1.0", "CC BY 2.0"]);
 
 /**
- * Cards still without a photo (GameCard shows the type-icon placeholder): the decision cards and
- * scandals of the decision-cards lap, until the decision-imagery lap adds their pictures
- * (policy-cards § 10).
+ * Decision cards and scandals the owner kept without a photo (decision-imagery lap): GameCard
+ * shows their type placeholder. The other 20 decision ids got an open-licence photo.
  */
 const PLACEHOLDER_IDS: string[] = [
-  "viral-besluit-eindeloos-scrollen",
-  "viral-besluit-vlammetjes",
-  "viral-besluit-autoplay",
   "viral-besluit-boze-reacties",
-  "viral-besluit-nachtmeldingen",
   "viral-besluit-schoonheidsfilters",
-  "viral-besluit-vriendensuggesties",
-  "viral-besluit-geheime-boost",
   "ad-besluit-kinderreclame",
   "ad-besluit-quizapps",
-  "ad-besluit-vinkje-te-koop",
   "ad-besluit-livestream-cadeaus",
-  "ad-besluit-reclame-onzeker",
   "ad-besluit-oplichtersreclame",
   "ad-besluit-moderatie-uitbesteden",
-  "ad-besluit-stoppen-factcheckers",
-  "news-besluit-prive-accounts",
-  "news-besluit-factcheckers-houden",
-  "news-besluit-pauzeknop",
   "news-besluit-likes-verbergen",
-  "news-besluit-moderatoren-betalen",
   "news-besluit-meldknop",
-  "news-besluit-onderzoek-delen",
   "news-besluit-elke-taal",
   "event-vlammetjes-paniek",
-  "event-klas-slaapt-in",
-  "event-filterspiegel",
-  "event-europa-ontwerp",
   "event-onbekende-mannen",
-  "event-zakgeld-weg",
   "event-nep-met-vinkje",
-  "event-moderatoren-alarm",
   "event-geweld-ver-land",
   "event-chatbot-vriendje",
   "event-nieuwe-wet",
-  "event-land-verbiedt-app",
 ];
 
 /** News cards stay plain (thumbnail-imagery D7): no thumbnail data at all. */
@@ -106,10 +93,12 @@ describe("card image manifest", () => {
     }
   });
 
-  it("should link the Unsplash photo page when the licence is Unsplash", () => {
+  it("should link the photo page when the licence is Unsplash or an open licence", () => {
     for (const entry of CARD_IMAGE_MANIFEST) {
       if (entry.license === "Unsplash License")
         expect(entry.sourceUrl, entry.contentId).toMatch(/^https:\/\/unsplash\.com\/photos\/\S+$/);
+      else if (OPEN_LICENSES.has(entry.license))
+        expect(entry.sourceUrl, entry.contentId).toMatch(OPEN_SOURCE_PAGE);
       else expect(entry.sourceUrl, entry.contentId).toBeUndefined();
     }
   });
@@ -202,6 +191,24 @@ describe("listCardImageCredits", () => {
     expect(credits.reduce((sum, credit) => sum + credit.cardCount, 0)).toBe(
       CARD_IMAGE_MANIFEST.length
     );
+  });
+
+  it("should credit maker, source page and licence page when the photo is CC BY", () => {
+    const ccBy = listCardImageCredits().filter((credit) => credit.license === "CC BY 2.0");
+    expect(ccBy.length).toBeGreaterThan(0);
+    for (const credit of ccBy) {
+      expect(credit.author, credit.contentId).not.toBe("");
+      expect(credit.sourceUrl, credit.contentId).toMatch(OPEN_SOURCE_PAGE);
+      expect(credit.sourceLabel, credit.contentId).toMatch(/^Foto op (Flickr|StockSnap)$/);
+      expect(credit.licenseUrl, credit.contentId).toBe(LICENSE_URLS["CC BY 2.0"]);
+    }
+  });
+
+  it("should name the site when a source page is linked", () => {
+    expect(formatImageSourceLabel("https://unsplash.com/photos/abc")).toBe("Foto op Unsplash");
+    expect(formatImageSourceLabel("https://www.flickr.com/photos/a/1")).toBe("Foto op Flickr");
+    expect(formatImageSourceLabel("https://stocksnap.io/photo/x")).toBe("Foto op StockSnap");
+    expect(formatImageSourceLabel(undefined)).toBeUndefined();
   });
 
   it("should format maker and licence when building the credit line", () => {

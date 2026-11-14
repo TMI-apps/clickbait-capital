@@ -23,7 +23,9 @@ const CreditDetails = ({ credit }: { credit: CardImageCredit }) => (
   <span className="text-muted-foreground">
     {credit.sourceUrl && (
       <>
-        <OptionalLink href={credit.sourceUrl}>Foto op Unsplash</OptionalLink>
+        <OptionalLink href={credit.sourceUrl}>
+          {credit.sourceLabel ?? credit.sourceUrl}
+        </OptionalLink>
         {" · "}
       </>
     )}

@@ -6,11 +6,15 @@
 
 /**
  * Where a picture comes from: an Unsplash photo (credit maker + photo page; thumbnail-imagery D10),
- * TMI's own photo, an AI image TMI made, or a picture TMI supplied whose maker is not known.
- * Only the Unsplash License has a source page and a licence page.
+ * an open-licence photo from Flickr or StockSnap (decision-imagery lap: CC0, Public Domain Mark or
+ * CC BY, credited with maker, source page and licence page), TMI's own photo, an AI image TMI made,
+ * or a picture TMI supplied whose maker is not known. Only the TMI kinds have no source or licence page.
  */
 export type CardImageLicense =
   | "Unsplash License"
+  | "CC0 1.0"
+  | "Public Domain Mark 1.0"
+  | "CC BY 2.0"
   | "Eigen foto TMI"
   | "AI-beeld van TMI"
   | "Aangeleverd door TMI";
@@ -39,12 +43,12 @@ export interface CardImageManifestEntry {
   alt: string;
   /** Point to keep in view when the frame crops further, in percent (0–100). */
   focalPoint: { x: number; y: number };
-  /** Maker as named in the owner's file name (the Unsplash photographer), "TMI", or "Onbekend". */
+  /** Maker: the Unsplash photographer, the Flickr / StockSnap maker, "TMI", or "Onbekend". */
   author: string;
-  /** Source page of the original upload (Unsplash only). */
+  /** Source page of the original upload (Unsplash, Flickr or StockSnap; none for TMI's own). */
   sourceUrl?: string;
   license: CardImageLicense;
-  /** Licence page (Unsplash only). */
+  /** Licence page (Unsplash or Creative Commons; none for TMI's own). */
   licenseUrl?: string;
   /** Set when the same photo serves more than one id (sourcing rule: record every reuse). */
   reusedFrom?: string;
@@ -94,6 +98,8 @@ export interface CardImageCredit {
   text: string;
   author: string;
   sourceUrl?: string;
+  /** Link text for the source page, e.g. "Foto op Flickr" (set when there is a source page). */
+  sourceLabel?: string;
   license: CardImageLicense;
   licenseUrl?: string;
   /** How many cards and events show this picture (the owner reused some). */

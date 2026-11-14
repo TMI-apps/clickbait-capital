@@ -37,6 +37,23 @@ export function formatCardImageCredit(
   return `Foto: ${entry.author}, ${entry.license}`;
 }
 
+/** Photo sites the manifest links to, by host, named the way the credit line shows them. */
+const SOURCE_SITES: Record<string, string> = {
+  "unsplash.com": "Unsplash",
+  "www.flickr.com": "Flickr",
+  "stocksnap.io": "StockSnap",
+};
+
+/**
+ * Link text for a picture's source page ("Foto op Flickr"), or undefined when there is none.
+ * An unknown host still gets a link, labelled with the host itself.
+ */
+export function formatImageSourceLabel(sourceUrl: string | undefined): string | undefined {
+  if (!sourceUrl) return undefined;
+  const host = new URL(sourceUrl).hostname;
+  return `Foto op ${SOURCE_SITES[host] ?? host}`;
+}
+
 /**
  * One credit per distinct picture, in manifest order. A picture reused for several ids
  * (`reusedFrom`) is credited once, with the number of cards that show it.
@@ -53,6 +70,7 @@ export function listCardImageCredits(): CardImageCredit[] {
     text: formatCardImageCredit(entry),
     author: entry.author,
     sourceUrl: entry.sourceUrl,
+    sourceLabel: formatImageSourceLabel(entry.sourceUrl),
     license: entry.license,
     licenseUrl: entry.licenseUrl,
     cardCount: counts.get(entry.contentId) ?? 1,

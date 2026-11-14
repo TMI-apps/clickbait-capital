@@ -15,18 +15,18 @@ Pictures for the cards and events of the deck and the hero photo of each phase i
 | Layer      | Path                                | Purpose                                                                                                                                                                            |
 | ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | API        | `api/index.ts`                      | Public barrel: `getCardImage`, `getPhaseImage`, `listCardImageCredits`, `listPhaseImageCredits`, `formatCardImageCredit`, `ImageCreditList`, both manifests, size constants, types |
-| Components | `components/ImageCreditList.tsx`    | Credit list: lazy 64×48 thumbnail (the credit's `src`), maker, source and licence (linked when they have a page), card count for reused photos                                     |
+| Components | `components/ImageCreditList.tsx`    | Credit list: lazy 64×48 thumbnail (the credit's `src`), maker, source ("Foto op Unsplash / Flickr / StockSnap") and licence (linked when they have a page), card count for reused photos |
 | Services   | `services/cardImageManifest.ts`     | Generated manifest, one entry per content id                                                                                                                                       |
-| Services   | `services/cardImageLookup.ts`       | Lookup by id, credit lines, `CARD_IMAGE_WIDTH` / `CARD_IMAGE_HEIGHT`                                                                                                               |
+| Services   | `services/cardImageLookup.ts`       | Lookup by id, credit lines, source-site label (`formatImageSourceLabel`), `CARD_IMAGE_WIDTH` / `CARD_IMAGE_HEIGHT`                                                                 |
 | Services   | `services/phaseImageManifest.ts`    | One hero photo per phase (owner's order)                                                                                                                                           |
 | Services   | `services/phaseImageLookup.ts`      | Lookup by phase, phase credits, `PHASE_IMAGE_WIDTH` / `PHASE_IMAGE_HEIGHT`                                                                                                         |
 | Tests      | `services/phaseImageLookup.test.ts` | Every phase has a photo under 150 KB with an Unsplash credit and a Dutch alt; lookup and credits                                                                                   |
-| Tests      | `services/cardImageLookup.test.ts`  | Every deck id has an entry with a file under 150 KB; no unused files; maker and allowed licence; Unsplash photo page; reused photos share file and credit; thumbnail rules         |
+| Tests      | `services/cardImageLookup.test.ts`  | Every deck id but the 16 listed placeholders has an entry with a file under 150 KB; no unused files; maker and allowed licence; Unsplash / Flickr / StockSnap photo page; CC BY credits complete; reused photos share file and credit; thumbnail rules |
 | Types      | `types/cardImage.types.ts`          | `CardImageManifestEntry`, `CardImage`, `PhaseImageManifestEntry`, `PhaseImage`, `CardImageCredit` (carries the thumbnail `src`), `CardImageLicense`                                |
 
 ## Files
 
-`public/cards/<first-id>.webp`: one 640×480 (4:3) WebP master per distinct photo, named after the first id that uses it (63 files, about 1.7 MB, all under 140 KB). A photo the owner reused for several ids is one file; the later entries point at it and name the first id in `reusedFrom`. 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are served from this app.
+`public/cards/<first-id>.webp`: one 640×480 (4:3) WebP master per distinct photo, named after the first id that uses it (83 files, about 2.2 MB, all under 140 KB). A photo the owner reused for several ids is one file; the later entries point at it and name the first id in `reusedFrom`. 640 px covers the card's on-screen width at 2× pixel density, so there is no `srcset`. Never hotlinked: the files are served from this app.
 
 ## Phase photos
 
@@ -35,6 +35,7 @@ Pictures for the cards and events of the deck and the hero photo of each phase i
 ## Sourcing (how the manifest was built)
 
 - **Owner's sheet (owner-photos lap):** the owner assigned a photo to every card and event id (87 ids, 63 distinct photos). They are used exactly as assigned, with no agent filter (thumbnail-imagery D11). 57 are Unsplash photos (Unsplash License: maker's name from the original file name, photo page `https://unsplash.com/photos/<id>`), 3 are TMI's own photos, 1 is an AI image TMI made (Google Gemini), and 2 are supplied by TMI with an unknown maker (credited "Aangeleverd door TMI").
+- **Decision photos (decision-imagery lap):** 20 of the 36 decision cards and scandals got a photo the owner picked from agent-sourced candidates (Openverse search: Flickr and StockSnap, CC0 1.0 / Public Domain Mark 1.0 / CC BY 2.0, ≥ 960 px). Credited with the maker as the source page names them, the Flickr or StockSnap page and the Creative Commons licence page; CC BY requires all three. The other 16 keep the type placeholder (listed in the test's `PLACEHOLDER_IDS`). Candidates and their manifest live on the `transport/decision-images` branch, not in `main`.
 - **Captions:** viral / ad / event entries get a caption and sticker about the card's topic, never words in the pictured person's mouth; news stays plain (thumbnail-imagery D7). Markers sit where the photo has a clear subject.
 - **Processing:** crop 4:3 around a chosen point in the original, resize to 640×480, WebP (quality lowered until under 140 KB). The manifest's `focalPoint` is where that point lands in the master.
 - The build script ran once and is not part of the app. To replace one picture: export it as above to `public/cards/<id>.webp`, edit that entry (alt, author, source, licence, thumbnail); the tests catch a missing or unused file, a licence outside the allowed set or a caption that breaks the rules.
@@ -47,10 +48,10 @@ Pictures for the cards and events of the deck and the hero photo of each phase i
 - **Credits on `/credits` (D4, owner-photos D3):** one row per distinct photo: maker's name, source page and licence (linked when they have one), and the card count when the owner reused it.
 - **Photos, not illustrations (D5):** the content's image themes describe satirical illustrations; the owner picks photos that match them (owner-photos lap).
 
-- **Every card has a photo (owner-photos D1):** the owner's sheet covered every id, so `PLACEHOLDER_IDS` was empty; an id without an entry shows GameCard's type-icon placeholder (D6). The 24 decision cards and 12 decision scandals of the decision-cards lap have no photo yet and are listed in `PLACEHOLDER_IDS` until the decision-imagery lap (policy-cards § 10).
+- **Every card has a photo (owner-photos D1):** the owner's sheet covered every id; an id without an entry shows GameCard's type-icon placeholder (D6). Exception: 16 of the 36 decision cards and scandals have no fitting open-licence photo and stay on the placeholder by the owner's pick (decision-imagery D1); they are listed in `PLACEHOLDER_IDS`.
 - **Thumbnail look (thumbnail-imagery D2–D8):** expressive photos plus caption / sticker / marker data per entry, drawn by the `ThumbnailFrame` kit component; news stays plain.
 - **Phase photos here (phase-images D1):** the phase intro photos need the same provenance and credits, so card-imagery owns them; game-flow only shows them.
-- **Owner's pictures only (owner-photos D1, D2):** the CC0 / CC BY fallbacks are gone; licences are the Unsplash License plus three owner-supplied kinds (own photo, AI image, supplied with unknown maker).
+- **Owner's pictures only (owner-photos D1, D2; decision-imagery D2):** every picture is one the owner chose. Licences are the Unsplash License, three owner-supplied kinds (own photo, AI image, supplied with unknown maker) and, for the decision photos the owner picked, CC0 1.0, Public Domain Mark 1.0 and CC BY 2.0 with source and licence page.
 
 ## Dependencies
 

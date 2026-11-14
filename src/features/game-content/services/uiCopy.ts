@@ -172,7 +172,7 @@ export const UI_COPY = {
     madeBy: "Gemaakt door TMI",
     imagesHeading: "Beelden",
     imagesIntro:
-      "De meeste foto's komen van Unsplash: iedereen mag ze gebruiken, met de naam van de maker erbij. Een paar foto's zijn van TMI zelf en één plaatje is met AI gemaakt. Met dank aan de makers:",
+      "De meeste foto's komen van Unsplash: iedereen mag ze gebruiken, met de naam van de maker erbij. Andere komen van Flickr en StockSnap, met een open licentie (CC0, publiek domein of CC BY). Een paar foto's zijn van TMI zelf en één plaatje is met AI gemaakt. Met dank aan de makers:",
     audioHeading: "Geluid",
     privacyLink: "Privacy",
     closeButton: "Sluiten",
