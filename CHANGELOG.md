@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.0](https://github.com/TMI-apps/clickbait-capital/compare/v0.45.0...v0.46.0) (2026-11-14)
+
+
+### Features
+
+* Add chart juice by move size, streaks and gain flights, and drop the pause button ([#67](https://github.com/TMI-apps/clickbait-capital/issues/67)) ([8d674ab](https://github.com/TMI-apps/clickbait-capital/commit/8d674ab61b781dbda6d6e404063ca32e8ed28dd0))
+* Add company decision cards with real-case links and decision scandals ([#70](https://github.com/TMI-apps/clickbait-capital/issues/70)) ([dd7c1b2](https://github.com/TMI-apps/clickbait-capital/commit/dd7c1b2c3137d66eb144cfb0431915effc2bda7b))
+* Add juice to the app's flow and a Trillen setting ([#64](https://github.com/TMI-apps/clickbait-capital/issues/64)) ([1fc6bbf](https://github.com/TMI-apps/clickbait-capital/commit/1fc6bbf52b837b475e50d6880ad8ae7df37d9274))
+* Add juice to the board's moment-to-moment play ([#63](https://github.com/TMI-apps/clickbait-capital/issues/63)) ([25256c2](https://github.com/TMI-apps/clickbait-capital/commit/25256c24a5e8713f005d22ea5aa568e2b78fa306))
+* Desktop board puts the hand under the feed and stacks the stats beside it ([#48](https://github.com/TMI-apps/clickbait-capital/issues/48)) ([e1f3c50](https://github.com/TMI-apps/clickbait-capital/commit/e1f3c50474bf9a679c7ae5729b35fc1bcf28f56f))
+* Draw a random hand of three cards in a random order ([#44](https://github.com/TMI-apps/clickbait-capital/issues/44)) ([9804415](https://github.com/TMI-apps/clickbait-capital/commit/98044152a709cc43ccd7e802767678b03c9f795b))
+* Event choices play card juice and the feed opens a drop slot ([#43](https://github.com/TMI-apps/clickbait-capital/issues/43)) ([eab0c75](https://github.com/TMI-apps/clickbait-capital/commit/eab0c75ed5ddd6fb02265c1c777a6ffe28ab69d5))
+* Event-driven game juice system core and /juice inspector ([#61](https://github.com/TMI-apps/clickbait-capital/issues/61)) ([c58dcef](https://github.com/TMI-apps/clickbait-capital/commit/c58dcef19804154c9d7015e509dd7780dec17298))
+* Every card type gets a third of the hand, and Droogte is gone ([#54](https://github.com/TMI-apps/clickbait-capital/issues/54)) ([41c7a2c](https://github.com/TMI-apps/clickbait-capital/commit/41c7a2cdc722014ca195e5bd28222adedcaed691))
+* Explain the users-and-money score on the end and rules screens ([#55](https://github.com/TMI-apps/clickbait-capital/issues/55)) ([c1f697e](https://github.com/TMI-apps/clickbait-capital/commit/c1f697e779586e142c6da9a3da1adfdb49d89cfa))
+* Fill the desktop window with the score chart ([#66](https://github.com/TMI-apps/clickbait-capital/issues/66)) ([9b5179f](https://github.com/TMI-apps/clickbait-capital/commit/9b5179feef4f04fcf26c299d052dd570a7d17aa3))
+* Fit the game board to the phone screen and start drags at once ([#35](https://github.com/TMI-apps/clickbait-capital/issues/35)) ([44b024c](https://github.com/TMI-apps/clickbait-capital/commit/44b024c7c080588d9d67880062c677567f6c6e0c))
+* Follower comments sit under each post in the feed ([#46](https://github.com/TMI-apps/clickbait-capital/issues/46)) ([5f8e643](https://github.com/TMI-apps/clickbait-capital/commit/5f8e6432745fcb98352681cee63645eb3fa6b2ba))
+* Followers with faces react in a live chat under the feed ([#45](https://github.com/TMI-apps/clickbait-capital/issues/45)) ([bf5ba86](https://github.com/TMI-apps/clickbait-capital/commit/bf5ba8603c0ef5a03ddde2f24878d1a2c22e51a8))
+* Forecast the score lines while a card is held ([#53](https://github.com/TMI-apps/clickbait-capital/issues/53)) ([8eed8c5](https://github.com/TMI-apps/clickbait-capital/commit/8eed8c5b7a4fb98908c1729fa19139206e6c535c))
+* Grow from 0 users with compounding, per-user effects ([#60](https://github.com/TMI-apps/clickbait-capital/issues/60)) ([0f21298](https://github.com/TMI-apps/clickbait-capital/commit/0f212985701206f846e24bb2823624b1af93abab))
+* Hands come from per-type draw piles and mostly hold one of each type ([#58](https://github.com/TMI-apps/clickbait-capital/issues/58)) ([224de21](https://github.com/TMI-apps/clickbait-capital/commit/224de2179ce334cce41b766f4d23b658f0c3a0ca))
+* Hide event effects until the player picks an action ([#41](https://github.com/TMI-apps/clickbait-capital/issues/41)) ([7f5d403](https://github.com/TMI-apps/clickbait-capital/commit/7f5d40307a9038be92d8c7f80748e24dd109466f))
+* Let the player name their app and show the feed as its official account ([#69](https://github.com/TMI-apps/clickbait-capital/issues/69)) ([e0e7ef6](https://github.com/TMI-apps/clickbait-capital/commit/e0e7ef66dabd9c0aa5db6a25cea0efa21f4aafaa))
+* Phase intros open with the owner's photo for each phase ([#52](https://github.com/TMI-apps/clickbait-capital/issues/52)) ([d379cd8](https://github.com/TMI-apps/clickbait-capital/commit/d379cd8eeb50264f1953588951c0db729a53b9e1))
+* Play the board's juice and sounds through juice events ([#62](https://github.com/TMI-apps/clickbait-capital/issues/62)) ([4645776](https://github.com/TMI-apps/clickbait-capital/commit/4645776d093b3d82b201f9a8f2c968822ccbd339))
+* Rewrite the game for 11-year-olds with tap-to-explain words ([#37](https://github.com/TMI-apps/clickbait-capital/issues/37)) ([efe40c0](https://github.com/TMI-apps/clickbait-capital/commit/efe40c05cdabb9422230e1454b813d16408d1fd5))
+* Save the running game on the device and offer to resume it ([#31](https://github.com/TMI-apps/clickbait-capital/issues/31)) ([d521d02](https://github.com/TMI-apps/clickbait-capital/commit/d521d02e8692ab9bfcc800b633caf9305f43a370))
+* Share your result as an image card ([#30](https://github.com/TMI-apps/clickbait-capital/issues/30)) ([b5cf71b](https://github.com/TMI-apps/clickbait-capital/commit/b5cf71b57c6231cf60ab84ec33c0fa2bd1817da0))
+* Show the card's picture on feed posts ([#38](https://github.com/TMI-apps/clickbait-capital/issues/38)) ([2b9cb9a](https://github.com/TMI-apps/clickbait-capital/commit/2b9cb9aa1dafb4a9c73655ba323fd921b930e0b7))
+* Show the whole run on the score chart from zero ([#57](https://github.com/TMI-apps/clickbait-capital/issues/57)) ([a36c8e1](https://github.com/TMI-apps/clickbait-capital/commit/a36c8e11a7bb97af178b9492287a3dfd3dd0b4b5))
+* Spread world events over the run as surprises ([#42](https://github.com/TMI-apps/clickbait-capital/issues/42)) ([ab2adf5](https://github.com/TMI-apps/clickbait-capital/commit/ab2adf5c419a3f29f7fbd2814694f42e535c706d))
+* Thumbnail-style card imagery ([#36](https://github.com/TMI-apps/clickbait-capital/issues/36)) ([6ba3916](https://github.com/TMI-apps/clickbait-capital/commit/6ba3916f4e65a3f68c638200d9abb56587c2d7f5))
+* Use the owner's photo for every card and credit each maker ([#39](https://github.com/TMI-apps/clickbait-capital/issues/39)) ([f33503c](https://github.com/TMI-apps/clickbait-capital/commit/f33503c14e64638918689affbe522b667ab8275b))
+* Users and money are the score, with goal lines and a scandal chance ([#51](https://github.com/TMI-apps/clickbait-capital/issues/51)) ([3c9b187](https://github.com/TMI-apps/clickbait-capital/commit/3c9b187d80b6a3f5c2b767e540bdee10125a01c1))
+* Vivid second-person phase intros ([#56](https://github.com/TMI-apps/clickbait-capital/issues/56)) ([e0d34c1](https://github.com/TMI-apps/clickbait-capital/commit/e0d34c16907c8ed5fe390c680b43f90d045bea89))
+
+
+### Bug Fixes
+
+* Readable buttons, cleaner feed posts and event images ([#40](https://github.com/TMI-apps/clickbait-capital/issues/40)) ([a3aea43](https://github.com/TMI-apps/clickbait-capital/commit/a3aea434cdd8b3c1a9fe537ab49e61e03233be18))
+* start the score chart in the panel's bottom-left corner ([#59](https://github.com/TMI-apps/clickbait-capital/issues/59)) ([5301e61](https://github.com/TMI-apps/clickbait-capital/commit/5301e61f35c1a747e813823225792f561f12b9f7))
+* Tone down card handling and comment sounds ([#65](https://github.com/TMI-apps/clickbait-capital/issues/65)) ([c2aa63f](https://github.com/TMI-apps/clickbait-capital/commit/c2aa63f170f6ec350a507f73885a2ee4869e2e4a))
+* Update banner's "Nu laden" reloads into the new version ([#47](https://github.com/TMI-apps/clickbait-capital/issues/47)) ([a7cd1ab](https://github.com/TMI-apps/clickbait-capital/commit/a7cd1ab9b5441f334cb952ecaf4ee9fdc03c4cdb))
+
 ## [0.45.0](https://github.com/TMI-apps/clickbait-capital/compare/v0.44.0...v0.45.0) (2026-11-05)
 
 
