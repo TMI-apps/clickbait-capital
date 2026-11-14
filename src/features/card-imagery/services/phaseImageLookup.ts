@@ -3,7 +3,10 @@ import type {
   PhaseImage,
   PhaseImageManifestEntry,
 } from "@/features/card-imagery/types/cardImage.types";
-import { formatCardImageCredit } from "@/features/card-imagery/services/cardImageLookup";
+import {
+  formatCardImageCredit,
+  formatImageSourceLabel,
+} from "@/features/card-imagery/services/cardImageLookup";
 import { PHASE_IMAGE_MANIFEST } from "@/features/card-imagery/services/phaseImageManifest";
 
 /** Every phase photo is a 16:9 master of this size (README § Phase photos). */
@@ -33,6 +36,7 @@ export function listPhaseImageCredits(): CardImageCredit[] {
     text: formatCardImageCredit(entry),
     author: entry.author,
     sourceUrl: entry.sourceUrl,
+    sourceLabel: formatImageSourceLabel(entry.sourceUrl),
     license: entry.license,
     licenseUrl: entry.licenseUrl,
     cardCount: 1,

@@ -6,6 +6,9 @@ import type { CardImageManifestEntry } from "@/features/card-imagery/types/cardI
  * thumbnail parts drawn over it in code (news has none: thumbnail-imagery D7). A photo the owner
  * reused for several ids is one file; the later ids name the first in `reusedFrom`.
  * Built by the owner-photos lap's script; edit by hand to fix alt text or thumbnail data.
+ * The decision-imagery lap added 20 decision cards and scandals with owner-picked open-licence
+ * photos (CC0, Public Domain Mark, CC BY) from Flickr and StockSnap; the other 16 decision ids
+ * have no entry and show GameCard's type placeholder.
  */
 export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
   {
@@ -23,6 +26,57 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     thumbnail: {
       caption: "Nog 2 dagen",
       sticker: "⏰",
+    },
+  },
+  {
+    contentId: "ad-besluit-reclame-onzeker",
+    file: "ad-besluit-reclame-onzeker.webp",
+    alt: "Een zwarte hond ligt met een sip gezicht op de vloer.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Ken Cooper",
+    sourceUrl: "https://stocksnap.io/photo/dog-sad-2SQMYBPQGK",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Voel je rot?",
+      sticker: "😢",
+    },
+  },
+  {
+    contentId: "ad-besluit-stoppen-factcheckers",
+    file: "ad-besluit-stoppen-factcheckers.webp",
+    alt: "Een krant, een bril en een telefoon liggen op een witte tafel.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Patryk Dziejma",
+    sourceUrl: "https://stocksnap.io/photo/newspaper-magazine-FT18I6U09O",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Geen check",
+      sticker: "❌",
+    },
+  },
+  {
+    contentId: "ad-besluit-vinkje-te-koop",
+    file: "ad-besluit-vinkje-te-koop.webp",
+    alt: "Eurobiljetten en munten liggen door elkaar op tafel.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Martin Vorel",
+    sourceUrl: "https://stocksnap.io/photo/money-euros-WX191DV28C",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Vinkje kopen",
+      sticker: "✅",
     },
   },
   {
@@ -451,6 +505,40 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     },
   },
   {
+    contentId: "event-europa-ontwerp",
+    file: "event-europa-ontwerp.webp",
+    alt: "Het glazen gebouw van het Europees Parlement achter bomen en een loopbrug.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "European Parliament",
+    sourceUrl: "https://www.flickr.com/photos/36612355@N08/51298116268",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Brussel!",
+      sticker: "🇪🇺",
+    },
+  },
+  {
+    contentId: "event-filterspiegel",
+    file: "event-filterspiegel.webp",
+    alt: "Een open make-uppalet met felle kleuren naast flesjes foundation.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Alexandre Vanier",
+    sourceUrl: "https://stocksnap.io/photo/beauty-makeup-34MSYVUYS0",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Perfect?",
+      sticker: "💄",
+    },
+  },
+  {
     contentId: "event-gelekte-documenten",
     file: "news-uitleg-inflatie.webp",
     alt: "Een vergrootglas, een notitieblok en een potlood op een wit bureau.",
@@ -532,6 +620,57 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     thumbnail: {
       caption: "Wanneer geld?",
       sticker: "💰",
+    },
+  },
+  {
+    contentId: "event-klas-slaapt-in",
+    file: "event-klas-slaapt-in.webp",
+    alt: "Een leeg klaslokaal met rijen tafels en stoelen.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Semtrio",
+    sourceUrl: "https://www.flickr.com/photos/163837264@N07/43679970155",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Iedereen moe",
+      sticker: "😴",
+    },
+  },
+  {
+    contentId: "event-land-verbiedt-app",
+    file: "event-land-verbiedt-app.webp",
+    alt: "Twee paspoorten liggen op een grijze houten tafel.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Design by Matt",
+    sourceUrl: "https://stocksnap.io/photo/passport-table-VECQBVM0GI",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Verboden!",
+      sticker: "🚫",
+    },
+  },
+  {
+    contentId: "event-moderatoren-alarm",
+    file: "event-moderatoren-alarm.webp",
+    alt: "Tekening van een gestreste man achter een laptop, met overal handen die werk aangeven.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Ciphr Connect",
+    sourceUrl: "https://www.flickr.com/photos/193749286@N04/51420229164",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Alarm!",
+      sticker: "🚨",
     },
   },
   {
@@ -674,6 +813,23 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     },
   },
   {
+    contentId: "event-zakgeld-weg",
+    file: "event-zakgeld-weg.webp",
+    alt: "Een stapeltje glimmende munten van dichtbij.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "conall..",
+    sourceUrl: "https://www.flickr.com/photos/16176711@N02/51851037122",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Alles weg",
+      sticker: "💸",
+    },
+  },
+  {
     contentId: "news-ai-plaatje-check",
     file: "viral-wolkencomplot.webp",
     alt: "Een getekende megafoon met een tekstwolk waarin 'FAKE NEWS' staat.",
@@ -699,6 +855,71 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     sourceUrl: "https://unsplash.com/photos/rOal87Pws0s",
     license: "Unsplash License",
     licenseUrl: "https://unsplash.com/license",
+  },
+  {
+    contentId: "news-besluit-factcheckers-houden",
+    file: "news-besluit-factcheckers-houden.webp",
+    alt: "Iemand in pak leest een zakenkrant aan een bureau.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Olu Eletu",
+    sourceUrl: "https://stocksnap.io/photo/business-newspaper-ZMLBPIOGTD",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+  },
+  {
+    contentId: "news-besluit-moderatoren-betalen",
+    file: "news-besluit-moderatoren-betalen.webp",
+    alt: "Drie collega's werken samen aan laptops aan een tafel.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Burst",
+    sourceUrl: "https://stocksnap.io/photo/colleagues-meeting-KPVOIKEPSG",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+  },
+  {
+    contentId: "news-besluit-onderzoek-delen",
+    file: "news-besluit-onderzoek-delen.webp",
+    alt: "Een onderzoeker met handschoenen bedient een apparaat in een lab.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "National Institutes of Health (NIH)",
+    sourceUrl: "https://www.flickr.com/photos/132318516@N08/51817352915",
+    license: "Public Domain Mark 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+  },
+  {
+    contentId: "news-besluit-pauzeknop",
+    file: "news-besluit-pauzeknop.webp",
+    alt: "Een wandelaar ligt in het gras en fotografeert bergen met een telefoon.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "USFWSAlaska",
+    sourceUrl: "https://www.flickr.com/photos/54775250@N07/51358617555",
+    license: "Public Domain Mark 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+  },
+  {
+    contentId: "news-besluit-prive-accounts",
+    file: "news-besluit-prive-accounts.webp",
+    alt: "Een oud, roestig hangslot aan een groene houten deur.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Michal Jarmoluk",
+    sourceUrl: "https://stocksnap.io/photo/padlock-lock-4YOS7QUWRV",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
   },
   {
     contentId: "news-bronvermelding",
@@ -1009,6 +1230,108 @@ export const CARD_IMAGE_MANIFEST: readonly CardImageManifestEntry[] = [
     thumbnail: {
       caption: "Echt of AI?",
       sticker: "🤖",
+    },
+  },
+  {
+    contentId: "viral-besluit-autoplay",
+    file: "viral-besluit-autoplay.webp",
+    alt: "Een lege zwarte bank in een blauw verlichte, lege ruimte.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Patrick McMahon",
+    sourceUrl: "https://stocksnap.io/photo/sunlight-couch-NB6ISAF275",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Nog eentje",
+      sticker: "▶️",
+    },
+  },
+  {
+    contentId: "viral-besluit-eindeloos-scrollen",
+    file: "viral-besluit-eindeloos-scrollen.webp",
+    alt: "Een hand scrolt in het donker op een telefoon, met een koffiebeker ernaast.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "JESHOOTS.com",
+    sourceUrl: "https://stocksnap.io/photo/mobile-smartphone-DLITZEAVJJ",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Nooit klaar",
+      sticker: "📱",
+    },
+  },
+  {
+    contentId: "viral-besluit-geheime-boost",
+    file: "viral-besluit-geheime-boost.webp",
+    alt: "Kleurige marionetten met grote haren hangen aan touwtjes.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "donald judge",
+    sourceUrl: "https://www.flickr.com/photos/27911027@N00/52347074629",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Stiekem!",
+      sticker: "🤫",
+    },
+  },
+  {
+    contentId: "viral-besluit-nachtmeldingen",
+    file: "viral-besluit-nachtmeldingen.webp",
+    alt: "Een rode maan bij een maansverduistering in een zwarte nachtlucht.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "David Wipf (via Flickr)",
+    sourceUrl: "https://www.flickr.com/photos/66956608@N06/54384256303",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Wakker?!",
+      sticker: "🔔",
+    },
+  },
+  {
+    contentId: "viral-besluit-vlammetjes",
+    file: "viral-besluit-vlammetjes.webp",
+    alt: "Een hand houdt een brandend sterretje vast in het donker.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Kaique Rocha",
+    sourceUrl: "https://stocksnap.io/photo/sparks-sparkler-HABABZA1UY",
+    license: "CC0 1.0",
+    licenseUrl: "https://creativecommons.org/publicdomain/zero/1.0/",
+    thumbnail: {
+      caption: "Niet breken!",
+      sticker: "🔥",
+    },
+  },
+  {
+    contentId: "viral-besluit-vriendensuggesties",
+    file: "viral-besluit-vriendensuggesties.webp",
+    alt: "Iemand loopt alleen door een mistig park met lantaarns, in zwart-wit.",
+    focalPoint: {
+      x: 50,
+      y: 50,
+    },
+    author: "Kimmo Räisänen",
+    sourceUrl: "https://www.flickr.com/photos/78756325@N06/52689680519",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    thumbnail: {
+      caption: "Wie is dit?",
+      sticker: "👀",
     },
   },
   {
