@@ -4,7 +4,7 @@ Lap: temp_job_policy-cards · Branch: docs/policy-cards-research · Base: main a
 
 Part 1 lists what the deck covers today. Part 2 lists real platform decisions and malpractices it does not cover yet, with a source for each. Part 3 ranks them for the game.
 
-**How to read the sources.** Each item names its source type: a **regulator decision** or **court ruling** is a finding; a **complaint** (a lawsuit by a state attorney general) contains **allegations** the company disputes; **leaked documents** and **investigative journalism** report what internal papers say, and the company usually disputes the framing. The game never names the company (recorded decision: no brand names), so this split matters only for the "Echt gebeurd" line (PROPOSAL § 6): an allegation is written as "volgens een rechtszaak", never as a proven fact. Where the search found only secondary coverage, the row says so.
+**How to read the sources.** Each item names its source type: a **regulator decision** or **court ruling** is a finding; a **complaint** (a lawsuit by a state attorney general) contains **allegations** the company disputes; **leaked documents** and **investigative journalism** report what internal papers say, and the company usually disputes the framing. The game never names the company (recorded decision: no brand names) and does not credit real events (owner decision D3 in PROPOSAL § 0): these cases are inspiration only. The split matters for how firmly a card or event may state something. Where the search found only secondary coverage, the row says so.
 
 ---
 
@@ -127,9 +127,9 @@ Snap Map location sharing; "Elsagate" (odd auto-generated kids' videos, 2017); d
 
 ## 3. Top 10 missing, ranked for the game
 
-Ranked by lesson value for an 11-year-old × how well it works as a **company policy** a player can drag × source strength.
+Ranked by lesson value for an 11-year-old × how well it works as a **company decision** a player can drag × source strength.
 
-| Rank | Missing malpractice                      | Why it is a strong policy card                                               | Source strength            |
+| Rank | Missing malpractice                      | Why it is a strong decision card                                             | Source strength            |
 | ---- | ---------------------------------------- | ---------------------------------------------------------------------------- | -------------------------- |
 | 1    | Autoplay + infinite scroll (A1, A2)      | Kids know it from their own phone; the EU now treats it as illegal design    | Regulator (preliminary)    |
 | 2    | Streaks (A3)                             | Pupils have streaks themselves; the "duty" feeling is instantly recognisable | Complaint                  |

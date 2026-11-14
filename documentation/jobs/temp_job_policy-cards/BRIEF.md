@@ -13,7 +13,7 @@ Every card in the deck is a post that shows up in the feed. The player is "the a
 ## Success check (for this lap)
 
 - RESEARCH.md: an inventory of what the deck covers, and a sourced, dated list of real platform decisions not yet covered, each with incentive, harm, phase fit and age-11 fit; a ranked top 10.
-- PROPOSAL.md: how hand and feed shift from posts (phases 1–2) to company policy announced on an official company account (phases 3–4); card face, mechanics, interaction with scandals, regulators and followers, balance impact, fictional framing without brand names, the "Echt gebeurd" credit; 15–25 draft policy cards and 5–10 event ideas; build laps of size M or smaller; owner questions with a recommendation.
+- PROPOSAL.md (revision 2, after the owner's answers): within the three existing types the pools shift from posts to company decisions over the phases, announced on the official account of the app the player names; 15–25 decision cards, 8–12 events (heavy topics fictionalised), the naming flow, follower cues, the balance approach and 2–3 build laps.
 - No code, no protected files, no new dependencies.
 
 ## In scope
@@ -22,16 +22,17 @@ Every card in the deck is a post that shows up in the feed. The player is "the a
 
 ## Out of scope
 
-- Will NOT do: engine, content, board or imagery changes (proposed build laps, PROPOSAL § 9); changes to the existing 71 posts (owner: "we don't have to change those"); `DOC_GAME_DESIGN.md` and feature READMEs (updated by the build laps once the owner has answered PROPOSAL § 10).
+- Will NOT do: engine, content, board or imagery changes (proposed build laps, PROPOSAL § 10); changes to the existing 71 posts (owner: "we don't have to change those"); `DOC_GAME_DESIGN.md` and feature READMEs (updated by the build laps in the build laps).
 
 ## Edges (for the build laps, not this lap)
 
-| Feature area      | Hook point                                                                |
-| ----------------- | ------------------------------------------------------------------------- |
-| game-engine       | card schema, hand slots, active-policy state, event trigger               |
-| game-content      | policy pool, events, glossary, followers, balance simulation              |
-| game-board        | draft card face, official post in the feed, active-policy strip, forecast |
-| follower-comments | policy cue lines                                                          |
-| game-save         | saved `GameState` gains active policies (format version)                  |
-| card-imagery      | policy images, company avatar                                             |
-| game-flow         | phase 3 intro, end report, sources page                                   |
+| Feature area      | Hook point                                                                 |
+| ----------------- | -------------------------------------------------------------------------- |
+| game-content      | decision cards, events, `announce` field, names, filter, copy, balance sim |
+| game-flow         | naming step, `{app}` in intros, endings, report                            |
+| game-session      | app name next to the run                                                   |
+| game-save         | optional `appName`; version 7 → 8 with the new cards                       |
+| game-board        | feed header and official-post variant                                      |
+| follower-comments | `official` cue                                                             |
+| result-share      | app name in share text and card                                            |
+| card-imagery      | optional images for the new cards and events                               |

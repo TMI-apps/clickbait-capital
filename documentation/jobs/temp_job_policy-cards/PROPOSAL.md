@@ -1,201 +1,217 @@
-# Proposal — Policy cards ("Beleid") on the company's official account
+# Proposal — From posts to company decisions, on your own app's official account
 
 Lap: temp_job_policy-cards · Research: [RESEARCH.md](RESEARCH.md) · Brief: [BRIEF.md](BRIEF.md)
 
-## 1. The idea in five lines
+**Revision 2.** The owner answered the first proposal's questions; their answers replace its policy-card type. This version describes only the agreed concept.
 
-1. Phases 1–2 stay as they are: you drag **posts** (Viraal, Advertentie, Nieuws) into the feed.
-2. From phase 3 the hand also holds **Beleid** cards: company decisions such as "Autoplay standaard aan" or "Vlammetjes voor elke dag". Phase 3 has one policy per hand, phase 4 two.
-3. Dragging a policy into the feed posts it as an **announcement on the company's official account** (avatar, ✓, "Officieel"). The post shows the company's friendly spin ("Nóg makkelijker kijken! 🎉"); the card shows what it really does.
-4. A policy has a one-time effect and then **keeps working every turn** while it is active (at most three; the oldest lapses). Risky policies unlock their own scandals and regulator events; Bescherming policies can **undo** a risky one.
-5. Each policy carries an **"Echt gebeurd"** line ("In 2023 kreeg een app een boete van € 345 miljoen hiervoor.") without brand names; the sources sit on a separate page.
+## 0. Owner decisions (recorded, 2026-11-14)
+
+| #   | Question                     | Owner's answer                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | A separate policy card type? | **No.** "That's what they all are (just less explicit for now). No separate card type. You have viral-boost policy, news policy. Everything you choose now is also a policy choice, but we don't call it that." No Beleid type, no active-policy slots, no persistent effects, no cap. The three types and the engine stay. As the phases progress, the cards in each type shift from single posts to company-level decisions, and they are not labelled "beleid". |
+| D2  | Company name                 | **The player names the app at the start.** The feed is that app's official account; the name appears on company posts, the end texts, the share text, and anywhere else the app is mentioned.                                                                                                                                                                                                                                                                      |
+| D3  | "Echt gebeurd" credit        | **Nothing.** No "Echt gebeurd" line and no sources page. Real events are inspiration only; RESEARCH.md stays in the repo as background.                                                                                                                                                                                                                                                                                                                            |
+| D4  | Heavy topics                 | **Everything: hard reality over fun, but more fictional.** Sexual exploitation becomes "meiden worden lastiggevallen door onbekende mannen"; Myanmar becomes a fictional "geweld in een ver land, aangewakkerd door je feed". Written for age 11, never graphic.                                                                                                                                                                                                   |
+
+## 1. The concept in five lines
+
+1. The player names their app at the start. The feed is the official account of that app.
+2. Phase 1 stays all posts. From phase 2, each type's pool also holds **decision cards**: what the company decides, not one post. Their share grows: phase 2 about 1 in 7, phase 3 about 1 in 3, phase 4 half.
+3. A decision card is still Viraal, Advertentie or Nieuws. It has the same one-time effects and card profile, and the same modifiers, scandals and events apply. Only its content is a decision ("Autoplay standaard aan", "Vinkje te koop", "Factcheckers houden").
+4. Dragged into the feed, a decision card shows up as an **official announcement by the app**: "**{app}** ✓ · Officieel" with the company's friendly spin. The card in the hand says what it really does.
+5. New scandal events cover the harm of those decisions, including the heavy topics in fictional form.
 
 ## 2. Why this shape
 
-- **It follows the real arc.** A startup posts and grows; a global platform decides rules for billions. The research (RESEARCH.md § 1 "The gap") shows the deck covers posts well, and company decisions hardly at all.
-- **Posts stay.** The owner likes them; phase 3 keeps two posts per hand, phase 4 one, so the old rhythm fades rather than disappears.
-- **Spin versus reality is the lesson.** Kids read an official announcement that sounds kind and see on the card what it does. That gap is exactly what the research documents (A5: a pause button that saves 1,5 minutes; D2: a "hide likes" option nobody finds).
-- **Persistence is what makes a policy feel like policy.** A post is gone after one turn; a rule keeps acting. Keeping the effect running is also how the delayed boomerang becomes visible: you posted "Meldingen 's nachts" four turns ago, and now parents are at your door.
-- **Precedent.** Strategy and management games treat policies as persistent modifiers you adopt and revoke, separate from one-off actions: civics and policies in _Civilization_, laws in _Frostpunk_, edicts in _Tropico_, card "powers" versus "skills" in deck-builders such as _Slay the Spire_. The board shows the active set, a cap forces trade-offs, and revoking costs something. This proposal copies that pattern; it does not invent a new one.
+- **No new rules to learn.** The engine, effects, forecast, modifiers and scandal system stay. The change is content, a name, and how one kind of post looks in the feed. That keeps the build small and the balance stable.
+- **The shift is felt, not labelled.** A Viraal card in phase 1 is a cat video; in phase 4 it is "Meldingen, ook 's nachts". The player notices that their choices got bigger, which is the lesson the owner wants: every boost was already a policy choice.
+- **Spin versus reality.** The announcement in the feed is the company's voice ("Mis nooit meer iets! 🔔"); the card says what it does ("Je telefoon trilt ook om twee uur 's nachts."). That gap is the core of the research: friendly launches with a business reason behind them.
+- **Naming makes it personal.** "Jouw app heeft een boete" hurts less than "**Pixelplein** heeft een boete". Naming your company or character is a common start in management and life-sim games, and it lets the share text carry the player's own app name.
 
-## 3. When the shift happens
+## 3. Pool per phase
 
-| Phase         | Hand (3 cards)      | Feed                                                                                                              |
-| ------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| 1 Zolderkamer | 3 posts (unchanged) | Your feed (unchanged)                                                                                             |
-| 2 Scale-Up    | 3 posts (unchanged) | Unchanged. The milestone "Investeerders aan tafel" ends with a teaser: "Vanaf nu beslis je ook hoe je app werkt." |
-| 3 Wereldwijd  | 2 posts + 1 policy  | Policies appear as official posts; an **Actief beleid** strip (max 3) sits above the feed                         |
-| 4 Beursgang   | 1 post + 2 policies | Same; the feed header becomes the company page ("Scrollo · Officieel ✓ · 10 mln volgers")                         |
+The pools are set only through each card's existing `phases` field; the engine and the deck draw (deck-draw D1–D4) stay unchanged.
 
-The policy slot is a fixed slot in the hand, not a roll in the type mix, so a policy is always on offer from phase 3 (the hand-mix roll covers only the post slots). The phase 3 intro gets one new line explaining it. Option: start in phase 2 with one policy slot every few turns (owner question Q1).
+| Per type                                   | Phase 1 | Phase 2 | Phase 3 | Phase 4                    |
+| ------------------------------------------ | ------- | ------- | ------- | -------------------------- |
+| The 8 "every phase" posts (text unchanged) | 8       | 8       | 8       | — (narrowed to phases 1–3) |
+| The 4 posts of the phase (unchanged)       | 4       | 4       | 4       | 4                          |
+| New decision cards                         | —       | 2       | 6       | 4                          |
+| **Pool size**                              | 12      | 14      | 18      | 8                          |
+| **Share of decisions**                     | 0 %     | 14 %    | 33 %    | 50 %                       |
 
-## 4. The card
+Phase 4 keeps the scariest posts (deepfake, bots, fan attacks) next to four decisions per type. It meets the content test's minimum of 8 cards per type per phase exactly. The existing posts keep their texts (owner: "we don't have to change those"); only the 8 "every phase" posts per type lose phase 4.
 
-### Face (in the hand)
+## 4. The decision card
 
-```
-┌──────────────────────────────┐
-│ 🏛 BELEID · Groei            │  ← direction colour: Groei / Geld / Bescherming
-│ [image]                       │
-│ Autoplay standaard aan        │  ← title
-│ Na elk filmpje start meteen   │  ← body: what it really does (age-11 Dutch,
-│ het volgende. Stoppen moet je │     glossary markup allowed)
-│ zelf doen.                    │
-│ Nu: 📈 ++    Elke beurt: 📈 + │  ← one-time and per-turn effect (visible meters only)
-│ ⚠ Kan een schandaal geven     │  ← shown when the policy unlocks scandals
-└──────────────────────────────┘
-Detail dialog adds: flavor line · "Echt gebeurd: …" · hidden effects stay hidden.
-```
+### In the hand
 
-### Post (in the feed, after dragging)
+Identical to a post: the same `GameCard`, the type label (Viraal / Advertentie / Nieuws), image, title, body and forecast. No "beleid" label (D1). The body states plainly what the decision does.
+
+### In the feed
 
 ```
-┌──────────────────────────────┐
-│ (S) Scrollo ✓  Officieel · nu │
-│ Nóg makkelijker kijken! 🎉    │  ← announce: the company's spin
-│ Vanaf vandaag start het       │
-│ volgende filmpje vanzelf.     │
-│ 💬 Gamer_Gijs: eindelijk!!    │  ← follower reactions (policy cue)
-│ 💬 Oma Riet: En hoe stop ik?  │
-└──────────────────────────────┘
+┌───────────────────────────────────┐
+│ (P) Pixelplein ✓  Officieel · nu  │ ← app name (D2) + avatar initial + ✓
+│ Mis nooit meer iets! 🔔           │ ← announce: the company's spin
+│ Vanaf vandaag hoor je het meteen  │
+│ als iemand je post liket.         │
+│ [image]                           │
+│ 💬 Gamer_Gijs: eindelijk!!        │ ← follower cue "official" (§ 7)
+│ 💬 Oma Riet: Ook om twee uur 's   │
+│    nachts? Dat meen je niet.      │
+└───────────────────────────────────┘
 ```
 
-Each policy card therefore has two texts: `announce` (corporate tone, exclamation marks, "we" and "jij") and `body` (plain truth). Both pass the existing tone rules: no real brands, people or platforms; hard words marked for the glossary.
+- **Data:** one new optional presentation field on the content card, `announce: { title, body }` (`CardPresentation`, presentation-only like `flavor`; game-content D2: the engine ignores it). A card with `announce` is a decision card; there is no type or flag in the engine.
+- **Feed:** `PhoneFeed` renders a card with `announce` as an official post: the app name with a ✓ and "Officieel", the announce title and body, the card image. Regular posts keep their current look.
+- **Card detail:** unchanged (body, flavor, glossary). The detail dialog may show the announcement as a quote under the body ("Zo kondig je het aan: …"), so the spin is visible before dragging. Decided in lap 1, not an owner choice.
+- **Tone rules unchanged:** no real brands, people or platforms; the decisions are described generically; hard words are marked for the glossary.
 
-### Directions
+## 5. Draft decision cards (24)
 
-Policies reuse the three event option kinds (`EventOptionKind`: commercial, engagement, journalism) instead of a new vocabulary. Player-facing labels:
+Effects are draft numbers in the existing per-phase ranges (raw content values; the engine scales them per phase). Every card follows the card profile in `gameContent.test.ts`: Viraal users +, Toxicity +, revenue 0; Advertentie revenue +, users −, reputation ≤ 0; Nieuws reputation +, Toxicity −, a small users gain below every viral card, revenue 0. The content lap tunes the numbers with the balance simulation. "Res." points to RESEARCH.md § 2 (internal only; nothing is credited in the game, D3).
 
-| Direction       | Kind       | Always (profile)                                          | Never           |
-| --------------- | ---------- | --------------------------------------------------------- | --------------- |
-| **Groei**       | engagement | users +, Toxicity +                                       | money now       |
-| **Geld**        | commercial | money +, reputation −                                     | reputation gain |
-| **Bescherming** | journalism | reputation +, Toxicity −, and a price: users − or money − | Toxicity gain   |
+### Viraal: growth decisions
 
-The profile is enforced by a content test, like the post profile in the game-content README.
+| #   | Fasen | Titel (kaart)                    | Kaarttekst: wat het echt doet                                                                | Aankondiging in de feed                                                   | Effects                  | Res. |
+| --- | ----- | -------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------ | ---- |
+| V1  | 2–3   | Eindeloos scrollen               | De feed houdt nooit meer op. Er komt geen moment waarop je denkt: klaar.                     | **Nooit meer 'volgende pagina'!** Scroll gewoon door. Er is altijd meer.  | users 12, rep −2, tox 9  | A2   |
+| V2  | 2–3   | Vlammetjes voor elke dag         | Stuur elke dag een bericht aan je vriend, anders gaat jullie vlammetje uit. Ook op vakantie. | **Hou je vlammetje brandend! 🔥** Laat zien wie je échte vrienden zijn.   | users 13, rep −2, tox 10 | A3   |
+| V3  | 3     | Autoplay standaard aan           | Na elk filmpje start meteen het volgende. Stoppen moet je zelf doen.                         | **Nóg makkelijker kijken! 🎉** Het volgende filmpje start vanzelf.        | users 14, rep −3, tox 11 | A1   |
+| V4  | 3     | Boze reacties tellen dubbel      | Een bericht met veel boze reacties komt hoger in de feed. Ruzie wint.                        | **We laten je zien waar mensen écht over praten!**                        | users 16, rep −4, tox 14 | B1   |
+| V5  | 3–4   | Meldingen, ook 's nachts         | Je telefoon trilt ook om twee uur 's nachts. Iemand heeft iets geliket.                      | **Mis nooit meer iets! 🔔** Je hoort het meteen als iemand je post liket. | users 14, rep −3, tox 12 | A4   |
+| V6  | 3–4   | Schoonheidsfilters voor iedereen | Een filter maakt je huid glad en je neus kleiner. Zonder filter voel je je ineens lelijk.    | **Laat je mooiste kant zien! ✨** Nieuwe filters voor iedereen.           | users 15, rep −4, tox 12 | C5   |
+| V7  | 4     | Misschien ken je…                | De app stelt nieuwe vrienden voor. Ook onbekende volwassenen aan kinderen.                   | **Vind sneller nieuwe vrienden! 🤝**                                      | users 15, rep −4, tox 13 | C2   |
+| V8  | 4     | Geheime boostknop                | Medewerkers kiezen stiekem welke filmpjes viraal gaan. Niemand kan het zien.                 | **Nieuwe makers krijgen een kans!** Wij helpen talent groeien.            | users 16, rep −4, tox 12 | B2   |
 
-## 5. Mechanics
+### Advertentie: money decisions
 
-| Rule            | Proposal                                                                                                                                                 | Why                                                                                    |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| One-time effect | `effects`, same as a post, scaled per phase by the engine                                                                                                | Same feedback, forecast and juice as posts                                             |
-| Ongoing effect  | `ongoing` effects applied every card turn while active, small (1–3 points per meter), shown on the card as "Elke beurt"                                  | Makes "rules keep working" visible; small values keep the exponential economy in check |
-| Active cap      | at most 3 active; posting a 4th lets the **oldest lapse** (it fades out of the strip with a line in the feed: "Beleid verlopen: …")                      | Forces trade-offs without an extra choice screen                                       |
-| Undo            | a Bescherming policy may name the risky policy it reverses (`revokes`); posting it removes that one at once                                              | Mirrors real reversals (filters, pause buttons, the rewards app in RESEARCH A6)        |
-| Hidden meters   | reputation and Toxicity stay hidden, as now                                                                                                              | Score redesign decisions unchanged                                                     |
-| Combos          | policies do not count toward Echo-Chamber or Ad-Fatigue                                                                                                  | Those rules are about posting rhythm                                                   |
-| News neglect    | a Bescherming policy counts as news (resets "turns without news")                                                                                        | Otherwise phase 4 (1 post slot) forces news neglect                                    |
-| Scandal hooks   | a risky policy lists the scandal events it unlocks (`trigger.requiresPolicy`); while active, those events join the phase's scandal pool                  | The boomerang is traceable to the decision                                             |
-| Regulators      | regulator events (fines, "Europa onderzoekt je ontwerp") prefer an active risky policy as their subject; one option is always "Zet het uit" (revokes it) | Real pattern since 2024: regulators target a design choice (RESEARCH G2)               |
-| Fines           | unchanged formula; an event option may add a fine                                                                                                        | No new money rule                                                                      |
-| Forecast        | the forecast line shows the one-time effect plus the first turn of the ongoing effect; the card shows "Elke beurt" separately                            | Keeps the forecast honest without predicting many turns                                |
-| End report      | lists the policies the player adopted with their "Echt gebeurd" year                                                                                     | Connects the run to the real world                                                     |
+| #   | Fasen | Titel (kaart)                    | Kaarttekst                                                                                              | Aankondiging                                            | Effects                             | Res.    |
+| --- | ----- | -------------------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------- | ------- |
+| A1  | 2–3   | Reclame op maat voor kinderen    | De app houdt bij wat kinderen kijken. Dat verkoop je aan [[adverteerders\|adverteerder]].               | **Alleen reclame die bij jou past!**                    | revenue 16, users −3, rep −2, tox 2 | C3      |
+| A2  | 2–3   | Quizapps mogen gegevens meenemen | Een leuke quizapp neemt jouw [[data]] mee. En die van al je vrienden.                                   | **Nieuw: quizzen van andere makers! 🧩**                | revenue 15, users −3, rep −2, tox 1 | D1      |
+| A3  | 3     | Vinkje te koop                   | Voor een paar euro per maand krijgt iedereen een vinkje. Ook [[nepaccounts\|nepaccount]].               | **Krijg ook een vinkje! ✓** Laat zien dat jij het bent. | revenue 17, users −3, rep −3, tox 3 | E2      |
+| A4  | 3     | Cadeautjes in livestreams        | Kijkers kopen digitale cadeautjes voor streamers. Ook kinderen, met hun zakgeld. De app houdt een deel. | **Steun je favoriete streamer! 💖**                     | revenue 18, users −3, rep −3, tox 3 | C8, C10 |
+| A5  | 3–4   | Reclame als je je rot voelt      | De app ziet wanneer je je onzeker voelt. Juist dan komt de reclame voor puistjescrème.                  | **Precies de juiste reclame op het juiste moment.**     | revenue 19, users −4, rep −4, tox 3 | C4      |
+| A6  | 3–4   | Oplichters betalen extra         | Reclame die op oplichting lijkt, mag blijven staan. Die adverteerders betalen wel meer.                 | **Iedereen mag bij ons adverteren!**                    | revenue 20, users −5, rep −4, tox 4 | E1      |
+| A7  | 4     | Moderatie goedkoop uitbesteden   | Ver weg kijken mensen de hele dag naar nare filmpjes. Voor heel weinig geld.                            | **Nog meer mensen houden onze app veilig!**             | revenue 18, users −4, rep −3, tox 4 | F2      |
+| A8  | 4     | Stoppen met factcheckers         | Geen [[journalisten\|journalist]] meer die berichten checken. Dat scheelt geld. Nepnieuws blijft staan. | **Jullie bepalen zelf wat klopt! 💬**                   | revenue 17, users −3, rep −4, tox 5 | F1      |
 
-### Followers
+### Nieuws: protection decisions
 
-`FOLLOWERS` gains a `policy` cue per direction. Fans cheer Groei ("Eindelijk geen knop meer nodig!"), KortingKevin loves Geld, the critics (Oma Riet, Nina_Checkt) question Groei and Geld ("Wie heeft dit bedacht?") and praise Bescherming. Over time the comments under official posts turn sour as reputation drops, as they do now.
+| #   | Fasen | Titel (kaart)                   | Kaarttekst                                                                                                                       | Aankondiging                                        | Effects                  | Res. |
+| --- | ----- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------ | ---- |
+| N1  | 2–3   | Kinderaccounts standaard privé  | Accounts van kinderen zijn eerst [[privé]]. Alleen vrienden zien wat je post.                                                    | **Jouw account, jouw regels. 🔒**                   | rep 8, users 3, tox −9   | C1   |
+| N2  | 2–3   | Factcheckers houden             | Je blijft [[journalisten\|journalist]] betalen die checken of berichten kloppen. Dat kost geld, maar nepnieuws krijgt een label. | **Wij checken wat klopt. Daar zijn we trots op.**   | rep 8, users 2, tox −10  | F1   |
+| N3  | 3     | Een pauzeknop die echt werkt    | Na een uur stopt de feed echt. Niet 'nog één filmpje'.                                                                           | **Tijd voor iets anders? We helpen je. ⏸️**         | rep 9, users 2, tox −10  | A5   |
+| N4  | 3     | Likes verbergen                 | Niemand ziet meer hoeveel likes jij hebt. Ook jij niet.                                                                          | **Minder vergelijken, meer plezier.**               | rep 7, users 3, tox −8   | D2   |
+| N5  | 3–4   | Moderatoren goed betalen        | De mensen die nare filmpjes weghalen, krijgen een goed loon en hulp als het zwaar wordt.                                         | **Dank je wel, team veiligheid! 💙**                | rep 9, users 2, tox −11  | F2   |
+| N6  | 3–4   | Een meldknop die echt iets doet | Meld je een gemeen bericht, dan kijkt er binnen een uur een mens naar. En je hoort wat er gebeurd is.                            | **Melden werkt. Echt.**                             | rep 9, users 3, tox −11  | C2   |
+| N7  | 4     | Ons onderzoek voor iedereen     | Je publiceert wat je eigen onderzoekers vonden. Ook dat de app sommige kinderen ongelukkig maakt.                                | **Dit weten we over onze app. Eerlijk is eerlijk.** | rep 10, users 2, tox −12 | F3   |
+| N8  | 4     | Moderatoren in elke taal        | Ook in landen ver weg leest iemand mee die de taal spreekt. Haat wordt sneller weggehaald.                                       | **Veilig, in elke taal. 🌍**                        | rep 10, users 3, tox −12 | B5   |
 
-### Balance impact (to verify in the build laps)
+Users values on news (2–3) stay below every viral card, as the profile requires. The age check and paying people to watch become event options (§ 6) instead of cards, because they do not fit a type's profile.
 
-- Ongoing effects compound with exponential growth. Start values: Groei ongoing users +1–2, Geld ongoing money +1–2 (points), Toxicity +1–3. With a cap of 3 that is at most about +6 points per turn on one meter, about half a viral card.
-- Phase 4 has only one post slot, so ads are scarcer: Geld policies must carry most of the income. Expect a retune of phase 4 costs or Geld values.
-- The balance simulation needs a policy heuristic per strategy (viral-only → always Groei, ad-only → always Geld, human-like → lookahead including ongoing effects). The asserted outcomes stay: one-sided play goes bankrupt, human-like wins most runs in 25–45 turns.
-- `GameState` grows (active policies), so the saved-game format needs a version step (game-save).
+New glossary terms: _privé_ (and _moderator_ if an event uses it). Already in the glossary: _adverteerder_, _data_, _journalist_, _nepaccount_, _algoritme_, _toezichthouder_, _klokkenluider_.
 
-## 6. Fiction and the "Echt gebeurd" credit
+## 6. New events (12)
 
-- **No brand names** (recorded decision). The company is fictional. Proposed name: **Scrollo** (owner question Q3; the build lap checks it against the banned-name test and a quick trademark search). The official account is "Scrollo ✓ Officieel" — the ✓ itself is a wink at policy E2.
-- Policies describe the decision generically ("een grote app", "een fotoapp", "een videoplatform").
-- **"Echt gebeurd" line** on the card detail and in the end report, at most one sentence, year included, no brand: "Echt gebeurd: in 2023 kreeg een app € 345 miljoen boete omdat kinderaccounts standaard openbaar waren." Allegations are written as such: "Volgens een rechtszaak uit 2024 …".
-- **Sources page** (`/bronnen`, linked from the end report and credits): per policy the publisher and date ("Europese Commissie, 5 augustus 2024") with a link. Link targets are real articles, so URLs and the articles themselves name the companies (owner question Q4).
+All are scandals, with the existing shape (option A commercial, B engagement, C journalism), pacing and fines. Engine triggers are phase-based only, so an event does not require the matching card to have been played; the body is written so it reads true for any run ("Op jouw app …"). The heavy topics are fictionalised and non-graphic (D4).
 
-## 7. Draft policy cards (25)
+| #   | Fasen | Titel                                 | Situatie                                                                                                                                | A (geld) / B (groei) / C (eerlijk)                                                                                                           | Res.    |
+| --- | ----- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| E1  | 2–3   | Vlammetjes-paniek                     | Het is zomervakantie. Kinderen geven hun wachtwoord aan vrienden, zodat die hun vlammetje redden.                                       | A: verkoop een 'vlammetje-redder' · B: geef dubbele vlammetjes · C: vlammetjes mogen een week op pauze                                       | A3      |
+| E2  | 3     | Klas slaapt in                        | Een hele klas komt te laat op school. Ze zaten tot diep in de nacht op {app}.                                                           | A: reclame voor energiedrank ernaast · B: "Ze kiezen het zelf" · C: nachtstand vanaf negen uur                                               | A1, A4  |
+| E3  | 3     | Filterspiegel                         | Meiden zeggen op het nieuws: zonder filter durf ik niet meer op de foto.                                                                | A: verkoop extra filters · B: nog meer filters · C: filters krijgen een label                                                                | C5      |
+| E4  | 3–4   | Europa onderzoekt je ontwerp          | De [[toezichthouder]] in Brussel zegt: {app} is expres zo gemaakt dat je niet kunt stoppen.                                             | A: dure advocaten · B: niks veranderen, het werkt · C: autoplay en nachtmeldingen gaan uit                                                   | A1      |
+| E5  | 3–4   | Onbekende mannen in de berichten      | Meiden op {app} worden lastiggevallen door onbekende mannen. Ze sturen berichten die niet oké zijn.                                     | A: betaald 'veilig abonnement' · B: berichten blijven open, dat geeft gebruikers · C: volwassenen kunnen kinderen niet meer zomaar berichten | C2, C8  |
+| E6  | 3–4   | Zakgeld weg in één avond              | Een jongen gaf al zijn zakgeld uit aan cadeautjes voor een streamer. Zijn ouders willen het terug.                                      | A: niks terugbetalen · B: geef de streamer een extra boost · C: kinderen kunnen geen cadeautjes meer kopen                                   | C8, C10 |
+| E7  | 3–4   | Nep met vinkje                        | Een [[nepaccount]] met vinkje doet alsof het een bank is. Mensen raken hun spaargeld kwijt.                                             | A: vinkje wordt duurder · B: laat het staan, het is druk · C: vinkje alleen na een echte check                                               | E2      |
+| E8  | 4     | Moderatoren slaan alarm               | De mensen die de hele dag nare filmpjes bekijken, worden er ziek van. Ze stappen naar de rechter.                                       | A: schikken en stil houden · B: een nog goedkoper bedrijf zoeken · C: goed loon en echte hulp                                                | F2      |
+| E9  | 4     | Geweld in een ver land                | In een land ver weg zet {app} groepen tegen elkaar op. Er gaan geruchten rond, mensen raken gewond. Bij {app} spreekt niemand die taal. | A: "Daar verdienen we toch weinig" · B: niks doen, het is druk · C: snel mensen aannemen die de taal spreken                                 | B5      |
+| E10 | 4     | De chatbot zegt rare dingen           | {app} heeft een chatbot als 'vriendje' voor kinderen. Hij zegt dingen die niet kloppen en die ongepast zijn.                            | A: chatbot alleen voor betalers · B: chatbot overal in de app · C: chatbot uit tot de regels kloppen                                         | C9      |
+| E11 | 4     | Een nieuwe wet in Brussel             | Politici willen een wet: apps moeten kinderen beter beschermen. Jouw [[aandeelhouders\|aandeelhouder]] zijn bang voor de winst.         | A: [[lobbyisten\|lobby]] inhuren die de wet slapper maken · B: dreigen om weg te gaan uit Europa · C: zelf meehelpen aan goede regels        | G1      |
+| E12 | 4     | Een land verbiedt {app} voor kinderen | Een land zegt: kinderen onder de 16 mogen niet meer op sociale media. Ook niet op {app}.                                                | A: rechtszaak aanspannen · B: leeftijdscheck makkelijk te omzeilen maken · C: een echte leeftijdscheck                                       | C7      |
 
-Effects use arrows for size: + small, ++ medium, +++ large; 📈 users, 💰 money, 🛡 reputation (hidden), ☣ Toxicity (hidden). "Unlocks" names a scandal from § 8. Research ids point to RESEARCH.md § 2. Phase: 3, 4 or 3–4.
+Glossary: _lobby_ (E11). Events E2, E4, E9, E10 and E12 use the `{app}` placeholder (§ 7).
 
-### Groei (engagement)
+Paying people to watch (A6 in the research) is kept for a later round; it fits neither a type's profile nor one of these events cleanly.
 
-| #   | Titel                            | Aankondiging (officiële post)                  | Wat het echt doet (kaarttekst)                                                         | Nu           | Elke beurt | Unlocks                                   | Phase | Echt gebeurd · research                                                        |
-| --- | -------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- | ------------ | ---------- | ----------------------------------------- | ----- | ------------------------------------------------------------------------------ |
-| 1   | Autoplay standaard aan           | Nóg makkelijker kijken! 🎉                     | Na elk filmpje start meteen het volgende. Stoppen moet je zelf doen.                   | 📈++ ☣+      | 📈+ ☣+     | E1, E3                                    | 3     | 2026: Europa noemt dit verslavend ontwerp · A1                                 |
-| 2   | Eindeloos scrollen               | Nooit meer 'volgende pagina'!                  | De feed houdt nooit op. Er is geen moment waarop je denkt: klaar.                      | 📈++ ☣+      | 📈+ ☣+     | E1, E3                                    | 3     | De bedenker zei later dat hij er spijt van had · A2                            |
-| 3   | Vlammetjes voor elke dag         | Hou je vlammetje brandend met je vrienden! 🔥  | Stuur elke dag een bericht, anders is je vlammetje weg. Ook op vakantie.               | 📈++ ☣+      | 📈+ ☣+     | E2                                        | 3     | 2024: een rechtszaak noemt dit 'onmogelijk om een dag te stoppen' · A3         |
-| 4   | Meldingen, ook 's nachts         | Mis nooit meer iets! 🔔                        | Je telefoon trilt ook om twee uur 's nachts. Iemand heeft iets geliket.                | 📈+ ☣++      | 📈+ ☣+     | E1, event "Ouders en scholen slaan alarm" | 3–4   | 2026: Europa noemt meldingen verslavend ontwerp · A4                           |
-| 5   | Boze reacties tellen dubbel      | We laten je zien waar mensen écht over praten! | Een bericht met veel boze reacties komt hoger in de feed. Ruzie wint.                  | 📈+++ ☣++    | ☣+         | E4                                        | 3     | 2018: een feed-wijziging maakte boze berichten groter · B1                     |
-| 6   | Schoonheidsfilters voor iedereen | Laat je mooiste kant zien! ✨                  | Een filter maakt je huid glad en je neus kleiner. Zonder filter voel je je lelijker.   | 📈++ 🛡−     | ☣+         | E5                                        | 3     | Onderzoek van het bedrijf zelf: meisjes gingen zich slechter voelen · C5       |
-| 7   | Misschien ken je…                | Vind sneller nieuwe vrienden! 🤝               | De app stelt vrienden voor. Ook onbekende volwassenen aan kinderen.                    | 📈++ ☣+      | 📈+        | E6                                        | 3     | Volgens een rechtszaak uit 2024 wist het bedrijf dit · C2                      |
-| 8   | Geheime boostknop                | Nieuwe makers krijgen een kans!                | Medewerkers kiezen stiekem welke filmpjes viraal gaan. Niemand ziet het.               | 📈++ 🛡−     | —          | E7                                        | 3     | 2023: journalisten ontdekten zo'n knop · B2                                    |
-| 9   | Punten voor kijken               | Kijk, scoor en win cadeaus! 🎁                 | Hoe langer je kijkt, hoe meer punten. Punten worden cadeaubonnen.                      | 📈+++ 💰− ☣+ | 📈+ ☣+     | E1                                        | 3–4   | 2024: Europa liet zo'n spaarprogramma stoppen · A6                             |
-| 10  | Cadeautjes in livestreams        | Steun je favoriete streamer! 💖                | Kijkers kopen digitale cadeautjes voor streamers. Ook kinderen. De app houdt een deel. | 💰++ 📈+     | 💰+ ☣+     | E8                                        | 3–4   | Volgens een rechtszaak verdiende een app veel aan cadeautjes van kinderen · C8 |
+## 7. Naming the app (D2)
 
-### Geld (commercial)
+### Flow
 
-| #   | Titel                            | Aankondiging (officiële post)                   | Wat het echt doet (kaarttekst)                                                               | Nu           | Elke beurt                      | Unlocks                                            | Phase | Echt gebeurd · research                                                                |
-| --- | -------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------ | ------------------------------- | -------------------------------------------------- | ----- | -------------------------------------------------------------------------------------- |
-| 11  | Reclame op maat voor kinderen    | Alleen reclame die bij jou past!                | De app houdt bij wat kinderen kijken en verkoopt dat aan adverteerders.                      | 💰++ 🛡−     | 💰+                             | E9                                                 | 3     | 2019: een videoplatform betaalde $ 170 miljoen boete · C3                              |
-| 12  | Reclame als je je rot voelt      | Precies de juiste reclame op het juiste moment. | De app ziet wanneer je je onzeker voelt. Juist dan komt de reclame voor puistjescrème.       | 💰++ 🛡−−    | 💰+ ☣+                          | E9                                                 | 3     | 2017: een uitgelekt plan beschreef dit · C4                                            |
-| 13  | Oplichters betalen extra         | Iedereen mag adverteren!                        | Reclame die op oplichting lijkt, mag blijven. Ze betalen wel meer.                           | 💰+++ 🛡−    | 💰+ ☣+                          | event "Oplichters beloven gratis skins"            | 3–4   | 2025: een bedrijf verdiende volgens eigen papieren 1 op 10 euro aan zulke reclame · E1 |
-| 14  | Vinkje te koop                   | Krijg ook een vinkje! ✓                         | Voor € 8 per maand krijgt iedereen een vinkje. Ook nepaccounts.                              | 💰++ 🛡−     | 💰+ ☣+                          | E10                                                | 3     | 2025: Europa gaf hier € 45 miljoen boete voor · E2                                     |
-| 15  | Alles staat op openbaar          | Deel je talent met de wereld! 🌍                | Nieuwe accounts van kinderen staan open voor iedereen. Privé moet je zelf zoeken.            | 📈++ 💰+ 🛡− | ☣+                              | E6                                                 | 3     | 2023: € 345 miljoen boete voor een app · C1                                            |
-| 16  | Quizapps mogen gegevens meenemen | Nieuw: leuke quizzen van andere makers!         | Een quizapp neemt jouw gegevens mee. En die van al je vrienden.                              | 💰++ 🛡−     | —                               | E11                                                | 3     | 2019: $ 5 miljard boete voor een sociaal netwerk · D1                                  |
-| 17  | Moderatie goedkoop uitbesteden   | Meer mensen houden de app veilig!               | Ver weg kijken mensen de hele dag naar nare filmpjes. Voor heel weinig geld.                 | 💰++ ☣+      | 💰+                             | E12                                                | 3–4   | Moderatoren werden er ziek van en stapten naar de rechter · F2                         |
-| 18  | Stoppen met factcheckers         | Jullie bepalen zelf wat klopt! 💬               | Geen journalisten meer die berichten checken. Dat scheelt geld. Nepnieuws blijft staan.      | 💰++ ☣++     | ☣+                              | event "Nepnieuws over de verkiezingen"             | 4     | 2025: een groot bedrijf stopte hiermee · F1                                            |
-| 19  | Lobbyen in Brussel               | We praten graag mee over goede regels.          | Je betaalt mensen die politici overhalen om de regels slapper te maken.                      | 💰− 🛡−      | boetes kleiner (fine −2 points) | —                                                  | 4     | 2025: techbedrijven gaven € 151 miljoen per jaar uit aan lobby · G1                    |
-| 20  | Onderzoek in de la               | Wij nemen jullie welzijn serieus.               | Jouw eigen onderzoekers zeggen: de app maakt kinderen ongelukkig. Je laat het niemand lezen. | 💰+ 🛡−      | —                               | event "Geheime papieren uitgelekt" (higher weight) | 4     | 2021: een klokkenluider liet zulk onderzoek zien · F3                                  |
+1. **New game** (home "Nieuw spel", or `/spel` with no save) opens a short naming step before the phase 1 intro: "Hoe heet jouw app?" with one text field, a suggested name already filled in, a 🎲 button for another suggestion, and "Start".
+2. **Suggestions:** a list of 20–30 invented names in game-content (`APP_NAME_SUGGESTIONS`, e.g. Pixelplein, Scrollo, Klikkie, Snapsel, Feedje). A seeded pick gives a different default per run. Each suggestion is checked against the banned-name list (below) and searched once for an existing app with the same name.
+3. **Validation**, inline, with Dutch messages from `UI_COPY`:
+   - trimmed length 2–16 characters (empty input → "Geef je app een naam.");
+   - letters (including accents), digits, spaces, `-` and `_`;
+   - not a real platform or brand name: the banned-name list the content tests already use moves to a shared constant, so the player cannot call the app after a real platform (tone rule);
+   - a basic profanity filter: a small Dutch + English word list in game-content, matched after lowercasing, removing spaces and mapping common letter swaps (0→o, 1→i, 3→e, 4→a, 5→s, @→a). On a hit: "Kies een andere naam." No new dependency (a package such as `obscenity` would need owner approval and still lacks Dutch).
+4. **Accessibility:** a label, an error tied to the field with `aria-describedby`, Enter submits, focus starts in the field.
 
-### Bescherming (journalism)
+### Storage
 
-| #   | Titel                           | Aankondiging (officiële post)                   | Wat het echt doet (kaarttekst)                                                       | Nu           | Elke beurt | Revokes | Phase | Echt gebeurd · research                                  |
-| --- | ------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------ | ------------ | ---------- | ------- | ----- | -------------------------------------------------------- |
-| 21  | Kinderaccounts standaard privé  | Jouw account, jouw regels. 🔒                   | Accounts van kinderen zijn eerst privé. Alleen vrienden zien wat je post.            | 🛡++ ☣− 📈−  | 🛡+        | 15, 7   | 3     | Na een boete gingen apps dit doen · C1                   |
-| 22  | Een pauzeknop die echt werkt    | Tijd voor iets anders? We helpen je.            | Na een uur stopt de feed echt. Niet 'nog één filmpje'.                               | 🛡++ ☣− 📈−  | 🛡+ ☣−     | 1, 2    | 3–4   | Een oude pauzeknop scheelde maar 1,5 minuut per dag · A5 |
-| 23  | Likes verbergen (standaard aan) | Minder vergelijken, meer plezier.               | Niemand ziet meer hoeveel likes je hebt. Ook jij niet.                               | 🛡+ ☣− 📈−   | ☣−         | 6       | 3     | 2021: het kon, maar de knop zat diep verstopt · D2       |
-| 24  | Echte leeftijdscheck            | Veilig vanaf de eerste dag.                     | Wie jonger is dan de leeftijdsgrens, kan geen account maken. Je verliest gebruikers. | 🛡++ ☣− 📈−− | 🛡+        | 9, 10   | 4     | 2025: een land verbood sociale media onder de 16 · C7    |
-| 25  | Ons onderzoek voor iedereen     | Dit weten we over onze app. Eerlijk is eerlijk. | Je publiceert wat je eigen onderzoekers vonden. Ook het slechte nieuws.              | 🛡+++ 💰−    | 🛡+        | 20      | 4     | Het bedrijf uit 2021 deed dit pas na het lek · F3        |
+- `SavedRun` gets an optional `appName`. Replay does not depend on it, so this alone needs **no** save-version bump. A save without a name (older v7 saves) resumes with the default name "Jouw app".
+- The new cards in lap 2 change the draw piles, so old action logs would replay into a different game. **Lap 2 bumps `SAVED_RUN_VERSION` 7 → 8**, per the rule in `savedRun.types.ts`.
+- The name is presentation only. It stays out of the engine's `GameState`; game-session holds it next to the run.
 
-New glossary terms the build lap adds (if not present): _autoplay_, _beleid_, _lobby_, _moderator_, _privé_, _verificatie_ (vinkje). Existing terms reused: _adverteerder_, _nepaccount_, _journalist_, _algoritme_, _toezichthouder_, _klokkenluider_, _data_, _privacy_.
+### Where the name shows
 
-## 8. New event ideas (10)
+| Place                          | Change                                                                             |
+| ------------------------------ | ---------------------------------------------------------------------------------- |
+| Feed header                    | "{app} · Officieel ✓" with an initial-letter avatar                                |
+| Decision posts                 | author line "{app} ✓ · Officieel" (§ 4)                                            |
+| Phase intros                   | "Op je zolderkamer lanceer je **{app}** …" (each intro body names the app once)    |
+| Events                         | `{app}` placeholder in event bodies where it reads naturally (§ 6)                 |
+| Follower comments              | some lines name the app ("{app} is echt de beste app ooit", "ik ga weg bij {app}") |
+| Game over, end report, results | "{app} is bankroet", report intro "Het verhaal van {app}"                          |
+| Share text and share card      | "Mijn app {app} haalde fase {phase} …"; the card shows the name                    |
+| Resume screen                  | "Verder met {app}?"                                                                |
+| Screen-reader announcements    | the name where the visible text has it                                             |
 
-All scandals keep the three-option shape (A commercial, B engagement, C journalism) and the existing pacing. "Requires" uses the new `requiresPolicy` trigger; without it the event is a normal phase scandal.
+All of these go through the existing `fillTemplate` and `UI_COPY` (game-content D6), with `{app}` as a new placeholder. A test asserts that every `{app}` in the copy gets filled.
 
-| #   | Titel                                 | Situatie (age-11 Dutch)                                                                      | Requires     | Phase | Options (A / B / C)                                                                                                    | Research |
-| --- | ------------------------------------- | -------------------------------------------------------------------------------------------- | ------------ | ----- | ---------------------------------------------------------------------------------------------------------------------- | -------- |
-| E1  | Europa onderzoekt je ontwerp          | De [[toezichthouder]] in Brussel zegt: jouw app is gemaakt om verslavend te zijn.            | 1, 2, 4 or 9 | 3–4   | A: advocaten inhuren (💰−) · B: niks veranderen, het werkt (📈+ boete) · C: zet het uit (revokes the policy, 🛡+)      | A1       |
-| E2  | Vlammetjes-paniek in de zomervakantie | Kinderen geven hun wachtwoord aan vrienden, zodat die hun vlammetje redden.                  | 3            | 3     | A: verkoop een 'vlammetje-redder' (💰+) · B: meer vlammetjes (📈+ ☣+) · C: vlammetjes mogen een week pauze (revokes 3) | A3       |
-| E3  | Klas slaapt in                        | Een hele klas komt te laat. Ze keken tot diep in de nacht.                                   | 1 or 2       | 3–4   | A: reclame voor koffie (💰+) · B: 'Ze kiezen het zelf' (📈+ 🛡−) · C: nachtstand vanaf 21.00 (🛡+ 📈−)                 | A1, A4   |
-| E4  | Boos, bozer, boost                    | Twee groepen maken elkaar uit. Jouw feed zet hun ruzie overal bovenaan.                      | 5            | 3     | as event "Streamers maken ruzie"                                                                                       | B1       |
-| E5  | Filterspiegel                         | Meisjes zeggen in het nieuws: zonder filter durf ik niet meer op de foto.                    | 6            | 3     | A: verkoop extra filters (💰+) · B: meer filters (📈+) · C: filters krijgen een label (🛡+)                            | C5       |
-| E6  | Vreemde berichten                     | Kinderen krijgen berichten van volwassenen die ze niet kennen. Ouders zijn boos.             | 7 or 15      | 3     | C revokes 7 or 15                                                                                                      | C1, C2   |
-| E7  | De boostknop lekt uit                 | Een journalist ontdekt dat medewerkers stiekem hun eigen filmpjes viraal maakten.            | 8            | 3–4   | C: knop weg en uitleg (revokes 8)                                                                                      | B2       |
-| E8  | Zakgeld weg in een avond              | Een kind gaf al zijn zakgeld uit aan cadeautjes voor een streamer.                           | 10           | 3–4   | C: kinderen kunnen geen cadeautjes meer kopen (revokes 10)                                                             | C8, C10  |
-| E9  | Wat weet de app over mij?             | Een school laat zien wat de app over kinderen bijhoudt. Het is een lange lijst.              | 11 or 12     | 3–4   | C: geen reclame op maat voor kinderen (revokes 11/12)                                                                  | C3, C4   |
-| E10 | Nep met vinkje                        | Een nepaccount met vinkje doet alsof het een bank is. Mensen raken geld kwijt.               | 14           | 3–4   | C: vinkje alleen na echte check (revokes 14)                                                                           | E2       |
-| E11 | Quizapp lekt alles                    | Een quizapp heeft de gegevens van miljoenen mensen doorverkocht.                             | 16           | 4     | C: sorry, uitleg en strengere regels (revokes 16)                                                                      | D1       |
-| E12 | Moderatoren slaan alarm               | De mensen die nare filmpjes moeten bekijken, worden er ziek van. Ze stappen naar de rechter. | 17           | 4     | A: schikken (💰−) · B: nieuw bedrijf zoeken, nog goedkoper (💰+ 🛡−−) · C: betere zorg en loon (💰− 🛡+)               | F2       |
+## 8. Follower comments
 
-(12 listed; pick 6–10 in the content lap. E3 and E4 are the strongest; E11 and E12 the most adult.)
+`FollowerCue` gets one new cue, **`official`**, used when the post is a decision announcement (instead of the type cue). Each follower gets 2–3 lines per type direction, written so that they work for any decision of that type:
 
-Milestone idea for phase 4, no policy needed: **"Een land verbiedt je app voor kinderen"** (C7) — options: fight it, comply, build a kids' version (C6).
+| Follower               | official · viral                               | official · ad                     | official · news                          |
+| ---------------------- | ---------------------------------------------- | --------------------------------- | ---------------------------------------- |
+| Gamer_Gijs             | "beste update ooit 🔥" · "eindelijk!!"         | "alweer iets wat geld kost 😩"    | "oké… best netjes van {app}"             |
+| FatbikeFem             | "omg ik ga nóóit meer slapen 😂"               | "wacht, moet ik nu betalen?"      | "fijn, dit voelt veiliger"               |
+| MemeKoning             | "dit wordt een meme, let op"                   | "{app} wil gewoon je geld 💸"     | "saai maar oké 👍"                       |
+| Oma Riet (critical)    | "Ook om twee uur 's nachts? Dat meen je niet." | "Wie heeft dit bedacht?"          | "Eindelijk iemand met verstand."         |
+| Nina_Checkt (critical) | "Dit is gemaakt om je vast te houden. Let op." | "Lees de kleine letters, mensen." | "Goed besluit. Ik check het wel even 😉" |
+| KortingKevin           | "meer kijken = meer deals 🤑"                  | "ik wil die deal!!"               | "geen korting hierop? 😢"                |
 
-## 9. Build laps (each M or smaller)
+The existing state cues (hype, toxic, adFatigue, echoChamber, reputation hints, leaving) keep working on top, so comments under official posts sour as reputation drops, like now.
 
-| Lap                | Size | What                                                                                                                                                                                                                                                                                                                                                           | Depends on                                       |
-| ------------------ | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 1 `policy-engine`  | M    | Engine schema: policy card definition (`direction`, `announce`, `effects`, `ongoing`, `revokes`, `unlocks`), policy slots per phase, active-policy state (cap, oldest lapses, revoke), ongoing effects in the turn report, `requiresPolicy` event trigger, Bescherming resets news neglect; seed content + engine tests; saved-game format version (game-save) | owner answers Q1–Q2                              |
-| 2 `policy-content` | M    | 15–20 policies from § 7 and 6–8 events from § 8, glossary entries, follower `policy` lines, content tests (direction profile, no brands), balance-simulation heuristics and retune, game-content README + `DOC_GAME_DESIGN.md`                                                                                                                                 | 1; Q3, Q5                                        |
-| 3 `policy-board`   | M    | Policy card face in the draft, official-account post in the feed, active-policy strip, forecast with "Elke beurt", juice event for a posted / lapsed / revoked policy, phase 3 intro and how-to-play copy                                                                                                                                                      | 1 (can start on seed content in parallel with 2) |
-| 4 `policy-imagery` | S    | Images per policy and the company avatar (same licences as card-imagery)                                                                                                                                                                                                                                                                                       | 2                                                |
-| 5 `real-cases`     | S    | "Echt gebeurd" line in the detail dialog and end report, `/bronnen` page with sources                                                                                                                                                                                                                                                                          | 2; Q4                                            |
+## 9. Balance approach
 
-Order: 1 → (2 ∥ 3) → (4 ∥ 5). Laps 2 and 3 touch different feature areas, so the orchestrator can run them in parallel.
+- **No engine or balance-constant change.** The decision cards stay inside the existing per-type profile and the per-phase value ranges of the cards they sit next to, so the economy and the scandal rhythm stay as tuned (exponential-growth D1–D4).
+- **What does change is the pools.** Phase 3 grows to 18 cards per type, and phase 4 shrinks to 8 with a 50 % decision share. The decision cards are slightly sharper than the average post of their phase (viral: more Toxicity; ads: more revenue and more reputation loss; news: a bit more reputation), so the "everything is a policy" moment feels bigger in phase 4.
+- **The simulation is the gate.** Run `balanceSimulation.test.ts` before and after; keep the asserted outcomes (viral-only, ad-only and news-heavy go bankrupt; human-like and mixed win, rule-of-thumb wins at least half; no back-to-back events; median event gap ≥ 3) and the 25–45-turn run length for human-like play. Update the README table with the before → after numbers. If phase 4 gets harder (fewer cards per type means fewer good hands), first tune the new cards' values, then the pool split (for example keep 2 "every phase" posts per type in phase 4); balance constants come last.
+- **More scandals in the pool:** phases 3–4 gain 9–10 scandals. The scandal chance and fines don't change, so a run sees about as many scandals as before, just with more variety and fewer repeats.
 
-## 10. Owner decisions
+## 10. Build laps
 
-| #   | Question                                              | Options (recommended first)                                                                                                                                                                                                                                                      |
-| --- | ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Q1  | When do policy cards come in?                         | **A (recommended):** phase 3 one policy per hand, phase 4 two; phases 1–2 unchanged. · B: start in phase 2 with an occasional policy. · C: phase 4 only, then every card is a policy.                                                                                            |
-| Q2  | How does a policy work after you drag it?             | **A (recommended):** one-time effect plus a small effect every turn; at most 3 active, the oldest lapses; Bescherming can undo a risky one. · B: one-time only, like a post (simplest, but policies feel like posts). · C: stays active forever (strongest, hardest to balance). |
-| Q3  | What is the company called?                           | **A (recommended):** a fixed invented name, "Scrollo" (checked against real brands first). · B: the player names the app at the start. · C: no name, "Jouw app · Officieel".                                                                                                     |
-| Q4  | How do we show that it really happened?               | **A (recommended):** "Echt gebeurd" line on the card detail and in the end report, without brand names, plus a separate sources page with links (the linked articles do name the companies). · B: the line only, no links. · C: nothing in the game; sources only in the repo.   |
-| Q5  | Which heavy topics may come in (softened for age 11)? | **A (recommended):** moderators who get ill, unknown adults in friend suggestions, live gifts (money only), loose AI chat rules; leave out violence abroad (Myanmar) and sexual exploitation. · B: only light topics (design, ads, data). · C: everything, softened.             |
+| Lap                             | Size | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Feature areas                                                                                                       |
+| ------------------------------- | ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 1 `app-name`                    | M    | Naming step (field, suggestions, 🎲, validation, profanity filter, banned names as a shared constant), `appName` in `SavedRun` (optional, no version bump), `{app}` placeholder through copy (intros, endings, end report, share text and card, resume, announcements, some follower lines), feed header as the official account, an official-post variant in `PhoneFeed` for cards with `announce` (tested with a fixture card), the optional announce quote in the card detail | game-flow, game-content (copy, names, filter), game-save, game-session, game-board, follower-comments, result-share |
+| 2 `decision-cards`              | M    | `announce` field on `CardPresentation`; 24 decision cards (§ 5) and 12 events (§ 6) with flavor and image hints; phase narrowing of the "every phase" posts (§ 3); glossary entries; `official` follower cue and lines (§ 8); content tests (profile, glossary, no brands, `{app}` filled); balance simulation and README table; `SAVED_RUN_VERSION` 7 → 8; `DOC_GAME_DESIGN.md` § 4 and § 6                                                                                     | game-content, follower-comments, game-save                                                                          |
+| 3 `decision-imagery` (optional) | S    | Images for the 24 cards and 12 events (same licence rules as card-imagery), plus a default avatar style for the official account                                                                                                                                                                                                                                                                                                                                                 | card-imagery                                                                                                        |
+
+**Order:** 1 and 2 can run in parallel. Lap 1 owns the rendering and uses a fixture card with `announce`; lap 2 owns the field on `CardPresentation`. Whichever lands second rebases onto that one type change. Lap 3 follows lap 2. Until lap 3 lands, cards without an image use the existing type-icon placeholder.
+
+## 11. Decided here (the orchestrator can veto; not owner questions)
+
+- Decision share 0 / 14 / 33 / 50 % through `phases` only; the 8 "every phase" posts per type leave phase 4 (texts untouched).
+- A decision card is marked by its `announce` field, not by a type or engine flag.
+- Default name: a seeded suggestion from an invented list. A save without a name resumes as "Jouw app".
+- Real platform names are blocked in the name field.
+- Own small profanity list, no new package.
+- Age check and paying people to watch are event options or later content, not cards (profile fit).
+
+Nothing is open for the owner. If the balance simulation in lap 2 cannot keep the asserted outcomes with content tuning alone, that lap reports back before it touches balance constants.
