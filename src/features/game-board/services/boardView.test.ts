@@ -155,6 +155,23 @@ describe("boardView draft and events", () => {
     const card = { ...SEED_CONTENT.cards[0], body: "Het [[algoritme]] kiest [[bots|bot]]." };
     expect(feedEntryForCard(card, 3).body).toBe("Het algoritme kiest bots.");
   });
+
+  it("should pass the real case to the draft when a decision card is in the hand", () => {
+    const realCase = {
+      line: "Echt.",
+      url: "https://example.org/a",
+      publisher: "NPR",
+      date: "2021",
+    };
+    const content = {
+      ...SEED_CONTENT,
+      cards: SEED_CONTENT.cards.map((card) => ({ ...card, realCase })),
+    };
+    const draft = toDraft(createGame({ content, seed: 1 }), content);
+    expect(draft.length).toBeGreaterThan(0);
+    expect(draft.every((card) => card.realCase?.url === realCase.url)).toBe(true);
+    expect(toDraft(fresh(), SEED_CONTENT).every((card) => card.realCase === undefined)).toBe(true);
+  });
 });
 
 describe("toEventView option order", () => {

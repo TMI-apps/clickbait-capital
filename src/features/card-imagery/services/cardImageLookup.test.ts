@@ -26,10 +26,48 @@ const LICENSE_URLS: Record<string, string | undefined> = {
 };
 
 /**
- * Cards still without a photo (GameCard shows the type-icon placeholder). Empty since the
- * owner-photos lap: the owner assigned a picture to every card and event.
+ * Cards still without a photo (GameCard shows the type-icon placeholder): the decision cards and
+ * scandals of the decision-cards lap, until the decision-imagery lap adds their pictures
+ * (policy-cards § 10).
  */
-const PLACEHOLDER_IDS: string[] = [];
+const PLACEHOLDER_IDS: string[] = [
+  "viral-besluit-eindeloos-scrollen",
+  "viral-besluit-vlammetjes",
+  "viral-besluit-autoplay",
+  "viral-besluit-boze-reacties",
+  "viral-besluit-nachtmeldingen",
+  "viral-besluit-schoonheidsfilters",
+  "viral-besluit-vriendensuggesties",
+  "viral-besluit-geheime-boost",
+  "ad-besluit-kinderreclame",
+  "ad-besluit-quizapps",
+  "ad-besluit-vinkje-te-koop",
+  "ad-besluit-livestream-cadeaus",
+  "ad-besluit-reclame-onzeker",
+  "ad-besluit-oplichtersreclame",
+  "ad-besluit-moderatie-uitbesteden",
+  "ad-besluit-stoppen-factcheckers",
+  "news-besluit-prive-accounts",
+  "news-besluit-factcheckers-houden",
+  "news-besluit-pauzeknop",
+  "news-besluit-likes-verbergen",
+  "news-besluit-moderatoren-betalen",
+  "news-besluit-meldknop",
+  "news-besluit-onderzoek-delen",
+  "news-besluit-elke-taal",
+  "event-vlammetjes-paniek",
+  "event-klas-slaapt-in",
+  "event-filterspiegel",
+  "event-europa-ontwerp",
+  "event-onbekende-mannen",
+  "event-zakgeld-weg",
+  "event-nep-met-vinkje",
+  "event-moderatoren-alarm",
+  "event-geweld-ver-land",
+  "event-chatbot-vriendje",
+  "event-nieuwe-wet",
+  "event-land-verbiedt-app",
+];
 
 /** News cards stay plain (thumbnail-imagery D7): no thumbnail data at all. */
 const NEWS_IDS = new Set(

@@ -17,6 +17,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 10, toxicity: 4 },
     imageTheme: "startled cat jumping away from a cucumber, phone video still, neon UI overlay",
     imageAlt: "Een kat springt geschrokken weg van een komkommer op de keukenvloer.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-woedende-livestream",
@@ -27,6 +28,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 14, reputation: -2, toxicity: 10 },
     imageTheme: "angry streamer shouting into ring light at night, live badge, flying angry emoji",
     imageAlt: "Een boze streamer schreeuwt in de camera met een rode LIVE-badge in beeld.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-wondermiddel",
@@ -37,6 +39,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 13, reputation: -3, toxicity: 12 },
     imageTheme: "bottle of vinegar glowing like a miracle cure, fake sparkles, clickbait arrows",
     imageAlt: "Een fles azijn met glitters en rode pijlen eromheen, als een wondermiddel.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-diepvries-challenge",
@@ -47,6 +50,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 12, toxicity: 8 },
     imageTheme: "kid filming face pressed into frosty freezer, stopwatch overlay, ice crystals",
     imageAlt: "Een kind filmt zichzelf met het gezicht in een bevroren diepvrieslade.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-pindakaasruzie",
@@ -57,6 +61,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 11, reputation: -1, toxicity: 9 },
     imageTheme: "endless comment thread exploding with angry replies, peanut butter jar in center",
     imageAlt: "Een pot pindakaas omringd door tientallen boze reactieballonnen.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-reactievideo",
@@ -67,6 +72,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     effects: { users: 9, toxicity: 5 },
     imageTheme: "infinite nested picture-in-picture of people reacting with shocked faces",
     imageAlt: "Steeds kleinere beelden van verbaasde gezichten die naar elkaar kijken.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-fatbike-stunt",
@@ -78,6 +84,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     imageTheme:
       "youtube thumbnail style: kid doing a wheelie on a fat-tire e-bike on a schoolyard, crowd filming, big shocked emoji",
     imageAlt: "Een kind doet een wheelie op een fatbike terwijl andere kinderen filmen.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-schokkende-thumbnail",
@@ -89,6 +96,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     imageTheme:
       "youtube thumbnail style: screaming face, huge red arrows and circles pointing at nothing, bold yellow caps text",
     imageAlt: "Een schreeuwend gezicht met grote rode pijlen die naar niks wijzen.",
+    phases: [1, 2, 3],
   },
   {
     id: "viral-docentmeme",
@@ -275,5 +283,177 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
       "youtube thumbnail style: army of identical robot avatars typing angry comments, real people joining in",
     imageAlt: "Een leger robot-avatars typt boze reacties, en echte mensen doen mee.",
     phases: [4],
+  },
+  // Decision cards (policy-cards § 3, § 5): what the company decides, not one post. They enter
+  // in phase 2 and make up half of the phase-4 pool; `announce` makes the feed show them as an
+  // official post of the app, `realCase` links the real event in the card detail.
+  {
+    id: "viral-besluit-eindeloos-scrollen",
+    type: "viral",
+    title: "Eindeloos scrollen",
+    body: "De [[feed]] houdt nooit meer op. Er komt geen moment waarop je denkt: klaar.",
+    flavor: "Het einde van de feed is afgeschaft. Het einde van de avond ook.",
+    effects: { users: 13, reputation: -2, toxicity: 10 },
+    imageTheme:
+      "phone screen with a feed scrolling into infinity, tired eyes reflected, late evening",
+    imageAlt: "Een telefoonscherm met een feed die eindeloos doorloopt.",
+    phases: [2, 3],
+    announce: {
+      title: "Nooit meer 'volgende pagina'!",
+      body: "Scroll gewoon door. Er is altijd meer.",
+    },
+    realCase: {
+      line: "De bedenker van eindeloos scrollen zei later dat hij er spijt van heeft.",
+      url: "https://thepublicsradio.org/npr/why-infinite-scrolls-inventor-wants-to-kill-his-creation/",
+      publisher: "NPR",
+      date: "apr. 2026",
+    },
+  },
+  {
+    id: "viral-besluit-vlammetjes",
+    type: "viral",
+    title: "Vlammetjes voor elke dag",
+    body: "Stuur elke dag een bericht aan je vriend, anders gaat jullie vlammetje uit. Ook op vakantie.",
+    flavor: "Vriendschap, nu met een stopwatch.",
+    effects: { users: 14, reputation: -2, toxicity: 10 },
+    imageTheme: "chat app with a flame streak counter at 287 days, kid on holiday staring at phone",
+    imageAlt: "Een chat met een vlammetje en het getal 287, op vakantie aan het strand.",
+    phases: [2, 3],
+    announce: {
+      title: "Hou je vlammetje brandend! 🔥",
+      body: "Laat zien wie je échte vrienden zijn.",
+    },
+    realCase: {
+      line: "In 2024 stond in een rechtszaak dat het met vlammetjes bijna onmogelijk is om een dag te stoppen.",
+      url: "https://www.engadget.com/big-tech/the-unsealed-new-mexico-snapchat-lawsuit-alleges-the-company-ignored-child-safety-154235977.html",
+      publisher: "Engadget",
+      date: "okt. 2024",
+    },
+  },
+  {
+    id: "viral-besluit-autoplay",
+    type: "viral",
+    title: "Autoplay standaard aan",
+    body: "Na elk filmpje start meteen het volgende. Stoppen moet je zelf doen.",
+    flavor: "Je kunt altijd stoppen. Je doet het alleen nooit.",
+    effects: { users: 15, reputation: -3, toxicity: 11 },
+    imageTheme: "video player with a countdown 'next video in 3' and no stop button, sleepy kid",
+    imageAlt: "Een filmpje met een aftelklok naar het volgende filmpje en een slaperig kind.",
+    phases: [3],
+    announce: {
+      title: "Nóg makkelijker kijken! 🎉",
+      body: "Het volgende filmpje start vanzelf.",
+    },
+    realCase: {
+      line: "In 2026 zei Europa: een videoapp is expres verslavend gemaakt, onder meer met autoplay.",
+      url: "https://digital-strategy.ec.europa.eu/en/news/commission-preliminarily-finds-tiktoks-addictive-design-breach-digital-services-act",
+      publisher: "Europese Commissie",
+      date: "feb. 2026",
+    },
+  },
+  {
+    id: "viral-besluit-boze-reacties",
+    type: "viral",
+    title: "Boze reacties tellen dubbel",
+    body: "Een bericht met veel boze reacties komt hoger in de [[feed]]. Ruzie wint.",
+    flavor: "Het [[algoritme]] houdt van ruzie. Het hoeft hem niet op te lossen.",
+    effects: { users: 16, reputation: -4, toxicity: 14 },
+    imageTheme: "ranking ladder where posts with angry emoji climb to the top, calm posts sink",
+    imageAlt: "Berichten met boze emoji klimmen naar boven, rustige berichten zakken weg.",
+    phases: [3],
+    announce: {
+      title: "We laten je zien waar mensen écht over praten!",
+      body: "Jouw feed, nog levendiger.",
+    },
+    realCase: {
+      line: "In 2018 veranderde een groot sociaal netwerk zijn feed. Daarna gingen berichten vol ruzie vaker rond.",
+      url: "https://www.cbsnews.com/news/facebook-documents-misinformation-failed-to-act/",
+      publisher: "CBS News",
+      date: "okt. 2021",
+    },
+  },
+  {
+    id: "viral-besluit-nachtmeldingen",
+    type: "viral",
+    title: "Meldingen, ook 's nachts",
+    body: "Je telefoon trilt ook om twee uur 's nachts. Iemand heeft iets geliket.",
+    flavor: "Slapen kan altijd nog. Zegt de app.",
+    effects: { users: 15, reputation: -3, toxicity: 12 },
+    imageTheme: "phone lighting up a dark bedroom at 2 a.m. with a like notification, alarm clock",
+    imageAlt: "Een telefoon licht op in een donkere slaapkamer, de wekker zegt 02:00.",
+    phases: [3, 4],
+    announce: {
+      title: "Mis nooit meer iets! 🔔",
+      body: "Je hoort het meteen als iemand je post liket.",
+    },
+    realCase: {
+      line: "In 2026 noemde Europa meldingen een van de trucs die een app verslavend maken.",
+      url: "https://digital-strategy.ec.europa.eu/en/news/commission-preliminarily-finds-tiktoks-addictive-design-breach-digital-services-act",
+      publisher: "Europese Commissie",
+      date: "feb. 2026",
+    },
+  },
+  {
+    id: "viral-besluit-schoonheidsfilters",
+    type: "viral",
+    title: "Schoonheidsfilters voor iedereen",
+    body: "Een filter maakt je huid glad en je neus kleiner. Zonder filter voel je je ineens lelijk.",
+    flavor: "Jij, maar dan van iemand anders.",
+    effects: { users: 15, reputation: -3, toxicity: 12 },
+    imageTheme: "selfie split in two: real face and an over-smoothed filtered face, sparkles",
+    imageAlt: "Een selfie in twee helften: een echt gezicht en een glad gefilterd gezicht.",
+    phases: [3, 4],
+    announce: {
+      title: "Laat je mooiste kant zien! ✨",
+      body: "Nieuwe filters voor iedereen.",
+    },
+    realCase: {
+      line: "Eigen onderzoek van een fotoapp liet zien dat de app sommige meiden onzekerder maakte over hun lichaam.",
+      url: "https://www.npr.org/2021/09/26/1040756541/instagram-worsens-body-image-issues-and-erodes-mental-health",
+      publisher: "NPR",
+      date: "sep. 2021",
+    },
+  },
+  {
+    id: "viral-besluit-vriendensuggesties",
+    type: "viral",
+    title: "Misschien ken je…",
+    body: "De app stelt nieuwe vrienden voor. Ook onbekende volwassenen aan kinderen.",
+    flavor: "Meer vrienden is altijd beter. Toch?",
+    effects: { users: 15, reputation: -4, toxicity: 13 },
+    imageTheme: "friend suggestion cards with faceless grey adult silhouettes shown to a kid",
+    imageAlt: "Vriendensuggesties met grijze silhouetten van onbekende volwassenen.",
+    phases: [4],
+    announce: {
+      title: "Vind sneller nieuwe vrienden! 🤝",
+      body: "Wij zoeken mensen die je misschien kent.",
+    },
+    realCase: {
+      line: "In 2024 stond in een rechtszaak dat vriendensuggesties kinderen in contact brachten met onbekende volwassenen.",
+      url: "https://www.cbsnews.com/sanfrancisco/news/meta-lawsuit-court-documents-underscore-historical-reluctance-protect-children-instagram/",
+      publisher: "CBS News",
+      date: "jan. 2024",
+    },
+  },
+  {
+    id: "viral-besluit-geheime-boost",
+    type: "viral",
+    title: "Geheime boostknop",
+    body: "Medewerkers kiezen stiekem welke filmpjes viraal gaan. Niemand kan het zien.",
+    flavor: "Het [[algoritme]] kiest. Behalve als Kees van kantoor kiest.",
+    effects: { users: 16, reputation: -4, toxicity: 12 },
+    imageTheme: "office worker secretly pressing a big glowing boost button behind a curtain",
+    imageAlt: "Een medewerker drukt stiekem op een grote gloeiende knop achter een gordijn.",
+    phases: [4],
+    announce: {
+      title: "Nieuwe makers krijgen een kans!",
+      body: "Wij helpen talent groeien.",
+    },
+    realCase: {
+      line: "In 2023 ontdekten journalisten dat medewerkers van een app filmpjes met de hand viraal konden maken.",
+      url: "https://www.tubefilter.com/2023/01/23/tiktok-for-you-page-heating-recommend-videos-algorithm/",
+      publisher: "Tubefilter",
+      date: "jan. 2023",
+    },
   },
 ];

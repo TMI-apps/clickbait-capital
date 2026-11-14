@@ -77,6 +77,17 @@ export interface CardEffectView {
   overflow?: number;
 }
 
+/**
+ * The real event behind a decision card (game-content `RealCase`, policy-cards § 5b): shown in
+ * the card detail as an "Echt gebeurd" line with a link to the article.
+ */
+export interface RealCaseView {
+  line: string;
+  url: string;
+  publisher: string;
+  date: string;
+}
+
 /** One card of the open draft. */
 export interface DraftCardView {
   id: string;
@@ -85,6 +96,8 @@ export interface DraftCardView {
   body: string;
   /** Satirical one-liner when the content provides one (game-content `flavor`). */
   flavor?: string;
+  /** Decision cards with a real source (game-content `realCase`); only the card detail shows it. */
+  realCase?: RealCaseView;
   effects: CardEffectView[];
   /**
    * Where each score line lands if this card is played now, as a share of its goal line

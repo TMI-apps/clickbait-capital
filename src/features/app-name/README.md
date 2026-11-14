@@ -11,14 +11,14 @@ The name the player gives their app at the start of a new game (app-name lap, `d
 
 ## Structure
 
-| Layer    | Path                         | Purpose                                                                           |
-| -------- | ---------------------------- | --------------------------------------------------------------------------------- |
-| API        | `api/index.ts`                     | `AppNameScreen`, `checkAppName`, `isBlockedAppName`, `normalizeAppName`, `suggestAppName`, `APP_NAME_SUGGESTIONS`, limits |
-| Components | `components/AppNameScreen.tsx`     | "Hoe heet jouw app?": field with suggestion, 🎲, Start, inline refusal (game-flow `FlowScreen`)                           |
-| Hooks      | `hooks/useAppNameField.ts`         | Field state: name, refusal reason, dice, submit                                                                          |
-| Services   | `services/appNameRules.ts`         | Length and character rules, swear-word and brand filter, suggestion pick                                                 |
-| Services   | `services/appNameSuggestions.ts`   | `APP_NAME_SUGGESTIONS`: 20 invented names                                                                                 |
-| Types      | `types/appName.types.ts`           | Limits, `AppNameError`, `AppNameCheck`                                                                                    |
+| Layer      | Path                             | Purpose                                                                                                                   |
+| ---------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| API        | `api/index.ts`                   | `AppNameScreen`, `checkAppName`, `isBlockedAppName`, `normalizeAppName`, `suggestAppName`, `APP_NAME_SUGGESTIONS`, limits |
+| Components | `components/AppNameScreen.tsx`   | "Hoe heet jouw app?": field with suggestion, 🎲, Start, inline refusal (game-flow `FlowScreen`)                           |
+| Hooks      | `hooks/useAppNameField.ts`       | Field state: name, refusal reason, dice, submit                                                                           |
+| Services   | `services/appNameRules.ts`       | Length and character rules, swear-word and brand filter, suggestion pick                                                  |
+| Services   | `services/appNameSuggestions.ts` | `APP_NAME_SUGGESTIONS`: 20 invented names                                                                                 |
+| Types      | `types/appName.types.ts`         | Limits, `AppNameError`, `AppNameCheck`                                                                                    |
 
 ## Decisions
 

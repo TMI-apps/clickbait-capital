@@ -47,7 +47,7 @@ Pictures for the cards and events of the deck and the hero photo of each phase i
 - **Credits on `/credits` (D4, owner-photos D3):** one row per distinct photo: maker's name, source page and licence (linked when they have one), and the card count when the owner reused it.
 - **Photos, not illustrations (D5):** the content's image themes describe satirical illustrations; the owner picks photos that match them (owner-photos lap).
 
-- **Every card has a photo (owner-photos D1):** the owner's sheet covers every id, so `PLACEHOLDER_IDS` is empty; an id without an entry would still show GameCard's type-icon placeholder (D6).
+- **Every card has a photo (owner-photos D1):** the owner's sheet covered every id, so `PLACEHOLDER_IDS` was empty; an id without an entry shows GameCard's type-icon placeholder (D6). The 24 decision cards and 12 decision scandals of the decision-cards lap have no photo yet and are listed in `PLACEHOLDER_IDS` until the decision-imagery lap (policy-cards § 10).
 - **Thumbnail look (thumbnail-imagery D2–D8):** expressive photos plus caption / sticker / marker data per entry, drawn by the `ThumbnailFrame` kit component; news stays plain.
 - **Phase photos here (phase-images D1):** the phase intro photos need the same provenance and credits, so card-imagery owns them; game-flow only shows them.
 - **Owner's pictures only (owner-photos D1, D2):** the CC0 / CC BY fallbacks are gone; licences are the Unsplash License plus three owner-supplied kinds (own photo, AI image, supplied with unknown maker).

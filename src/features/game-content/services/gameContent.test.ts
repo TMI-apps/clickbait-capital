@@ -264,8 +264,11 @@ const ALL_STRINGS = [
   ...collectStrings(UI_COPY, "ui"),
 ];
 
-/** Player-facing strings: not the image hints, which are art direction for the image lap. */
-const PLAYER_STRINGS = ALL_STRINGS.filter(([path]) => !/\.imageTheme$/.test(path));
+/**
+ * Player-facing strings: not the image hints (art direction for the image lap) and not the
+ * article urls of "Echt gebeurd", which may name companies (policy-cards D3).
+ */
+const PLAYER_STRINGS = ALL_STRINGS.filter(([path]) => !/\.(imageTheme|realCase\.url)$/.test(path));
 
 /**
  * Fields rendered through `GlossaryText` (kids-content D3). Everything else is plain text:
@@ -282,6 +285,61 @@ const RICH_FIELDS = [
   /^ui\.privacy\.(intro|points\.\d+|clearHint)$/,
   /^ui\.credits\.body$/,
 ];
+
+const DECISION_CARDS = GAME_CONTENT.cards
+  .map((card) => getContentCard(card.id)!)
+  .filter((card) => card.announce !== undefined);
+
+describe("decision cards", () => {
+  it("should hold eight decision cards per type when the deck is assembled", () => {
+    for (const type of TYPES) {
+      expect(DECISION_CARDS.filter((card) => card.type === type).length, type).toBe(8);
+    }
+  });
+
+  it("should grow the decision share per phase when the pools are drawn", () => {
+    // policy-cards § 3: 0 / 2 / 6 / 4 decisions per type, half of the phase-4 pool.
+    const expected: Record<PhaseId, number> = { 1: 0, 2: 2, 3: 6, 4: 4 };
+    for (const phase of PHASES) {
+      for (const type of TYPES) {
+        const pool = GAME_CONTENT.cards.filter(
+          (card) => card.type === type && (card.phases?.includes(phase) ?? true)
+        );
+        const decisions = pool.filter((card) => getContentCard(card.id)?.announce);
+        expect(decisions.length, `${type} in phase ${phase}`).toBe(expected[phase]);
+        if (phase === 4) expect(decisions.length * 2, type).toBe(pool.length);
+      }
+    }
+  });
+
+  it("should give every decision card an announcement and a complete real case", () => {
+    for (const card of DECISION_CARDS) {
+      expect(card.announce?.title, card.id).toBeTruthy();
+      expect(card.announce?.body, card.id).toBeTruthy();
+      expect(card.realCase?.url, card.id).toMatch(/^https:\/\/[^\s?#]+$/);
+      expect(card.realCase?.publisher, card.id).toBeTruthy();
+      expect(card.realCase?.date, card.id).toBeTruthy();
+      expect(card.realCase?.line.length ?? 0, card.id).toBeGreaterThan(20);
+    }
+  });
+
+  it("should keep announcements and real cases as plain text when they are shown", () => {
+    const plain = DECISION_CARDS.flatMap((card) => [
+      card.announce?.title,
+      card.announce?.body,
+      card.realCase?.line,
+      card.realCase?.publisher,
+    ]);
+    expect(plain.filter((text) => text === undefined || text.includes("[["))).toEqual([]);
+  });
+
+  it("should leave the real case out of regular posts when a card is no decision", () => {
+    const posts = GAME_CONTENT.cards
+      .map((card) => getContentCard(card.id)!)
+      .filter((card) => card.announce === undefined);
+    expect(posts.filter((card) => card.realCase !== undefined).map((card) => card.id)).toEqual([]);
+  });
+});
 
 describe("glossary", () => {
   it("should explain every marked word when a string marks a hard word", () => {

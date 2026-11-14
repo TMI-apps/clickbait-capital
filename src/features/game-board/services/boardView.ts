@@ -24,6 +24,7 @@ import type {
   EventView,
   FeedEntry,
   GameEndView,
+  RealCaseView,
   MeterView,
   PhaseProgressView,
   ScandalRiskView,
@@ -248,6 +249,25 @@ function flavorOf(card: CardDefinition, app: string): string | undefined {
   return typeof flavor === "string" && flavor !== "" ? withApp(flavor, app) : undefined;
 }
 
+/** The real event behind a decision card (policy-cards § 5b), read by shape like `announce`. */
+function realCaseOf(card: CardDefinition): RealCaseView | undefined {
+  const real = (
+    card as CardDefinition & {
+      realCase?: Partial<Record<keyof RealCaseView, unknown>>;
+    }
+  ).realCase;
+  const { line, url, publisher, date } = real ?? {};
+  if (
+    typeof line !== "string" ||
+    typeof url !== "string" ||
+    typeof publisher !== "string" ||
+    typeof date !== "string"
+  ) {
+    return undefined;
+  }
+  return { line, url, publisher, date };
+}
+
 /** The open draft as board cards, or an empty list while an event or the end is showing. */
 export function toDraft(
   state: GameState,
@@ -269,6 +289,7 @@ export function toDraft(
       title: withApp(card.title, app),
       body: withApp(card.body, app),
       flavor: flavorOf(card, app),
+      realCase: realCaseOf(card),
       effects: forecastEffects(delta),
       forecast: {
         users: goal.users <= 0 ? 1 : Math.max(0, next.users) / goal.users,

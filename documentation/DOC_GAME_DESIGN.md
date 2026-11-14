@@ -92,9 +92,13 @@ Elke beurt krijgt de speler exact drie kaarten gepresenteerd. Meestal is dat é�
 | **💰 Advertentie** (Skins in de shop, loot box, gesponsorde stream, crypto) | \+++ Inkomsten (geld per gebruiker)                                   | \- Gebruikers (licht: 3–9 %), wekt irritatie op     |
 | **📰 Nieuws** (Factcheck, uitleg, onderzoek, eerlijke fout-melding)         | \++ Reputatie, verlaagt Toxicity, \+ Gebruikers (een beetje: 12–30 %) | levert €0 op, groeit traag                          |
 
+**Van posts naar besluiten (policy-cards D1, § 3):** in fase 1 zijn alle kaarten losse posts. Vanaf fase 2 bevat elke stapel ook **besluiten van het bedrijf** ("Autoplay standaard aan", "Vinkje te koop", "Factcheckers houden"): 0 / 14 / 33 / 50 % van de stapel in fase 1–4. Een besluit is gewoon een kaart van zijn subtype, met dezelfde effecten en regels, en heet nergens "beleid": de speler merkt dat zijn keuzes groter worden. In de feed verschijnt een besluit als **officiële aankondiging** van de app, met de vriendelijke draai van het bedrijf ("Mis nooit meer iets! 🔔"); de kaart zelf zegt wat het echt doet. Wie een besluit openklikt, ziet een regel "Echt gebeurd" met een link naar een nieuwsartikel over de echte gebeurtenis (D3). De 8 posts die eerst in elke fase zaten, verdwijnen uit fase 4.
+
 ### **Type 2: Gebeurteniskaarten (Events)**
 
 Gebeurteniskaarten onderbreken de reguliere draft. Er verschijnt één urgente situatie met drie beleidsopties. Gebeurtenissen triggeren op vaste mijlpalen of wanneer Toxicity te hoog oploopt.
+
+Schandalen in fase 2–4 tonen ook de schade van de besluiten: vlammetjes-paniek, een klas die inslaapt, filters, onbekende mannen die meiden berichten sturen, zakgeld dat opgaat aan cadeautjes voor streamers, nepaccounts met vinkje, zieke moderatoren, geweld in een ver land, een chatbot voor kinderen, lobby tegen een nieuwe wet en een land dat de app verbiedt voor kinderen. Zware onderwerpen zijn verzonnen en nooit grafisch, op het niveau van een kind van 11 (policy-cards D4).
 
 **Timing (verrassing, geen stapel):** per beurt verschijnt hooguit één gebeurtenis. Na een gebeurtenis duurt het minstens 3 beurten plus een willekeurig (uit de seed) extra aantal van 0–3 beurten voordat een gewone Toxicity-gebeurtenis kan komen. Mijlpalen en crises bij heel hoge Toxicity (≥ 70) wachten maar 2 beurten. Een mijlpaal komt altijd, desnoods iets later; een Toxicity-gebeurtenis die niet meer geldt als haar beurt komt, vervalt (game-engine D10).
 
@@ -182,7 +186,7 @@ Het spel verloopt over vier fases. Elke fase heeft twee doellijnen, één voor G
 ### **Fase 2: De Scale-Up (Groeifase)**
 
 - **Doel:** 100.000 gebruikers en € 200.000.
-- **Context:** investeerders willen rendement en de servers kosten echt geld. Zonder reclame ga je bankroet; met te veel reclame lopen gebruikers weg (Ad-Fatigue).
+- **Context:** investeerders willen rendement en de servers kosten echt geld. Zonder reclame ga je bankroet; met te veel reclame lopen gebruikers weg (Ad-Fatigue). De eerste besluiten van het bedrijf komen in de stapel.
 
 ### **Fase 3: Wereldwijd Platform (De Publieke Schandpaal)**
 
@@ -192,7 +196,7 @@ Het spel verloopt over vier fases. Elke fase heeft twee doellijnen, één voor G
 ### **Fase 4: De Beursgang (IPO \- Eindspel)**
 
 - **Doel:** 10 miljoen gebruikers en € 20 miljoen.
-- **Dilemma:** aandeelhouders eisen groei en winst (pusht naar Ads/Viraal), terwijl reputatieverlies dubbel weegt en een schandaal bij miljoenen gebruikers een boete van miljoenen kost.
+- **Dilemma:** aandeelhouders eisen groei en winst (pusht naar Ads/Viraal), terwijl reputatieverlies dubbel weegt en een schandaal bij miljoenen gebruikers een boete van miljoenen kost. De helft van de kaarten is nu een besluit van het bedrijf.
 - **Overwinning:** succesvolle beursgang. De speler krijgt een eindrapport met hoogste bereik en kas, en wat het platform onderweg aan schade aanrichtte (nepnieuws gedeeld, gemiste slaap, ruzies aan de keukentafel). Het resultaat is te delen als afbeelding met fase, hoogste bereik en geld aan het eind.
 
 ---

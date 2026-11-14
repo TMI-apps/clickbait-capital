@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
 import { createGame } from "@/features/game-engine/api";
-import { FOLLOWERS, GAME_CONTENT } from "@/features/game-content/api";
+import { FOLLOWERS, GAME_CONTENT, getContentCard } from "@/features/game-content/api";
 import type { SessionState } from "@/features/game-session/api";
 import {
   commentContext,
@@ -23,8 +23,11 @@ const NO_MODIFIERS = {
  * A run right after a card of `type` was played: built from the turn report the engine writes,
  * independent of how the hand is drawn.
  */
-const afterPlay = (type: "viral" | "ad" | "news", seed = 7): GameState => {
-  const card = content.cards.find((candidate) => candidate.type === type);
+const afterPlay = (type: "viral" | "ad" | "news", seed = 7, decision = false): GameState => {
+  const card = content.cards.find(
+    (candidate) =>
+      candidate.type === type && (getContentCard(candidate.id)?.announce !== undefined) === decision
+  );
   if (!card) throw new Error(`no ${type} card`);
   return {
     ...createGame({ content, seed }),
@@ -163,7 +166,38 @@ describe("commentsForSession", () => {
   });
 });
 
+describe("official decision posts", () => {
+  it("should use the official cue of the card's direction when a decision card was played", () => {
+    for (const [type, cue] of [
+      ["viral", "officialViral"],
+      ["ad", "officialAd"],
+      ["news", "officialNews"],
+    ] as const) {
+      expect(commentContext(afterPlay(type, 7, true), content)?.postCue).toBe(cue);
+      expect(commentContext(afterPlay(type), content)?.postCue).toBe(type);
+    }
+  });
+
+  it("should comment with official lines when a decision card is posted in a calm feed", () => {
+    const game = { ...afterPlay("ad", 7, true), toxicity: 0 };
+    const batch = commentsForStep({ seed: 7, step: 0, game, content });
+    const officialLines = new Set(FOLLOWERS.flatMap((follower) => follower.lines.officialAd ?? []));
+    expect(batch?.comments.length).toBeGreaterThan(0);
+    for (const comment of batch?.comments ?? []) {
+      expect(officialLines.has(comment.text), comment.text).toBe(true);
+    }
+  });
+});
+
 describe("FOLLOWERS", () => {
+  it("should give every follower official lines for all three directions", () => {
+    for (const follower of FOLLOWERS) {
+      for (const cue of ["officialViral", "officialAd", "officialNews"] as const) {
+        expect(follower.lines[cue]?.length ?? 0, `${follower.id} ${cue}`).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+
   it("should give every follower lines for all three post topics", () => {
     for (const follower of FOLLOWERS) {
       for (const topic of ["viral", "ad", "news"] as const) {

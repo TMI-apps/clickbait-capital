@@ -465,4 +465,354 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
     imageTheme: "stack of confidential documents spilling out of a folder, red 'internal' stamps",
     imageAlt: "Een stapel geheime documenten die uit een map glijdt, met rode stempels 'intern'.",
   },
+  // Decision scandals (policy-cards § 6): the harm of the decision cards, heavy topics fictionalised (D4).
+  {
+    id: "event-vlammetjes-paniek",
+    title: "Vlammetjes-paniek",
+    body: "Het is zomervakantie. Kinderen geven hun wachtwoord aan vrienden, zodat die hun vlammetje redden. Ouders zijn boos.",
+    trigger: { kind: "scandal", phases: [2, 3] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Verkoop een 'vlammetje-redder' voor 2 euro.",
+        effects: { revenue: 10, reputation: -5, toxicity: 6 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Geef dubbele vlammetjes in de vakantie.",
+        effects: { users: 10, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Vlammetjes mogen een week op pauze.",
+        effects: { users: -5, reputation: 6, toxicity: -14 },
+      },
+    ],
+    imageTheme:
+      "kids on a beach handing phones to friends to keep a flame streak alive, worried parents",
+    imageAlt:
+      "Kinderen op het strand geven hun telefoon aan een vriend om een vlammetje te redden.",
+  },
+  {
+    id: "event-klas-slaapt-in",
+    title: "Klas slaapt in",
+    body: "Een hele klas komt te laat op school. Ze zaten tot diep in de nacht op {app}. De juf belt het nieuws.",
+    trigger: { kind: "scandal", phases: [3] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Zet er reclame voor energiedrank naast.",
+        effects: { revenue: 12, reputation: -6, toxicity: 5 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Zeg: 'Ze kiezen het zelf.'",
+        effects: { users: 10, reputation: -7, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Zet een nachtstand aan vanaf negen uur.",
+        effects: { revenue: -8, users: -4, reputation: 6, toxicity: -18 },
+      },
+    ],
+    imageTheme:
+      "classroom of yawning kids with heads on desks, clock showing 8:45, phones glowing in bags",
+    imageAlt: "Een klas vol gapende kinderen met hun hoofd op tafel.",
+  },
+  {
+    id: "event-filterspiegel",
+    title: "Filterspiegel",
+    body: "Meiden zeggen op het nieuws: zonder filter durf ik niet meer op de foto. Hun ouders wijzen naar {app}.",
+    trigger: { kind: "scandal", phases: [3] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Verkoop extra filters.",
+        effects: { revenue: 12, reputation: -5, toxicity: 6 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Maak nog meer filters.",
+        effects: { users: 10, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Elke foto met filter krijgt een label.",
+        effects: { users: -4, reputation: 6, toxicity: -15 },
+      },
+    ],
+    imageTheme:
+      "girl hiding behind a phone in front of a mirror, filtered face on the screen, real face uncertain",
+    imageAlt:
+      "Een meisje kijkt in de spiegel en houdt een telefoon met een gefilterd gezicht voor zich.",
+  },
+  {
+    id: "event-europa-ontwerp",
+    title: "Europa onderzoekt je ontwerp",
+    body: "De [[toezichthouder]] in Brussel zegt: {app} is expres zo gemaakt dat je niet kunt stoppen.",
+    trigger: { kind: "scandal", phases: [3, 4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Huur dure advocaten in.",
+        effects: { revenue: -10, reputation: -2, toxicity: -4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Verander niks. Het werkt toch?",
+        effects: { users: 10, reputation: -8, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Zet autoplay en nachtmeldingen uit.",
+        effects: { revenue: -10, users: -4, reputation: 6, toxicity: -22 },
+      },
+    ],
+    imageTheme:
+      "official letter with an EU-style star seal on a desk next to a phone with endless scroll",
+    imageAlt: "Een officiële brief met een zegel van sterren naast een telefoon.",
+  },
+  {
+    id: "event-onbekende-mannen",
+    title: "Onbekende mannen in de berichten",
+    body: "Meiden op {app} worden lastiggevallen door onbekende mannen. Die sturen berichten die niet oké zijn.",
+    trigger: { kind: "scandal", phases: [3, 4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Verkoop een betaald 'veilig abonnement'.",
+        effects: { revenue: 10, reputation: -6, toxicity: 4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Laat de berichten open. Dat levert gebruikers op.",
+        effects: { users: 8, reputation: -8, toxicity: 12 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Volwassenen kunnen kinderen niet meer zomaar berichten.",
+        effects: { users: -5, reputation: 7, toxicity: -22 },
+      },
+    ],
+    imageTheme:
+      "phone inbox with grey anonymous message bubbles, a girl holding the phone at arm's length, shield icon",
+    imageAlt: "Een meisje houdt haar telefoon ver weg. Er staan berichten van onbekenden in.",
+  },
+  {
+    id: "event-zakgeld-weg",
+    title: "Zakgeld weg in één avond",
+    body: "Een jongen gaf al zijn zakgeld uit aan cadeautjes voor een streamer. Zijn ouders willen het geld terug.",
+    trigger: { kind: "scandal", phases: [3, 4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Betaal niks terug. Gekocht is gekocht.",
+        effects: { revenue: 8, reputation: -6, toxicity: 4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Geef de streamer een extra boost.",
+        effects: { users: 8, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Kinderen kunnen geen cadeautjes meer kopen.",
+        effects: { revenue: -12, reputation: 6, toxicity: -18 },
+      },
+    ],
+    imageTheme:
+      "empty piggy bank next to a phone showing a livestream with flying digital gifts, upset parents",
+    imageAlt: "Een leeg spaarvarken naast een telefoon met een livestream vol cadeautjes.",
+  },
+  {
+    id: "event-nep-met-vinkje",
+    title: "Nep met vinkje",
+    body: "Een [[nepaccount]] met een vinkje doet alsof het een bank is. Mensen raken hun spaargeld kwijt.",
+    trigger: { kind: "scandal", phases: [3, 4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Maak het vinkje duurder.",
+        effects: { revenue: 10, reputation: -6, toxicity: 6 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Laat het staan. Het is lekker druk.",
+        effects: { users: 8, reputation: -6, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Een vinkje alleen na een echte check.",
+        effects: { revenue: -10, users: -3, reputation: 6, toxicity: -18 },
+      },
+    ],
+    imageTheme:
+      "fake bank profile with a check mark badge, worried elderly couple looking at their phone",
+    imageAlt: "Een nepprofiel van een bank met een vinkje en een bezorgd ouder stel.",
+  },
+  {
+    id: "event-moderatoren-alarm",
+    title: "Moderatoren slaan alarm",
+    body: "De [[moderatoren|moderator]] die de hele dag nare filmpjes bekijken, worden er ziek van. Ze stappen naar de rechter.",
+    trigger: { kind: "scandal", phases: [4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Betaal ze om stil te zijn.",
+        effects: { revenue: -6, reputation: -2, toxicity: -4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Zoek een nog goedkoper bedrijf. Nare filmpjes blijven langer staan.",
+        effects: { users: 6, reputation: -7, toxicity: 12 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Geef ze een goed loon en echte hulp.",
+        effects: { revenue: -12, users: -3, reputation: 6, toxicity: -22 },
+      },
+    ],
+    imageTheme: "group of tired content moderators outside a courthouse holding simple signs",
+    imageAlt: "Een groep vermoeide moderatoren voor een rechtbank.",
+  },
+  {
+    id: "event-geweld-ver-land",
+    title: "Geweld in een ver land",
+    body: "In een land ver weg zet {app} groepen tegen elkaar op. Er gaan geruchten rond en mensen raken gewond. Bij {app} spreekt niemand die taal.",
+    trigger: { kind: "scandal", phases: [4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Zeg: 'Daar verdienen we toch weinig.'",
+        effects: { revenue: 6, reputation: -8, toxicity: 6 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Doe niks. Het levert kijkers op.",
+        effects: { users: 10, reputation: -8, toxicity: 12 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Neem snel mensen aan die de taal spreken.",
+        effects: { revenue: -12, users: -4, reputation: 7, toxicity: -24 },
+      },
+    ],
+    imageTheme:
+      "distant map with spreading red rumor bubbles in an unknown script, empty moderator chair",
+    imageAlt: "Een kaart van een ver land met rode geruchtenwolkjes en een lege stoel.",
+  },
+  {
+    id: "event-chatbot-vriendje",
+    title: "De chatbot zegt rare dingen",
+    body: "{app} heeft een chatbot als 'vriendje' voor kinderen. Hij zegt dingen die niet kloppen. En dingen die niet oké zijn.",
+    trigger: { kind: "scandal", phases: [4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Maak de chatbot alleen voor betalers.",
+        effects: { revenue: 10, reputation: -6, toxicity: 5 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Zet de chatbot overal in de app.",
+        effects: { users: 10, reputation: -7, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Zet de chatbot uit tot de regels kloppen.",
+        effects: { revenue: -8, users: -4, reputation: 6, toxicity: -18 },
+      },
+    ],
+    imageTheme:
+      "cute robot chat buddy on a kid's phone with glitching speech bubbles and a warning triangle",
+    imageAlt: "Een schattige chatrobot op een telefoon met haperende tekstballonnen.",
+  },
+  {
+    id: "event-nieuwe-wet",
+    title: "Een nieuwe wet in Brussel",
+    body: "Politici willen een wet: apps moeten kinderen beter beschermen. Jouw [[aandeelhouders|aandeelhouder]] zijn bang voor de winst. Een [[lobby]] kan de wet slapper maken.",
+    trigger: { kind: "scandal", phases: [4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Betaal een lobby om de wet slapper te maken.",
+        effects: { revenue: 8, reputation: -7, toxicity: 4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Dreig om weg te gaan uit Europa.",
+        effects: { users: 6, reputation: -8, toxicity: 8 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Help zelf mee aan goede regels.",
+        effects: { revenue: -10, reputation: 8, toxicity: -20 },
+      },
+    ],
+    imageTheme:
+      "parliament hall with lobbyists in suits whispering to politicians, draft law on the table",
+    imageAlt: "Een parlementszaal waar mensen in pakken fluisteren tegen politici.",
+  },
+  {
+    id: "event-land-verbiedt-app",
+    title: "Een land verbiedt {app} voor kinderen",
+    body: "Een land zegt: kinderen onder de 16 mogen niet meer op sociale media. Ook niet op {app}.",
+    trigger: { kind: "scandal", phases: [4] },
+    options: [
+      {
+        id: "a",
+        kind: "commercial",
+        label: "Span een rechtszaak aan.",
+        effects: { revenue: -8, reputation: -4 },
+      },
+      {
+        id: "b",
+        kind: "engagement",
+        label: "Maak de leeftijdscheck makkelijk te omzeilen.",
+        effects: { users: 10, reputation: -8, toxicity: 10 },
+      },
+      {
+        id: "c",
+        kind: "journalism",
+        label: "Bouw een echte leeftijdscheck.",
+        effects: { users: -8, reputation: 7, toxicity: -20 },
+      },
+    ],
+    imageTheme:
+      "phone with a 16+ age gate barrier, map of a country highlighted, kids outside the gate",
+    imageAlt: "Een telefoon met een slagboom '16+' en kinderen die erbuiten staan.",
+  },
 ];

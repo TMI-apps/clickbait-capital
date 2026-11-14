@@ -12,10 +12,41 @@ export interface ImageHint {
   imageAlt: string;
 }
 
+/**
+ * How a decision card is announced on the app's official account (policy-cards § 4): the
+ * company's friendly spin, while the card body says what the decision really does. Plain text.
+ */
+export interface CardAnnouncement {
+  title: string;
+  body: string;
+}
+
+/**
+ * The real event a decision card is based on (policy-cards § 5b, D3): one plain Dutch line
+ * without brand names, and one open news article the card detail links to in a new tab.
+ */
+export interface RealCase {
+  /** "Echt gebeurd: …" sentence, plain text (no glossary markup, no brand names). */
+  line: string;
+  /** Article url (https). The article itself may name companies. */
+  url: string;
+  /** Outlet name, read in the link's accessible name ("… bij NPR"). */
+  publisher: string;
+  /** Publication date as shown to a teacher, e.g. "sep. 2023". */
+  date: string;
+}
+
 /** What a card adds on top of the engine's `CardDefinition`. */
 export interface CardPresentation extends ImageHint {
   /** Dutch one-liner under the body: the satirical punchline. */
   flavor: string;
+  /**
+   * Present on a decision card (policy-cards D1): a company decision inside its usual type,
+   * shown in the feed as an official post. No engine flag: the engine ignores this field.
+   */
+  announce?: CardAnnouncement;
+  /** The real event behind a decision card, shown only in the card detail. */
+  realCase?: RealCase;
 }
 
 /** What an event adds on top of the engine's `EventDefinition`. */
@@ -88,7 +119,14 @@ export type FollowerCue =
   /** Reputation is low: critical followers complain. */
   | "complain"
   | "adFatigue"
-  | "echoChamber";
+  | "echoChamber"
+  /**
+   * The post is an official decision announcement (policy-cards § 8), one cue per direction:
+   * replaces the type cue under a decision card's post.
+   */
+  | "officialViral"
+  | "officialAd"
+  | "officialNews";
 
 /** Avatar tint of a follower; maps to a theme token in the comments component. */
 export type FollowerTone = "viral" | "ad" | "news" | "primary" | "success" | "warning";

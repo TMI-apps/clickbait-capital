@@ -1,6 +1,12 @@
 import type { CardType, EventOptionKind, GameContent, GameState } from "@/features/game-engine/api";
 import { nextRandom } from "@/shared/utils/seededRandom";
-import { DEFAULT_APP_NAME, fillTemplate, FOLLOWERS, UI_COPY } from "@/features/game-content/api";
+import {
+  DEFAULT_APP_NAME,
+  fillTemplate,
+  FOLLOWERS,
+  getContentCard,
+  UI_COPY,
+} from "@/features/game-content/api";
 import type { FollowerCue, FollowerPersona } from "@/features/game-content/api";
 import type { SessionState } from "@/features/game-session/api";
 import type {
@@ -27,14 +33,30 @@ const OPTION_TOPIC: Record<EventOptionKind, CardType> = {
   journalism: "news",
 };
 
+/** The cue under an official decision post, by the card's direction (policy-cards § 8). */
+const OFFICIAL_CUE: Record<CardType, FollowerCue> = {
+  viral: "officialViral",
+  ad: "officialAd",
+  news: "officialNews",
+};
+
 /** What the followers react to after one action: the post's topic and the run's state. */
 export interface CommentContext {
   topic: CardType;
+  /** The cue the post's own comments use: the topic, or the official cue under a decision card. */
+  postCue: FollowerCue;
   /** State cues, most telling first. */
   cues: FollowerCue[];
   pace: CommentPace;
   /** Critical followers have left: they post a leave comment instead of talking. */
   criticsLeft: boolean;
+}
+
+/** A decision card (it has an announcement) gets official comments instead of its type's. */
+function postCueOf(game: GameState, topic: CardType): FollowerCue {
+  const source = game.lastTurn?.source;
+  const official = source?.kind === "card" && getContentCard(source.cardId)?.announce;
+  return official ? OFFICIAL_CUE[topic] : topic;
 }
 
 function topicOf(game: GameState, content: GameContent): CardType | null {
@@ -71,6 +93,7 @@ export function commentContext(game: GameState, content: GameContent): CommentCo
   if (!topic) return null;
   return {
     topic,
+    postCue: postCueOf(game, topic),
     cues: stateCues(game),
     pace: paceOf(game.toxicity),
     criticsLeft: game.reputation < LEAVE_BELOW_REPUTATION,
@@ -117,10 +140,12 @@ function pickSpeakers(context: CommentContext, slots: number, random: StepRandom
   const present = FOLLOWERS.filter((follower) => !(context.criticsLeft && follower.critical));
   // Wild comments: the mean ones come first, before anyone talks about the post.
   const order: FollowerCue[] =
-    context.pace === "wild" ? [...context.cues, context.topic] : [context.topic, ...context.cues];
+    context.pace === "wild"
+      ? [...context.cues, context.postCue]
+      : [context.postCue, ...context.cues];
   const picks: Pick[] = [];
   const used = new Set<string>();
-  for (const cue of [...order, ...Array<FollowerCue>(slots).fill(context.topic)]) {
+  for (const cue of [...order, ...Array<FollowerCue>(slots).fill(context.postCue)]) {
     if (picks.length >= slots) break;
     const picked = pickSpeaker(cue, { present, used, random });
     if (!picked) continue;
