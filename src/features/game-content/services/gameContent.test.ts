@@ -69,19 +69,16 @@ describe("GAME_CONTENT integrity", () => {
   });
 
   it("should follow the design's card profile when effects are read per type", () => {
-    const viralUsers = GAME_CONTENT.cards
-      .filter((card) => card.type === "viral")
-      .map((card) => card.effects.users ?? 0);
-    // News grows the audience a little, always less than any viral card (exponential-growth D1).
-    const smallGrowth = (users: number): boolean => users > 0 && users < Math.min(...viralUsers);
+    // Realistic effects (realistic-effects D1, supersedes exponential-growth D1's news growth):
+    // news never grows users or earns money; viral never costs money; ads never gain users.
     for (const card of GAME_CONTENT.cards) {
       const { revenue = 0, users = 0, reputation = 0, toxicity = 0 } = card.effects;
       if (card.type === "viral") {
-        expect([users > 0, toxicity > 0, revenue === 0], card.id).toEqual([true, true, true]);
+        expect([users > 0, toxicity > 0, revenue >= 0], card.id).toEqual([true, true, true]);
       } else if (card.type === "ad") {
-        expect([revenue > 0, users < 0, reputation <= 0], card.id).toEqual([true, true, true]);
+        expect([revenue > 0, users <= 0, reputation <= 0], card.id).toEqual([true, true, true]);
       } else {
-        expect([reputation > 0, toxicity < 0, smallGrowth(users), revenue === 0], card.id).toEqual([
+        expect([reputation > 0, toxicity < 0, users <= 0, revenue <= 0], card.id).toEqual([
           true,
           true,
           true,
@@ -135,6 +132,41 @@ describe("GAME_CONTENT integrity", () => {
     const state = createGame({ content: GAME_CONTENT, seed: 1 });
     expect(state.status).toBe("playing");
     expect(state.hand).not.toBeNull();
+  });
+});
+
+/** A non-journalism option that pays (lawyers, PR) without winning users or real trust. */
+function onlySpendsMoney(option: (typeof GAME_CONTENT.events)[number]["options"][number]): boolean {
+  const { revenue = 0, users = 0, reputation = 0 } = option.effects;
+  return revenue < 0 && users >= 0 && reputation <= 2 && option.kind !== "journalism";
+}
+
+describe("realistic effects", () => {
+  it("should make every company decision cost or pay like it would in reality when its effects are read", () => {
+    // Protection costs users or money; engagement tricks earn ad money (realistic-effects D1).
+    for (const card of GAME_CONTENT.cards.filter(
+      (candidate) => getContentCard(candidate.id)?.announce
+    )) {
+      const { revenue = 0, users = 0 } = card.effects;
+      if (card.type === "news") {
+        expect(revenue < 0 || users < 0, card.id).toBe(true);
+      } else if (card.type === "viral") {
+        expect(revenue > 0, card.id).toBe(true);
+      }
+    }
+  });
+
+  it("should never lower Toxicity when an event option only spends money on lawyers or PR", () => {
+    // Paying to look better leaves the ophef where it is (realistic-effects D2).
+    for (const event of GAME_CONTENT.events) {
+      for (const option of event.options) {
+        if (onlySpendsMoney(option)) {
+          expect(option.effects.toxicity ?? 0, `${event.id} ${option.id}`).toBeGreaterThanOrEqual(
+            0
+          );
+        }
+      }
+    }
   });
 });
 

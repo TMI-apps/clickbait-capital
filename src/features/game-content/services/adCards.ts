@@ -3,7 +3,8 @@ import type { CardPresentation } from "@/features/game-content/types/contentPres
 
 /**
  * Advertisement cards (💰 Advertentie): direct revenue, a light user loss, a little hidden
- * Toxicity for the shadier deals. Seven cards for every phase plus four per phase; later
+ * Toxicity for the shadier deals. Cost-cutting decisions that nobody sees (outsourced
+ * moderation, dropping factcheckers) lose no users (realistic-effects D1). Seven cards for every phase plus four per phase; later
  * phases pay more and annoy more, so the IPO's revenue target stays reachable.
  * Written for 11-year-olds (kids-content): their world, no real game or brand names.
  */
@@ -411,7 +412,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Moderatie goedkoop uitbesteden",
     body: "Ver weg kijken [[moderatoren|moderator]] de hele dag naar nare filmpjes. Voor heel weinig geld.",
     flavor: "Uit het zicht, uit het hart. En uit de begroting.",
-    effects: { revenue: 21, users: -4, reputation: -2, toxicity: 3 },
+    effects: { revenue: 21, reputation: -2, toxicity: 3 },
     imageTheme:
       "rows of tired workers at screens in a far-away office, price tag 'cheap' on the door",
     imageAlt: "Rijen vermoeide mensen achter schermen in een kantoor ver weg.",
@@ -433,7 +434,7 @@ export const AD_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Stoppen met factcheckers",
     body: "Geen [[journalisten|journalist]] meer die berichten checken. Dat scheelt geld. [[Nepnieuws]] blijft staan.",
     flavor: "Waarheid is duur. Twijfel is gratis.",
-    effects: { revenue: 20, users: -4, reputation: -3, toxicity: 4 },
+    effects: { revenue: 20, reputation: -3, toxicity: 4 },
     imageTheme: "fact-checker desk being carried out of an office, fake headlines piling up",
     imageAlt: "Een bureau van factcheckers wordt weggedragen, nepkoppen stapelen zich op.",
     phases: [4],

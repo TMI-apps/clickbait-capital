@@ -10,7 +10,7 @@ import {
   type GameContent,
   type GameState,
 } from "@/features/game-engine/api";
-import { GAME_CONTENT } from "@/features/game-content/services/gameContent";
+import { GAME_CONTENT, getContentCard } from "@/features/game-content/services/gameContent";
 
 /**
  * Balance simulation: scripted strategies play the full deck through the real engine over
@@ -187,6 +187,28 @@ const ruleOfThumb: Strategy = (state, content) => {
     return { kind: "event", optionId: progress.money < progress.users ? "a" : "b" };
   }
   return preferring(state, content, ruleOfThumbOrder(state, content));
+};
+
+/**
+ * Ethical player (realistic-effects D4): the board-only lookahead, but it never plays a viral or
+ * ad company decision while another card is in hand, and always takes the journalism option. It
+ * still needs viral posts to grow and ads to pay the bills, like a real careful founder.
+ */
+const ethical: Strategy = (state, content) => {
+  if (state.status === "event") {
+    return { kind: "event", optionId: "c" };
+  }
+  const cards = getHandCards(state, content)!;
+  const allowed = cards.filter(
+    (card) => card.type === "news" || !getContentCard(card.id)?.announce
+  );
+  const best = (allowed.length > 0 ? allowed : cards)
+    .map((card) => ({
+      cardId: card.id,
+      score: scoreState(playCard(state, content, card.id), content, BOARD_ONLY),
+    }))
+    .sort((a, b) => b.score - a.score)[0]!;
+  return { kind: "card", cardId: best.cardId };
 };
 
 /** Plays the rotation's type for this turn, else the next types of the rotation. */
@@ -433,6 +455,7 @@ describe("balance simulation", () => {
     rotateFive: summarize(rotateFive),
     humanLike: summarize(humanLike),
     ruleOfThumb: summarize(ruleOfThumb),
+    ethical: summarize(ethical),
   });
 
   it("should end every viral-only game in Bankroet when only viral cards are played", () => {
@@ -506,6 +529,22 @@ describe("balance simulation", () => {
     }
   });
 
+  describe("careful play", () => {
+    it("should let a careful player win the IPO when they watch the hidden values", () => {
+      expect(results.mixed.endings.won ?? 0).toBeGreaterThan(0);
+    });
+
+    it("should let an ethical player win the IPO in most games when they skip every harmful decision", () => {
+      expect(results.ethical.endings.won ?? 0).toBeGreaterThanOrEqual(SEEDS.length * 0.5);
+    });
+
+    it("should give an ethical player no more scandals than a rule-of-thumb player when both play", () => {
+      expect(results.ethical.medianScandals).toBeLessThanOrEqual(
+        results.ruleOfThumb.medianScandals
+      );
+    });
+  });
+
   describe("exponential growth", () => {
     it("should spend about as many turns on each ×10 phase when growth compounds", () => {
       const { medianPhaseTurns } = results.humanLike;
@@ -518,9 +557,5 @@ describe("balance simulation", () => {
       const twoThirds = users[Math.floor((users.length * 2) / 3)]!;
       expect(users[users.length - 1]!).toBeGreaterThanOrEqual(twoThirds * 10);
     });
-  });
-
-  it("should let a careful player win the IPO when they watch the hidden values", () => {
-    expect(results.mixed.endings.won ?? 0).toBeGreaterThan(0);
   });
 });

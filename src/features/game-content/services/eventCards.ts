@@ -332,7 +332,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Stuur je advocaten. Zeg niks en verdien door.",
-        effects: { revenue: -4, reputation: -2, toxicity: -5 },
+        effects: { revenue: -4, reputation: -2, toxicity: 3 },
       },
       {
         id: "b",
@@ -360,7 +360,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Betaal een dure reclame: 'Onze app is veilig!'",
-        effects: { revenue: -12, toxicity: -5 },
+        effects: { revenue: -10, reputation: 2 },
       },
       {
         id: "b",
@@ -447,7 +447,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Betaal een bureau om het verhaal mooier te maken.",
-        effects: { revenue: -4, reputation: -3, toxicity: -5 },
+        effects: { revenue: -4, reputation: -3 },
       },
       {
         id: "b",
@@ -565,7 +565,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Huur dure advocaten in.",
-        effects: { revenue: -10, reputation: -2, toxicity: -4 },
+        effects: { revenue: -10, reputation: -2 },
       },
       {
         id: "b",
@@ -681,7 +681,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "a",
         kind: "commercial",
         label: "Betaal ze om stil te zijn.",
-        effects: { revenue: -6, reputation: -2, toxicity: -4 },
+        effects: { revenue: -6, reputation: -2, toxicity: 4 },
       },
       {
         id: "b",
@@ -773,7 +773,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "b",
         kind: "engagement",
         label: "Dreig om weg te gaan uit Europa.",
-        effects: { users: 6, reputation: -8, toxicity: 8 },
+        effects: { reputation: -8, toxicity: 8 },
       },
       {
         id: "c",
@@ -802,7 +802,7 @@ export const EVENT_CARDS: (EventDefinition & EventPresentation)[] = [
         id: "b",
         kind: "engagement",
         label: "Maak de leeftijdscheck makkelijk te omzeilen.",
-        effects: { users: 10, reputation: -8, toxicity: 10 },
+        effects: { reputation: -8, toxicity: 10 },
       },
       {
         id: "c",
