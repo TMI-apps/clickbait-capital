@@ -308,5 +308,10 @@
     "title": "Afbeeldingen voor beslissingskaarten",
     "description": "20 vrije foto's (CC0/PD/CC BY) op beslissingskaarten en schandalen, met naamsvermelding op /credits; 16 kaarten houden het standaardplaatje. PR #71. Decision log § decision-imagery",
     "status": "done"
+  },
+  {
+    "title": "Realistische kaarteffecten",
+    "description": "Beschermende besluiten en eerlijk nieuws kosten geld en/of gebruikers; gewone nieuwskaarten 0 gebruikers; virale besluiten leveren wat geld op; geld koopt geen rust meer bij gebeurtenissen. Balans bijgesteld (serverkosten, fase 3/4-basis, boetes). PR #72. Decision log § realistic-effects",
+    "status": "done"
   }
 ]
