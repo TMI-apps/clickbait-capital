@@ -6,7 +6,9 @@ import type { PhaseIntro } from "@/features/game-content/types/contentPresentati
  * exponential-growth D1–D3). Effects stay authored in points. A users point adds the phase's
  * fixed `usersPerPoint` plus 6 % of the current users, so growth compounds from 0; a revenue
  * point of gain pays € 0,05 per current user; costs and fines use the phase's `moneyPerPoint`.
- * Each goal is ×10 the last, so every phase takes about as many turns. Tuning against the card pool is proven by
+ * Each goal is ×10 the last, so every phase takes about as many turns. News grows no users and
+ * protection decisions cost (realistic-effects D1), so costs are 1 point a turn in every phase and
+ * phase 3 and 4 have a larger fixed users base (realistic-effects D3). Tuning against the card pool is proven by
  * `balanceSimulation.test.ts`. Changes here change difficulty: rerun the simulation.
  */
 export const CONTENT_BALANCE: BalanceConfig = {
@@ -21,7 +23,7 @@ export const CONTENT_BALANCE: BalanceConfig = {
   reputationDecay: { afterTurnsWithoutNews: 3, amount: 3 },
   adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
   echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
-  scandal: { threshold: 35, rampPoints: 20, maxChance: 0.9, finePoints: 8 },
+  scandal: { threshold: 35, rampPoints: 20, maxChance: 0.9, finePoints: 6 },
   eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
   handMix: { oneOfEach: 0.6, pair: 0.35, triple: 0.05 },
 };
@@ -41,7 +43,7 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
     id: 2,
     name: "De Scale-Up",
     goal: { description: "Haal 100.000 gebruikers en € 200.000.", users: 100_000, money: 200_000 },
-    passiveCosts: { revenue: -2 },
+    passiveCosts: { revenue: -1 },
     usersPerPoint: 500,
     moneyPerPoint: 2_000,
     reputationLossMultiplier: 1,
@@ -55,8 +57,8 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
       users: 1_000_000,
       money: 2_000_000,
     },
-    passiveCosts: { revenue: -2 },
-    usersPerPoint: 5_000,
+    passiveCosts: { revenue: -1 },
+    usersPerPoint: 10_000,
     moneyPerPoint: 20_000,
     reputationLossMultiplier: 1.5,
     revenueGainMultiplier: 1,
@@ -69,8 +71,8 @@ export const CONTENT_PHASES: PhaseDefinition[] = [
       users: 10_000_000,
       money: 20_000_000,
     },
-    passiveCosts: { revenue: -2 },
-    usersPerPoint: 50_000,
+    passiveCosts: { revenue: -1 },
+    usersPerPoint: 60_000,
     moneyPerPoint: 200_000,
     reputationLossMultiplier: 2,
     revenueGainMultiplier: 1,

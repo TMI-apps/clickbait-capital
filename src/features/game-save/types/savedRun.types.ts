@@ -9,9 +9,10 @@ export type RunAction = { kind: "card"; cardId: string } | { kind: "option"; opt
  * score model (score-redesign D11, D19) gives other numbers and scandal draws. 5: equal card-type
  * odds (balance-cleanup D2). 6: the draw deck (deck-draw D1–D4) draws other hands. 7: compounding growth from 0 users
  * (exponential-growth D1–D3) gives other numbers and scandal timing. 8: the decision cards and
- * scandals (policy-cards § 3, § 6) change the draw piles and the scandal pool.
+ * scandals (policy-cards § 3, § 6) change the draw piles and the scandal pool. 9: realistic card
+ * effects and server costs (realistic-effects D1–D3) give other numbers and scandal timing.
  */
-export const SAVED_RUN_VERSION = 8;
+export const SAVED_RUN_VERSION = 9;
 
 /**
  * The minimal state that reproduces a run (local-save D1): the engine is pure and seeded, so

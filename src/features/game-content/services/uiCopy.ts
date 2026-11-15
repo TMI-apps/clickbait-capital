@@ -68,7 +68,7 @@ export const UI_COPY = {
     "Elke beurt krijg je drie kaarten: Viraal, Advertentie en Nieuws.",
     "Sleep één kaart naar de [[feed]]. Of tik erop: dan lees je meer en kies je 'In de feed'.",
     "Houd een kaart ingedrukt: de stippellijn op de grafiek laat zien wat hij met je gebruikers en geld doet.",
-    "Viraal brengt veel nieuwe gebruikers, Nieuws een paar. Advertenties maken van je gebruikers geld. Nieuws houdt schandalen weg.",
+    "Viraal brengt nieuwe gebruikers. Advertenties maken van je gebruikers geld. Nieuws levert niks op, maar houdt schandalen weg.",
     "Haal elke fase de doellijn voor gebruikers én voor geld. Zakt je geld onder nul, dan ben je [[bankroet]].",
     "Let op: je ziet niet alles meteen. Zie je 'Schandaal dreigt', dan komen je keuzes hard terug.",
   ],

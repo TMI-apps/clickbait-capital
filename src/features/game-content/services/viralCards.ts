@@ -5,6 +5,7 @@ import type { CardPresentation } from "@/features/game-content/types/contentPres
  * Viral cards (⚡ Viraal): big user gains, hidden Toxicity, some direct reputation damage.
  * Eight cards for every phase plus four per phase, so each phase drafts from twelve.
  * Later phases bite harder (more Toxicity, more reputation loss) as the platform grows.
+ * Viral company decisions also earn a little: more kijktijd sells more ads (realistic-effects D1).
  * Written for 11-year-olds (kids-content): their world, no real game or brand names.
  */
 export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
@@ -293,7 +294,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Eindeloos scrollen",
     body: "De [[feed]] houdt nooit meer op. Er komt geen moment waarop je denkt: klaar.",
     flavor: "Het einde van de feed is afgeschaft. Het einde van de avond ook.",
-    effects: { users: 13, reputation: -2, toxicity: 10 },
+    effects: { users: 13, revenue: 2, reputation: -2, toxicity: 10 },
     imageTheme:
       "phone screen with a feed scrolling into infinity, tired eyes reflected, late evening",
     imageAlt: "Een telefoonscherm met een feed die eindeloos doorloopt.",
@@ -315,7 +316,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Vlammetjes voor elke dag",
     body: "Stuur elke dag een bericht aan je vriend, anders gaat jullie vlammetje uit. Ook op vakantie.",
     flavor: "Vriendschap, nu met een stopwatch.",
-    effects: { users: 14, reputation: -2, toxicity: 10 },
+    effects: { users: 14, revenue: 2, reputation: -2, toxicity: 10 },
     imageTheme: "chat app with a flame streak counter at 287 days, kid on holiday staring at phone",
     imageAlt: "Een chat met een vlammetje en het getal 287, op vakantie aan het strand.",
     phases: [2, 3],
@@ -336,7 +337,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Autoplay standaard aan",
     body: "Na elk filmpje start meteen het volgende. Stoppen moet je zelf doen.",
     flavor: "Je kunt altijd stoppen. Je doet het alleen nooit.",
-    effects: { users: 15, reputation: -3, toxicity: 11 },
+    effects: { users: 15, revenue: 2, reputation: -3, toxicity: 11 },
     imageTheme: "video player with a countdown 'next video in 3' and no stop button, sleepy kid",
     imageAlt: "Een filmpje met een aftelklok naar het volgende filmpje en een slaperig kind.",
     phases: [3],
@@ -357,7 +358,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Boze reacties tellen dubbel",
     body: "Een bericht met veel boze reacties komt hoger in de [[feed]]. Ruzie wint.",
     flavor: "Het [[algoritme]] houdt van ruzie. Het hoeft hem niet op te lossen.",
-    effects: { users: 16, reputation: -4, toxicity: 14 },
+    effects: { users: 16, revenue: 2, reputation: -4, toxicity: 14 },
     imageTheme: "ranking ladder where posts with angry emoji climb to the top, calm posts sink",
     imageAlt: "Berichten met boze emoji klimmen naar boven, rustige berichten zakken weg.",
     phases: [3],
@@ -378,7 +379,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Meldingen, ook 's nachts",
     body: "Je telefoon trilt ook om twee uur 's nachts. Iemand heeft iets geliket.",
     flavor: "Slapen kan altijd nog. Zegt de app.",
-    effects: { users: 15, reputation: -3, toxicity: 12 },
+    effects: { users: 15, revenue: 2, reputation: -3, toxicity: 12 },
     imageTheme: "phone lighting up a dark bedroom at 2 a.m. with a like notification, alarm clock",
     imageAlt: "Een telefoon licht op in een donkere slaapkamer, de wekker zegt 02:00.",
     phases: [3, 4],
@@ -399,7 +400,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Schoonheidsfilters voor iedereen",
     body: "Een filter maakt je huid glad en je neus kleiner. Zonder filter voel je je ineens lelijk.",
     flavor: "Jij, maar dan van iemand anders.",
-    effects: { users: 15, reputation: -3, toxicity: 12 },
+    effects: { users: 15, revenue: 2, reputation: -3, toxicity: 12 },
     imageTheme: "selfie split in two: real face and an over-smoothed filtered face, sparkles",
     imageAlt: "Een selfie in twee helften: een echt gezicht en een glad gefilterd gezicht.",
     phases: [3, 4],
@@ -420,7 +421,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Misschien ken je…",
     body: "De app stelt nieuwe vrienden voor. Ook onbekende volwassenen aan kinderen.",
     flavor: "Meer vrienden is altijd beter. Toch?",
-    effects: { users: 15, reputation: -4, toxicity: 13 },
+    effects: { users: 15, revenue: 2, reputation: -4, toxicity: 13 },
     imageTheme: "friend suggestion cards with faceless grey adult silhouettes shown to a kid",
     imageAlt: "Vriendensuggesties met grijze silhouetten van onbekende volwassenen.",
     phases: [4],
@@ -441,7 +442,7 @@ export const VIRAL_CARDS: (CardDefinition & CardPresentation)[] = [
     title: "Geheime boostknop",
     body: "Medewerkers kiezen stiekem welke filmpjes viraal gaan. Niemand kan het zien.",
     flavor: "Het [[algoritme]] kiest. Behalve als Kees van kantoor kiest.",
-    effects: { users: 16, reputation: -4, toxicity: 12 },
+    effects: { users: 16, revenue: 2, reputation: -4, toxicity: 12 },
     imageTheme: "office worker secretly pressing a big glowing boost button behind a curtain",
     imageAlt: "Een medewerker drukt stiekem op een grote gloeiende knop achter een gordijn.",
     phases: [4],
