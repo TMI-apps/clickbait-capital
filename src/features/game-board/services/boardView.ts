@@ -13,8 +13,9 @@ import {
   playCard,
   resolveEvent,
   scandalChance,
+  scandalFine,
 } from "@/features/game-engine/api";
-import { DEFAULT_APP_NAME, fillTemplate } from "@/features/game-content/api";
+import { DEFAULT_APP_NAME, UI_COPY, fillTemplate } from "@/features/game-content/api";
 import { STREAK_LEVELS } from "@/features/game-juice/api";
 import type { SessionStep } from "@/features/game-session/api";
 import type {
@@ -116,7 +117,22 @@ export interface ScorePoint extends Record<ScoreKey, number> {
 function eventKindOf(step: SessionStep, content: GameContent): ScorePoint["event"] {
   if (step.eventId === null) return undefined;
   const event = content.events.find((candidate) => candidate.id === step.eventId);
-  return event?.trigger.kind === "scandal" ? "scandal" : "world";
+  return event ? kindOfEvent(event) : "world";
+}
+
+/** Scandal or world (milestone) event: the chart ticks and the event dialog tell them apart. */
+function kindOfEvent(event: EventDefinition): EventView["kind"] {
+  return event.trigger.kind === "scandal" ? "scandal" : "world";
+}
+
+/** The scandal's fine as "−€ 12.000" (the engine's `scandalFine`), or null for other events. */
+function fineTextOf(state: GameState, content: GameContent, event: EventDefinition): string | null {
+  const fine = scandalFine(event, {
+    phase: currentPhase(state, content),
+    balance: content.balance,
+    users: state.users,
+  });
+  return fine > 0 ? formatScoreDelta("money", -fine) : null;
 }
 
 /**
@@ -206,7 +222,10 @@ export function toMeters(
 export function toScandalRisk(state: GameState, content: GameContent): ScandalRiskView | null {
   const chance = scandalChance(state.reputation, content.balance.scandal);
   if (chance <= 0) return null;
-  return { chance, text: `Schandaal dreigt: ${Math.round(chance * 100)}% kans per beurt` };
+  const text = fillTemplate(UI_COPY.board.scandalRisk, {
+    chance: String(Math.round(chance * 100)),
+  });
+  return { chance, text };
 }
 
 /** Phase name, goal text and progress: the lower of the two goal lines, capped at 1. */
@@ -365,8 +384,10 @@ export function toEventView(
   }
   return {
     id: event.id,
+    kind: kindOfEvent(event),
     title: withApp(event.title, app),
     body: withApp(event.body, app),
+    fineText: fineTextOf(state, content, event),
     options: seededOrder(event.options, `${state.seed}:${event.id}`).map((option) => ({
       id: option.id,
       kind: option.kind,

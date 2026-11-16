@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { glossaryTermsIn, stripGlossaryMarkup } from "@/shared/utils/glossaryMarkup";
 import {
   createGame,
+  getPendingEvent,
+  playCard,
+  resolveEvent,
+  scandalChance,
+  scandalFine,
   type CardType,
   type EventOptionKind,
   type PhaseId,
@@ -415,5 +420,50 @@ describe("glossary", () => {
       )
     );
     expect(named).toEqual([]);
+  });
+});
+
+type GameState = ReturnType<typeof createGame>;
+
+/** The fine of the pending event if it is a scandal, else null. */
+function pendingScandalFine(state: GameState): number | null {
+  const event = getPendingEvent(state, GAME_CONTENT)!;
+  if (event.trigger.kind !== "scandal") return null;
+  const phase = GAME_CONTENT.phases.find((candidate) => candidate.id === state.phase)!;
+  return scandalFine(event, { phase, balance: GAME_CONTENT.balance, users: state.users });
+}
+
+/**
+ * Plays `cardTurns` card turns of the real content with reputation held at 0 (maximum scandal
+ * chance) and money never running out; events take their first option. Returns the scandals.
+ */
+function scandalsAtZeroReputation(cardTurns: number): Array<{ turn: number; fine: number }> {
+  let state: GameState = { ...createGame({ content: GAME_CONTENT, seed: 42 }), money: 1e12 };
+  const opened: Array<{ turn: number; fine: number }> = [];
+  for (let played = 0; played < cardTurns && state.status !== "lost"; ) {
+    if (state.status === "event") {
+      const fine = pendingScandalFine(state);
+      if (fine !== null) opened.push({ turn: state.turn, fine });
+      const firstOption = getPendingEvent(state, GAME_CONTENT)!.options[0]!.id;
+      state = resolveEvent(state, GAME_CONTENT, firstOption);
+    } else {
+      state = playCard({ ...state, reputation: 0 }, GAME_CONTENT, state.hand![0]!);
+      played += 1;
+    }
+  }
+  return opened;
+}
+
+describe("scandals in the game content", () => {
+  /** Owner report (scandal-recognition): "90% but no scandals". */
+  it("should open a scandal with a fine every few turns when reputation stays below the threshold", () => {
+    const { scandal, eventPacing } = GAME_CONTENT.balance;
+    const opened = scandalsAtZeroReputation(30);
+    expect(scandalChance(0, scandal)).toBe(scandal.maxChance);
+    // At most one event per `urgentMinTurnsBetween` turns, so "90%" is never every turn.
+    expect(opened.length).toBeGreaterThanOrEqual(5);
+    const gaps = opened.slice(1).map((next, index) => next.turn - opened[index]!.turn);
+    expect(gaps.every((gap) => gap >= eventPacing.urgentMinTurnsBetween)).toBe(true);
+    expect(opened.every((opening) => opening.fine > 0)).toBe(true);
   });
 });

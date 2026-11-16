@@ -37,7 +37,7 @@ Yardstick (realistic-effects D1): every card does to users and money what that c
 
 ### Events
 
-Milestones open soon after their phase starts. Every other event is a **scandal** (score-redesign D14): while hidden reputation is below `CONTENT_BALANCE.scandal.threshold` (30), each card turn rolls against the scandal chance (0 → 90 % over 20 points) and draws a scandal of the phase, at most one event per card turn and spaced by `eventPacing` (game-engine D10): 3–6 card turns after the previous event, only 3 at the maximum chance. Each scandal also costs a fine of 18 revenue points at the phase's euro rate (D25). Scandals repeat once all of a phase's scandals have fired.
+Milestones open soon after their phase starts. Every other event is a **scandal** (score-redesign D14): while hidden reputation is below `CONTENT_BALANCE.scandal.threshold` (30), each card turn rolls against the scandal chance (0 → 90 % over 20 points) and draws a scandal of the phase, at most one event per card turn and spaced by `eventPacing` (game-engine D10): 3–6 card turns after the previous event, only 3 at the maximum chance. Each scandal also costs a fine of 18 revenue points at the phase's euro rate (D25). Scandals repeat once all of a phase's scandals have fired. The warning and Hoe speel je? say "om de paar beurten", not "elke beurt", because of that pacing (scandal-recognition D2).
 
 | Event                                 | Trigger             | Models                                  |
 | ------------------------------------- | ------------------- | --------------------------------------- |

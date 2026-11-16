@@ -58,7 +58,7 @@ export const UI_COPY = {
       "Soms gaat er iets mis op je app. Dan kies je uit drie opties: geld verdienen, ophef maken of eerlijk nieuws. Pas na je keuze zie je wat die doet.",
     scandalTitle: "Schandaal dreigt",
     scandal:
-      "Ophef en reclame zonder nieuws maken mensen boos. Dat zie je niet meteen. Staat er 'Schandaal dreigt', dan kan er elke beurt een schandaal komen. Dat kost een boete: hoe meer gebruikers, hoe hoger. Eerlijk nieuws maakt de kans kleiner.",
+      "Ophef en reclame zonder nieuws maken mensen boos. Dat zie je niet meteen. Staat er 'Schandaal dreigt', dan kan er om de paar beurten een schandaal komen. Je herkent het aan de rode titel 'Schandaal!'. Het kost een boete: hoe meer gebruikers, hoe hoger. Eerlijk nieuws maakt de kans kleiner.",
     winTitle: "Winnen",
     win: "Haal in de laatste fase 10 miljoen gebruikers en € 20 miljoen. Dan gaat je app naar de [[beurs]]. Daarna krijg je een rapport: wat kostte jouw succes de rest van de wereld?",
     startButton: "Start spel",
@@ -99,6 +99,11 @@ export const UI_COPY = {
     realCaseLabel: "Echt gebeurd:",
     realCaseLink: "Lees het artikel",
     realCaseLinkLabel: "Lees het artikel bij {publisher} ({date}), opent in een nieuw tabblad",
+    /**
+     * The scandal warning (score-redesign D13). The chance is rolled only when an event may
+     * open (at most one per few turns, `eventPacing`), so it never says "per beurt".
+     */
+    scandalRisk: "Schandaal dreigt: om de paar beurten {chance}% kans",
   },
   resume: {
     kicker: "Opgeslagen spel",
@@ -109,7 +114,13 @@ export const UI_COPY = {
     continueButton: "Aan de slag",
   },
   events: {
-    kicker: "Spoed",
+    /** Dialog title of a world (milestone) event. */
+    title: "Spoed: {title}",
+    /** Dialog title and banner of a scandal, so it never looks like a world event. */
+    scandalTitle: "Schandaal! {title}",
+    scandalKicker: "Schandaal!",
+    /** The scandal's fine under the outcome; the money row above already includes it. */
+    fine: "Boete: {amount} (zit al in je geld)",
     prompt: "Wat doe je?",
     outcomeKicker: "Je koos",
     continueButton: "Verder",

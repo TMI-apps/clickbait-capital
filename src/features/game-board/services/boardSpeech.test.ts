@@ -77,11 +77,11 @@ describe("boardSpeech", () => {
     const text = describeTurn(
       snapshot({
         meters: tiles(["50.000", ""], ["€ 4.000", "−€ 2.000"], true),
-        scandal: "Schandaal dreigt: 35% kans per beurt",
+        scandal: "Schandaal dreigt: om de paar beurten 35% kans",
       })
     );
     expect(text).toContain("Let op: Geld bijna op.");
-    expect(text).toMatch(/Let op: Schandaal dreigt: 35% kans per beurt\.$/);
+    expect(text).toMatch(/Let op: Schandaal dreigt: om de paar beurten 35% kans\.$/);
   });
 
   it("should return no text when nothing has been played yet", () => {

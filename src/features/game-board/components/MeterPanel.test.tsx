@@ -71,7 +71,9 @@ describe("MeterPanel", () => {
   });
 
   it("should show the scandal chance as a status when the warning renders", () => {
-    render(<ScandalWarning text="Schandaal dreigt: 35% kans per beurt" />);
-    expect(screen.getByRole("status")).toHaveTextContent("Schandaal dreigt: 35% kans per beurt");
+    render(<ScandalWarning text="Schandaal dreigt: om de paar beurten 35% kans" />);
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Schandaal dreigt: om de paar beurten 35% kans"
+    );
   });
 });
