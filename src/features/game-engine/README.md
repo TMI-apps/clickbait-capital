@@ -32,7 +32,7 @@ Rules engine and content schema for Clickbait Capital. Rules SSOT: `documentatio
 6. Both goal lines reached (users and money, D17): next phase (phase 4: IPO win). No streaks.
 7. Event check under pacing (D10): at most one event per card turn, a due milestone first; otherwise, when pacing allows, a seeded roll against the scandal chance draws a scandal (D13, D22); otherwise a new draft.
 
-Event options get phase scaling and land on the score like a card, plus the scandal fine (`finePoints` × (`moneyPerPoint` + `moneyPerUserPerPoint` × users), exponential-growth D2) when the event is a scandal (D25), but no passive costs, decay or goal check (not a turn).
+Event options get phase scaling and land on the score like a card, plus the scandal fine (`finePoints` × (`moneyPerPoint` + `moneyPerUserPerPoint` × users), exponential-growth D2, capped at `scandal.maxCashShare` of the cash the scandal finds and 0 without cash, scandal-fine-cap D1) when the event is a scandal (D25), but no passive costs, decay or goal check (not a turn).
 
 ## Decisions
 

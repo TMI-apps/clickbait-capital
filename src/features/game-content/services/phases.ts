@@ -23,7 +23,7 @@ export const CONTENT_BALANCE: BalanceConfig = {
   reputationDecay: { afterTurnsWithoutNews: 3, amount: 3 },
   adFatigue: { window: 4, adsInWindow: 3, revenueMultiplier: 0.5, userLossMultiplier: 2 },
   echoChamber: { streak: 3, userGainMultiplier: 1.5, toxicity: 25 },
-  scandal: { threshold: 35, rampPoints: 20, maxChance: 0.9, finePoints: 6 },
+  scandal: { threshold: 35, rampPoints: 20, maxChance: 0.9, finePoints: 6, maxCashShare: 0.5 },
   eventPacing: { minTurnsBetween: 3, randomExtraTurns: 3, urgentMinTurnsBetween: 3 },
   handMix: { oneOfEach: 0.6, pair: 0.35, triple: 0.05 },
 };

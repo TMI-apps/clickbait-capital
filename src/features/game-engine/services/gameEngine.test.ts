@@ -7,13 +7,14 @@ import type {
 import type { GameState } from "@/features/game-engine/types/gameState.types";
 import {
   createGame,
+  eventOptionEffects,
   getHandCards,
   getPendingEvent,
   playCard,
   resolveEvent,
   scandalFine,
 } from "./gameEngine";
-import { usersChange } from "./turnEffects";
+import { applyScore, usersChange } from "./turnEffects";
 import { scandalChance } from "./progression";
 import { SEED_CONTENT } from "./seedContent";
 
@@ -74,7 +75,7 @@ function certainScandals(startReputation: number): GameContent {
     balance: {
       ...SEED_CONTENT.balance,
       startReputation,
-      scandal: { threshold: 40, rampPoints: 1, maxChance: 1, finePoints: 0 },
+      scandal: { threshold: 40, rampPoints: 1, maxChance: 1, finePoints: 0, maxCashShare: 0.5 },
     },
   };
 }
@@ -261,7 +262,7 @@ describe("resolveEvent", () => {
 
   it("should fine a scandal more when the app has more users", () => {
     const scandal = SEED_CONTENT.events.find((event) => event.trigger.kind === "scandal")!;
-    const context = { phase: SEED_CONTENT.phases[1]!, balance: SEED_CONTENT.balance };
+    const context = { phase: SEED_CONTENT.phases[1]!, balance: SEED_CONTENT.balance, money: 1e12 };
     const small = scandalFine(scandal, { ...context, users: 0 });
     const big = scandalFine(scandal, { ...context, users: 1_000_000 });
     expect(small).toBe(SEED_CONTENT.balance.scandal.finePoints * context.phase.moneyPerPoint);
@@ -271,6 +272,57 @@ describe("resolveEvent", () => {
           SEED_CONTENT.balance.moneyPerUserPerPoint *
           1_000_000
       )
+    );
+  });
+
+  it("should cap the fine at the cash share when the users fine exceeds it", () => {
+    const scandal = SEED_CONTENT.events.find((event) => event.trigger.kind === "scandal")!;
+    const context = { phase: SEED_CONTENT.phases[0]!, balance: SEED_CONTENT.balance };
+    // The phase-1 bankruptcy seen in play: 396k users, € 12.640 cash.
+    const fine = scandalFine(scandal, { ...context, users: 396_000, money: 12_640 });
+    expect(fine).toBe(Math.floor(12_640 * SEED_CONTENT.balance.scandal.maxCashShare));
+    expect(fine).toBeLessThan(12_640);
+  });
+
+  it("should keep the uncapped fine when it stays below the cash share", () => {
+    const scandal = SEED_CONTENT.events.find((event) => event.trigger.kind === "scandal")!;
+    const context = { phase: SEED_CONTENT.phases[1]!, balance: SEED_CONTENT.balance };
+    const uncapped = scandalFine(scandal, { ...context, users: 1_000, money: 1e12 });
+    expect(scandalFine(scandal, { ...context, users: 1_000, money: uncapped * 10 })).toBe(uncapped);
+  });
+
+  it("should fine nothing when the scandal finds no cash", () => {
+    const scandal = SEED_CONTENT.events.find((event) => event.trigger.kind === "scandal")!;
+    const context = {
+      phase: SEED_CONTENT.phases[1]!,
+      balance: SEED_CONTENT.balance,
+      users: 50_000,
+    };
+    expect(scandalFine(scandal, { ...context, money: 0 })).toBe(0);
+    expect(scandalFine(scandal, { ...context, money: -500 })).toBe(0);
+    expect(scandalFine(scandal, { ...context, money: 1 })).toBe(0);
+  });
+
+  it("should deduct the capped fine when a scandal is resolved with little cash", () => {
+    const content = SEED_CONTENT;
+    const scandal = content.events.find((event) => event.trigger.kind === "scandal")!;
+    const base = createGame({ content, seed: 1 });
+    const state = {
+      ...base,
+      users: 396_000,
+      money: 12_640,
+      status: "event" as const,
+      pendingEventId: scandal.id,
+    };
+    const option = scandal.options[0]!;
+    const phase = content.phases.find((candidate) => candidate.id === state.phase)!;
+    const optionOnly = applyScore(state, eventOptionEffects(option, phase), {
+      phase,
+      growth: content.balance,
+    });
+    const resolved = resolveEvent(state, content, option.id);
+    expect(optionOnly.money - resolved.money).toBe(
+      Math.floor(12_640 * content.balance.scandal.maxCashShare)
     );
   });
 

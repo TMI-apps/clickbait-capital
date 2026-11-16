@@ -150,11 +150,28 @@ describe("boardView scandal events", () => {
     };
     const event = SEED_CONTENT.events.find((candidate) => candidate.id === "event-eu-boete")!;
     const phase = SEED_CONTENT.phases.find((candidate) => candidate.id === 2)!;
-    const fine = scandalFine(event, { phase, balance: SEED_CONTENT.balance, users: 50_000 });
+    const fine = scandalFine(event, {
+      phase,
+      balance: SEED_CONTENT.balance,
+      users: 50_000,
+      money: state.money,
+    });
     const view = toEventView(state, SEED_CONTENT);
     expect(fine).toBeGreaterThan(0);
     expect(view?.kind).toBe("scandal");
     expect(view?.fineText).toBe(`−${formatScore("money", fine)}`);
+  });
+
+  it("should show the capped fine when the users fine exceeds the cash share", () => {
+    const state: GameState = {
+      ...fresh(),
+      users: 396_000,
+      money: 12_640,
+      status: "event",
+      pendingEventId: "event-eu-boete",
+    };
+    const view = toEventView(state, SEED_CONTENT);
+    expect(view?.fineText).toBe(`−${formatScore("money", 6_320)}`);
   });
 
   it("should summarise the run when the game is lost by bankruptcy", () => {

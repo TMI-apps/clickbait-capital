@@ -131,6 +131,7 @@ function fineTextOf(state: GameState, content: GameContent, event: EventDefiniti
     phase: currentPhase(state, content),
     balance: content.balance,
     users: state.users,
+    money: state.money,
   });
   return fine > 0 ? formatScoreDelta("money", -fine) : null;
 }

@@ -182,7 +182,12 @@ export function resolveEvent(state: GameState, content: GameContent, optionId: s
     phase,
     growth: content.balance,
   });
-  const fine = scandalFine(event, { phase, balance: content.balance, users: state.users });
+  const fine = scandalFine(event, {
+    phase,
+    balance: content.balance,
+    users: state.users,
+    money: state.money,
+  });
   const change = {
     ...scored,
     money: scored.money - fine,
@@ -213,16 +218,21 @@ export function eventOptionEffects(option: EventOption, phase: PhaseDefinition):
 /**
  * Euros a scandal costs on top of its option (score-redesign D25, exponential-growth D2):
  * `finePoints` at the phase's `moneyPerPoint` plus what that many ad points would earn from the
- * current users, so fines grow with the platform like real fines do. 0 for other events.
+ * current users, so fines grow with the platform like real fines do. Capped at `maxCashShare` of
+ * the cash the scandal finds (scandal-fine-cap D1), so a fine alone never bankrupts a run that has
+ * money; with no cash there is nothing to take and the option's own effects decide. 0 for other
+ * events.
  */
 export function scandalFine(
   event: EventDefinition,
-  context: { phase: PhaseDefinition; balance: BalanceConfig; users: number }
+  context: { phase: PhaseDefinition; balance: BalanceConfig; users: number; money: number }
 ): number {
   if (event.trigger.kind !== "scandal") return 0;
-  const { phase, balance, users } = context;
+  const { phase, balance, users, money } = context;
   const perPoint = phase.moneyPerPoint + balance.moneyPerUserPerPoint * users;
-  return Math.round(balance.scandal.finePoints * perPoint);
+  const uncapped = Math.round(balance.scandal.finePoints * perPoint);
+  const cap = Math.max(0, Math.floor(money * balance.scandal.maxCashShare));
+  return Math.min(uncapped, cap);
 }
 
 /** The draft as full card definitions in slot order, or null when no draft is open. */

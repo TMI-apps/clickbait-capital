@@ -430,7 +430,12 @@ function pendingScandalFine(state: GameState): number | null {
   const event = getPendingEvent(state, GAME_CONTENT)!;
   if (event.trigger.kind !== "scandal") return null;
   const phase = GAME_CONTENT.phases.find((candidate) => candidate.id === state.phase)!;
-  return scandalFine(event, { phase, balance: GAME_CONTENT.balance, users: state.users });
+  return scandalFine(event, {
+    phase,
+    balance: GAME_CONTENT.balance,
+    users: state.users,
+    money: state.money,
+  });
 }
 
 /**

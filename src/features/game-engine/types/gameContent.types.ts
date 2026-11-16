@@ -177,6 +177,11 @@ export interface ScandalConfig {
    * (score-redesign D25).
    */
   finePoints: number;
+  /**
+   * Largest share of the current cash one scandal fine may take, 0–1 (scandal-fine-cap D1). Below
+   * 1 a fine alone never pushes a run with money into Bankroet; the option's effects come on top.
+   */
+  maxCashShare: number;
 }
 
 /**
