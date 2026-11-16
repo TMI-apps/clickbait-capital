@@ -14,8 +14,10 @@ import {
 
 const EVENT: FlowEvent = {
   id: "event-test",
+  kind: "world",
   title: "Verkiezingen & Desinformatie",
   body: "Het stormt in je feed.",
+  fineText: null,
   options: [
     {
       id: "a",
@@ -178,5 +180,26 @@ describe("EventModal", () => {
     const title = within(dialog).getByRole("heading", { name: /Verkiezingen/ });
     expect(picture?.compareDocumentPosition(title)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(within(dialog).queryByRole("img")).not.toBeInTheDocument();
+  });
+});
+
+describe("EventModal scandal vs world event", () => {
+  it("should title a world event Spoed and show no fine when a milestone fires", async () => {
+    renderWithProviders(<EventModal open event={EVENT} onChoose={vi.fn()} />);
+    const dialog = screen.getByRole("dialog", { name: "Spoed: Verkiezingen & Desinformatie" });
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: /factcheckers/ }));
+    expect(within(dialog).queryByText(/Boete/)).toBeNull();
+    expect(within(dialog).queryByText("Schandaal!")).toBeNull();
+  });
+
+  it("should title a scandal Schandaal! and show its fine on the outcome when a scandal fires", async () => {
+    const scandal: FlowEvent = { ...EVENT, kind: "scandal", fineText: "−€ 12.000" };
+    renderWithProviders(<EventModal open event={scandal} onChoose={vi.fn()} />);
+    const dialog = screen.getByRole("dialog", {
+      name: "Schandaal! Verkiezingen & Desinformatie",
+    });
+    expect(within(dialog).getByText("Schandaal!")).toBeInTheDocument();
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: /woeden/ }));
+    expect(within(dialog).getByText("Boete: −€ 12.000 (zit al in je geld)")).toBeInTheDocument();
   });
 });

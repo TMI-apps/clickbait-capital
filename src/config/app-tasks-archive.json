@@ -313,5 +313,10 @@
     "title": "Realistische kaarteffecten",
     "description": "Beschermende besluiten en eerlijk nieuws kosten geld en/of gebruikers; gewone nieuwskaarten 0 gebruikers; virale besluiten leveren wat geld op; geld koopt geen rust meer bij gebeurtenissen. Balans bijgesteld (serverkosten, fase 3/4-basis, boetes). PR #72. Decision log § realistic-effects",
     "status": "done"
+  },
+  {
+    "title": "Schandalen herkenbaar maken",
+    "description": "Schandalen tonen 'Schandaal!' met rode badge en rand (mijlpalen houden 'Spoed'), de boete staat apart in de uitkomst, en de dreiging zegt eerlijk 'om de paar beurten N% kans'. PR #73. Decision log § scandal-recognition",
+    "status": "done"
   }
 ]

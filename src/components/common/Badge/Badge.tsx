@@ -11,6 +11,7 @@ export const badgeVariants = cva(
         outline: "border-input text-foreground",
         primary: "border-primary text-primary",
         success: "border-success text-success",
+        destructive: "border-transparent bg-destructive text-destructive-foreground",
       },
     },
     defaultVariants: {

@@ -49,7 +49,7 @@ export interface MeterView {
 export interface ScandalRiskView {
   /** Chance per card turn, 0–1. */
   chance: number;
-  /** "Schandaal dreigt: 35% kans per beurt". */
+  /** "Schandaal dreigt: om de paar beurten 35% kans" (`UI_COPY.board.scandalRisk`). */
   text: string;
 }
 
@@ -149,8 +149,12 @@ export interface FeedEntry {
 /** The pending event and its three policy options. */
 export interface EventView {
   id: string;
+  /** Scandal or world (milestone) event (scandal-recognition: they must look different). */
+  kind: "scandal" | "world";
   title: string;
   body: string;
+  /** The scandal fine as "−€ 12.000", included in every option's money effect; null otherwise. */
+  fineText: string | null;
   /** Options with their phase-scaled meter effects (what the engine will apply). */
   options: Array<{ id: string; kind: EventOptionKind; label: string; effects: CardEffectView[] }>;
 }

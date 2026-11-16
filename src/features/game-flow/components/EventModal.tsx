@@ -1,14 +1,16 @@
 import { useId, useState } from "react";
 import { Siren } from "lucide-react";
+import { Badge } from "@/components/common/Badge";
 import { Button } from "@/components/common/Button";
 import { GameCardArtwork } from "@/components/common/GameCard";
 import { GlossaryText } from "@/components/common/GlossaryTerm";
 import { Modal } from "@/components/common/Modal";
 import { getCardImage } from "@/features/card-imagery/api";
-import { GLOSSARY, UI_COPY } from "@/features/game-content/api";
+import { GLOSSARY, UI_COPY, fillTemplate } from "@/features/game-content/api";
 import { EffectsJuice } from "@/features/game-juice/api";
 import { useJuiceAnchor } from "@/features/juice-engine/api";
 import type { FlowEvent } from "@/features/game-flow/types/gameFlow.types";
+import { cn } from "@/shared/utils/cn";
 
 type EventOption = FlowEvent["options"][number];
 
@@ -37,6 +39,30 @@ const EventPicture = ({ eventId }: { eventId: string }) => (
       image={getCardImage(eventId) ?? undefined}
       className="aspect-auto h-[clamp(4rem,15dvh,8rem)]"
     />
+  </div>
+);
+
+/**
+ * The scandal banner over the photo (scandal-recognition): a scandal must not look like a world
+ * event. Hidden from screen readers: the title already starts with the same word.
+ */
+const ScandalBanner = () => (
+  <Badge aria-hidden="true" variant="destructive" className="px-3 py-1 text-sm font-bold uppercase">
+    <Siren />
+    {UI_COPY.events.scandalKicker}
+  </Badge>
+);
+
+/** Title per event kind: "Schandaal! …" for a scandal, "Spoed: …" for a world event. */
+const eventTitle = (event: FlowEvent): string =>
+  fillTemplate(event.kind === "scandal" ? UI_COPY.events.scandalTitle : UI_COPY.events.title, {
+    title: event.title,
+  });
+
+const EventMedia = ({ event }: { event: FlowEvent }) => (
+  <div className="flex flex-col gap-2">
+    {event.kind === "scandal" && <ScandalBanner />}
+    <EventPicture key={event.id} eventId={event.id} />
   </div>
 );
 
@@ -74,6 +100,8 @@ const OptionList = ({ options, onPick }: OptionListProps) => (
 
 interface OutcomeProps {
   option: EventOption;
+  /** The scandal fine ("−€ 12.000"), already inside the money row; null for world events. */
+  fineText: string | null;
   onContinue: () => void;
 }
 
@@ -82,7 +110,7 @@ interface OutcomeProps {
  * The changes play the card juice of the option's kind (event-juice-drop D1–D2). "Verder"
  * takes focus and is described by the outcome, so a screen reader hears it (D3).
  */
-const Outcome = ({ option, onContinue }: OutcomeProps) => {
+const Outcome = ({ option, fineText, onContinue }: OutcomeProps) => {
   const outcomeId = useId();
   return (
     <div className="flex flex-col gap-3 duration-(--duration-normal) motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-2">
@@ -95,6 +123,11 @@ const Outcome = ({ option, onContinue }: OutcomeProps) => {
           <span className="font-medium">{option.label}</span>
         </p>
         {option.effects.length > 0 && <EffectsJuice effects={option.effects} kind={option.kind} />}
+        {fineText && (
+          <p className="text-sm font-bold text-destructive">
+            {fillTemplate(UI_COPY.events.fine, { amount: fineText })}
+          </p>
+        )}
       </div>
       <Button autoFocus aria-describedby={outcomeId} onClick={onContinue}>
         {UI_COPY.events.continueButton}
@@ -107,7 +140,9 @@ const Outcome = ({ option, onContinue }: OutcomeProps) => {
 const EventAnswer = ({ event, onChoose }: { event: FlowEvent; onChoose: (id: string) => void }) => {
   const [picked, setPicked] = useState<EventOption | null>(null);
   if (!picked) return <OptionList options={event.options} onPick={setPicked} />;
-  return <Outcome option={picked} onContinue={() => onChoose(picked.id)} />;
+  return (
+    <Outcome option={picked} fineText={event.fineText} onContinue={() => onChoose(picked.id)} />
+  );
 };
 
 /**
@@ -124,9 +159,9 @@ export const EventModal = ({ open, event, onChoose, onCloseAutoFocus }: EventMod
       onCloseAutoFocus={onCloseAutoFocus}
       open={open}
       dismissible={false}
-      className="gap-3 p-4"
-      title={event ? `${UI_COPY.events.kicker}: ${event.title}` : undefined}
-      media={event && <EventPicture key={event.id} eventId={event.id} />}
+      className={cn("gap-3 p-4", event?.kind === "scandal" && "border-2 border-destructive")}
+      title={event ? eventTitle(event) : undefined}
+      media={event && <EventMedia event={event} />}
       description={event && <GlossaryText text={event.body} glossary={GLOSSARY} />}
     >
       {/* Keyed by event: events reuse option ids, so the next event gets fresh buttons and a

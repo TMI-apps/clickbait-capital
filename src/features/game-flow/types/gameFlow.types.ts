@@ -20,8 +20,12 @@ export interface FlowEffect {
 /** A pending event with its three policy options and their phase-scaled effects. */
 export interface FlowEvent {
   id: string;
+  /** A scandal (low reputation) or a world event (milestone); the dialog looks different. */
+  kind: "scandal" | "world";
   title: string;
   body: string;
+  /** The scandal's fine as text ("€ 12.000"), already inside the money effect; null for world events. */
+  fineText: string | null;
   options: Array<{ id: string; kind: EventOptionKind; label: string; effects: FlowEffect[] }>;
 }
 

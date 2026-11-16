@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "@/features/game-engine/api";
-import { SEED_CONTENT, createGame, playCard, resolveEvent } from "@/features/game-engine/api";
+import {
+  SEED_CONTENT,
+  createGame,
+  playCard,
+  resolveEvent,
+  scandalFine,
+} from "@/features/game-engine/api";
 import { GAME_CONTENT } from "@/features/game-content/api";
 import {
   feedEntryForCard,
@@ -75,7 +81,9 @@ describe("boardView", () => {
     expect(toScandalRisk({ ...fresh(), reputation: threshold }, SEED_CONTENT)).toBeNull();
     const risk = toScandalRisk({ ...fresh(), reputation: threshold - rampPoints }, SEED_CONTENT);
     expect(risk?.chance).toBe(maxChance);
-    expect(risk?.text).toBe(`Schandaal dreigt: ${Math.round(maxChance * 100)}% kans per beurt`);
+    expect(risk?.text).toBe(
+      `Schandaal dreigt: om de paar beurten ${Math.round(maxChance * 100)}% kans`
+    );
   });
 });
 
@@ -127,6 +135,26 @@ describe("boardView draft and events", () => {
     };
     expect(toDraft(state, SEED_CONTENT)).toEqual([]);
     expect(toEventView(state, SEED_CONTENT)?.options).toHaveLength(3);
+    expect(toEventView(state, SEED_CONTENT)).toMatchObject({ kind: "world", fineText: null });
+  });
+});
+
+describe("boardView scandal events", () => {
+  it("should mark a scandal and show the fine the engine deducts when a scandal is pending", () => {
+    const state: GameState = {
+      ...fresh(),
+      phase: 2,
+      users: 50_000,
+      status: "event",
+      pendingEventId: "event-eu-boete",
+    };
+    const event = SEED_CONTENT.events.find((candidate) => candidate.id === "event-eu-boete")!;
+    const phase = SEED_CONTENT.phases.find((candidate) => candidate.id === 2)!;
+    const fine = scandalFine(event, { phase, balance: SEED_CONTENT.balance, users: 50_000 });
+    const view = toEventView(state, SEED_CONTENT);
+    expect(fine).toBeGreaterThan(0);
+    expect(view?.kind).toBe("scandal");
+    expect(view?.fineText).toBe(`−${formatScore("money", fine)}`);
   });
 
   it("should summarise the run when the game is lost by bankruptcy", () => {
